@@ -13,4 +13,4 @@ cache:
     - '$HOME/.gradle'
 
 # clean 후 Build (Build시 자동으로 test 수행)
-script: "./gradlew clean build"
+script: "chmod +x ./gradlew clean build"
