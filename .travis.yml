@@ -21,3 +21,38 @@ script: "./gradlew clean build"
 # 빌드 성공 후 커버리지 측정 및 리포트
 after_success:
 - ./gradlew jacocoTestReport coveralls
+
+# 배포 전 실행 명령
+before_deploy:
+  - zip -r openindoormap-web *
+  - mkdir -p deploy
+  - mv openindoormap-web.zip deploy/openindoormap-web.zip
+
+# S3 복사 및 배포 실행
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: openindoormap-deploy
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: public_read
+    local_dir: deploy
+    wait-until-deployed: true
+    on:
+      repo: Gaia3D/openindoormap
+      branch: master
+
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: openindoormap-deploy
+    key: openindoormap-web.zip # S3 버킷에 저장된 openindoormap-web.zip 파일을 EC2로 배포
+    bundle_type: zip
+    application: OpenIndoorMap-WebService # CodeDeploy 애플리케이션
+    deployment_group: OpenIndoorMap-WebService-Group # CodeDeploy 배포 그룹
+    region: ap-northeast-2
+    wait-until-deployed: true
+    on:
+      repo: Gaia3D/openindoormap
+      branch: master
