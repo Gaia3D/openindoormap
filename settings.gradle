@@ -1,1 +1,5 @@
 rootProject.name = 'openindoormap'
+
+include ':oim-converter'
+include ':oim-user'
+
