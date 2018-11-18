@@ -3,8 +3,6 @@
 /bin/
 /build/
 !gradle/wrapper/gradle-wrapper.jar
-/src/main/resources/static/
-/src/main/resources/templates/
 
 ### STS ###
 .apt_generated
