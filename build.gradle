@@ -26,6 +26,7 @@ allprojects {
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
+	apply plugin: 'idea'
 	apply plugin: 'org.springframework.boot'
 	apply plugin: 'io.spring.dependency-management'
 
@@ -44,10 +45,6 @@ subprojects {
 	}
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	compile('nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect')	// 2.3.0
-
 	compileOnly('org.projectlombok:lombok:1.18.2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 
@@ -78,4 +75,10 @@ tasks.coveralls {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.8' // 원하는 Gradle 버전 명시
+}
+
+project(':oim-user') {
+    dependencies {
+        compile project(':oim-core')
+    }
 }
