@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+
+<head>
+    <title>OpenIndoorMap - 파일 업로드</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
+    <style type="text/css">
+        .dropzone {
+            border-color: #d2d6de;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                Converter
+                <small>converter to f4d</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">Converter</a></li>
+                <li class="active">파일 업로드</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="callout callout-info">
+                <h4>안내!</h4>
+
+                <p>업로딩 한 파일은 다른 사용자들에게 전부 <b style="color: darkblue;">공개</b> 됩니다.</p>
+                <p>디렉토리를 포함하는 파일의 경우 <b style="color: darkblue;">zip</b> 파일로 압축해서 업로딩해 주십시오.</p>
+                <p>복수 파일의 경우, <b style="color: darkblue;">대표 공간 정보</b>를 입력 후 데이터 목록 메뉴에서 수정하시기 바랍니다.</p>
+            </div>
+            <!-- Default box -->
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">공간정보 입력사항</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" data-toggle="validator" th:object="${uploadData}">
+                        <!-- select -->
+                        <div class="form-group">
+                            <label for="sharing_type">공유타입<i class="fa fa-star-of-life"></i></label>
+                            <select class="form-control" id="sharing_type" name="sharing_type">
+                                <option value="1" selected="selected"> 공개 프로젝트 </option>
+                                <option value="2" disabled="disabled"> 개인 프로젝트 </option>
+                                <option value="3" disabled="disabled"> 공유 프로젝트 </option>
+                                <option value="0" disabled="disabled"> 공통 프로젝트 </option>
+                            </select>
+                        </div>
+                        <!-- select -->
+                        <div class="form-group">
+                            <label for="data_type">데이터 타입<i class="fa fa-star-of-life"></i></label>
+                            <select class="form-control" id="data_type" name="data_type">
+                                <option value="citygml" selected="selected"> CITYGML </option>
+                                <option value="indoorgml"> INDOORGML </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project_name">프로젝트명<i class="fa fa-star-of-life"></i></label>
+                            <!-- /input-group -->
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="project_name" name="project_name" readonly="readonly"
+                                    data-error="프로젝트 이름을 입력하세요" required>
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-info btn-flat" data-toggle="modal" data-target="#projectSearchDialog">찾기</button>
+                                    <!-- <button type="button" class="btn btn-info btn-flat" id="project_search_button">찾기</button> -->
+                                </span>
+                            </div>
+                            <!-- /input-group -->
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="data_name">대표 데이터명</label>
+                            <input type="text" class="form-control" id="data_name" placeholder="" data-error="데이터명을 입력하세요."
+                                required>
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="longitude">경도</label>
+                            <input type="text" class="form-control" id="longitude" placeholder="" data-error="경도값을 입력하세요."
+                                required value="127.0">
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="latitude">위도</label>
+                            <input type="text" class="form-control" id="latitude" placeholder="" data-error="위도값을 입력하세요."
+                                required value="38.0">
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="height">높이</label>
+                            <input type="text" class="form-control" id="height" placeholder="" data-error="높이값을 입력하세요."
+                                required value="0.0">
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">설명</label>
+                            <input type="text" class="form-control" id="description" placeholder="">
+                        </div>
+
+                    </form>
+
+                    <form role="form" id="my-dropzone" action="" class="dropzone"></form>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                    <div class="form-group" style="text-align: center;">
+                        <button class="btn btn-primary" id="allFileUpload">업로드</button>
+                        <button class="btn btn-primary" id="allFileClear">All Clear</button>
+                    </div>
+                </div>
+                <div class="overlay" style="display: none;" id="fileUploadDialog">
+                    <i class="fa fa-refresh fa-spin"></i>
+                </div>
+            </div>
+            <!-- /.box -->
+
+            <!-- /.modal -->
+            <div class="modal fade" id="projectSearchDialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">프로젝트 찾기</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="project-list">
+                                <ul id="project-list-area" style="list-style: none;">
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="button_projectSelect" name="button_projectSelect">선택</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
+            <!-- 
+            <div class="project_search-dialog" title="프로젝트 찾기">
+                <div class="project-list">
+                    <ul id="project-list-area" style="list-style: none;"></ul>
+                </div>
+            
+                <div class="button-group">
+                    <input type="submit" id="button_projectSelect" name="button_projectSelect" value="선택" />
+                </div>
+            </div>
+            
+            <div id="fileUploadDialog" class="spinner-dialog" title="파업 업로드 중입니다.">
+                <div class="spinner-area" style="text-align: center;">
+                    <div id="fileUploadSpinner" style="padding-left: 100px; width: 150px; height: 70px;"></div>
+                </div>
+            </div> -->
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <script type="text/javascript" src="/externlib/dropzone/dropzone.min.js"></script>
+
+        <script type="text/javascript">
+            //그룹 선택
+            $('#project_search').on('show.bs.modal', function (e) {
+                alert('project_search!');
+                searchProject();
+            })
+
+            var searchProjectFlag = true;
+            function searchProject() {
+                if (searchProjectFlag) {
+                    searchProjectFlag = false;
+                    var info = "sharing_type=" + $("#sharing_type").val();
+                    $.ajax({
+                        url: "/project/ajax-list-project",
+                        type: "POST",
+                        data: info,
+                        cache: false,
+                        dataType: "json",
+                        success: function (msg) {
+                            if (msg.result == "success") {
+                                drawProjectList(msg.projectList);
+                            } else {
+                                alert(JS_MESSAGE[msg.result]);
+                            }
+                            searchProjectFlag = true;
+                        },
+                        error: function (request, status, error) {
+                            alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+                            searchProjectFlag = true;
+                        }
+                    });
+                } else {
+                    alert(JS_MESSAGE["button.dobule.click"]);
+                    return;
+                }
+            }
+
+            function drawProjectList(projectList) {
+                var content = "";
+                if (projectList == null || projectList.length == 0) {
+                    content += "<li>"
+                        + " 프로젝트가 존재하지 않습니다. 프로젝트 등록 후 이용 가능 합니다."
+                        + "</li>";
+                } else {
+                    for (i = 0; i < projectList.length; i++) {
+                        var project = null;
+                        project = projectList[i];
+                        content = content
+                            + "<li>"
+                            + "	<input type=\"radio\" id=\"radio_" + project.project_id + "\" name=\"radio_search_project\" value=\"" + project.project_id + "_" + project.project_name + "\" />"
+                            + "	<label for=\"radio_" + project.project_id + "\">" + project.project_name + "</label>"
+                            + "</li>";
+                    }
+                }
+                $("#project-list-area").empty();
+                $("#project-list-area").html(content);
+            }
+
+            // 프로젝트 선택
+            $("#button_projectSelect").on("click", function () {
+                var radioObj = $(":radio[name=radio_search_project]:checked").val();
+                if (!radioObj) {
+                    alert("프로젝트를 선택하여 주십시오.");
+                    return false;
+                } else {
+                    var splitValues = radioObj.split("_");
+                    var projectName = "";
+                    for (var i = 1; i < splitValues.length; i++) {
+                        projectName = projectName + splitValues[i];
+                        if (i != splitValues.length - 1) {
+                            projectName = projectName + "_";
+                        }
+                    }
+                    $("#project_id").val(splitValues[0]);
+                    $("#project_name").val(projectName);
+                }
+            });
+
+            var uploadFileCount = 0;
+            var myDropzone;
+            Dropzone.autoDiscover = false;
+            $(function () {
+                myDropzone = new Dropzone("#my-dropzone", {
+                    url: "/upload-data/insert-upload-data",
+                    //paramName: "file",
+                    // Prevents Dropzone from uploading dropped files immediately
+                    timeout: 3600000,
+                    autoProcessQueue: false,
+                    // 여러개의 파일 허용
+                    uploadMultiple: true,
+                    method: "post",
+                    // 병렬 처리
+                    parallelUploads: 100,
+                    // 최대 파일 업로드 갯수
+                    maxFiles: 100,
+                    // 최대 업로드 용량 Mb단위
+                    maxFilesize: 2000,
+                    dictDefaultMessage: "Drop files here or click to upload",
+                    /* headers: {
+                        "x-csrf-token": document.querySelectorAll("meta[name=csrf-token]")[0].getAttributeNode("content").value,
+                    }, */
+                    // 허용 확장자
+                    acceptedFiles: ".3ds, .obj, .dae, .ifc, .citygml, .indoorgml, .jpg, .jpeg, .gif, .png, .bmp, .zip",
+                    // 업로드 취소 및 추가 삭제 미리 보기 그림 링크 를 기본 추가 하지 않음
+                    // 기본 true false 로 주면 아무 동작 못함
+                    //clickable: true,
+                    fallback: function () {
+                        // 지원하지 않는 브라우저인 경우
+                        alert("죄송합니다. 최신의 브라우저로 Update 후 사용해 주십시오.");
+                        return;
+                    }
+                });
+
+                myDropzone.on("sending", function (file, xhr, formData) {
+                    formData.append("sharing_type", $("#sharing_type").val());
+                    formData.append("data_type", $("#data_type").val());
+                    formData.append("project_id", $("#project_id").val());
+                    formData.append("data_name", $("#data_name").val());
+                    formData.append("latitude", $("#latitude").val());
+                    formData.append("longitude", $("#longitude").val());
+                    formData.append("height", $("#height").val());
+                    formData.append("description", $("#description").val());
+                });
+
+                // maxFiles 카운터를 초과하면 경고창
+                myDropzone.on("maxfilesexceeded", function (data) {
+                    alert("최대 업로드 파일 수는 100개 입니다.");
+                    return;
+                });
+
+                myDropzone.on("success", function (file, response) {
+                    console.log("[SUCCESS] : Uploading files...");
+                    $('#fileUploadDialog').hide();
+                    myDropzone.removeAllFiles(true);
+                    if (file !== undefined && file.name !== undefined) {
+                        console.log("file name = " + file.name + ", result = " + response.result);
+                        // $("#fileUploadSpinner").empty();
+                        // fileUploadDialog.dialog("close");
+                        if (response.result === "success") {
+                            if (uploadFileCount === 0) {
+                                uploadFileCount++;
+                                alert("업로딩을 완료 하였습니다.");
+                            }
+                            return;
+                        } else if (response.result === "upload.file.type.invalid") {
+                            alert("복수의 파일을 업로딩 할 경우 zip 파일은 사용할 수 없습니다.")
+                        } else
+                        {
+                            alert("파일 업로드가 정상적으로 이루어지지 않았습니다.("+response.result+")");
+                        }
+                    } else {
+                        console.log("------- success response = " + response.result);
+                    }
+                })
+
+                myDropzone.on("error", function (file, response) {
+                    console.log("[ERROR] : Uploading files...");
+                    $('#fileUploadDialog').hide();
+                });
+            })
+
+            $("#allFileUpload").on('click', function (e) {
+                if (checkData() === false) {
+                    return;
+                }
+                uploadFileCount = 0;
+                e.preventDefault();
+                e.stopPropagation();
+                myDropzone.processQueue(); // Tell Dropzone to process all queued files.
+                // startSpinner("fileUploadSpinner");
+                $('#fileUploadDialog').show();
+                // fileUploadDialog.dialog("open");
+            });
+
+            $("#allFileClear").on('click', function (e) {
+                // Using "_this" here, because "this" doesn't point to the dropzone anymore
+                if (confirm("정말 전체 항목을 삭제하겠습니까?")) {
+                    // true 주면 업로드 중인 파일도 다 같이 삭제
+                    myDropzone.removeAllFiles(true);
+                }
+            });
+
+            function checkData() {
+                $('form').validator('update');
+                if ($("#project_id").val() == "") {
+                    //alert(JS_MESSAGE["project.name.empty"]);
+                    $("#project_id").focus();
+                    return false;
+                }
+                if ($("#data_name").val() == "") {
+                    //alert(JS_MESSAGE["data.name.empty"]);
+                    $("#data_name").focus();
+                    return false;
+                }
+                if ($("#latitude").val() == "") {
+                    // alert(JS_MESSAGE["latitude.empty"]);
+                    $("#latitude").focus();
+                    return false;
+                }
+                if ($("#longitude").val() == "") {
+                    // alert(JS_MESSAGE["longitude.empty"]);
+                    $("#longitude").focus();
+                    return false;
+                }
+                if ($("#height").val() == "") {
+                    // alert(JS_MESSAGE["height.empty"]);
+                    $("#height").focus();
+                    return false;
+                }
+                if (myDropzone.files.length == 0) {
+                    alert("업로드할 파일이 존재하지 않습니다.");
+                    return false;
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>
