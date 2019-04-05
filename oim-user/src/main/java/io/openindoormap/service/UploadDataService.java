@@ -50,4 +50,11 @@ public interface UploadDataService {
 	 * @return
 	 */
 	int deleteUploadDatas(String userId, String checkIds);
+
+	/**
+	 * 등록된 자료 삭제
+	 * @param uploadData
+	 * @return
+	 */
+	int deleteUploadData(UploadData uploadData);
 }

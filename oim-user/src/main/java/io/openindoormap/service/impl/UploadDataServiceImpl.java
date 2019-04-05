@@ -13,10 +13,6 @@ import io.openindoormap.domain.UploadDataFile;
 import io.openindoormap.persistence.UploadDataMapper;
 import io.openindoormap.service.UploadDataService;
 
-/**
- * @author Cheon JeongDae
- *
- */
 @Service
 public class UploadDataServiceImpl implements UploadDataService {
 
@@ -121,5 +117,34 @@ public class UploadDataServiceImpl implements UploadDataService {
 		}
 			
 		return uploadDatas.length;
+	}
+
+	@Transactional
+	public int deleteUploadData(UploadData uploadData) {
+
+		// 삭제시 하위 파일부터 삭제하기 위해 정렬
+		uploadData.setOrder_word("depth");
+		uploadData.setOrder_value("DESC");
+		
+		List<UploadDataFile> uploadDataFileList = uploadDataMapper.getListUploadDataFile(uploadData);
+		uploadDataMapper.deleteUploadDataFile(uploadData);
+		uploadDataMapper.deleteUploadData(uploadData);
+
+		// 관련된 전체 파일 삭제
+		for(UploadDataFile deleteUploadDataFile : uploadDataFileList) {
+			String fileName = null;
+			if(FileType.DIRECTORY.getValue().equals(deleteUploadDataFile.getFile_type())) {
+				fileName = deleteUploadDataFile.getFile_path();
+			} else {
+				fileName = deleteUploadDataFile.getFile_path() + deleteUploadDataFile.getFile_real_name();
+			}
+			
+			File file = new File(fileName);
+			if(file.exists()) {
+				file.delete();
+			}
+		}
+			
+		return 0;
 	}
 }

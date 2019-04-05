@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -51,13 +50,12 @@ import io.openindoormap.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 사용자 업로드 정보
- * @author jeongdae
+ * UploadData
  *
  */
 @Slf4j
 @Controller
-@RequestMapping("/upload-data/")
+@RequestMapping("/upload-data")
 public class UploadDataController {
 	
 	// 설계 파일 안의 texture 의 경우 설계 파일에서 참조하는 경우가 있으므로 이름 변경 불가.
@@ -73,11 +71,11 @@ public class UploadDataController {
 	private UploadDataService uploadDataService;
 	
 	/**
-	 * data upload 화면
+	 * 파일 등록 화면
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "input-upload-data")
+	@GetMapping("/input-upload-data")
 	public String inputUploadData(HttpServletRequest request, Model model) {
 		model.addAttribute("uploadData", new UploadData());
 		return "/upload-data/input-upload-data";
@@ -90,7 +88,7 @@ public class UploadDataController {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	@PostMapping(value = "insert-upload-data")
+	@PostMapping("/insert-upload-data")
 	@ResponseBody
 	//public Callable<Map<String, Object>> insertUploadData(MultipartHttpServletRequest request) {
 	public Map<String, Object> insertUploadData(MultipartHttpServletRequest request) {
@@ -268,13 +266,6 @@ public class UploadDataController {
 		log.debug("Copy file : " + uploadedFile.getName());
 		
 		try ( ZipFile zipFile = new ZipFile(uploadedFile);) {
-//			String saveFileName = userId + "_" + today + "_" + System.nanoTime() + "." + fileInfo.getFile_ext();
-//			long size = 0L;
-//			InputStream inputStream = multipartFile.getInputStream();
-//			fileInfo.setFile_real_name(saveFileName);
-//			fileInfo.setFile_size(String.valueOf(size));
-//			fileInfo.setFile_path(sourceDirectory);
-			
 			String directoryPath = targetDirectory;
 			String subDirectoryPath = "";
 			String directoryName = null;
@@ -378,12 +369,14 @@ public class UploadDataController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "list-upload-data")
+	@RequestMapping("/list-upload-data")
 	public String listUploadData(HttpServletRequest request, UploadData uploadData, @RequestParam(defaultValue="1") String pageNo, Model model) {
 		log.info("@@ uploadData = {}", uploadData);
 		
-		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-		uploadData.setUser_id(userSession.getUser_id());
+		// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+		// String userId = userSession.getUser_id();
+		String userId = "guest";
+		uploadData.setUser_id(userId);
 		
 		if(StringUtil.isNotEmpty(uploadData.getStart_date())) {
 			uploadData.setStart_date(uploadData.getStart_date().substring(0, 8) + DateUtil.START_TIME);
@@ -412,16 +405,6 @@ public class UploadDataController {
 		
 		return "/upload-data/list-upload-data";
 	}
-	
-//	/**
-//	 * 테스트용
-//	 * @param request
-//	 * @return
-//	 */
-//	@Async
-//    public Future<Void> asyncInsertUpload(MultipartHttpServletRequest request) {
-//		return new AsyncResult<Void>(null);
-//    }
 	
 	/**
 	 * @param policy
@@ -490,7 +473,7 @@ public class UploadDataController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "modify-upload-data")
+	@GetMapping("/modify-upload-data")
 	public String modifyUploadData(HttpServletRequest request, UploadData uploadData, Model model) {
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
@@ -505,28 +488,33 @@ public class UploadDataController {
 	}
 	
 	/**
-	 * 선택 upload-data 삭제
+	 * 등록 자료 삭제
 	 * @param request
 	 * @param check_ids
 	 * @param model
 	 * @return
 	 */
-	@PostMapping(value = "ajax-delete-upload-data")
+	@PostMapping("/ajax-delete-upload-data")
 	@ResponseBody
-	public Map<String, Object> ajaxDeleteDatas(HttpServletRequest request, @RequestParam("check_ids") String check_ids) {
-		
-		log.info("@@@@@@@ check_ids = {}", check_ids);
+	public Map<String, Object> ajaxDeleteDatas(HttpServletRequest request, UploadData uploadData) {
+
+		log.info("@@@@@@@ uploadData = {}", uploadData);
 		Map<String, Object> map = new HashMap<>();
 		String result = "success";
 		try {
-			if(check_ids.length() <= 0) {
-				map.put("result", "check.value.required");
+			if(uploadData.getUpload_data_id() == null || uploadData.getUpload_data_id().intValue() <=0) {
+				map.put("result", "uploadData.upload_data_id.empty");
 				return map;
 			}
+
+			// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+			// String userId = userSession.getUser_id();
+			String userId = "guest";
+			uploadData.setUser_id(userId);
 			
-			UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-			
-			uploadDataService.deleteUploadDatas(userSession.getUser_id(), check_ids);
+			//uploadDataService.deleteUploadDatas(userSession.getUser_id(), check_ids);
+
+			uploadDataService.deleteUploadData(uploadData);
 		} catch(Exception e) {
 			e.printStackTrace();
 			map.put("result", "db.exception");

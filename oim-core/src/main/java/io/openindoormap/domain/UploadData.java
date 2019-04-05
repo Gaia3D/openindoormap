@@ -8,7 +8,6 @@ import lombok.ToString;
 
 /**
  * 사용자 업로드 정보
- * @author Cheon JeongDae
  *
  */
 @Getter
@@ -36,6 +35,9 @@ public class UploadData {
 	
 	/****** validator ********/
 	private String method_mode;
+
+	// query join
+	private String converter_target_yn;
 	
 	// 고유번호
 	private Long upload_data_id;

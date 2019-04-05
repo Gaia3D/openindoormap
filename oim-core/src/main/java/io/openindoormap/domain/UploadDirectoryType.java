@@ -2,7 +2,6 @@ package io.openindoormap.domain;
 
 /**
  * 디렉토리 구조
- * @author Cheon JeongDae
  *
  */
 public enum UploadDirectoryType {

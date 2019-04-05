@@ -3,11 +3,68 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
 
 <head>
-    <title>OpenIndoorMap - 파일 업로드</title>
+    <title>OpenIndoorMap - 자료 등록</title>
     <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
     <style type="text/css">
         .dropzone {
             border-color: #d2d6de;
+        }
+    
+        .loader-txt p {
+            font-size: 13px;
+            color: #666;
+        }
+    
+        .loader-txt p small {
+            font-size: 11.5px;
+            color: #999;
+        }
+    
+        .modal {
+            text-align: center;
+        }
+    
+        @media screen and (min-width: 768px) {
+            .modal:before {
+                display: inline-block;
+                vertical-align: middle;
+                content: " ";
+                height: 100%;
+            }
+        }
+    
+        .modal-dialog {
+            display: inline-block;
+            text-align: left;
+            vertical-align: middle;
+        }
+    
+        /** SPINNER CREATION **/
+        .loader {
+            position: relative;
+            text-align: center;
+            margin: 15px auto 35px auto;
+            z-index: 9999;
+            display: block;
+            width: 80px;
+            height: 80px;
+            border: 10px solid rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 1s ease-in-out infinite;
+            -webkit-animation: spin 1s ease-in-out infinite;
+        }
+    
+        @keyframes spin {
+            to {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+    
+        @-webkit-keyframes spin {
+            to {
+                -webkit-transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -17,13 +74,13 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Converter
-                <small>converter to f4d</small>
+                자료 등록
+                <small>Converter</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
                 <li><a href="#">Converter</a></li>
-                <li class="active">파일 업로드</li>
+                <li class="active">자료 등록</li>
             </ol>
         </section>
 
@@ -68,6 +125,7 @@
                             <label for="project_name">프로젝트명<i class="fa fa-star-of-life"></i></label>
                             <!-- /input-group -->
                             <div class="input-group">
+                                <input type="hidden" id="project_id" name="project_id">
                                 <input type="text" class="form-control" id="project_name" name="project_name" readonly="readonly"
                                     data-error="프로젝트 이름을 입력하세요" required>
                                 <span class="input-group-btn">
@@ -81,35 +139,35 @@
 
                         <div class="form-group">
                             <label for="data_name">대표 데이터명</label>
-                            <input type="text" class="form-control" id="data_name" placeholder="" data-error="데이터명을 입력하세요."
+                            <input type="text" class="form-control" id="data_name" name="data_name" placeholder="" data-error="데이터명을 입력하세요."
                                 required>
                             <span class="help-block with-errors"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="longitude">경도</label>
-                            <input type="text" class="form-control" id="longitude" placeholder="" data-error="경도값을 입력하세요."
+                            <input type="text" class="form-control" id="longitude" name="longitude" placeholder="" data-error="경도값을 입력하세요."
                                 required value="127.0">
                             <span class="help-block with-errors"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="latitude">위도</label>
-                            <input type="text" class="form-control" id="latitude" placeholder="" data-error="위도값을 입력하세요."
+                            <input type="text" class="form-control" id="latitude" name="latitude" placeholder="" data-error="위도값을 입력하세요."
                                 required value="38.0">
                             <span class="help-block with-errors"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="height">높이</label>
-                            <input type="text" class="form-control" id="height" placeholder="" data-error="높이값을 입력하세요."
+                            <input type="text" class="form-control" id="height" name="height" placeholder="" data-error="높이값을 입력하세요."
                                 required value="0.0">
                             <span class="help-block with-errors"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="description">설명</label>
-                            <input type="text" class="form-control" id="description" placeholder="">
+                            <input type="text" class="form-control" id="description" name="description" placeholder="">
                         </div>
 
                     </form>
@@ -122,9 +180,6 @@
                         <button class="btn btn-primary" id="allFileUpload">업로드</button>
                         <button class="btn btn-primary" id="allFileClear">All Clear</button>
                     </div>
-                </div>
-                <div class="overlay" style="display: none;" id="fileUploadDialog">
-                    <i class="fa fa-refresh fa-spin"></i>
                 </div>
             </div>
             <!-- /.box -->
@@ -141,7 +196,6 @@
                         <div class="modal-body">
                             <div class="project-list">
                                 <ul id="project-list-area" style="list-style: none;">
-
                                 </ul>
                             </div>
                         </div>
@@ -155,22 +209,24 @@
                 <!-- /.modal-dialog -->
             </div>
             <!-- /.modal -->
-            <!-- 
-            <div class="project_search-dialog" title="프로젝트 찾기">
-                <div class="project-list">
-                    <ul id="project-list-area" style="list-style: none;"></ul>
+
+            <!-- /.modal -->
+            <div class="modal fade" id="fileUploadDialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <!-- <i class="fa fa-refresh fa-spin fa-5x"></i> -->
+                            <div class="loader"></div>
+                            <div class="loader-txt">
+                                <p>파일을 등록 중입니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
                 </div>
-            
-                <div class="button-group">
-                    <input type="submit" id="button_projectSelect" name="button_projectSelect" value="선택" />
-                </div>
+                <!-- /.modal-dialog -->
             </div>
-            
-            <div id="fileUploadDialog" class="spinner-dialog" title="파업 업로드 중입니다.">
-                <div class="spinner-area" style="text-align: center;">
-                    <div id="fileUploadSpinner" style="padding-left: 100px; width: 150px; height: 70px;"></div>
-                </div>
-            </div> -->
+            <!-- /.modal -->
         </section>
         <!-- /.content -->
     </div>
@@ -180,8 +236,8 @@
 
         <script type="text/javascript">
             //그룹 선택
-            $('#project_search').on('show.bs.modal', function (e) {
-                alert('project_search!');
+            $('#projectSearchDialog').on('show.bs.modal', function (e) {
+                console.log('Searching project ...');
                 searchProject();
             })
 
@@ -200,7 +256,8 @@
                             if (msg.result == "success") {
                                 drawProjectList(msg.projectList);
                             } else {
-                                alert(JS_MESSAGE[msg.result]);
+                                //alert(JS_MESSAGE[msg.result]);
+                                alert(msg.result);
                             }
                             searchProjectFlag = true;
                         },
@@ -210,7 +267,8 @@
                         }
                     });
                 } else {
-                    alert(JS_MESSAGE["button.dobule.click"]);
+                    //alert(JS_MESSAGE["button.dobule.click"]);
+                    alert("button.dobule.click");
                     return;
                 }
             }
@@ -244,15 +302,11 @@
                     return false;
                 } else {
                     var splitValues = radioObj.split("_");
-                    var projectName = "";
-                    for (var i = 1; i < splitValues.length; i++) {
-                        projectName = projectName + splitValues[i];
-                        if (i != splitValues.length - 1) {
-                            projectName = projectName + "_";
-                        }
-                    }
-                    $("#project_id").val(splitValues[0]);
-                    $("#project_name").val(projectName);
+                    var id = splitValues.shift();
+                    var name = splitValues.join("_");
+                    $("#project_id").val(id);
+                    $("#project_name").val(name);
+                    $('#projectSearchDialog').modal('hide');
                 }
             });
 
@@ -310,12 +364,11 @@
 
                 myDropzone.on("success", function (file, response) {
                     console.log("[SUCCESS] : Uploading files...");
-                    $('#fileUploadDialog').hide();
+                    $('#fileUploadDialog').modal('hide');
                     myDropzone.removeAllFiles(true);
                     if (file !== undefined && file.name !== undefined) {
                         console.log("file name = " + file.name + ", result = " + response.result);
-                        // $("#fileUploadSpinner").empty();
-                        // fileUploadDialog.dialog("close");
+
                         if (response.result === "success") {
                             if (uploadFileCount === 0) {
                                 uploadFileCount++;
@@ -335,7 +388,7 @@
 
                 myDropzone.on("error", function (file, response) {
                     console.log("[ERROR] : Uploading files...");
-                    $('#fileUploadDialog').hide();
+                    $('#fileUploadDialog').modal('hide');
                 });
             })
 
@@ -347,9 +400,12 @@
                 e.preventDefault();
                 e.stopPropagation();
                 myDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                // startSpinner("fileUploadSpinner");
-                $('#fileUploadDialog').show();
-                // fileUploadDialog.dialog("open");
+
+                $('#fileUploadDialog').modal({
+                    backdrop: "static", //remove ability to close modal with click
+                    keyboard: false, //remove option to close with keyboard
+                    show: true //Display loader!
+                });
             });
 
             $("#allFileClear").on('click', function (e) {

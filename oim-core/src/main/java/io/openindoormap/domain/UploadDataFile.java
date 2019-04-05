@@ -8,7 +8,6 @@ import lombok.ToString;
 
 /**
  * 사용자 업로드 파일 정보 
- * @author Cheon JeongDae
  *
  */
 @Getter
