@@ -1,21 +1,18 @@
-package io.openindoormap.persistence;
+package io.openindoormap.service;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
 import io.openindoormap.domain.DataInfo;
 import io.openindoormap.domain.DataInfoAttribute;
+import io.openindoormap.domain.DataInfoLog;
 import io.openindoormap.domain.DataInfoObjectAttribute;
-import io.openindoormap.domain.Project;
 
 /**
- * Data
+ * Data 관리
  *
  */
-@Repository
-public interface DataMapper {
-
+public interface DataService {
+	
 	/**
 	 * Data 수
 	 * @param dataInfo
@@ -52,20 +49,6 @@ public interface DataMapper {
 	List<DataInfo> getListDataByProjectId(DataInfo dataInfo);
 	
 	/**
-	 * data_group_id를 제외한 Data 목록
-	 * @param dataInfo
-	 * @return
-	 */
-	List<DataInfo> getListExceptDataGroupDataByGroupId(DataInfo dataInfo);
-	
-	/**
-	 * Data Key 중복 건수
-	 * @param dataInfo
-	 * @return
-	 */
-	Integer getDuplicationKeyCount(DataInfo dataInfo);
-	
-	/**
 	 * Data 정보 취득
 	 * @param dataInfo
 	 * @return
@@ -84,7 +67,7 @@ public interface DataMapper {
 	 * @param projectId
 	 * @return
 	 */
-	DataInfo getRootDataByProjectId(Integer projectId);
+	public DataInfo getRootDataByProjectId(Integer projectId);
 	
 	/**
 	 * Data Attribute 정보 취득
@@ -99,28 +82,6 @@ public interface DataMapper {
 	 * @return
 	 */
 	DataInfoObjectAttribute getDataObjectAttribute(Long data_object_attribute_id);
-	
-	/**
-	 * 표시 순서
-	 * @param dataInfo
-	 * @return
-	 */
-	Integer getViewOrderByParent(DataInfo dataInfo);
-	
-	/**
-	 * 한 프로젝트 내 Root Parent 개수를 체크
-	 * @param dataInfo
-	 * @return
-	 */
-	Integer getRootParentCount(DataInfo dataInfo);
-	
-	/**
-	 * data_key 를 이용하여 data_attribute_id 를 얻음
-	 * TODO 9.6 이후에 merge로 변경 예정 
-	 * @param data_key
-	 * @return
-	 */
-	DataInfoAttribute getDataIdAndDataAttributeIDByDataKey(String data_key);
 	
 	/**
 	 * Data Object 조회
@@ -151,6 +112,12 @@ public interface DataMapper {
 	int insertDataObjectAttribute(DataInfoObjectAttribute dataInfoObjectAttribute);
 	
 	/**
+	 * 데이터 공간 정보 변경 요청
+	 * @return
+	 */
+	int updateDataLocationAndRotation(DataInfoLog dataInfoLog);
+	
+	/**
 	 * Data 수정
 	 * @param dataInfo
 	 * @return
@@ -158,18 +125,11 @@ public interface DataMapper {
 	int updateData(DataInfo dataInfo);
 	
 	/**
-	 * Data 속성 수정
+	 * Data Attribute 수정
 	 * @param dataInfoAttribute
 	 * @return
 	 */
 	int updateDataAttribute(DataInfoAttribute dataInfoAttribute);
-	
-	/**
-	 * Data 테이블의 Data 그룹 정보 변경
-	 * @param dataInfo
-	 * @return
-	 */
-	int updateDataGroupData(DataInfo dataInfo);
 	
 	/**
 	 * Data 상태 수정
@@ -179,6 +139,18 @@ public interface DataMapper {
 	int updateDataStatus(DataInfo dataInfo);
 	
 	/**
+	 * Data 상태 수정
+	 * @param business_type
+	 * @param status_value
+	 * @param check_ids
+	 * @param business_type
+	 * @param status_value
+	 * @param check_ids
+	 * @return
+	 */
+	List<String> updateDataStatus(String business_type, String status_value, String check_ids);
+	
+	/**
 	 * Data 삭제
 	 * @param dataInfo
 	 * @return
@@ -186,16 +158,17 @@ public interface DataMapper {
 	int deleteData(DataInfo dataInfo);
 	
 	/**
+	 * 일괄 Data 삭제
+	 * @param userId
+	 * @param dataIds
+	 * @return
+	 */
+	int deleteDataList(String userId, String dataIds);
+	
+	/**
 	 * Data 에 속하는 모든 Object ID를 삭제
 	 * @param dataId
 	 * @return
 	 */
-	int deleteDataObjects(Long data_id);
-	
-	/**
-	 * TODO 프로젝트에 속한 데이터들은 삭제해야 하나?
-	 * @param project
-	 * @return
-	 */
-	int deleteDataByProjectId(Project project);
+	int deleteDataObjects(Long dataId);
 }

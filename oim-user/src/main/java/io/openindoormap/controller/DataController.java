@@ -25,22 +25,25 @@ import io.openindoormap.domain.PageType;
 import io.openindoormap.domain.Pagination;
 import io.openindoormap.domain.Project;
 import io.openindoormap.domain.UserSession;
+import io.openindoormap.service.DataService;
 import io.openindoormap.service.ProjectService;
+import io.openindoormap.util.DateUtil;
 import io.openindoormap.util.FormatUtil;
+import io.openindoormap.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Data
- * @author jeongdae
  *
  */
 @Slf4j
 @Controller
-@RequestMapping("/data/")
+@RequestMapping("/data")
 public class DataController {
 	
 	@Autowired
 	private DataService dataService;
+	
 	@Autowired
 	private ProjectService projectService;
 	
@@ -52,20 +55,22 @@ public class DataController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "list-data.do")
+	@RequestMapping(value = "list-data")
 	public String listData(HttpServletRequest request, DataInfo dataInfo, @RequestParam(defaultValue="1") String pageNo, Model model) {
 		log.info("@@ dataInfo = {}", dataInfo);
-		
-		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-		String userId = userSession.getUser_id();
-		
+			
 //		Project project = new Project();
 //		project.setUser_id(userId);
 //		project.setUse_yn(Project.IN_USE);
 //		List<Project> projectList = projectService.getListProject(project);
-		
-		dataInfo.setSharing_type(DataSharingType.PUBLIC.getValue());
-		dataInfo.setUser_id(userId);
+
+		// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+		// String id = userSession.getUser_id();
+		String id = "guest";
+		dataInfo.setUser_id(id);
+		//dataInfo.setUser_id(userId);
+		//dataInfo.setSharing_type(DataSharingType.PUBLIC.getValue());
+
 		if(StringUtil.isNotEmpty(dataInfo.getStart_date())) {
 			dataInfo.setStart_date(dataInfo.getStart_date().substring(0, 8) + DateUtil.START_TIME);
 		}
@@ -108,9 +113,9 @@ public class DataController {
 		dataInfo.setData_id(Long.valueOf(data_id));
 		dataInfo = dataService.getData(dataInfo);
 		
-		Policy policy = CacheManager.getPolicy();
+		// Policy policy = CacheManager.getPolicy();
 		
-		model.addAttribute("policy", policy);
+		// model.addAttribute("policy", policy);
 		model.addAttribute("listParameters", listParameters);
 		model.addAttribute("dataInfo", dataInfo);
 		
@@ -139,12 +144,12 @@ public class DataController {
 		dataInfo =  dataService.getData(dataInfo);
 		
 		log.info("@@@@@@@@ dataInfo = {}", dataInfo);
-		Policy policy = CacheManager.getPolicy();
+		// Policy policy = CacheManager.getPolicy();
 		
 		String listParameters = getSearchParameters(PageType.MODIFY, request, null);
 		
 		model.addAttribute("listParameters", listParameters);
-		model.addAttribute("policy", policy);
+		// model.addAttribute("policy", policy);
 		model.addAttribute("projectList", projectList);
 		model.addAttribute(dataInfo);
 		
