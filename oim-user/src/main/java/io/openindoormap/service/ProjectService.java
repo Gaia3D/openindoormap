@@ -7,8 +7,6 @@ import io.openindoormap.domain.Project;
 /**
  * project 관리
  * 
- * @author jeongdae
- *
  */
 public interface ProjectService {
 

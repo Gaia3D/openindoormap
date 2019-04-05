@@ -19,7 +19,7 @@
         <section class="content-header">
             <h1>
                 프로젝트 목록
-                <small>프로젝트 목록</small>
+                <small>프로젝트</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
@@ -158,15 +158,15 @@
                                     </tr>
                                     <!-- 결과가 있으면 -->
                                     <tr th:unless="${projectList.isEmpty()}" th:each="project, status : ${projectList}">
-                                        <th scope="row"><input type="checkbox" th:id="'project_id_' + ${project.project_id}"
+                                        <td scope="row"><input type="checkbox" th:id="'project_id_' + ${project.project_id}"
                                                 name="project_id" th:value="${project.project_id}" /></td>
                                         <td th:text="${pagination.rowNumber - status.index}"></td>
-                                        <th:block th:switch="${project.sharing_type}">
+                                        <td:block th:switch="${project.sharing_type}">
                                             <td th:case="'0'">공통 프로젝트</td>
                                             <td th:case="'1'">공개 프로젝트</td>
                                             <td th:case="'2'">개인 프로젝트</td>
                                             <td th:case="'3'">공유 프로젝트</td>
-                                        </th:block>
+                                        </td:block>
                                         <td th:text="${project.project_name}"></td>
                                         <td th:text="${#numbers.formatDecimal(project.longitude, 0, 5)}"></td>
                                         <td th:text="${#numbers.formatDecimal(project.latitude, 0, 5)}"></td>

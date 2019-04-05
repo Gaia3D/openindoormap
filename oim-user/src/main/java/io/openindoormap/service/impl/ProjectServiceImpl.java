@@ -9,18 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.openindoormap.domain.DataInfo;
 import io.openindoormap.domain.Project;
-import io.openindoormap.domain.UserPolicy;
 import io.openindoormap.persistence.DataMapper;
 import io.openindoormap.persistence.ProjectMapper;
 import io.openindoormap.service.ProjectService;
-// import io.openindoormap.service.UserPolicyService;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 프로젝트 관리
- * 
- * @author jeongdae
  *
  */
 @Slf4j

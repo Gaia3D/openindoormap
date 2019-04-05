@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import io.openindoormap.domain.DataSharingType;
 import io.openindoormap.domain.Pagination;
 import io.openindoormap.domain.Project;
-import io.openindoormap.domain.UserGroupRole;
 import io.openindoormap.domain.UserSession;
 import io.openindoormap.service.ProjectService;
 import io.openindoormap.util.DateUtil;
@@ -32,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Project
- * @author jeongdae
  *
  */
 @Slf4j
@@ -51,7 +49,7 @@ public class ProjectController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping("/list-project")
+	@RequestMapping("/list-project")
 	public String listProject(HttpServletRequest request, Project project, @RequestParam(defaultValue="1") String pageNo, Model model) {
 		log.info("@@ project = {}", project);
 		
@@ -139,9 +137,9 @@ public class ProjectController {
 		Map<String, Object> map = new HashMap<>();
 		String result = "success";
 		try {
-			
-			UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-			project.setUser_id(userSession.getUser_id());
+			// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+			// project.setUser_id(userSession.getUser_id());
+			project.setUser_id("guest");
 			project.setUse_yn(Project.IN_USE);
 			project.setSharing_type(DataSharingType.PUBLIC.getValue());
 			
