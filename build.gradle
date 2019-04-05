@@ -44,12 +44,14 @@ subprojects {
 	    }
 	}
 
-dependencies {
-	compileOnly('org.projectlombok:lombok:1.18.2')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+	dependencies {
+		compileOnly('org.projectlombok:lombok:1.18.2')
+		annotationProcessor('org.projectlombok:lombok:1.18.2')
 
-	compile("org.springframework.boot:spring-boot-devtools")
-}
+		testCompile('org.springframework.boot:spring-boot-starter-test')
+
+		compile("org.springframework.boot:spring-boot-devtools")
+	}
 }
 
 task jacocoRootReport(type: JacocoReport) {
@@ -58,10 +60,24 @@ task jacocoRootReport(type: JacocoReport) {
 	additionalSourceDirs = files(subprojects.sourceSets.main.allSource.srcDirs)
     classDirectories =  files(subprojects.sourceSets.main.output)
     executionData = files(subprojects.jacocoTestReport.executionData)
+
 	reports {
 		xml.enabled = true
 		html.enabled = true
 	}
+
+	// Work-around to allow us to build list of executionData files in doFirst
+    onlyIf = {
+        true
+    }
+
+	/*
+     * Builds list of source dirs, class dirs, and executionData files
+     * when task is run, not at script evaluation time
+     */
+    doFirst {
+        executionData = files(executionData.findAll { it.exists() })
+    }
 }
 
 coveralls {
@@ -73,8 +89,12 @@ tasks.coveralls {
     dependsOn jacocoRootReport
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.8' // 원하는 Gradle 버전 명시
+// Overriding built-in tasks deprecated in 4.8 now produces an error.
+// Attempting to replace a built-in task will produce an error similar to the following:
+// Cannot add task 'wrapper' as a task with that name already exists.
+//task wrapper(type: Wrapper) {
+wrapper {
+    gradleVersion = '5.2.1' // 원하는 Gradle 버전 명시
 }
 
 project(':oim-user') {
