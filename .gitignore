@@ -26,3 +26,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+### KEY ###
+.coveralls.yml
