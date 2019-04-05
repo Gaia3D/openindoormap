@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+
+<head>
+    <title>OpenIndoorMap - 자료 목록</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
+    <style type="text/css">
+        .table th,
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                자료 목록
+                <small>Converter</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">Converter</a></li>
+                <li class="active">자료 목록</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">자료 검색</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" id="searchForm" modelAttribute="uploadData" method="post" class="form form-horizontal"
+                        action="/upload-data/list-upload-data" onsubmit="return searchCheck();">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="order_word">표시 순서<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_word" name="order_word">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="data_name"> 파일명 </option>
+                                                    <option value="insert_date"> 등록일 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_value" name="order_value">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="ASC"> 오름차순 </option>
+                                                    <option value="DESC"> 내림차순 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="list_counter" name="list_counter">
+                                                    <option value="10"> 10개씩 </option>
+                                                    <option value="50"> 50개씩 </option>
+                                                    <option value="100"> 100개씩 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_date">날짜</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                            <input type="text" class="form-control pull-right" id="search_date" name="search_date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_word">검색어<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_word" name="search_word">
+                                                    <option value=""> 선택 </option>
+                                                    <option value="data_name"> 자료명 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_option" name="search_option">
+                                                    <option value="0"> 일치 </option>
+                                                    <option value="1"> 포함 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <input type="text" class="form-control" id="search_value" name="search_value">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="submit" class="btn btn-primary">검색</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                </div>
+            </div>
+            <!-- /.box -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">자료 목록</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive">
+                            <table class="table table-bordered table-hover w-auto">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="chk_all" name="chk_all"></th>
+                                        <th>번호 </th>
+                                        <th>공유타입</th>
+                                        <th>자료형식</th>
+                                        <th>프로젝트명</th>
+                                        <th>대표데이터명</th>
+                                        <th>압축 유무</th>
+                                        <th>파일 개수</th>
+                                        <th>변환 횟수 </th>
+                                        <th>등록일 </th>
+                                        <th>변환 </th>
+                                        <th>수정/삭제</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 결과가 없으면 -->
+                                    <tr th:if="${uploadDataList.isEmpty()}">
+                                        <td colspan="12" class="col-none">자료가 존재하지 않습니다.</td>
+                                    </tr>
+                                    <!-- 결과가 있으면 -->
+                                    <tr th:unless="${uploadDataList.isEmpty()}" th:each="uploadData, status : ${uploadDataList}">
+                                        <td scope="row"><input type="checkbox" th:id="'upload_data_id_' + ${uploadData.upload_data_id}"
+                                                name="upload_data_id" th:value="${uploadData.upload_data_id}" /></td>
+                                        <td th:text="${pagination.rowNumber - status.index}"></td>
+                                        <td:block th:switch="${uploadData.sharing_type}">
+                                            <td th:case="'0'">공통 프로젝트</td>
+                                            <td th:case="'1'">공개 프로젝트</td>
+                                            <td th:case="'2'">개인 프로젝트</td>
+                                            <td th:case="'3'">공유 프로젝트</td>
+                                        </td:block>
+                                        <td th:text="${uploadData.data_type}"></td>
+                                        <td th:text="${uploadData.project_name}"></td>
+                                        <td th:text="${uploadData.data_name}"></td>
+                                        <td th:text="${uploadData.compress_yn}"></td>
+                                        <td th:text="${#numbers.formatInteger(uploadData.file_count, 0, 'COMMA')} + '개'"></td>
+                                        <td th:text="${#numbers.formatInteger(uploadData.converter_count, 0, 'COMMA')} + '건'"></td>
+                                        <td th:text="${uploadData.viewInsertDate}"></td>
+                                        <td style="width:100px;min-width:100px;">
+                                            <div class="btn-group btn-group-justified">
+                                                <a href="#" th:onclick="'converterFile(' + ${uploadData.upload_data_id} + ',' + ${uploadData.data_name} +'); return false;'"
+                                                    class="btn btn-primary"><i class="fa fa-refresh fa-lg" data-toggle="tooltip"
+                                                        title="변환"></i>&nbsp;변환</a>
+                                            </div>
+                                        </td>
+                                        <td style="width:100px;min-width:100px;">
+                                            <div class="btn-group btn-group-justified">
+                                                <a th:href="@{/upload-data/modify-upload-data(upload_data_id=${uploadData.upload_data_id})}"
+                                                    class="btn btn-warning"><i class="fa fa-edit" data-toggle="tooltip"
+                                                        title="수정"></i></a>
+                                                <a href="#" th:onclick="'deleteUploadData(' + ${uploadData.upload_data_id} + '); return false;'"
+                                                    class="btn btn-danger"><i class="fa fa-trash-o" data-toggle="tooltip"
+                                                        title="삭제"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer clearfix text-center">
+                            <ul class="pagination no-margin justify-content-center">
+                                <li><a href="#">&laquo;</a></li>
+                                <li><a href="#">1</a></li>
+                                <li><a href="#">2</a></li>
+                                <li><a href="#">3</a></li>
+                                <li><a href="#">&raquo;</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <!-- <script type="text/javascript" src="/externlib/dropzone/dropzone.min.js"></script> -->
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            // 등록 자료 삭제
+            var deleteUploadDataFlag = true;
+            function deleteUploadData(upload_data_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('삭제하시겠습니까?')) {
+                    if (deleteUploadDataFlag) {
+                        deleteUploadDataFlag = false;
+                        var info = "upload_data_id=" + upload_data_id;
+                        $.ajax({
+                            url: "/upload-data/ajax-delete-upload-data",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["uploadData.delete"]);
+                                    location.reload();
+                                } else {
+                                    //alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                deleteUploadDataFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                deleteUploadDataFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+
+            // 등록 자료 변환 작업 수행
+            var insertConverterJobFlag = true;
+            function deleteUploadData(upload_data_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('변환 작업을 실행하시겠습니까?')) {
+                    if (insertConverterJobFlag) {
+                        insertConverterJobFlag = false;
+                        var info = "upload_data_id=" + upload_data_id;
+                        $.ajax({
+                            url: "/converter/ajax-insert-converter-job",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["uploadData.delete"]);
+                                } else {
+                                    //alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                insertConverterJobFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                insertConverterJobFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>
