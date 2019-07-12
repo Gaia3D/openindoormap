@@ -318,4 +318,14 @@ public class DataServiceImpl implements DataService {
 	public int deleteDataObjects(Long dataId) {
 		return dataMapper.deleteDataObjects(dataId);
 	}
+
+	/**
+	 * Data Key 중복 건수
+	 * @param dataInfo
+	 * @return
+	 */
+	@Transactional(readOnly=true)
+	public Integer getDuplicationKeyCount(DataInfo dataInfo) {
+		return dataMapper.getDuplicationKeyCount(dataInfo);
+	}
 }

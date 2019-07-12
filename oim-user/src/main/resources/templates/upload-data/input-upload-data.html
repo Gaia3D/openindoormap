@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
 
 <head>
     <title>OpenIndoorMap - 자료 등록</title>
@@ -91,7 +91,7 @@
 
                 <p>업로딩 한 파일은 다른 사용자들에게 전부 <b style="color: darkblue;">공개</b> 됩니다.</p>
                 <p>디렉토리를 포함하는 파일의 경우 <b style="color: darkblue;">zip</b> 파일로 압축해서 업로딩해 주십시오.</p>
-                <p>복수 파일의 경우, <b style="color: darkblue;">대표 공간 정보</b>를 입력 후 데이터 목록 메뉴에서 수정하시기 바랍니다.</p>
+                <p>복수 파일의 경우, <b style="color: darkblue;">대표 공간 정보</b>를 입력 후 <a href="/data/list-data">데이터 목록</a> 메뉴에서 수정하시기 바랍니다.</p>
             </div>
             <!-- Default box -->
             <!-- general form elements disabled -->
@@ -102,9 +102,8 @@
                 <!-- /.box-header -->
                 <div class="box-body">
                     <form role="form" data-toggle="validator" th:object="${uploadData}">
-                        <!-- select -->
                         <div class="form-group">
-                            <label for="sharing_type">공유타입<i class="fa fa-star-of-life"></i></label>
+                            <label for="sharing_type">프로젝트 형식<i class="fa fa-star-of-life"></i></label>
                             <select class="form-control" id="sharing_type" name="sharing_type">
                                 <option value="1" selected="selected"> 공개 프로젝트 </option>
                                 <option value="2" disabled="disabled"> 개인 프로젝트 </option>
@@ -112,9 +111,22 @@
                                 <option value="0" disabled="disabled"> 공통 프로젝트 </option>
                             </select>
                         </div>
-                        <!-- select -->
+
                         <div class="form-group">
-                            <label for="data_type">데이터 타입<i class="fa fa-star-of-life"></i></label>
+                            <label for="project_name">프로젝트 이름<i class="fa fa-star-of-life"></i></label>
+                            <div class="input-group">
+                                <input type="hidden" id="project_id" name="project_id">
+                                <input type="text" class="form-control" id="project_name" name="project_name" readonly="readonly"
+                                    data-error="프로젝트 이름을 입력하세요" required>
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-info btn-flat" data-toggle="modal" data-target="#projectSearchDialog">찾기</button>
+                                </span>
+                            </div>
+                            <span class="help-block with-errors"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="data_type">데이터 형식<i class="fa fa-star-of-life"></i></label>
                             <select class="form-control" id="data_type" name="data_type">
                                 <option value="citygml" selected="selected"> CITYGML </option>
                                 <option value="indoorgml"> INDOORGML </option>
@@ -122,23 +134,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="project_name">프로젝트명<i class="fa fa-star-of-life"></i></label>
-                            <!-- /input-group -->
-                            <div class="input-group">
-                                <input type="hidden" id="project_id" name="project_id">
-                                <input type="text" class="form-control" id="project_name" name="project_name" readonly="readonly"
-                                    data-error="프로젝트 이름을 입력하세요" required>
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-info btn-flat" data-toggle="modal" data-target="#projectSearchDialog">찾기</button>
-                                    <!-- <button type="button" class="btn btn-info btn-flat" id="project_search_button">찾기</button> -->
-                                </span>
-                            </div>
-                            <!-- /input-group -->
-                            <span class="help-block with-errors"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="data_name">대표 데이터명</label>
+                            <label for="data_name">데이터 이름</label>
                             <input type="text" class="form-control" id="data_name" name="data_name" placeholder="" data-error="데이터명을 입력하세요."
                                 required>
                             <span class="help-block with-errors"></span>
@@ -177,8 +173,8 @@
                 <!-- /.box-body -->
                 <div class="box-footer">
                     <div class="form-group" style="text-align: center;">
-                        <button class="btn btn-primary" id="allFileUpload">업로드</button>
                         <button class="btn btn-primary" id="allFileClear">All Clear</button>
+                        <button class="btn btn-primary" id="allFileUpload">업로드</button>
                     </div>
                 </div>
             </div>

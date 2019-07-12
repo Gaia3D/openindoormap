@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
 
 <head>
     <title>OpenIndoorMap - 데이터 목록</title>
@@ -276,6 +276,42 @@
                             error: function (request, status, error) {
                                 // alert(JS_MESSAGE["ajax.error.message"]);
                                 deleteProjectFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+
+            // Data 삭제
+            var deleteDataFlag = true;
+            function deleteData(data_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('삭제하시겠습니까?')) {                    
+                    if (deleteDataFlag) {
+                        deleteDataFlag = false;
+                        var info = "data_id=" + data_id;
+                        $.ajax({
+                            url: "/data/ajax-delete-data",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["delete"]);
+                                    location.reload();
+                                } else {
+                                    // alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                deleteDataFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                deleteDataFlag = true;
                             }
                         });
                     } else {

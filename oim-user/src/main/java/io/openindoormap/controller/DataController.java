@@ -96,7 +96,7 @@ public class DataController {
 		model.addAttribute(pagination);
 //		model.addAttribute("projectList", projectList);
 		model.addAttribute("dataList", dataList);
-		return "/data/list-data";
+		return "data/list-data";
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class DataController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "detail-data.do")
+	@RequestMapping(value = "detail-data")
 	public String detailData(@RequestParam("data_id") String data_id, HttpServletRequest request, Model model) {
 		
 		String listParameters = getSearchParameters(PageType.DETAIL, request, null);
@@ -119,7 +119,7 @@ public class DataController {
 		model.addAttribute("listParameters", listParameters);
 		model.addAttribute("dataInfo", dataInfo);
 		
-		return "/data/detail-data";
+		return "data/detail-data";
 	}
 	
 	/**
@@ -128,15 +128,17 @@ public class DataController {
 	 * @param model
 	 * @return
 	 */
-	@GetMapping(value = "modify-data.do")
+	@GetMapping(value = "modify-data")
 	public String modifyData(HttpServletRequest request, @RequestParam("data_id") Long data_id, Model model) {
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-		
+		String user_id = "guest";
+
 		Project project = new Project();
 		project.setUse_yn(Project.IN_USE);
 		project.setSharing_type(DataSharingType.PUBLIC.getValue());
-		project.setUser_id(userSession.getUser_id());
+		// project.setUser_id(userSession.getUser_id());
+		project.setUser_id(user_id);
 		List<Project> projectList = projectService.getListProject(project);
 		
 		DataInfo dataInfo = new DataInfo();
@@ -153,7 +155,7 @@ public class DataController {
 		model.addAttribute("projectList", projectList);
 		model.addAttribute(dataInfo);
 		
-		return "/data/modify-data";
+		return "data/modify-data";
 	}
 	
 	/**
@@ -162,7 +164,7 @@ public class DataController {
 	 * @param dataInfo
 	 * @return
 	 */
-	@PostMapping(value = "ajax-update-data-info.do")
+	@PostMapping(value = "ajax-update-data-info")
 	@ResponseBody
 	public Map<String, Object> ajaxUpdateDataInfo(HttpServletRequest request, DataInfo dataInfo) {
 		Map<String, Object> map = new HashMap<>();
@@ -195,6 +197,100 @@ public class DataController {
 		return map;
 	}
 	
+	/**
+	 * Data 삭제
+	 * @param data_id
+	 * @param model
+	 * @return
+	 */
+	@PostMapping(value = "ajax-delete-data")
+	@ResponseBody
+	public Map<String, Object> deleteData(HttpServletRequest request, DataInfo dataInfo) {
+		log.info("@@@@@@@ dataInfo = {}", dataInfo);
+		Map<String, Object> map = new HashMap<>();
+		String result = "success";
+		try {
+			if(dataInfo.getData_id() == null || dataInfo.getData_id().intValue() <=0) {
+				map.put("result", "dataInfo.data_id.empty");
+				return map;
+			}
+			/*
+			UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+			// 사용자 그룹 ROLE 확인
+			UserGroupRole userGroupRole = new UserGroupRole();
+			userGroupRole.setUser_id(userSession.getUser_id());
+			
+			// // TODO get 방식으로 권한 오류를 넘겨준다.
+			// if(!GroupRoleHelper.isUserGroupRoleValid(roleService.getListUserGroupRoleByUserId(userGroupRole), UserGroupRole.PROJECT_DELETE)) {
+			// 	log.info("@@ 접근 권한이 없어 실행할 수 없습니다. RoleName = {}",  UserGroupRole.PROJECT_DELETE);
+			// 	map.put("result", "user.group.role.invalid");
+			// 	return map;
+			// }
+	
+			project.setUser_id(userSession.getUser_id());
+			*/
+			dataService.deleteData(dataInfo);
+		} catch(Exception e) {
+			e.printStackTrace();
+			map.put("result", "db.exception");
+			return map;
+		}
+		
+		map.put("result", result);
+		return map;
+
+		// public String deleteData(@RequestParam("data_id") String data_id, Model model) {
+		// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+		// DataInfo dataInfo = new DataInfo();
+		// dataInfo.setData_id(Long.valueOf(data_id));
+		// dataInfo.setUser_id(userSession.getUser_id());
+
+		// validation 체크 해야 함
+		// dataService.deleteData(dataInfo);
+
+		// dataService.deleteData(Long.valueOf(data_id));
+		// CacheParams cacheParams = new CacheParams();
+		// cacheParams.setCacheName(CacheName.DATA_INFO);
+		// cacheParams.setCacheType(CacheType.BROADCAST);
+		// cacheConfig.loadCache(cacheParams);
+		// return "redirect:/data/list-data";
+	}
+	
+	/**
+	 * 선택 Data 삭제
+	 * @param request
+	 * @param data_select_id
+	 * @param model
+	 * @return
+	 */
+	@PostMapping(value = "ajax-delete-datas.do")
+	@ResponseBody
+	public Map<String, Object> ajaxDeleteDatas(HttpServletRequest request, @RequestParam("check_ids") String check_ids) {
+		
+		log.info("@@@@@@@ check_ids = {}", check_ids);
+		Map<String, Object> map = new HashMap<>();
+		String result = "success";
+		try {
+			if(check_ids.length() <= 0) {
+				map.put("result", "check.value.required");
+				return map;
+			}
+			
+			// dataService.deleteDataList(check_ids);
+			
+			// CacheParams cacheParams = new CacheParams();
+			// cacheParams.setCacheName(CacheName.DATA_INFO);
+			// cacheParams.setCacheType(CacheType.BROADCAST);
+			// cacheConfig.loadCache(cacheParams);
+		} catch(Exception e) {
+			e.printStackTrace();
+			map.put("result", "db.exception");
+		}
+		
+		map.put("result", result	);
+		return map;
+	}
+
 	/**
 	 * 프로젝트에 등록된 Data 목록
 	 * @param request
@@ -230,7 +326,11 @@ public class DataController {
 	 * @return
 	 */
 	private String dataValidate(DataInfo dataInfo) {
-		if(dataInfo.getProject_id() == null || dataInfo.getProject_id().intValue() <= 0
+		if(dataInfo.getData_key() == null || "".equals(dataInfo.getData_key())) {
+			return "data.input.invalid";
+		}
+			
+		if(dataInfo.getProject_id() == null || dataInfo.getProject_id().longValue() <= 0
 				|| dataInfo.getData_name() == null || "".equals(dataInfo.getData_name())) {
 			return "data.project.id.invalid";
 		}
@@ -238,6 +338,49 @@ public class DataController {
 		return null;
 	}
 	
+	/**
+	 * Data key 중복 체크
+	 * @param model
+	 * @return
+	 */
+	@PostMapping(value = "ajax-data-key-duplication-check")
+	@ResponseBody
+	public Map<String, Object> ajaxDataKeyDuplicationCheck(HttpServletRequest request, DataInfo dataInfo) {
+		Map<String, Object> map = new HashMap<>();
+		String result = "success";
+		String duplication_value = "";
+		try {
+			if(dataInfo.getProject_id() == null || dataInfo.getProject_id().longValue() < 0) {
+				result = "project.id.empty";
+				map.put("result", result);
+				return map;
+			}
+			else if(dataInfo.getData_key() == null || "".equals(dataInfo.getData_key())) {
+				result = "data.key.empty";
+				map.put("result", result);
+				return map;
+			} else if(dataInfo.getOld_data_key() != null && !"".equals(dataInfo.getOld_data_key())) {
+				if(dataInfo.getData_key().equals(dataInfo.getOld_data_key())) {
+					result = "data.key.same";
+					map.put("result", result);
+					return map;
+				}
+			}
+			
+			int count = dataService.getDuplicationKeyCount(dataInfo);
+			log.info("@@ duplication_value = {}", count);
+			duplication_value = String.valueOf(count);
+		} catch(Exception e) {
+			e.printStackTrace();
+			result = "db.exception";
+		}
+	
+		map.put("result", result);
+		map.put("duplication_value", duplication_value);
+		
+		return map;
+	}
+
 	/**
 	 * 최근 data_info
 	 * @param request

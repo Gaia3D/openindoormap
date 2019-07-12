@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
 
 <head>
     <title>OpenIndoorMap - 프로젝트 수정</title>
@@ -41,9 +41,9 @@
                             <div class="col-sm-9">
                                 <select class="form-control" id="sharing_type" name="sharing_type">
                                     <option value="1" th:selected="${project.sharing_type=='1'}"> 공개 프로젝트 </option>
-                                    <option value="2" th:selected="${project.sharing_type=='2'}"> 개인 프로젝트 </option>
-                                    <option value="3" th:selected="${project.sharing_type=='3'}"> 공유 프로젝트 </option>
-                                    <option value="0" th:selected="${project.sharing_type=='0'}"> 공통 프로젝트 </option>
+                                    <option value="2" th:selected="${project.sharing_type=='2'}" disabled="disabled"> 개인 프로젝트 </option>
+                                    <option value="3" th:selected="${project.sharing_type=='3'}" disabled="disabled"> 공유 프로젝트 </option>
+                                    <option value="0" th:selected="${project.sharing_type=='0'}" disabled="disabled"> 공통 프로젝트 </option>
                                 </select>
                             </div>
                         </div>
@@ -160,8 +160,8 @@
                 <!-- /.box-body -->
                 <div class="box-footer clearfix text-center">
                     <div class="form-group">
-                        <button class="btn btn-primary" id="updateProject">저장</button>
                         <a class="btn btn-warning" href="/project/list-project" role="button">취소</a>
+                        <button class="btn btn-primary" id="updateProject">저장</button>
                     </div>
                 </div>
             </div>

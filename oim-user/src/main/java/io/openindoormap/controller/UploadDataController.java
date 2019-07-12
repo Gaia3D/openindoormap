@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -78,7 +79,7 @@ public class UploadDataController {
 	@GetMapping("/input-upload-data")
 	public String inputUploadData(HttpServletRequest request, Model model) {
 		model.addAttribute("uploadData", new UploadData());
-		return "/upload-data/input-upload-data";
+		return "upload-data/input-upload-data";
 	}
 	
 	/**
@@ -275,7 +276,7 @@ public class UploadDataController {
             	UploadDataFile uploadDataFile = new UploadDataFile();
             	
             	ZipEntry entry = entries.nextElement();
-            	String unzipfileName = targetDirectory + entry.getName();
+            	String unzipfileName = Paths.get(targetDirectory + entry.getName()).normalize().toString();
             	String converterTargetYn = ConverterTarget.N.name();
             	if( entry.isDirectory() ) {
             		uploadDataFile.setFile_type(FileType.DIRECTORY.getValue());
@@ -283,17 +284,19 @@ public class UploadDataController {
             			uploadDataFile.setFile_name(entry.getName());
             			uploadDataFile.setFile_real_name(entry.getName());
             			directoryName = entry.getName();
-            			directoryPath = directoryPath + directoryName;
-            			//subDirectoryPath = directoryName;
+            			directoryPath = directoryPath + File.separator + directoryName;
             		} else {
             			String fileName = entry.getName().substring(entry.getName().indexOf(directoryName) + directoryName.length());  
             			uploadDataFile.setFile_name(fileName);
             			uploadDataFile.setFile_real_name(fileName);
             			directoryName = fileName;
-            			directoryPath = directoryPath + fileName;
+            			directoryPath = directoryPath + File.separator + fileName;
             			subDirectoryPath = fileName;
             		}
-            		
+					
+					directoryPath = Paths.get(directoryPath).normalize().toString();
+					subDirectoryPath = Paths.get(subDirectoryPath).normalize().toString();
+
                 	File file = new File(unzipfileName);
                     file.mkdirs();
                     uploadDataFile.setFile_path(directoryPath);
@@ -330,7 +333,7 @@ public class UploadDataController {
             		}
             		
                 	try ( 	InputStream inputStream = zipFile.getInputStream(entry);
-                			FileOutputStream outputStream = new FileOutputStream(directoryPath + saveFileName); ) {
+                			FileOutputStream outputStream = new FileOutputStream(directoryPath + File.separator + saveFileName); ) {
                 		int data = inputStream.read();
                 		while(data != -1){
                 			outputStream.write(data);
@@ -403,9 +406,31 @@ public class UploadDataController {
 		model.addAttribute(pagination);
 		model.addAttribute("uploadDataList", uploadDataList);
 		
-		return "/upload-data/list-upload-data";
+		return "upload-data/list-upload-data";
 	}
 	
+	/**
+	 * UploadData 정보
+	 * @param data_id
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "detail-upload-data")
+	public String detailData(@RequestParam("upload_data_id") String upload_data_id, HttpServletRequest request, Model model) {
+		
+		// String listParameters = getSearchParameters(PageType.DETAIL, request, null);
+		UploadData uploadData = new UploadData();
+		uploadData.setUser_id("guest");
+		uploadData.setUpload_data_id(Long.valueOf(upload_data_id));
+		uploadData = uploadDataService.getUploadData(uploadData);
+		List<UploadDataFile> uploadDataFileList = uploadDataService.getListUploadDataFile(uploadData);
+
+		model.addAttribute("uploadData", uploadData);
+		model.addAttribute("uploadDataFileList", uploadDataFileList);
+
+		return "upload-data/detail-upload-data";
+	}
+
 	/**
 	 * @param policy
 	 * @param multipartFile
@@ -476,15 +501,15 @@ public class UploadDataController {
 	@GetMapping("/modify-upload-data")
 	public String modifyUploadData(HttpServletRequest request, UploadData uploadData, Model model) {
 		
-		UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
-		uploadData.setUser_id(userSession.getUser_id());
-		
+		// UserSession userSession = (UserSession)request.getSession().getAttribute(UserSession.KEY);
+		// uploadData.setUser_id(userSession.getUser_id());
+		uploadData.setUser_id("guest");
 		uploadData = uploadDataService.getUploadData(uploadData);
 		List<UploadDataFile> uploadDataFileList = uploadDataService.getListUploadDataFile(uploadData);
 		
 		model.addAttribute("uploadData", uploadData);
 		model.addAttribute("uploadDataFileList", uploadDataFileList);
-		return "/upload-data/modify-upload-data";
+		return "upload-data/modify-upload-data";
 	}
 	
 	/**

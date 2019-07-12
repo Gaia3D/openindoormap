@@ -3,7 +3,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
 
 <head>
-    <title>OpenIndoorMap - 프로젝트 목록</title>
+    <title>OpenIndoorMap - 자료 목록</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
     <style type="text/css">
         .table th,
         td {
@@ -17,13 +18,13 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                프로젝트 목록
-                <small>프로젝트</small>
+                변환 결과
+                <small>Converter</small>
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
-                <li><a href="#">프로젝트</a></li>
-                <li class="active">프로젝트 목록</li>
+                <li><a href="#">Converter</a></li>
+                <li class="active">변환 결과</li>
             </ol>
         </section>
 
@@ -32,12 +33,12 @@
             <!-- general form elements disabled -->
             <div class="box box-default">
                 <div class="box-header with-border">
-                    <h3 class="box-title">프로젝트 검색</h3>
+                    <h3 class="box-title">자료 검색</h3>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
-                    <form role="form" id="searchForm" modelAttribute="project" method="post" class="form form-horizontal"
-                        action="/project/list-project" onsubmit="return searchCheck();">
+                    <form role="form" id="searchForm" modelAttribute="converterJob" method="post" class="form form-horizontal"
+                        action="/converter/list-converter-job" onsubmit="return searchCheck();">
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="form-group">
@@ -47,6 +48,7 @@
                                             <span class="input-group-btn">
                                                 <select class="form-control" id="order_word" name="order_word">
                                                     <option value=""> 기본 </option>
+                                                    <option value="data_name"> 파일명 </option>
                                                     <option value="insert_date"> 등록일 </option>
                                                 </select>
                                             </span>
@@ -89,7 +91,7 @@
                                             <span class="input-group-btn">
                                                 <select class="form-control" id="search_word" name="search_word">
                                                     <option value=""> 선택 </option>
-                                                    <option value="project_name"> 프로젝트명 </option>
+                                                    <option value="data_name"> 자료명 </option>
                                                 </select>
                                             </span>
                                             <span class="input-group-btn">
@@ -129,7 +131,7 @@
                 <div class="col-md-12">
                     <div class="box box-default">
                         <div class="box-header with-border">
-                            <h3 class="box-title">프로젝트 목록</h3>
+                            <h3 class="box-title">변환 결과 목록</h3>
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body table-responsive">
@@ -137,60 +139,47 @@
                                 <thead>
                                     <tr>
                                         <th><input type="checkbox" id="chk_all" name="chk_all"></th>
-                                        <th>번호 </th>
-                                        <th>공유타입</th>
-                                        <th>프로젝트명</th>
-                                        <th>경도</th>
-                                        <th>위도</th>
-                                        <th>높이(m) </th>
-                                        <th>이동 시간 </th>
-                                        <th>데이터 건수 </th>
-                                        <th>바로가기 </th>
+                                        <th>번호</th>
+                                        <th>변환형식</th>
+                                        <th>변환 자료명</th>
+                                        <th>상태</th>
+                                        <th>변환대상<br/>파일갯수</th>
+                                        <th>에러코드</th>
                                         <th>등록일 </th>
-                                        <th>수정/삭제</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <!-- 결과가 없으면 -->
-                                    <tr th:if="${projectList.isEmpty()}">
-                                        <td colspan="12" class="col-none">프로젝트가 존재하지 않습니다.</td>
+                                    <tr th:if="${converterJobList.isEmpty()}">
+                                        <td colspan="8" class="col-none">자료가 존재하지 않습니다.</td>
                                     </tr>
                                     <!-- 결과가 있으면 -->
-                                    <tr th:unless="${projectList.isEmpty()}" th:each="project, status : ${projectList}">
-                                        <td scope="row"><input type="checkbox" th:id="'project_id_' + ${project.project_id}"
-                                                name="project_id" th:value="${project.project_id}" /></td>
+                                    <tr th:unless="${converterJobList.isEmpty()}" th:each="converterJob, status : ${converterJobList}">
+                                        <td scope="row"><input type="checkbox" th:id="'converter_job_id_' + ${converterJob.converter_job_id}"
+                                                name="converter_job_id" th:value="${converterJob.converter_job_id}" /></td>
                                         <td th:text="${pagination.rowNumber - status.index}"></td>
-                                        <td:block th:switch="${project.sharing_type}">
-                                            <td th:case="'0'">공통 프로젝트</td>
-                                            <td th:case="'1'">공개 프로젝트</td>
-                                            <td th:case="'2'">개인 프로젝트</td>
-                                            <td th:case="'3'">공유 프로젝트</td>
+                                        <td:block th:switch="${converterJob.converter_type}">
+                                            <td th:case="'0'">정밀</td>
+                                            <td th:case="'1'">기본</td>
+                                            <td th:case="'2'">큰 건물</td>
+                                            <td th:case="'3'">초대형 건물</td>
                                         </td:block>
-                                        <td th:text="${project.project_name}"></td>
-                                        <td th:text="${#numbers.formatDecimal(project.longitude, 0, 5)}"></td>
-                                        <td th:text="${#numbers.formatDecimal(project.latitude, 0, 5)}"></td>
-                                        <td th:text="${#numbers.formatDecimal(project.height, 0, 2)}"></td>
-                                        <td th:text="${project.duration}"></td>
                                         <td>
-                                            <a href="#" th:data1="${project.project_id}" th:data2="${project.project_name}" 
-                                            th:onclick="viewDataList(this.getAttribute('data1'), this.getAttribute('data2')); return false;"
-                                                th:text="${#numbers.formatInteger(project.data_count, 0, 'COMMA')}"></a>
+                                            <a th:href="@{/upload-data/detail-upload-data(upload_data_id=${converterJob.upload_data_id})}" th:text="${converterJob.title}"></a>
                                         </td>
-                                        <td>
-                                            <a th:href="@{/project/modify-project(project_id=${project.project_id})}"><i
-                                                    class="fa fa-globe"></i></a>
+                                        <td:block th:switch="${converterJob.status}">
+                                            <td th:case="'0'">준비</td>
+                                            <td th:case="'1'">성공</td>
+                                            <td th:case="'2'">확인필요</td>
+                                            <td th:case="'3'">실패</td>
+                                        </td:block>
+                                        <td th:text="${#numbers.formatInteger(converterJob.file_count, 0, 'COMMA')} + '개'"></td>
+                                        <td th:if="${converterJob.error_code==null}">없음</td>
+                                        <td th:unless="${converterJob.error_code==null}">
+                                            <a href="#" th:onclick="'detailErrorCode('+${converterJob.error_code}+'); return false;'">[보기]</a>
                                         </td>
-                                        <td th:text="${project.viewInsertDate}"></td>
-                                        <td style="width:100px;min-width:100px;">
-                                            <div class="btn-group btn-group-justified">
-                                                <a th:href="@{/project/modify-project(project_id=${project.project_id})}"
-                                                    class="btn btn-warning"><i class="fa fa-edit" data-toggle="tooltip"
-                                                        title="수정"></i></a>
-                                                <a href="#" th:onclick="'deleteProject(' + ${project.project_id} + '); return false;'"
-                                                    class="btn btn-danger"><i class="fa fa-trash-o" data-toggle="tooltip"
-                                                        title="삭제"></i></a>
-                                            </div>
-                                        </td>
+
+                                        <td th:text="${converterJob.viewInsertDate}"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -219,46 +208,10 @@
                 $('[data-toggle="tooltip"]').tooltip();
             });
 
-            function viewDataList(id, name)
-            {
-                //alert(id+" "+name);
-                console.log(id+" "+name);
-            }
-
-            // Project 정보 삭제
-            var deleteProjectFlag = true;
-            function deleteProject(project_id) {
-                //if (confirm(JS_MESSAGE["delete.confirm"])) {
-                if (confirm('삭제하시겠습니까?')) {
-                    if (deleteProjectFlag) {
-                        deleteProjectFlag = false;
-                        var info = "project_id=" + project_id;
-                        $.ajax({
-                            url: "/project/ajax-delete-project",
-                            type: "POST",
-                            data: info,
-                            cache: false,
-                            dataType: "json",
-                            success: function (msg) {
-                                if (msg.result == "success") {
-                                    // alert(JS_MESSAGE["project.update"]);
-                                    location.reload();
-                                } else {
-                                    //alert(JS_MESSAGE[msg.result]);
-                                    alert(msg.result);
-                                }
-                                deleteProjectFlag = true;
-                            },
-                            error: function (request, status, error) {
-                                // alert(JS_MESSAGE["ajax.error.message"]);
-                                deleteProjectFlag = true;
-                            }
-                        });
-                    } else {
-                        // alert(JS_MESSAGE["button.dobule.click"]);
-                        return;
-                    }
-                }
+            function detailErrorCode(errorCode) {
+                alert(errorCode);
+                // errorDialog.dialog("open");
+                // $("#dialog_error_code").html(errorCode);
             }
         </script>
     </th:block>

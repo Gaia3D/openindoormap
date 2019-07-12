@@ -82,7 +82,7 @@ public class ProjectController {
 		
 		model.addAttribute(pagination);
 		model.addAttribute("projectList", projectList);
-		return "/project/list-project";
+		return "project/list-project";
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class ProjectController {
 		model.addAttribute(pagination);
 		model.addAttribute("projectList", projectList);
 		
-		return "/project/map-project";
+		return "project/map-project";
 	}
 	
 	/**
@@ -197,7 +197,7 @@ public class ProjectController {
 	public String inputProject(HttpServletRequest request, Model model) {
 		model.addAttribute("project", new Project());
 		
-		return "/project/input-project";
+		return "project/input-project";
 	}
 	
 	/**
@@ -292,7 +292,7 @@ public class ProjectController {
 		project = projectService.getProject(project);
 		model.addAttribute("project", project);
 		
-		return "/project/modify-project";
+		return "project/modify-project";
 	}
 	
 	/**

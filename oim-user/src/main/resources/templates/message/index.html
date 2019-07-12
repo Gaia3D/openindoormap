@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
+
+<head>
+    <title>OpenIndoorMap - Message</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <p th:text="#{greeting}"></p>
+        <p th:text="#{menu.map}"></p>
+        <p th:text="#{menu.dashboard}"></p>
+        <p th:text="#{menu.project}"></p>
+        <p th:text="#{menu.converter}"></p>
+        <p th:text="#{menu.settings}"></p>     
+    </div>
+
+    <th:block layout:fragment="script">
+     </th:block>
+</body>
+
+</html>

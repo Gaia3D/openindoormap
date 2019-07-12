@@ -7,6 +7,8 @@
   <title>OpenIndoorMap</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- jQuery-UI -->
+  <link rel="stylesheet" href="/webjars/jquery-ui/jquery-ui.min.css" />
   <!-- Bootstrap -->
   <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
   <!-- Font Awesome -->
@@ -34,14 +36,14 @@
   <div class="wrapper">
 
     <header class="main-header">
-      <div th:replace="/layouts/header"></div>
+      <div th:replace="layouts/header"></div>
     </header>
 
     <!-- =============================================== -->
 
     <!-- Left side column. contains the sidebar -->
     <aside class="main-sidebar">
-      <div th:replace="/layouts/menu"></div>
+      <div th:replace="layouts/menu"></div>
     </aside>
 
     <!-- =============================================== -->
@@ -52,7 +54,7 @@
     <!-- /.content-wrapper -->
 
     <footer class="main-footer">
-      <div th:replace="/layouts/footer"></div>
+      <div th:replace="layouts/footer"></div>
     </footer>
 
     <!-- Add the sidebar's background. This div must be placed
@@ -63,6 +65,8 @@
 
   <!-- jQuery -->
   <script src="/webjars/jquery/jquery.min.js"></script>
+  <!-- jQuery -->
+  <script src="/webjars/jquery-ui/jquery-ui.min.js"></script>
   <!-- Bootstrap -->
   <script src="/webjars/bootstrap/js/bootstrap.min.js"></script>
   <!-- Bootstrap Validator-->

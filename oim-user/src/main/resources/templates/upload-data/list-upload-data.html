@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
 
 <head>
     <title>OpenIndoorMap - 자료 목록</title>
@@ -141,9 +141,9 @@
                                         <th><input type="checkbox" id="chk_all" name="chk_all"></th>
                                         <th>번호 </th>
                                         <th>공유타입</th>
-                                        <th>자료형식</th>
                                         <th>프로젝트명</th>
-                                        <th>대표데이터명</th>
+                                        <th>자료 형식</th>
+                                        <th>자료 이름</th>
                                         <th>압축 유무</th>
                                         <th>파일 개수</th>
                                         <th>변환 횟수 </th>
@@ -168,16 +168,21 @@
                                             <td th:case="'2'">개인 프로젝트</td>
                                             <td th:case="'3'">공유 프로젝트</td>
                                         </td:block>
-                                        <td th:text="${uploadData.data_type}"></td>
                                         <td th:text="${uploadData.project_name}"></td>
-                                        <td th:text="${uploadData.data_name}"></td>
+                                        <td th:text="${uploadData.data_type}"></td>
+                                        <td>
+                                            <a th:href="@{/upload-data/detail-upload-data(upload_data_id=${uploadData.upload_data_id})}" th:text="${uploadData.data_name}"></a>
+                                        </td>
                                         <td th:text="${uploadData.compress_yn}"></td>
                                         <td th:text="${#numbers.formatInteger(uploadData.file_count, 0, 'COMMA')} + '개'"></td>
                                         <td th:text="${#numbers.formatInteger(uploadData.converter_count, 0, 'COMMA')} + '건'"></td>
                                         <td th:text="${uploadData.viewInsertDate}"></td>
                                         <td style="width:100px;min-width:100px;">
                                             <div class="btn-group btn-group-justified">
-                                                <a href="#" th:onclick="'converterFile(' + ${uploadData.upload_data_id} + ',' + ${uploadData.data_name} +'); return false;'"
+                                                <!-- <a href="#" th:onclick="'converterFile(' + ${uploadData.upload_data_id} + ',' + ${uploadData.data_name} +'); return false;'"
+                                                    class="btn btn-primary"><i class="fa fa-refresh fa-lg" data-toggle="tooltip"
+                                                        title="변환"></i>&nbsp;변환</a> -->
+                                                <a href="#" th:onclick="'converterFile(' + ${uploadData.upload_data_id} +'); return false;'"
                                                     class="btn btn-primary"><i class="fa fa-refresh fa-lg" data-toggle="tooltip"
                                                         title="변환"></i>&nbsp;변환</a>
                                             </div>
@@ -260,7 +265,7 @@
 
             // 등록 자료 변환 작업 수행
             var insertConverterJobFlag = true;
-            function deleteUploadData(upload_data_id) {
+            function insertConverterJob(upload_data_id) {
                 //if (confirm(JS_MESSAGE["delete.confirm"])) {
                 if (confirm('변환 작업을 실행하시겠습니까?')) {
                     if (insertConverterJobFlag) {
@@ -291,6 +296,10 @@
                         return;
                     }
                 }
+            }
+
+            function converterFile(upload_data_id) {
+                insertConverterJob(upload_data_id);
             }
         </script>
     </th:block>

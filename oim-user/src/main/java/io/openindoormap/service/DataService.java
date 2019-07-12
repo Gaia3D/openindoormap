@@ -49,6 +49,13 @@ public interface DataService {
 	List<DataInfo> getListDataByProjectId(DataInfo dataInfo);
 	
 	/**
+	 * Data Key 중복 건수
+	 * @param dataInfo
+	 * @return
+	 */
+	Integer getDuplicationKeyCount(DataInfo dataInfo);
+	
+	/**
 	 * Data 정보 취득
 	 * @param dataInfo
 	 * @return
