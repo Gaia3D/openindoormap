@@ -7,7 +7,6 @@ import lombok.ToString;
 
 /**
  * 사용자 그룹별 Role
- * @author jeongdae
  *
  */
 @Getter

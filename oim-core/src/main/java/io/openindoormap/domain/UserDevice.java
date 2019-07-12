@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * 사용자 사용 디바이스
- * @author jeongdae
  *
  */
 @Getter

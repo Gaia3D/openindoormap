@@ -5,7 +5,6 @@ import java.util.UUID;
 /**
  * TODO JWT 는 잠시 보류함
  * SSO 
- * @author jeongdae
  *
  */
 public class SSO {

@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * Service 계층에서 페이지 처리를 Controller 계층으로 전달하기 위한 도메인
- * @author jeongdae
  *
  */
 @Getter

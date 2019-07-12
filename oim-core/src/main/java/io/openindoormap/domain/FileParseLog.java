@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * 파일 파싱 이력
- * @author jeongdae
  *
  */
 @Getter

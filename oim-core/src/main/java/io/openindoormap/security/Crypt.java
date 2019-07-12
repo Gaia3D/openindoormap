@@ -4,7 +4,6 @@ import org.apache.commons.codec.binary.Base64;
 
 /**
  * PM 솔루션 내 DB 사용자 암/복호화, 사용자 패스워드 암/복호화등에 사용
- * @author jeongdae
  *
  */
 public class Crypt {

@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * Private API
- * @author jeongdae
  *
  */
 @Getter

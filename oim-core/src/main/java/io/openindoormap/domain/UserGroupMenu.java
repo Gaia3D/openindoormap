@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * 사용자 그룹 메뉴 권한
- * @author jeongdae
  *
  */
 @Getter

@@ -20,35 +20,82 @@
 	<update id="updateUserPolicy" parameterType="userPolicy">
 		/* updateUserPolicy */
 		UPDATE user_policy
-		SET geo_view_library = #{geo_view_library},
+		SET 
+			<if test="geo_view_library != null">
+			geo_view_library = #{geo_view_library},
+			</if>
+			<if test="geo_data_path != null">
 			geo_data_path = #{geo_data_path},
+			</if>
 			<if test="geo_data_default_projects == null or geo_data_default_projects == ''">
 			geo_data_default_projects = null,
 			</if>
 			<if test="geo_data_default_projects != null and geo_data_default_projects != ''">
 			geo_data_default_projects = STRING_TO_ARRAY(#{geo_data_default_projects}, ','),
 			</if>
+			<if test="geo_cull_face_enable != null">
 			geo_cull_face_enable = #{geo_cull_face_enable},
+			</if>
+			<if test="geo_time_line_enable != null">
 			geo_time_line_enable = #{geo_time_line_enable},
+			</if>
+			<if test="geo_init_camera_enable != null">
 			geo_init_camera_enable = #{geo_init_camera_enable},
+			</if>
+			<if test="geo_init_latitude != null">
 			geo_init_latitude = #{geo_init_latitude},
+			</if>
+			<if test="geo_init_longitude != null">
 			geo_init_longitude = #{geo_init_longitude},
+			</if>
+			<if test="geo_init_height != null">
 			geo_init_height = #{geo_init_height},
+			</if>
+			<if test="geo_init_duration != null">
 			geo_init_duration = #{geo_init_duration},
+			</if>
+			<if test="geo_init_default_terrain != null">
 			geo_init_default_terrain = #{geo_init_default_terrain},
+			</if>
+			<if test="geo_init_default_fov != null">
 			geo_init_default_fov = #{geo_init_default_fov},
+			</if>
+			<if test="geo_lod0 != null">
 			geo_lod0 = #{geo_lod0},
+			</if>
+			<if test="geo_lod1 != null">
 			geo_lod1 = #{geo_lod1},
+			</if>
+			<if test="geo_lod2 != null">
 			geo_lod2 = #{geo_lod2},
+			</if>
+			<if test="geo_lod3 != null">
 			geo_lod3 = #{geo_lod3},
+			</if>
+			<if test="geo_lod4 != null">			
 			geo_lod4 = #{geo_lod4},
+			</if>
+			<if test="geo_lod5 != null">
 			geo_lod5 = #{geo_lod5},
+			</if>
+			<if test="geo_ambient_reflection_coef != null">
 			geo_ambient_reflection_coef = #{geo_ambient_reflection_coef},
+			</if>
+			<if test="geo_diffuse_reflection_coef != null">
 			geo_diffuse_reflection_coef = #{geo_diffuse_reflection_coef},
+			</if>
+			<if test="geo_specular_reflection_coef != null">
 			geo_specular_reflection_coef = #{geo_specular_reflection_coef},
+			</if>
+			<if test="geo_specular_color != null">
 			geo_specular_color = #{geo_specular_color},
+			</if>
+			<if test="geo_ambient_color != null">
 			geo_ambient_color = #{geo_ambient_color},
+			</if>
+			<if test="geo_ssao_radius != null">
 			geo_ssao_radius = #{geo_ssao_radius},
+			</if>
 			update_date = NOW()
 		WHERE user_id = #{user_id}
 	</update>

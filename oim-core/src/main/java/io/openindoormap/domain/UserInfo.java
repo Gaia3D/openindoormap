@@ -10,7 +10,6 @@ import lombok.ToString;
 
 /**
  * 사용자 정보 테이블
- * @author jeongdae
  *
  */
 @Getter

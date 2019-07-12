@@ -8,7 +8,6 @@ import lombok.ToString;
 
 /**
  * project
- * @author Cheon JeongDae
  *
  */
 @Getter

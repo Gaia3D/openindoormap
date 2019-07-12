@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * Data Object Attribute 정보
- * @author Cheon JeongDae
  *
  */
 @Getter

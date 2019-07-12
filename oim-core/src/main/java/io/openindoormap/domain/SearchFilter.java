@@ -2,7 +2,6 @@ package io.openindoormap.domain;
 
 /**
  * TODO 검색에 사용되는 공통 기능. 모든 domain의 member 변수로 리팩토링 해야 함. mybatis 가 귀찮아서 임시로 이렇게 함
- * @author Cheon JeongDae
  *
  */
 public class SearchFilter {

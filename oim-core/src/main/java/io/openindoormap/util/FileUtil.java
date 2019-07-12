@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
  * TODO N중화 처리를 위해 FTP 로 다른 PM 으로 전송해 줘야 하는데....
  * 
  * 파일 처리 관련 Util
- * @author jeongdae
  *
  */
 @Slf4j

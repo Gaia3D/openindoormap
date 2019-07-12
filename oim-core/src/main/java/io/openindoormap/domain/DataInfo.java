@@ -9,8 +9,6 @@ import lombok.ToString;
 
 /**
  * Data 정보
- * @author Cheon JeongDae
- *
  */
 @Getter
 @Setter

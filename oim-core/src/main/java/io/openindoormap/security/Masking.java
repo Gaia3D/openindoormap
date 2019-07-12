@@ -2,7 +2,6 @@ package io.openindoormap.security;
 
 /**
  * 개인정보 보호를 위한 마스킹(*) 처리
- * @author jeongdae
  *
  */
 public class Masking {

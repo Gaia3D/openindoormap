@@ -8,7 +8,6 @@ import lombok.ToString;
 
 /**
  * Data 변환전 정보(origin)
- * @author Cheon JeongDae
  *
  */
 @Getter

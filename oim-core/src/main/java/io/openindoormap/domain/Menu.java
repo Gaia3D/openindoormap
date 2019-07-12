@@ -7,8 +7,6 @@ import lombok.ToString;
 /**
  * 메뉴
  * 
- * @author jeongdae
- *
  */
 @Getter
 @Setter

@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * 사용자 f4d 변환 job
- * @author jeongdae
  *
  */
 @Getter

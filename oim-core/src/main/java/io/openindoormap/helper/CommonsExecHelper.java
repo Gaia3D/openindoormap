@@ -16,7 +16,6 @@ import org.apache.commons.exec.PumpStreamHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author jeongdae
  *
  */
 @Slf4j

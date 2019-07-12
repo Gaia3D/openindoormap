@@ -12,7 +12,6 @@ import org.apache.commons.codec.binary.Base64;
 
 /**
  * http://nodoor999.blogspot.kr/2014/11/crypto-js-javascript.html
- * @author jeongdae
  *
  */
 public class AESCipher {

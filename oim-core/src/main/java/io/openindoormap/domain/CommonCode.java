@@ -9,16 +9,15 @@ import lombok.ToString;
 
 /**
  * CommonCode
- * @author jeongdae
  *
  */
 @Getter
 @Setter
-@ToString(callSuper=true)
+@ToString(callSuper = true)
 public class CommonCode extends SearchFilter {
 
-	// 사용자 등록 유형
-	public static final String USER_REGISTER_TYPE = "USER_REGISTER_TYPE";
+		// 사용자 등록 유형
+		public static final String USER_REGISTER_TYPE = "USER_REGISTER_TYPE";
 	// 사용자 email 등록 타입
 	public static final String USER_EMAIL = "USER_EMAIL";
 	// 데이터 등록 유형

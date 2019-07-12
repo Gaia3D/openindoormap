@@ -9,7 +9,6 @@ import io.openindoormap.domain.Project;
 /**
  * project
  * 
- * @author jeongdae
  *
  */
 @Repository

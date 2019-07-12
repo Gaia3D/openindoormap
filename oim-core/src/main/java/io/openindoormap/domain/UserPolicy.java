@@ -7,7 +7,6 @@ import lombok.ToString;
 
 /**
  * 사용자 정책
- * @author Cheon JeongDae
  *
  */
 @Getter

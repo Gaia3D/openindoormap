@@ -10,7 +10,6 @@ import lombok.ToString;
 /**
  * 운영 정책
  * TODO 도메인 답게 나누자.
- * @author jeongdae
  *
  */
 @Getter

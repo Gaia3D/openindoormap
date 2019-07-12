@@ -8,7 +8,6 @@ import lombok.ToString;
 
 /**
  * 세션에 저장될 사용자 정보
- * @author jeongdae
  *
  */
 @Getter

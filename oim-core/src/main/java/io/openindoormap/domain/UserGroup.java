@@ -6,7 +6,6 @@ import lombok.ToString;
 
 /**
  * 사용자 그룹
- * @author jeongdae
  *
  */
 @Getter

@@ -1,7 +1,6 @@
 package io.openindoormap.util;
 
 /**
- * @author Cheon JeongDae
  *
  */
 public class JSONUtil {

@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 압축 해제
- * @author Cheon JeongDae
  *
  */
 @Slf4j

@@ -5,7 +5,6 @@ import java.util.Date;
 
 /**
  * 데이터 포맷을 처리
- * @author jeongdae
  *
  */
 public class FormatUtil {
