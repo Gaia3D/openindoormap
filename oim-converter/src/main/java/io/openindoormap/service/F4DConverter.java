@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.openindoormap.config.RabbitConfig;
+import io.openindoormap.config.AMQPConfig;
 import io.openindoormap.domain.F4D;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class F4DConverter
 {
-    @RabbitListener(queues = RabbitConfig.INCOMING_QUEUE_NAME)
+    @RabbitListener(queues = AMQPConfig.INCOMING_QUEUE_NAME)
     public void receive(F4D f4d) throws InterruptedException, IOException {
         List<String> command = new ArrayList<String>();
-        command.add("C:/NewF4DConverter/bin/F4DConverter.exe");
+        command.add("F4DConverter");
         command.addAll(f4d.extractArguments());
 
         String[] cmd = command.stream().toArray(String[]::new);

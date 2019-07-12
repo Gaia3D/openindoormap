@@ -10,13 +10,19 @@ import lombok.Data;
 @Data
 public class F4D
 {
+    private Long converter_job_id;
+    
     private Integer skinLevel;
+
+    private Integer meshType;
 
     private Double unitScaleFactor;
 
     private Boolean createIndex;
     
     private Boolean performOC;
+
+    private Boolean alignToCenter;
 
     private String fileName;
 
@@ -32,9 +38,11 @@ public class F4D
 
     public F4D()
     {
+        this.meshType = 0;
         this.skinLevel = 3;
         this.performOC = false;
         this.createIndex = false;
+        this.alignToCenter = true;
         this.unitScaleFactor = 1.0;
     }
 
@@ -78,8 +86,14 @@ public class F4D
         cmd.add("-skinLevel");
         cmd.add(this.skinLevel.toString());
         
+        cmd.add("-meshType");
+        cmd.add(this.meshType.toString());
+
         cmd.add("-indexing");
         cmd.add(this.createIndex ? "y" : "n");
+
+        cmd.add("-alignToCenter");
+        cmd.add(this.alignToCenter ? "y" : "n");
 
         cmd.add("-oc");
         cmd.add(this.performOC ? "y" : "n");
