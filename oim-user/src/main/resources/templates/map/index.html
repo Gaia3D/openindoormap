@@ -115,6 +115,26 @@
         <script type="text/javascript" src="/externlib/cesium-1.44/Cesium.js"></script>
         <script type="text/javascript" src="/externlib/mago3d/mago3d.js"></script>
 
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+            var policyJson = /*[[${policyJson}]]*/ "{}";
+            policyJson = JSON.parse(policyJson);
+            policyJson.geo_callback_enable = "false";
+            // policyJson.geo_callback_enable = "true";
+            // policyJson.geo_callback_apiresult = "showApiResult";
+            policyJson.geo_callback_dataInfo = "showDataInfo";
+            policyJson.geo_callback_selectedobject = "showSelectedObject";
+            policyJson.geo_callback_moveddata = "showMovedData";
+            policyJson.geo_callback_insertissue = "showInsertIssueLayer";
+            // policyJson.geo_callback_clickposition = "showClickPosition";
+            policyJson.geo_callback_clickposition = "";
+            
+            var initProjectJsonMap = /*[[${initProjectJsonMap}]]*/ "{}";
+            initProjectJsonMap = JSON.parse(initProjectJsonMap);
+            var initProjectsLength = /*[[${initProjectsLength}]]*/ 0;
+        /*]]>*/
+        </script>
+        
         <script type="text/javascript">
             function toggleMapToolTab(){
                 $('#mapToolTab').toggle();
@@ -151,20 +171,8 @@
                 type: '',
                 target: ''
             }
-
+            
             var managerFactory = null;
-            var policyJson = [(${policyJson})];
-            policyJson.geo_callback_enable = "false";
-            // policyJson.geo_callback_enable = "true";
-            // policyJson.geo_callback_apiresult = "showApiResult";
-            // policyJson.geo_callback_dataInfo = "showDataInfo";
-            // policyJson.geo_callback_selectedobject = "showSelectedObject";
-            // policyJson.geo_callback_moveddata = "showMovedData";
-            // policyJson.geo_callback_insertissue = "showInsertIssueLayer";
-            // policyJson.geo_callback_clickposition = "showClickPosition";
-
-	        var initProjectJsonMap = [(${initProjectJsonMap})];
-
             var imagePath = "/images";
             var dataInformationUrl = "/persistence/json/";
             magoStart(null, "magoContainer", imagePath);
@@ -181,7 +189,7 @@
                     // Label 표시
                     changeLabel(false);
                     // object 정보 표시
-                    changeObjectInfoViewMode(true);
+                    changeObjectInfoViewMode(false);
                     // Origin 표시
                     changeOrigin(false);
                     // BoundingBox
@@ -206,7 +214,6 @@
 
             // mago3d 시작, 정책 데이터 파일을 로딩
             function magoStart() {
-                var initProjectsLength = [[${initProjectsLength}]];
                 if(initProjectsLength === null || initProjectsLength === 0) {
                     managerFactory = new ManagerFactory(null, "magoContainer", policyJson, null, null, null, imagePath);
                 } else {
@@ -360,6 +367,11 @@
             $("#changeGMLAlphaButton").click(function() {
                 changeGMLAlpha(parseFloat($("#geo_gml_alpha_coef").val()));
             });
+
+            // moved data callback
+	        function showMovedData () {
+
+            }
         </script>
     </th:block>
 </body>

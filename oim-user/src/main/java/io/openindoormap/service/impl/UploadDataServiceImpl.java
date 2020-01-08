@@ -147,4 +147,15 @@ public class UploadDataServiceImpl implements UploadDataService {
 			
 		return 0;
 	}
+
+	/**
+	 * 등록된 자료 수정
+	 * 
+	 * @param uploadData
+	 * @return
+	 */
+	@Transactional
+	public int updateUploadData(UploadData uploadData) {
+		return uploadDataMapper.updateUploadData(uploadData);
+	}
 }

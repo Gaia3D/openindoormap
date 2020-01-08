@@ -91,7 +91,6 @@ public class UploadDataController {
 	@SuppressWarnings("unchecked")
 	@PostMapping("/insert-upload-data")
 	@ResponseBody
-	//public Callable<Map<String, Object>> insertUploadData(MultipartHttpServletRequest request) {
 	public Map<String, Object> insertUploadData(MultipartHttpServletRequest request) {
 		// return () -> {
 			// TODO 파일 목록에 zip 파일이 포함되어 있는 경우 어떻게 가져갈지
@@ -479,7 +478,7 @@ public class UploadDataController {
 		// 4 파일 사이즈
 		// TODO data object attribute 파일은 사이즈가 커서 제한을 하지 않음
 		long fileSize = multipartFile.getSize() / 1024;	// KByte
-		long checkFileSize = 10 * 1024 ;				// Kbyte(default : 10Mb)
+		long checkFileSize = 500 * 1024 ;				// Kbyte(default : 10Mb)
 		if(policy != null)
 		{
 			checkFileSize = policy.getUser_upload_max_filesize() * 1024;	// Kbyte

@@ -65,4 +65,11 @@ public interface UploadDataMapper {
 	 * @return
 	 */
 	int deleteUploadDataFile(UploadData uploadData);
+
+	/**
+	 * 등록된 자료 수정
+	 * @param uploadData
+	 * @return
+	 */
+	int updateUploadData(UploadData uploadData);
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.openindoormap.config.AMQPConfig;
@@ -238,7 +239,11 @@ public class ConverterServiceImpl implements ConverterService {
 			UploadData uploadData = new UploadData();
 			uploadData.setUser_id(userId);
 			uploadData.setUpload_data_id(Long.valueOf(upload_data_id));
+
+			uploadData = uploadDataService.getUploadData(uploadData);
+			uploadData.setConverter_count(uploadData.getConverter_count()+1);
 			uploadData.setConverter_target_yn(ConverterTarget.Y.name());
+			uploadDataService.updateUploadData(uploadData);
 			List<UploadDataFile> uploadDataFileList = uploadDataService.getListUploadDataFile(uploadData);
 			
 			inConverterJob.setFile_count(uploadDataFileList.size());

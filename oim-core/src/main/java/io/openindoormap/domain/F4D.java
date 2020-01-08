@@ -14,6 +14,8 @@ public class F4D
     
     private Integer skinLevel;
 
+    private Integer meshType;
+
     private Double unitScaleFactor;
 
     private Boolean createIndex;
@@ -32,11 +34,10 @@ public class F4D
 
     private String suffix;
 
-    private Integer meshType;
-
     public F4D()
     {
-        this.skinLevel = 3;
+        this.meshType = 0;
+        this.skinLevel = 4;
         this.performOC = false;
         this.createIndex = false;
         this.unitScaleFactor = 1.0;

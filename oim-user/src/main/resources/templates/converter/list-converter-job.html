@@ -172,11 +172,12 @@
                                             <td th:case="'1'">성공</td>
                                             <td th:case="'2'">확인필요</td>
                                             <td th:case="'3'">실패</td>
+                                            <td th:case="'4'">변환중</td>
                                         </td:block>
                                         <td th:text="${#numbers.formatInteger(converterJob.file_count, 0, 'COMMA')} + '개'"></td>
                                         <td th:if="${converterJob.error_code==null}">없음</td>
                                         <td th:unless="${converterJob.error_code==null}">
-                                            <a href="#" th:onclick="'detailErrorCode('+${converterJob.error_code}+'); return false;'">[보기]</a>
+                                            <a href="#" th:attr="data-code=${converterJob.error_code}" th:onclick="detailErrorCode(this.dataset.code); return false;">[보기]</a>
                                         </td>
 
                                         <td th:text="${converterJob.viewInsertDate}"></td>

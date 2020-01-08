@@ -155,5 +155,30 @@
 		/* deleteUploadDataFile */
 		DELETE from upload_data_file WHERE user_id = #{user_id} AND upload_data_id = #{upload_data_id}
 	</delete>
-	
+
+	<!-- 등록된 자료 수정 -->
+	<update id="updateUploadData" parameterType="uploadData">
+		/* updateUploadData */
+		UPDATE upload_data
+		SET
+			<if test="project_id != null and project_id != ''">
+			project_id = #{project_id},
+			</if>
+			sharing_type = #{sharing_type},
+			data_type = #{data_type},
+			data_name = #{data_name},
+			latitude = #{latitude},
+			longitude = #{longitude},
+			height = #{height},
+			<if test="description != null and description != ''">
+			description = #{description},
+			</if>
+			compress_yn = #{compress_yn},
+			file_count = #{file_count},
+			converter_count = #{converter_count}
+		WHERE upload_data_id = #{upload_data_id}
+		<if test="user_id != null and user_id != ''">
+			AND user_id = #{user_id}
+		</if> 
+	</update>
 </mapper>

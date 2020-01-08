@@ -184,7 +184,7 @@
                                 <tbody>
                                     <!-- 결과가 없으면 -->
                                     <tr th:if="${dataList.isEmpty()}">
-                                        <td colspan="10" class="col-none">데이터가 존재하지 않습니다.</td>
+                                        <td colspan="11" class="col-none">데이터가 존재하지 않습니다.</td>
                                     </tr>
                                     <!-- 결과가 있으면 -->
                                     <tr th:unless="${dataList.isEmpty()}" th:each="data, status : ${dataList}">
@@ -224,15 +224,36 @@
                             </table>
                         </div>
                         <!-- /.box-body -->
-                        <div class="box-footer clearfix text-center">
-                            <ul class="pagination no-margin justify-content-center">
-                                <li><a href="#">&laquo;</a></li>
-                                <li><a href="#">1</a></li>
-                                <li><a href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">&raquo;</a></li>
-                            </ul>
-                        </div>
+                        <th:block th:if="${pagination.totalCount > 0}">
+                            <div class="box-footer clearfix text-center">
+                                <ul class="pagination justify-content-center" th:if="${pagination.pageNo != 0}">
+                                    <!-- <th:block th:if="${pagination.existPrePage == true}" th:object="${pagination}"> -->
+                                        <li class="page-item" title="맨앞으로" th:classappend="${pagination.existPrePage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.firstPage})}"><<</a>
+                                        </li>
+                                        <li class="page-item" title="앞으로" th:classappend="${pagination.existPrePage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.prePageNo})}"><</a>
+                                        </li>
+                                    <!-- </th:block> -->
+                                    <th:block th:with="pageNo = ${pagination.pageNo}" th:each="seq : ${#numbers.sequence(pagination.startPage, pagination.endPage)}">
+                                        <th:block th:if="${seq == pageNo}">
+                                            <li class="page-item active"><a class="page-link" th:href="@{#}" th:text="${pageNo}"></a></li>
+                                        </th:block>
+                                        <th:block th:unless="${seq == pageNo}">
+                                            <li class="page-item"><a class="page-link" th:href="@{${pagination.uri}(pageNo=${seq})}" th:text="${seq}"></a></li>
+                                        </th:block>
+                                    </th:block>
+                                    <!-- <th:block th:if="${pagination.existNextPage == true}" th:object="${pagination}"> -->
+                                        <li class="page-item" title="뒤로" th:classappend="${pagination.existNextPage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.nextPageNo})}">></a>
+                                        </li>
+                                        <li class="page-item" title="맨뒤로" th:classappend="${pagination.existNextPage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.lastPage})}">>></a>
+                                        </li>
+                                    <!-- </th:block> -->
+                                </ul>
+                            </div>
+                        </th:block>
                     </div>
                     <!-- /.box -->
                 </div>

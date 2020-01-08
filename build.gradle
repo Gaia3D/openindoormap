@@ -11,6 +11,13 @@ buildscript {
 	}
 }
 
+final String DEFAULT_PROFILE = 'local'
+
+ext.profile = (!project.hasProperty('profile') || !profile) ? DEFAULT_PROFILE : profile
+
+println " ===========> profile file is ${profile}"
+
+
 //
 // coveralls plugin
 apply plugin: 'com.github.kt3k.coveralls'
@@ -51,6 +58,19 @@ subprojects {
 		testCompile('org.springframework.boot:spring-boot-starter-test')
 
 		compile("org.springframework.boot:spring-boot-devtools")
+	}
+
+	sourceSets {
+		main {
+			resources {
+				println "${resources.srcDirs}"
+				copy {
+					from "src/main/resources/config/${profile}"
+					into "src/main/resources"
+				}
+				exclude "**/config"
+			}
+		}
 	}
 }
 

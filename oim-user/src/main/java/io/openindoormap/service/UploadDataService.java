@@ -57,4 +57,11 @@ public interface UploadDataService {
 	 * @return
 	 */
 	int deleteUploadData(UploadData uploadData);
+
+	/**
+	 * 등록된 자료 수정
+	 * @param uploadData
+	 * @return
+	 */
+	int updateUploadData(UploadData uploadData);
 }

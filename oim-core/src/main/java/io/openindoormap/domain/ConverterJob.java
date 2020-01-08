@@ -17,6 +17,7 @@ public class ConverterJob extends SearchFilter {
 	public static final String JOB_SUCCESS = "1";
 	public static final String JOB_CONFIRM = "2";
 	public static final String JOB_FAIL = "3";
+	public static final String JOB_RUNNING = "4";
 	
 	// job에 포함된 변환 파일 갯수
 	private Integer converter_file_count;
