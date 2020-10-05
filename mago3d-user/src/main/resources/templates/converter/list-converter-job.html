@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
+
+<head>
+    <title>OpenIndoorMap - 자료 목록</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
+    <style type="text/css">
+        .table th,
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                변환 결과
+                <small>Converter</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">Converter</a></li>
+                <li class="active">변환 결과</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">자료 검색</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" id="searchForm" modelAttribute="converterJob" method="post" class="form form-horizontal"
+                        action="/converter/list-converter-job" onsubmit="return searchCheck();">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="order_word">표시 순서<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_word" name="order_word">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="data_name"> 파일명 </option>
+                                                    <option value="insert_date"> 등록일 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_value" name="order_value">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="ASC"> 오름차순 </option>
+                                                    <option value="DESC"> 내림차순 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="list_counter" name="list_counter">
+                                                    <option value="10"> 10개씩 </option>
+                                                    <option value="50"> 50개씩 </option>
+                                                    <option value="100"> 100개씩 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_date">날짜</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                            <input type="text" class="form-control pull-right" id="search_date" name="search_date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_word">검색어<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_word" name="search_word">
+                                                    <option value=""> 선택 </option>
+                                                    <option value="data_name"> 자료명 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_option" name="search_option">
+                                                    <option value="0"> 일치 </option>
+                                                    <option value="1"> 포함 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <input type="text" class="form-control" id="search_value" name="search_value">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="submit" class="btn btn-primary">검색</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                </div>
+            </div>
+            <!-- /.box -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">변환 결과 목록</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive">
+                            <table class="table table-bordered table-hover w-auto">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="chk_all" name="chk_all"></th>
+                                        <th>번호</th>
+                                        <th>변환형식</th>
+                                        <th>변환 자료명</th>
+                                        <th>상태</th>
+                                        <th>변환대상<br/>파일갯수</th>
+                                        <th>에러코드</th>
+                                        <th>등록일 </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 결과가 없으면 -->
+                                    <tr th:if="${converterJobList.isEmpty()}">
+                                        <td colspan="8" class="col-none">자료가 존재하지 않습니다.</td>
+                                    </tr>
+                                    <!-- 결과가 있으면 -->
+                                    <tr th:unless="${converterJobList.isEmpty()}" th:each="converterJob, status : ${converterJobList}">
+                                        <td scope="row"><input type="checkbox" th:id="'converter_job_id_' + ${converterJob.converter_job_id}"
+                                                name="converter_job_id" th:value="${converterJob.converter_job_id}" /></td>
+                                        <td th:text="${pagination.rowNumber - status.index}"></td>
+                                        <td:block th:switch="${converterJob.converter_type}">
+                                            <td th:case="'0'">정밀</td>
+                                            <td th:case="'1'">기본</td>
+                                            <td th:case="'2'">큰 건물</td>
+                                            <td th:case="'3'">초대형 건물</td>
+                                        </td:block>
+                                        <td>
+                                            <a th:href="@{/upload-data/detail-upload-data(upload_data_id=${converterJob.upload_data_id})}" th:text="${converterJob.title}"></a>
+                                        </td>
+                                        <td:block th:switch="${converterJob.status}">
+                                            <td th:case="'0'">준비</td>
+                                            <td th:case="'1'">성공</td>
+                                            <td th:case="'2'">확인필요</td>
+                                            <td th:case="'3'">실패</td>
+                                            <td th:case="'4'">변환중</td>
+                                        </td:block>
+                                        <td th:text="${#numbers.formatInteger(converterJob.file_count, 0, 'COMMA')} + '개'"></td>
+                                        <td th:if="${converterJob.error_code==null}">없음</td>
+                                        <td th:unless="${converterJob.error_code==null}">
+                                            <a href="#" th:attr="data-code=${converterJob.error_code}" th:onclick="detailErrorCode(this.dataset.code); return false;">[보기]</a>
+                                        </td>
+
+                                        <td th:text="${converterJob.viewInsertDate}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer clearfix text-center">
+                            <ul class="pagination no-margin justify-content-center">
+                                <li><a href="#">&laquo;</a></li>
+                                <li><a href="#">1</a></li>
+                                <li><a href="#">2</a></li>
+                                <li><a href="#">3</a></li>
+                                <li><a href="#">&raquo;</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            function detailErrorCode(errorCode) {
+                alert(errorCode);
+                // errorDialog.dialog("open");
+                // $("#dialog_error_code").html(errorCode);
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

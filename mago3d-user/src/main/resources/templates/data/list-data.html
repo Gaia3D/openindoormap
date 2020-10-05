@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
+
+<head>
+    <title>OpenIndoorMap - 데이터 목록</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
+    <style type="text/css">
+        .table th,
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                데이터 목록
+                <small>데이터 목록</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">데이터</a></li>
+                <li class="active">데이터 목록</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">데이터 검색</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" id="searchForm" modelAttribute="dataInfo" method="post" class="form form-horizontal"
+                        action="/data/list-data" onsubmit="return searchCheck();">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="order_word">표시 순서<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_word" name="order_word">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="insert_date"> 등록일 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_value" name="order_value">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="ASC"> 오름차순 </option>
+                                                    <option value="DESC"> 내림차순 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="list_counter" name="list_counter">
+                                                    <option value="10"> 10개씩 </option>
+                                                    <option value="50"> 50개씩 </option>
+                                                    <option value="100"> 100개씩 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="project_name">프로젝트명</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="project_name" name="project_name">
+                                                    <option value=""> 전체 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="status">상태</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="status" name="status">
+                                                    <option value=""> 전체 </option>
+                                                    <option value="0"> 사용중 </option>
+                                                    <option value="1"> 사용중지 </option>
+                                                    <option value="2"> 기타 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_date">날짜</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                            <input type="text" class="form-control pull-right" id="search_date" name="search_date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_word">검색어<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_word" name="search_word">
+                                                    <option value=""> 선택 </option>
+                                                    <option value="data_name"> 데이터명 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_option" name="search_option">
+                                                    <option value="0"> 일치 </option>
+                                                    <option value="1"> 포함 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <input type="text" class="form-control" id="search_value" name="search_value">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="submit" class="btn btn-primary">검색</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                </div>
+            </div>
+            <!-- /.box -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">데이터 목록</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive">
+                            <table class="table table-bordered table-hover w-auto">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="chk_all" name="chk_all"></th>
+                                        <th>번호</th>
+                                        <th>프로젝트명</th>
+                                        <th>데이터명</th>
+                                        <th>경도</th>
+                                        <th>위도</th>
+                                        <th>높이(m)</th>
+                                        <th>상태</th>
+                                        <th>속성</th>
+                                        <th>등록일 </th>
+                                        <th>수정/삭제</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 결과가 없으면 -->
+                                    <tr th:if="${dataList.isEmpty()}">
+                                        <td colspan="11" class="col-none">데이터가 존재하지 않습니다.</td>
+                                    </tr>
+                                    <!-- 결과가 있으면 -->
+                                    <tr th:unless="${dataList.isEmpty()}" th:each="data, status : ${dataList}">
+                                        <td scope="row"><input type="checkbox" th:id="'data_id_' + ${data.data_id}"
+                                                name="data_id" th:value="${data.data_id}" /></td>
+                                        <td th:text="${pagination.rowNumber - status.index}"></td>
+                                        <td>
+                                            <a href="#" th:onclick="'detailProject(' + ${data.project_id} + '); return false;'" th:text="${data.project_name}"></a>
+                                        </td>
+                                        <td th:text="${data.data_name}"></td>
+                                        <td th:text="${#numbers.formatDecimal(data.longitude, 0, 5)}"></td>
+                                        <td th:text="${#numbers.formatDecimal(data.latitude, 0, 5)}"></td>
+                                        <td th:text="${#numbers.formatDecimal(data.height, 0, 2)}"></td>
+                                        <td:block th:switch="${data.status}">
+                                            <td th:case="'0'"><i class="fa fa-power-off" style="color:green;" data-toggle="tooltip" title="사용중"></i>사용중</td>
+                                            <td th:case="'*'"><i class="fa fa-power-off" style="color:red;" data-toggle="tooltip" title="사용중지"></i>사용중지</td>
+                                        </td:block>
+                                        <td>
+                                            <a href="#" th:onclick="'detailDataControlAttribute(' + ${data.data_id} + '); return false;'">보기</a>
+                                        </td>
+                                        <td th:text="${data.viewInsertDate}"></td>
+                                        <td th:if="${data.parent.toString().equals('0') and data.depth.toString().equals('1')}" style="width:100px;min-width:100px;">
+                                            [불가]
+                                        </td>
+                                        <td th:unless="${data.parent.toString().equals('0') and data.depth.toString().equals('1')}" style="width:100px;min-width:100px;">
+                                            <div class="btn-group btn-group-justified">
+                                                <a th:href="@{/data/modify-data(data_id=${data.data_id})}"
+                                                    class="btn btn-warning"><i class="fa fa-edit" data-toggle="tooltip"
+                                                        title="수정"></i></a>
+                                                <a href="#" th:onclick="'deleteData(' + ${data.data_id} + '); return false;'"
+                                                    class="btn btn-danger"><i class="fa fa-trash-o" data-toggle="tooltip"
+                                                        title="삭제"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <th:block th:if="${pagination.totalCount > 0}">
+                            <div class="box-footer clearfix text-center">
+                                <ul class="pagination justify-content-center" th:if="${pagination.pageNo != 0}">
+                                    <!-- <th:block th:if="${pagination.existPrePage == true}" th:object="${pagination}"> -->
+                                        <li class="page-item" title="맨앞으로" th:classappend="${pagination.existPrePage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.firstPage})}"><<</a>
+                                        </li>
+                                        <li class="page-item" title="앞으로" th:classappend="${pagination.existPrePage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.prePageNo})}"><</a>
+                                        </li>
+                                    <!-- </th:block> -->
+                                    <th:block th:with="pageNo = ${pagination.pageNo}" th:each="seq : ${#numbers.sequence(pagination.startPage, pagination.endPage)}">
+                                        <th:block th:if="${seq == pageNo}">
+                                            <li class="page-item active"><a class="page-link" th:href="@{#}" th:text="${pageNo}"></a></li>
+                                        </th:block>
+                                        <th:block th:unless="${seq == pageNo}">
+                                            <li class="page-item"><a class="page-link" th:href="@{${pagination.uri}(pageNo=${seq})}" th:text="${seq}"></a></li>
+                                        </th:block>
+                                    </th:block>
+                                    <!-- <th:block th:if="${pagination.existNextPage == true}" th:object="${pagination}"> -->
+                                        <li class="page-item" title="뒤로" th:classappend="${pagination.existNextPage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.nextPageNo})}">></a>
+                                        </li>
+                                        <li class="page-item" title="맨뒤로" th:classappend="${pagination.existNextPage} ? '' : disabled">
+                                            <a class="page-link" th:href="@{${pagination.uri}(pageNo=${pagination.lastPage})}">>></a>
+                                        </li>
+                                    <!-- </th:block> -->
+                                </ul>
+                            </div>
+                        </th:block>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <!-- <script type="text/javascript" src="/externlib/dropzone/dropzone.min.js"></script> -->
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            // Project 정보 삭제
+            var deleteProjectFlag = true;
+            function deleteProject(project_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('삭제하시겠습니까?')) {
+                    if (deleteProjectFlag) {
+                        deleteProjectFlag = false;
+                        var info = "project_id=" + project_id;
+                        $.ajax({
+                            url: "/project/ajax-delete-project",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["project.update"]);
+                                    location.reload();
+                                } else {
+                                    //alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                deleteProjectFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                deleteProjectFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+
+            // Data 삭제
+            var deleteDataFlag = true;
+            function deleteData(data_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('삭제하시겠습니까?')) {                    
+                    if (deleteDataFlag) {
+                        deleteDataFlag = false;
+                        var info = "data_id=" + data_id;
+                        $.ajax({
+                            url: "/data/ajax-delete-data",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["delete"]);
+                                    location.reload();
+                                } else {
+                                    // alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                deleteDataFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                deleteDataFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

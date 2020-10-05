@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
+
+<head>
+    <title>OpenIndoorMap - 데이터 수정</title>
+    <link rel="stylesheet" href="/externlib/dropzone/dropzone.css">
+    <style type="text/css">
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                데이터 수정
+                <small>데이터</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">데이터</a></li>
+                <li class="active">데이터 수정</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">데이터 정보</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" id="dataInfo" modelAttribute="dataInfo" method="post" data-toggle="validator" class="form form-horizontal">
+                        <input th:field="${dataInfo.data_id}" type="hidden">
+                        <!-- select -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="project_id">프로젝트명<i class="fa fa-star-of-life"></i></label>
+                            <div class="col-sm-9">
+                                <select class="form-control" id="project_id" name="project_id">
+                                    <option th:each="project, status : ${projectList}" th:value="${project.project_id}" 
+                                    th:text="${project.project_name}" th:selected="${project.project_id==dataInfo.project_id}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- select -->
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="parent_name">상위 노드<i class="fa fa-star-of-life"></i></label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input th:field="${dataInfo.parent}" type="hidden">
+                                    <input th:field="${dataInfo.parent_depth}" type="hidden">
+                                    <input th:field="${dataInfo.parent_name}" type="text" class="form-control" id="parent_name" name="parent_name" readonly="true" data-error="상위노드를 선택해주세요" required>
+                                    <span class="input-group-btn">
+                                        <button type="button" th:if="${dataInfo.parent ne 0 and dataInfo.depth ne 1}" class="btn btn-info btn-flat" id="parentFind">검색</button>
+                                        <!-- <button type="button" th:if="${dataInfo.parent ne 0 and dataInfo.depth ne 1}" class="btn btn-info btn-flat" data-toggle="modal" data-target="#parentFindDialog">검색</button> -->
+                                    </span>
+                                </div>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="data_key">데이터 키<i class="fa fa-star-of-life"></i></label>
+                            <div class="col-sm-9">
+                                <div class="input-group">
+                                    <input th:field="${dataInfo.duplication_value}" type="hidden">
+                                    <input th:field="${dataInfo.data_key}" type="text" class="form-control" id="data_key" name="data_key" readonly="true" data-error="데이터 키를 입력하세요" required>
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-info btn-flat" id="data_duplication_buttion">중복검사</button>
+                                    </span>
+                                </div>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="data_name">데이터명<i class="fa fa-star-of-life"></i></label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.data_name}" type="text" class="form-control" id="data_name" name="data_name" placeholder="" data-error="데이터 이름을 입력하세요"
+                                    required>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="mapping_type">원점 형식<i class="fa fa-star-of-life"></i></label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.mapping_type}" type="text" class="form-control" id="mapping_type" name="mapping_type">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="longitude">경도</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.longitude}" type="text" class="form-control" id="longitude" name="longitude" placeholder="" data-error="경도값을 입력하세요."
+                                    required>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="latitude">위도</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.latitude}" type="text" class="form-control" id="latitude" name="latitude" placeholder="" data-error="위도값을 입력하세요."
+                                    required>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="height">높이</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.height}" type="text" class="form-control" id="height" name="height" placeholder="" data-error="높이값을 입력하세요."
+                                    required>
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="heading">Heading</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.heading}" type="text" class="form-control" id="heading" name="heading" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="pitch">Pitch</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.pitch}" type="text" class="form-control" id="pitch" name="pitch" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="roll">Roll</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.roll}" type="text" class="form-control" id="roll" name="roll" placeholder="">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="attributes">속성</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.attributes}" type="text" class="form-control" id="attributes" name="attributes" placeholder="">
+                                <span class="help-block with-errors"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="description">설명</label>
+                            <div class="col-sm-9">
+                                <input th:field="${dataInfo.description}" type="text" class="form-control" id="description" name="description" placeholder="">
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer clearfix text-center">
+                    <div class="form-group">
+                        <a class="btn btn-warning" href="/data/list-data" role="button">취소</a>
+                        <button class="btn btn-primary" id="updateData">저장</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.box -->
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <script type="text/javascript">
+            // 데이터 키 중복 확인
+            $( "#data_duplication_buttion" ).on( "click", function() {
+                var dataKey = $("#data_key").val();
+                if (dataKey == "") {
+                    // alert(JS_MESSAGE["data.key.empty"]);
+                    alert("데이터 키가 중복되었습니다.");
+                    $("#data_id").focus();
+                    return false;
+                }
+                var info = "project_id=" + $("#project_id").val() + "&data_key=" + dataKey;
+                $.ajax({
+                    url: "/data/ajax-data-key-duplication-check",
+                    type: "POST",
+                    data: info,
+                    cache: false,
+                    dataType: "json",
+                    success: function(msg){
+                        if(msg.result == "success") {
+                            if(msg.duplication_value != "0") {
+                                // alert(JS_MESSAGE["data.key.duplication"]);
+                                alert("데이터 키가 중복되었습니다.");
+                                $("#data_key").focus();
+                                return false;
+                            } else {
+                                // alert(JS_MESSAGE["data.key.enable"]);
+                                alert("사용가능한 키입니다.");
+                                $("#duplication_value").val(msg.duplication_value);
+                            }
+                        } else {
+                            // alert(JS_MESSAGE[msg.result]);
+                        }
+                    },
+                    error:function(request, status, error) {
+                        //alert(JS_MESSAGE["ajax.error.message"]);
+                        alert(" code : " + request.status + "\n" + ", message : " + request.responseText + "\n" + ", error : " + error);
+                    }
+                });
+            });
+
+            // Data 정보 저장
+            var updateDataFlag = true;
+            $("#updateData").on('click', function(){
+                if (checkData() == false) {
+                    return false;
+                }
+                if (updateDataFlag) {
+                    updateDataFlag = false;
+                    var info = $("#dataInfo").serialize();
+                    $.ajax({
+                        url: "/data/ajax-update-data-info",
+                        type: "POST",
+                        data: info,
+                        cache: false,
+                        dataType: "json",
+                        success: function (msg) {
+                            if (msg.result == "success") {
+                                // alert(JS_MESSAGE["project.update"]);
+                                alert("수정되었습니다.");
+                                $("#parent").val("");
+						        $("#duplication_value").val("");
+                            }
+                            updateDataFlag = true;
+                        },
+                        error: function (request, status, error) {
+                            // alert(JS_MESSAGE["ajax.error.message"]);
+                            updateDataFlag = true;
+                        }
+                    });
+                } else {
+                    // alert(JS_MESSAGE["button.dobule.click"]);
+                    return;
+                }
+            })
+
+            function checkData() {
+                if ($("#data_key").val() == "") {
+                    $("#data_key").focus();
+                    return false;
+                }
+                if ($("#data_name").val() == "") {
+                    // alert(JS_MESSAGE["project.name.empty"]);
+                    $("#data_name").focus();
+                    return false;
+                }
+                if ($("#longitude").val() == "") {
+                    // alert(JS_MESSAGE["longitude.empty"]);
+                    $("#longitude").focus();
+                    return false;
+                }
+                if ($("#latitude").val() == "") {
+                    // alert(JS_MESSAGE["latitude.empty"]);
+                    $("#latitude").focus();
+                    return false;
+                }
+                if ($("#height").val() == "") {
+                    // alert(JS_MESSAGE["height.empty"]);
+                    $("#height").focus();
+                    return false;
+                }
+                if ($("#attributes").val() == "") {
+                    // alert("속성 정보를 입력하여 주십시오.");
+                    $("#attributes").focus();
+                    return false;
+                }
+                if($("#data_key").val() !== $("#old_data_key").val()) {
+                    if($("#duplication_value").val() == null || $("#duplication_value").val() == "") {
+                        // alert(JS_MESSAGE["data.key.duplication_value.check"]);
+                        alert("데이터 키의 중복을 확인해주세요.");
+                        return false;
+                    } else if($("#duplication_value").val() == "1") {
+                        // alert(JS_MESSAGE["data.key.duplication_value.already"]);
+                        alert("중복된 키입니다.");
+                        return false;
+                    }
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

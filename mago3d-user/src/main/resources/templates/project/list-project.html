@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="layout">
+
+<head>
+    <title>OpenIndoorMap - 프로젝트 목록</title>
+    <style type="text/css">
+        .table th,
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                프로젝트 목록
+                <small>프로젝트</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li>
+                <li><a href="#">프로젝트</a></li>
+                <li class="active">프로젝트 목록</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <!-- general form elements disabled -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">프로젝트 검색</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <form role="form" id="searchForm" modelAttribute="project" method="post" class="form form-horizontal"
+                        action="/project/list-project" onsubmit="return searchCheck();">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="order_word">표시 순서<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_word" name="order_word">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="insert_date"> 등록일 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="order_value" name="order_value">
+                                                    <option value=""> 기본 </option>
+                                                    <option value="ASC"> 오름차순 </option>
+                                                    <option value="DESC"> 내림차순 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="list_counter" name="list_counter">
+                                                    <option value="10"> 10개씩 </option>
+                                                    <option value="50"> 50개씩 </option>
+                                                    <option value="100"> 100개씩 </option>
+                                                </select>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_date">날짜</label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                            <input type="text" class="form-control pull-right" id="search_date" name="search_date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label" for="search_word">검색어<i class="fa fa-star-of-life"></i></label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_word" name="search_word">
+                                                    <option value=""> 선택 </option>
+                                                    <option value="project_name"> 프로젝트명 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <select class="form-control" id="search_option" name="search_option">
+                                                    <option value="0"> 일치 </option>
+                                                    <option value="1"> 포함 </option>
+                                                </select>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <input type="text" class="form-control" id="search_value" name="search_value">
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button type="submit" class="btn btn-primary">검색</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer">
+                </div>
+            </div>
+            <!-- /.box -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">프로젝트 목록</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body table-responsive">
+                            <table class="table table-bordered table-hover w-auto">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="chk_all" name="chk_all"></th>
+                                        <th>번호 </th>
+                                        <th>공유타입</th>
+                                        <th>프로젝트명</th>
+                                        <th>경도</th>
+                                        <th>위도</th>
+                                        <th>높이(m) </th>
+                                        <th>이동 시간 </th>
+                                        <th>데이터 건수 </th>
+                                        <th>바로가기 </th>
+                                        <th>등록일 </th>
+                                        <th>수정/삭제</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 결과가 없으면 -->
+                                    <tr th:if="${projectList.isEmpty()}">
+                                        <td colspan="12" class="col-none">프로젝트가 존재하지 않습니다.</td>
+                                    </tr>
+                                    <!-- 결과가 있으면 -->
+                                    <tr th:unless="${projectList.isEmpty()}" th:each="project, status : ${projectList}">
+                                        <td scope="row"><input type="checkbox" th:id="'project_id_' + ${project.project_id}"
+                                                name="project_id" th:value="${project.project_id}" /></td>
+                                        <td th:text="${pagination.rowNumber - status.index}"></td>
+                                        <td:block th:switch="${project.sharing_type}">
+                                            <td th:case="'0'">공통 프로젝트</td>
+                                            <td th:case="'1'">공개 프로젝트</td>
+                                            <td th:case="'2'">개인 프로젝트</td>
+                                            <td th:case="'3'">공유 프로젝트</td>
+                                        </td:block>
+                                        <td th:text="${project.project_name}"></td>
+                                        <td th:text="${#numbers.formatDecimal(project.longitude, 0, 5)}"></td>
+                                        <td th:text="${#numbers.formatDecimal(project.latitude, 0, 5)}"></td>
+                                        <td th:text="${#numbers.formatDecimal(project.height, 0, 2)}"></td>
+                                        <td th:text="${project.duration}"></td>
+                                        <td>
+                                            <a href="#" th:data1="${project.project_id}" th:data2="${project.project_name}" 
+                                            th:onclick="viewDataList(this.getAttribute('data1'), this.getAttribute('data2')); return false;"
+                                                th:text="${#numbers.formatInteger(project.data_count, 0, 'COMMA')}"></a>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/project/modify-project(project_id=${project.project_id})}"><i
+                                                    class="fa fa-globe"></i></a>
+                                        </td>
+                                        <td th:text="${project.viewInsertDate}"></td>
+                                        <td style="width:100px;min-width:100px;">
+                                            <div class="btn-group btn-group-justified">
+                                                <a th:href="@{/project/modify-project(project_id=${project.project_id})}"
+                                                    class="btn btn-warning"><i class="fa fa-edit" data-toggle="tooltip"
+                                                        title="수정"></i></a>
+                                                <a href="#" th:onclick="'deleteProject(' + ${project.project_id} + '); return false;'"
+                                                    class="btn btn-danger"><i class="fa fa-trash-o" data-toggle="tooltip"
+                                                        title="삭제"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.box-body -->
+                        <div class="box-footer clearfix text-center">
+                            <ul class="pagination no-margin justify-content-center">
+                                <li><a href="#">&laquo;</a></li>
+                                <li><a href="#">1</a></li>
+                                <li><a href="#">2</a></li>
+                                <li><a href="#">3</a></li>
+                                <li><a href="#">&raquo;</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <th:block layout:fragment="script">
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+            function viewDataList(id, name)
+            {
+                //alert(id+" "+name);
+                console.log(id+" "+name);
+            }
+
+            // Project 정보 삭제
+            var deleteProjectFlag = true;
+            function deleteProject(project_id) {
+                //if (confirm(JS_MESSAGE["delete.confirm"])) {
+                if (confirm('삭제하시겠습니까?')) {
+                    if (deleteProjectFlag) {
+                        deleteProjectFlag = false;
+                        var info = "project_id=" + project_id;
+                        $.ajax({
+                            url: "/project/ajax-delete-project",
+                            type: "POST",
+                            data: info,
+                            cache: false,
+                            dataType: "json",
+                            success: function (msg) {
+                                if (msg.result == "success") {
+                                    // alert(JS_MESSAGE["project.update"]);
+                                    location.reload();
+                                } else {
+                                    //alert(JS_MESSAGE[msg.result]);
+                                    alert(msg.result);
+                                }
+                                deleteProjectFlag = true;
+                            },
+                            error: function (request, status, error) {
+                                // alert(JS_MESSAGE["ajax.error.message"]);
+                                deleteProjectFlag = true;
+                            }
+                        });
+                    } else {
+                        // alert(JS_MESSAGE["button.dobule.click"]);
+                        return;
+                    }
+                }
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>
