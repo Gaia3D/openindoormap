@@ -1,5 +1,5 @@
 
-psql -U postgres ndtp;
+psql -U postgres lhdt;
 
 
 

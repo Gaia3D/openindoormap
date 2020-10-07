@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.DataLibraryUploadMapper">
+
+	<!-- 데이터 라이브러리 업로드 파일 총 건수 -->
+	<select id="getDataLibraryUploadTotalCount" parameterType="dataLibraryUpload" resultType="long">
+		/* getDataLibraryUploadTotalCount */
+		SELECT COUNT(data_library_upload_id)
+		FROM data_library_upload
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="sharing != null and sharing != ''">
+				sharing = #{sharing}
+			</if>
+			<if test="dataType != null and dataType != ''">
+				AND data_type = #{dataType}
+			</if>
+			<if test="userId != null and userId != ''">
+				AND user_id = #{userId}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+				AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+				AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+				<![CDATA[
+			AND insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+				<![CDATA[
+			AND insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+	</select>
+
+	<!-- 데이터 라이브러리 업로드 파일 목록 -->
+	<select id="getListDataLibraryUpload" parameterType="dataLibraryUpload" resultType="dataLibraryUpload">
+		/* getListDataLibraryUpload */
+		SELECT A.*, B.data_library_group_name
+		FROM data_library_upload A, data_library_group B
+		WHERE A.data_library_group_id = B.data_library_group_id
+		<if test="dataLibraryGroupName != null and dataLibraryGroupName != ''">
+			AND B.data_library_group_name = #{dataLibraryGroupName}
+		</if>
+		<if test="sharing != null and sharing != ''">
+			AND A.sharing = #{sharing}
+		</if>
+		<if test="dataType != null and dataType != ''">
+			AND A.data_type = #{dataType}
+		</if>
+		<if test="userId != null and userId != ''">
+			AND A.user_id = #{userId}
+		</if>
+		<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+		</if>
+		<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+		</if>
+		<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND A.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+		]]>
+		</if>
+		<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND A.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+		]]>
+		</if>
+		<choose>
+			<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+				ORDER BY A.${orderWord} ${orderValue}
+			</when>
+			<otherwise>
+				ORDER BY A.insert_date DESC, A.data_library_upload_id DESC
+			</otherwise>
+		</choose>
+		OFFSET #{offset} LIMIT #{limit}
+	</select>
+
+	<!-- 데이터 라이브러리 업로딩 정보 -->
+	<select id="getDataLibraryUpload" parameterType="dataLibraryUpload" resultType="dataLibraryUpload">
+		/* getDataLibraryUpload */
+		SELECT A.*, B.data_library_group_name
+		FROM data_library_upload A, data_library_group B
+		WHERE A.data_library_group_id = B.data_library_group_id
+		<if test="userId != null and userId != ''">
+			AND A.user_id = #{userId}
+		</if>
+		AND data_library_upload_id = #{dataLibraryUploadId}
+	</select>
+
+	<!-- 데이터 라이브러리 업로드 파일 목록 -->
+	<select id="getListDataLibraryUploadFile" parameterType="dataLibraryUpload" resultType="dataLibraryUploadFile">
+		/* getListDataLibraryUploadFile */
+		SELECT A.data_library_group_id, A.sharing, A.data_type, A.data_library_name, A.mapping_type, B.*
+		FROM data_library_upload A, data_library_upload_file B
+		WHERE A.data_library_upload_id = B.data_library_upload_id
+		<if test="userId != null and userId != ''">
+			AND B.user_id =#{userId}
+		</if>
+		<if test="converterTarget != null">
+			AND B.converter_target = #{converterTarget}
+		</if>
+		AND A.data_library_upload_id = #{dataLibraryUploadId}
+		<choose>
+			<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+				ORDER BY B.${orderWord} ${orderValue}
+			</when>
+			<otherwise>
+				ORDER BY B.depth, A.insert_date
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 데이터 라이브러리 업로딩 파일 -->
+	<select id="getDataLibraryUploadFile" parameterType="dataLibraryUploadFile" resultType="dataLibraryUploadFile">
+		/* getDataLibraryUploadFile */
+		SELECT A.data_library_group_id, A.sharing, A.data_type, A.data_library_name, A.mapping_type, B.*
+		FROM data_library_upload A, data_library_upload_file B
+		WHERE A.data_library_upload_id = B.data_library_upload_id
+		<if test="userId != null and userId != ''">
+			AND B.user_id =#{userId}
+		</if>
+		AND data_library_upload_file_id = #{dataLibraryUploadFileId}
+	</select>
+
+	<!-- 데이터 라이브러리 업로딩 정보 입력 -->
+	<insert id="insertDataLibraryUpload" parameterType="dataLibraryUpload" >
+		/* insertDataLibraryUpload */
+		<selectKey keyProperty="dataLibraryUploadId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('data_library_upload_seq')
+		</selectKey>
+		INSERT INTO data_library_upload (
+			data_library_upload_id, data_library_group_id, sharing, data_type, data_library_name, user_id,
+			file_count, converter_target_count, basic_width, basic_depth, basic_height, description
+		) VALUES (
+			#{dataLibraryUploadId}, #{dataLibraryGroupId}, #{sharing}, #{dataType}, #{dataLibraryName}, #{userId},
+			#{fileCount}, #{converterTargetCount}, #{basicWidth}, #{basicDepth}, #{basicHeight}, #{description}
+		)
+	</insert>
+
+	<!-- 데이터 라이브러리 업로딩 파일 정보 입력 -->
+	<insert id="insertDataLibraryUploadFile" parameterType="dataLibraryUploadFile" >
+		/* insertDataLibraryUploadFile */
+		<selectKey keyProperty="dataLibraryUploadFileId" resultType="long" order="BEFORE">
+			SELECT NEXTVAL('data_library_upload_file_seq')
+		</selectKey>
+		INSERT INTO data_library_upload_file (
+			data_library_upload_file_id, data_library_upload_id, converter_target, user_id, file_type,
+			file_name, file_real_name, file_path, file_sub_path, file_size, file_ext, depth, error_message
+		) VALUES (
+			#{dataLibraryUploadFileId}, #{dataLibraryUploadId}, #{converterTarget}, #{userId}, #{fileType},
+			#{fileName}, #{fileRealName}, #{filePath}, #{fileSubPath}, #{fileSize}, #{fileExt}, #{depth}, #{errorMessage}
+		)
+	</insert>
+
+	<!-- 데이터 라이브러리 파일 정보 업로딩 -->
+	<update id="updateDataLibraryUpload" parameterType="dataLibraryUpload" >
+		/* updateDataLibraryUpload */
+		UPDATE data_library_upload
+		SET
+		<if test="dataLibraryName != null and dataLibraryName != ''">
+			data_library_name = #{dataLibraryName},
+		</if>
+		<if test="dataLibraryGroupId != null and dataLibraryGroupId gt 0">
+			data_library_group_id = #{dataLibraryGroupId},
+		</if>
+		<if test="sharing != null and sharing != ''">
+			sharing = #{sharing},
+		</if>
+		<if test="dataType != null and dataType != ''">
+			data_type = #{dataType},
+		</if>
+		<if test="mappingType != null and mappingType != ''">
+			mapping_type = #{mappingType},
+		</if>
+		<if test="converterCount != null and converterCount gt 0">
+			converter_count = converter_count + #{converterCount},
+		</if>
+		<if test="description != null and description != ''">
+			description = #{description},
+		</if>
+		update_date = NOW()
+		WHERE data_library_upload_id = #{dataLibraryUploadId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
+
+</mapper>

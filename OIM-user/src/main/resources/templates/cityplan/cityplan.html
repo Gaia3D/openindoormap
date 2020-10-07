@@ -1,0 +1,65 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="cityPlanContent" class="contents yScroll fullHeight" style="display:none;">
+    <ul class="listDrop">
+<!--        <li>-->
+<!--            <p th:text="성절토"><span class="collapse-icon">icon</span></p>-->
+<!--            <div id="cutfillProcess" class="listContents">-->
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <label for="cutfillToggle" th:text="활성화"></label>-->
+<!--                        <input type="checkbox" value="" id="cutfillToggle" placeholder=""/>-->
+<!--                        <button type="button" id="cutfillBtn" th:text="작동"></button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </li>-->
+
+        <li class="on ds-li-lot-view">
+            <p th:text="단지가시화"><span class="collapse-icon">icon</span></p>
+            <!-- <th:block th:insert="~{/cityplan/cityplan-lot-view :: #lotViewProcess}"/> -->
+            <th:block th:insert="~{/design-layer/design-layer :: #designLayerContent}"/>
+        </li>
+
+<!--        <li>-->
+<!--            <p th:text="지구계획분석"><span class="collapse-icon">icon</span></p>-->
+<!--            <div id="cityPlanProcess" class="listContents">-->
+<!--                <ul>-->
+<!--                    <li>-->
+<!--                        <label for="cityplanBtn" th:text="등록모델정보"></label>-->
+<!--                        <button type="button" id="cityplanBtn" th:text="확인"></button>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </li>-->
+
+        <li class="on">
+            <p th:text="평균높이분석"><span class="collapse-icon">icon</span></p>
+            <div id="heightAnalsProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="heightAvgToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="heightAvgToggle" value="" placeholder=""/>
+                        <button type="button"  id="heightAvgBtn" th:text="초기화"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li class="on">
+            <p th:text="시곡면분석"><span class="collapse-icon">icon</span></p>
+            <div id="landScapeDirectionProcess" class="listContents">
+                <ul>
+                    <li>
+                        <label for="landscapeDirectToggle" th:text="활성화"></label>
+                        <input type="checkbox" id="landscapeDirectToggle" value="" placeholder=""/>
+                        <button type="button" id="landscapeDirectBtn" th:text="작동"></button>
+                    </li>
+                </ul>
+            </div>
+        </li>
+    </ul>
+ 
+ 
+	
+</div>
+</html>

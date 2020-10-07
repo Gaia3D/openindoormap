@@ -21,7 +21,7 @@ RUN \
     mkdir -p /etc/haproxy/certs && \
     mkdir -p /etc/haproxy/errors && \
     groupadd haproxy && adduser haproxy -g haproxy && chown -R haproxy:haproxy /var/lib/haproxy && \
-    adduser -m gaia3d && \
+    adduser -m lhdt && \
     # 설치파일 제거
     rm -rf /tmp/haproxy* && \
     dnf remove -y make gcc pcre-devel && \

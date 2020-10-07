@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.DesignLayerGroupMapper">
+
+	<!-- design layer 그룹 목록 조회 -->
+	<select id="getListDesignLayerGroup" resultType="designLayerGroup">
+		/* getListDesignLayerGroup */
+		WITH RECURSIVE design_layer_group_tree (
+			design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path, cycle
+		) AS (
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.design_layer_group_type, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+	        	A.description, A.insert_date, ARRAY[A.view_order], false
+			FROM design_layer_group A
+			WHERE A.parent = 0
+			<if test="available != null">
+				AND A.available = #{available}
+			</if>
+			UNION ALL
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.design_layer_group_type, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.basic, A.available,
+	        	A.description, A.insert_date, path || A.view_order, A.design_layer_group_id = ANY(path)
+	        FROM design_layer_group A, design_layer_group_tree B
+	        WHERE A.parent = B.design_layer_group_id AND not cycle
+		)
+	    SELECT design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description, insert_date, path
+	    FROM design_layer_group_tree
+	    ORDER BY path
+	</select>
+
+	<!-- design layer 그룹 정보 -->
+	<select id="getDesignLayerGroup" parameterType="int" resultType="designLayerGroup">
+		/* getDesignLayerGroup */
+		SELECT A.*,
+			CASE
+				WHEN parent > 0 THEN ( SELECT design_layer_group_name FROM design_layer_group WHERE design_layer_group_id = A.parent )
+				ELSE null
+			END AS parentName
+		FROM design_layer_group A
+		WHERE design_layer_group_id = #{designLayerGroupId}
+	</select>
+
+	<!-- 부모와 순서를 가지고 design layer 그룹 정보를 취득 -->
+	<select id="getDesignLayerGroupByParentAndViewOrder" parameterType="designLayerGroup" resultType="designLayerGroup">
+		/* getDesignLayerGroupGroupByParentAndViewOrder */
+		SELECT *
+		FROM design_layer_group
+		WHERE parent = #{parent}
+		<if test="updateType == 'UP'.toString()">
+			<![CDATA[
+			AND view_order < #{viewOrder}
+			]]>
+		ORDER BY view_order DESC
+		</if>
+		<if test="updateType == 'DOWN'.toString()">
+			<![CDATA[
+			AND view_order > #{viewOrder}
+			]]>
+		ORDER BY view_order
+		</if>
+		LIMIT 1
+	</select>
+
+	<!-- 나를 부모로 가지는 자식 데이터 그룹 목록을 취득 -->
+	<select id="getChildrenDesignLayerGroupListByParent" parameterType="designLayerGroup" resultType="designLayerGroup">
+		/* getChildrenDesignLayerGroupListByParent */
+		SELECT *
+		FROM design_layer_group
+		WHERE parent = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</select>
+
+	<!-- design layer 그룹 등록 -->
+	<insert id="insertDesignLayerGroup" parameterType="designLayerGroup">
+		/* insertDesignLayerGroup */
+		<selectKey keyProperty="designLayerGroupId" resultType="int" order="BEFORE">
+    		SELECT NEXTVAL('design_layer_group_seq')
+  		</selectKey>
+		INSERT INTO design_layer_group (
+			design_layer_group_id, design_layer_group_name, design_layer_group_type, user_id, ancestor, parent, depth, view_order, children, basic, available, description
+		) VALUES (
+			#{designLayerGroupId}, #{designLayerGroupName}, #{designLayerGroupType}, #{userId},
+			(
+				SELECT COALESCE(MAX(ancestor), #{designLayerGroupId})
+				FROM design_layer_group
+				WHERE design_layer_group_id = #{parent}
+					AND design_layer_group_id != 0
+			),
+			#{parent},
+			(
+				SELECT COALESCE(MAX(depth),  0 ) + 1
+				FROM design_layer_group
+				WHERE design_layer_group_id = #{parent}
+			),
+			(
+				SELECT COALESCE(MAX(view_order), 0) + 1
+				FROM design_layer_group
+				WHERE parent = #{parent}
+			),
+			(
+				SELECT COUNT(*)
+				FROM design_layer_group
+				WHERE parent = #{designLayerGroupId}
+			),
+			#{basic},
+			#{available},
+			trim(#{description})
+		)
+	</insert>
+
+	<!-- design layer 그룹 순서 수정 -->
+	<update id="updateDesignLayerGroupViewOrder" parameterType="designLayerGroup">
+		/* updateDesignLayerGroupViewOrder */
+		UPDATE design_layer_group
+		SET view_order = #{viewOrder}
+		WHERE design_layer_group_id = #{designLayerGroupId}
+	</update>
+
+	<!-- design layer 그룹 수정 -->
+	<update id="updateDesignLayerGroup" parameterType="designLayerGroup">
+		/* updateDesignLayerGroup */
+		UPDATE design_layer_group
+		SET
+			<if test="designLayerGroupName != null and designLayerGroupName != ''">
+			design_layer_group_name = #{designLayerGroupName},
+			</if>
+			<if test="designLayerGroupType != null and designLayerGroupType != ''">
+				design_layer_group_type = #{designLayerGroupType},
+			</if>
+			<if test="userId != null and userId != ''">
+			user_id = #{userId},
+			</if>
+			<if test="ancestor != null and ancestor gt 0">
+			ancestor = #{ancestor},
+			</if>
+			<if test="parent != null and parent gt 0">
+			parent = #{parent},
+			</if>
+			<if test="depth != null and depth gt 0">
+			depth = #{depth},
+			</if>
+			<if test="viewOrder != null and viewOrder gt 0">
+			view_order = #{viewOrder},
+			</if>
+			<if test="children != null and children gte 0">
+			children = #{children},
+			</if>
+			<if test="description != null and description != ''">
+			description = #{description},
+			</if>
+			<if test="basic != null">
+				basic = #{basic},
+			</if>
+			<if test="available != null">
+            available = #{available},
+            </if>
+			update_date = NOW()
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
+
+	<!-- 자식의 수를 + 또는 - 연산. dataLibraryCount 변수에는 자식 수를 증가 하거나 감소 시키는 값이 들어옴 -->
+	<update id="updateDesignLayerGroupChildren" parameterType="designLayerGroup">
+		/* updateDesignLayerGroupChildren */
+		UPDATE design_layer_group
+		SET children = children + #{children}
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</update>
+
+	<!-- design layer 그룹 삭제 -->
+	<delete id="deleteDesignLayerGroup" parameterType="designLayerGroup">
+		/* deleteDesignLayerGroup */
+		DELETE
+		FROM design_layer_group
+		WHERE design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</delete>
+
+	<!-- ancestor를 이용하여 design layer 그룹 삭제 -->
+	<delete id="deleteDesignLayerGroupByAncestor" parameterType="designLayerGroup">
+		/* deleteDesignLayerGroupByAncestor */
+		DELETE
+		FROM design_layer_group
+		WHERE ancestor = #{designLayerGroupId}
+		OR design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</delete>
+
+	<!-- parent를 이용하여 design layer 그룹 삭제 -->
+	<delete id="deleteDesignLayerGroupByParent" parameterType="designLayerGroup">
+		/* deleteDesignLayerGroupByParent */
+		DELETE
+		FROM design_layer_group
+		WHERE parent = #{designLayerGroupId}
+		OR design_layer_group_id = #{designLayerGroupId}
+		<if test="userId != null and userId != ''">
+			AND user_id = #{userId}
+		</if>
+	</delete>
+</mapper>

@@ -4,7 +4,7 @@ plugins {
 	id 'java'
 }
 
-group = 'com.gaia3d'
+group = 'com.io.openindoormap'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

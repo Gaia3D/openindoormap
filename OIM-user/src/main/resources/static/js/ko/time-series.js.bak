@@ -1,0 +1,504 @@
+/**
+ * 시계열
+ * @since 20200827 init
+ */
+let TimeSeriesObj = function () {
+    this.interval = null;
+    this.div = null;
+};
+
+
+/**
+ * 초기
+ */
+TimeSeriesObj.prototype.init = function () {
+    //
+    this.div = this.createElements();
+
+    //
+    MAGO3D_INSTANCE.getMagoManager().overlayContainer.appendChild(this.div);
+
+    //일자 데이터 바인드
+    let _deDatas = function () {
+        let arr = [];
+        arr.push({ 'value': '20200101', 'text': '20200101' });
+        arr.push({ 'value': '20200201', 'text': '20200201' });
+        arr.push({ 'value': '20200301', 'text': '20200301' });
+
+        //
+        return arr;
+    };
+    //
+    this.bindTimeSeriesDatas(_deDatas());
+
+
+
+    //인터벌 데이터 바인드
+    let _intervalDatas = function () {
+        let arr = [];
+        arr.push({ 'value': '5', 'text': '5초' });
+        arr.push({ 'value': '10', 'text': '10초' });
+
+        //
+        return arr;
+    };
+    //
+    this.bindIntervalDatas(_intervalDatas());
+
+    //
+    this.setEventHandler();
+};
+
+
+/**
+ * 이벤트 등록
+ */
+TimeSeriesObj.prototype.setEventHandler = function () {
+    let the = this;
+
+
+    //이전 버튼 클릭
+    ppui.on(the.getWrapper().querySelector('.ds-pre'), 'click', function () {
+        the.playDe(the.moveDe('pre'));
+    });
+
+    //일시정지 버튼 클릭
+    ppui.on(the.getWrapper().querySelector('.ds-pause'), 'click', function () {
+        the.pause();
+    });
+
+    //재생 버튼 클릭
+    ppui.on(the.getWrapper().querySelector('.ds-play'), 'click', function () {
+        the.play();
+
+
+    });
+
+    //다음 버튼 클릭
+    ppui.on(the.getWrapper().querySelector('.ds-next'), 'click', function () {
+        //다음 일자값 조회
+        the.playDe(the.moveDe('next'));
+    });
+
+    //인터벌 change
+    ppui.on(the.getWrapper().querySelector('.ds-interval'), 'change', function () {
+        //인터벌 중지
+        clearInterval(the.interval);
+
+        //
+        let sec = parseInt(the.getWrapper().querySelector('.ds-interval').value);
+
+        //
+        the.playDe(the.getDeJson(0));
+        //
+        the.interval = setInterval(function () {
+            the.playDe(the.moveDe('next'));
+        }, sec * 1000);
+
+    });
+};
+
+
+/**
+ * 지도 관련 처리
+ * @param {any} json
+ */
+TimeSeriesObj.prototype.playDe = function (json) {
+    console.log(new Date(), json);
+
+    //
+    if (json.index == this.getLastDeJson().index) {
+        //마지막 데이터를 처리했으면 인터벌 중지
+        this.getWrapper().querySelector('.ds-pause').click();
+    }
+};
+
+
+/**
+ * 일자 데이터 바인드
+ * @param {array} arr
+ * @returns {Element} select element
+ */
+TimeSeriesObj.prototype.bindTimeSeriesDatas = function (arr) {
+    let select = this.getWrapper().querySelector('.ds-de');
+    if (pp.isNull(select)) {
+        return;
+    }
+
+    //
+    for (let i = 0; i < arr.length; i++) {
+        let d = arr[i];
+
+        //
+        let option = document.createElement('option');
+        option.value = d.value;
+        option.text = d.text;
+
+        //
+        select.appendChild(option);
+    }
+
+    //
+    select.selectedIndex = 0;
+
+    //
+    return select;
+};
+
+
+/**
+ * 인터벌 데이터 바인드
+ * @param {array} arr 배열
+ * @returns {Element} select element
+ */
+TimeSeriesObj.prototype.bindIntervalDatas = function (arr) {
+    let select = this.getWrapper().querySelector('.ds-interval');
+    if (pp.isNull(select)) {
+        return;
+    }
+
+    //
+    for (let i = 0; i < arr.length; i++) {
+        let d = arr[i];
+
+        //
+        let option = document.createElement('option');
+        option.value = d.value;
+        option.text = d.text;
+
+        //
+        select.appendChild(option);
+    }
+
+    //
+    select.selectedIndex = 0;
+
+    //
+    return select;
+
+};
+
+
+/**
+ * 선택된 인터벌값 조회
+ * @returns {number} 선택된 인터벌 값
+ * */
+TimeSeriesObj.prototype.getIntervalValue = function () {
+    return parseInt(this.getWrapper().querySelector('.ds-interval').value);
+};
+
+
+/**
+ * 일자 변경
+ * @param {string} gbn  PRE|NEXT
+ * @returns {object}변경된 index,일자값
+ */
+TimeSeriesObj.prototype.moveDe = function (gbn) {
+
+    let json = this.getDeJson(0);
+
+    //
+    if ('PRE' === gbn.toUpperCase()) {
+        return this.setDeByIndex(json.index - 1);
+    }
+
+    //
+    if ('NEXT' === gbn.toUpperCase()) {
+        return this.setDeByIndex(json.index + 1);
+    }
+};
+
+
+/**
+ * 특정 인덱스로 위치 변경
+ * @param {number} index
+ * @returns {object} 변경한 곳의 index,일자값
+ */
+TimeSeriesObj.prototype.setDeByIndex = function (index) {
+    let select = document.querySelector('.ds-de');
+    select.selectedIndex = index;
+
+    //
+    if (0 >= select.selectedIndex) {
+        select.selectedIndex = 0;
+    }
+
+    //
+    if (index >= select.length) {
+        select.selectedIndex = select.length - 1;
+    }
+
+    //
+    return {
+        'index': select.selectedIndex,
+        'value': select.value
+    };
+};
+
+
+
+/**
+ * html node diable/enable하기
+ * 가변 파라미터. 첫번째 값은 반드시 boolean값이어야 함. 두번째 값부터는 querySelector의 파라미터 값
+ * ex) disabled(true, '.ds-a', '.ds-b');
+ * */
+TimeSeriesObj.prototype.disabled = function () {
+    if (1 >= arguments.length) {
+        return;
+    }
+
+    //
+    let b = arguments[0];
+
+    //
+    for (let i = 1; i < arguments.length; i++) {
+        let el = document.querySelector(arguments[i]);
+        if (null == el || undefined == el) {
+            continue;
+        }
+
+        //
+        el.disabled = b;
+        el.style.backgroundColor = b ? 'darkgray' : '#efefef';
+    }
+
+};
+
+
+/**
+ * 이전 일자 조회
+ * @returns {string} 이전 일자
+ * */
+TimeSeriesObj.prototype.getPreDe = function () {
+    return this.getDeJson(-1).value;
+};
+
+
+/**
+ * 다음 일자 조회
+ * @returns {string} 다음 일자
+ * */
+TimeSeriesObj.prototype.getNextDe = function () {
+    return this.getDeJson(1).value;
+};
+
+
+TimeSeriesObj.prototype.getWrapper = function () {
+    return this.div;
+}
+
+
+
+/**
+ * 
+ * 
+ * @param {number} index 0:현재, -1:이전, 1:다음
+ */
+TimeSeriesObj.prototype.getDeJson = function (index) {
+    let json = { 'index': -1, 'value': '' };
+    
+    //
+    let select = this.getWrapper().querySelector('.ds-de');
+    select.selectedIndex += index;
+
+    //
+    if (null == select || undefined == select || 0 > select.selectedIndex) {
+        return json;
+    }
+
+
+    //
+    json.index = select.selectedIndex;
+    json.value = select.value;
+
+    //
+    return json;
+};
+
+
+/**
+ * 마지막 일자 정보(index,일자) 조회
+ * */
+TimeSeriesObj.prototype.getLastDeJson = function () {
+    //
+    let select = this.getWrapper().querySelector('.ds-de');
+
+    //
+    return {
+        'index': (select.length - 1),
+        'value': select.options[select.length - 1].value
+    };
+};
+
+
+/**
+ * 전체 일자 수 조회
+ * @returns {number}  전체 일자 수
+ * */
+TimeSeriesObj.prototype.getDeCo = function () {
+    return this.getWrapper()
+        .querySelector('.ds-de')
+        .length;
+};
+
+
+
+/**
+ * 
+ */
+TimeSeriesObj.prototype.createElements = function () {
+
+    let _div = function () {
+        let div = document.createElement('div');
+        div.style.backgroundColor = '#efefef';
+        div.style.position = 'absolute';
+        div.style.zIndex = '999';
+        div.style.width = '200px';
+        div.style.height = '200px';
+        div.style.bottom = '0px';
+        div.style.float = 'bottom';
+        div.className = 'ds-time-series mago3d-overlayContainer-defaultControl';
+        div.style.pointerEvents = 'auto';
+
+        //
+        return div;
+    };
+    //
+    let div = _div();
+
+    //이전
+    let _preButton = function () {
+        let preButton = document.createElement('button');
+        preButton.innerHTML = '<';
+        preButton.className = 'ds-pre textBtnSub';
+
+        //
+        return preButton;
+    }
+    //
+    div.appendChild(_preButton());
+
+    //일시정지
+    let _pauseButton = function () {
+        let pauseButton = document.createElement('button');
+        pauseButton.innerHTML = '||';
+        pauseButton.className = 'ds-pause textBtnSub';
+
+
+        //
+        return pauseButton;
+    }
+    //
+    div.appendChild(_pauseButton());
+
+
+    //재생
+    let _playButton = function () {
+        let playButton = document.createElement('button');
+        playButton.innerHTML = '▷';
+        playButton.className = 'ds-play textBtnSub';
+
+
+        //
+        return playButton;
+    };
+    //
+    div.appendChild(_playButton());
+
+
+    //다음
+    let _nextButton = function () {
+        let nextButton = document.createElement('button');
+        nextButton.innerHTML = '>';
+        nextButton.className = 'ds-next textBtnSub';
+
+        //
+        return nextButton;
+    };
+    //
+    div.appendChild(_nextButton());
+
+    //
+    let divWrapper = document.createElement('div');
+    div.appendChild(divWrapper);
+
+    //timeseries 콤보박스
+    let select = document.createElement('select');
+    select.className = 'ds-de';
+    select.style.width = '100%';
+    divWrapper.appendChild(select);
+
+    //TODO 인터벌
+    let _selInterval = function () {
+        let select = document.createElement('select');
+        select.className = 'ds-interval';       
+
+        //
+        return select;
+    };
+
+    div.appendChild(_selInterval());
+
+    //
+    return div;
+
+};
+
+
+
+TimeSeriesObj.prototype.play = function () {
+    this.pause();
+
+    this.setPlayMode();
+
+    //선택된 인터벌값(초)
+    let sec = this.getIntervalValue();
+    if (0 >= sec) {
+        alert('재생 간격을 선택하시기 바랍니다.');
+    } else {
+        //현재꺼 처리
+        this.playDe(this.getDeJson(0));
+
+        //
+        this.interval = setInterval(function () {
+            //다음꺼
+            this.playDe(this.moveDe('next'));
+        }, sec * 1000);
+    }
+
+};
+
+
+TimeSeriesObj.prototype.pause = function () {
+    this.setPauseMode();
+    
+    //
+    clearInterval(this.interval);
+    console.log('pause');
+};
+
+
+
+TimeSeriesObj.prototype.setPauseMode = function () {
+    //이전,다음,재생 버튼 활성화
+    this.disabled(false, '.ds-pre', '.ds-next', '.ds-play');
+    //일시정지 버튼 비활성화
+    this.disabled(true, '.ds-pause');
+};
+
+TimeSeriesObj.prototype.setPlayMode = function () {
+    //이전,다음,재생 버튼 비활성화
+    this.disabled(true, '.ds-pre', '.ds-next', '.ds-play');
+
+    //일시정지 버튼 활성화
+    this.disabled(false, '.ds-pause');
+
+};
+
+//
+let tsobj = new TimeSeriesObj();
+
+//
+document.addEventListener('load', function () {
+    tsobj.init();
+});

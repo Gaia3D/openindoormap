@@ -1,0 +1,89 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+    <div id="mapSettingWrap" class="sideNav">
+        <ul class="tabSetup">
+            <li id="mapSettingBboxToggle" class="bbox"><span>BBOX</span></li>
+            <li id="mapSettingLabelToggle" class="label"><span>LABEL</span></li>
+            <li id="mapSettingOriginToggle" class="origin"><span>ORIGIN</span></li>
+            <li id="mapSettingShadowToggle" class="shadow"><span>SHADOW</span></li>
+        </ul>
+        <div class="userPolicyContent">
+            <div class="button-group-align buttonModeWrap">
+                <h3 class="h3-heading">F4D</h3>
+                <div class="rightButtonWrap mar0">
+                    <button id="selectModeF4d" class="fas fa-hand-paper mode marR5" th:title="#{common.select.mode}">
+                        <p class="buttonLable" th:text="#{common.select.mode}"></p>
+                    </button>
+                    <button id="moveModeF4d" class="fas fa-expand-arrows-alt mode" th:title="#{common.move.mode}">
+                        <p class="buttonLable" th:text="#{common.move.mode}"></p>
+                    </button>
+                </div>
+            </div>
+            <div class="button-group-align buttonModeWrap">
+                <h3 class="h3-heading">Object</h3>
+                <div class="rightButtonWrap mar0">
+                    <button id="selectModeObject" class="fas fa-hand-paper mode marR5" th:title="#{common.select.mode}">
+                        <p class="buttonLable" th:text="#{common.select.mode}"></p>
+                    </button>
+                    <button id="moveModeObject" class="fas fa-expand-arrows-alt mode" th:title="#{common.move.mode}">
+                        <p class="buttonLable" th:text="#{common.move.mode}"></p>
+                    </button>
+                </div>
+            </div>
+            <div class="button-group-align buttonModeWrap">
+                <h3 class="h3-heading">Native(Extrusion)</h3>
+                <div class="rightButtonWrap mar0">
+                    <button id="selectModeNative" class="fas fa-hand-paper mode marR5" th:title="#{common.select.mode}">
+                        <p class="buttonLable" th:text="#{common.select.mode}"></p>
+                    </button>
+                    <button id="moveModeNative" class="fas fa-expand-arrows-alt mode" th:title="#{common.move.mode}">
+                        <p class="buttonLable" th:text="#{common.move.mode}"></p>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="userPolicyContent">
+            <div class="button-group-align marB10">
+                <h3 class="h3-heading">LOD (Level Of Detail)</h3>
+                <button type="button" id="changeLodButton" class="btnTextF right-align" th:text="#{common.apply}"></button>
+            </div>
+            <div class="userPolicyContentDetail">
+                <div class="form-group form-group-policy">
+                    <label for="geoLod0">LOD0</label>
+                    <input type="text" id="geoLod0" name="lod0" value="15" size="15" />M
+                </div>
+                <div class="form-group form-group-policy">
+                    <label for="geoLod1">LOD1</label>
+                    <input type="text" id="geoLod1" name="lod1" value="60" size="15" />M
+                </div>
+                <div class="form-group form-group-policy">
+                    <label for="geoLod2">LOD2</label>
+                    <input type="text" id="geoLod2" name="lod2" value="90" size="15" />M
+                </div>
+                <div class="form-group form-group-policy">
+                    <label for="geoLod3">LOD3</label>
+                    <input type="text" id="geoLod3" name="lod3" value="200" size="15" />M
+                </div>
+                <div class="form-group form-group-policy">
+                    <label for="geoLod4">LOD4</label>
+                    <input type="text" id="geoLod4" name="lod4" value="1000" size="15" />M
+                </div>
+                <div class="form-group form-group-policy">
+                    <label for="geoLod5">LOD5</label>
+                    <input type="text" id="geoLod5" name="lod5" value="50000" size="15" />M
+                </div>
+            </div>
+        </div>
+        <div class="userPolicyContent">
+            <div class="button-group-align marB10">
+                <h3 class="h3-heading">SSAO</h3>
+                <button type="button" id="changeSsaoButton" class="btnTextF right-align" th:text="#{common.apply}"></button>
+            </div>
+            <div class="userPolicyContentDetail">
+                <div class="form-group form-group-policy">
+                    <label for="ssaoRadius" th:text="#{policy.init.ssao}"></label>
+                    <input type="text" id="ssaoRadius" name="ssaoRadius" value="0.15" size="15" />M
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

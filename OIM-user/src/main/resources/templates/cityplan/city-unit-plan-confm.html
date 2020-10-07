@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<head>
+	<meta charset="utf-8">
+    <meta name="referrer" content="origin">
+    <meta name="viewport" content="width=device-width">
+    <meta name="robots" content="index,nofollow">
+    <title></title>
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>    
+</head>
+<body>
+<div th:replace="~{/fragments/header :: #headerWrap}"></div>
+<div id="wrap">
+	<!-- S: NAVWRAP -->
+	<div class="navWrap">
+        <div th:replace="~{/fragments/menu :: #navWrap}"></div>
+	</div>
+	<!-- E: NAVWRAP -->
+
+	<div class="container" style="float:left; width: calc(100% - 78px);">
+		<div style="padding: 20px 20px 0px 10px; font-size: 18px;"></div>
+        <!-- TAB -->
+        <div class="tabs">
+            <ul class="tab">
+				<li id="tabCityUnitPlanConfm" class="on"><a href="./city-unit-plan-confm"><th:block th:text="지구단위계획확인"></th:block></a></li>
+				<li id="tabAvrgHgConfm"><a href="./avrg-hg-confm"><th:block th:text="평균높이확인"></th:block></a></li>
+				<li id="tabCityPlanExc"><a href="./city-plan-exc"><th:block th:text="지구계획실행"></th:block></a></li>				
+            </ul>
+        </div>
+
+		<div>TODO 지구설계 - 지구 단위 계획 확인</div>
+
+	</div>
+</div>
+<!-- E: WRAP -->
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

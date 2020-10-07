@@ -1,0 +1,76 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="lsSavedAnalsWrap">
+    <script id="lsSavedAnalsWidget" type="text/x-handlebars-template">
+        <div>
+            <div style="height:calc(100% - 255px)">
+                <div class="dataBtns"></div>
+                <div class="dataGroupSummary table-data-group-summary  marT10 yScroll" style="height: calc(100% - 43px)">
+                    <table summary="경관분석 데이터 목록">
+                        <caption class="hiddenTag">경관분석 데이터 목록</caption>
+                        <colgroup>
+                            <col class="col-width-10">
+                            <col class="*">
+                            <col class="col-width-30">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>경관명</th>
+                            <th>기능</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#greaterThan size 0}}
+                            {{#each page}}
+                                <tr>
+                                    <td><span class="no">{{id}}</span></td>
+                                    <td class="text-left">
+                                        <span>{{landScapePointName}}</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="goto" th:text="이동"
+                                                th:title="이동" style="margin: 0px; padding: 0px;"
+                                                onclick="gotoScene('{{id}}')">
+                                        </button>
+                                     	<button type="button" class="showHideButton show" th:title="분석"
+                                        	th:text="분석" onclick="showData('{{id}}')">
+                                       	</button>
+                                    </td>
+                                    
+                                </tr>
+                            {{/each}}
+                        {{else}}
+                            <tr>
+                                <td colspan="3" style="height: 30px;">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        {{/greaterThan}}
+                        </tbody>
+                    </table>
+                </div>
+                {{#greaterThan size 0}}
+                    <ul class="pagination">
+                        <li class="ico first"
+                            onclick="paginSavedAnalsList(1);">
+                        </li>
+                        <li class="ico forward"
+                            onclick="paginSavedAnalsList({{#plus pagenationInfo.previousPaging 1}}{{/plus}})">
+                        </li>
+                        {{#forEachStep pagenationInfo.startPageNum pagenationInfo.lastPageNum 1}}
+                            {{#numberEqual this ../nowPageNum}}
+                                <li onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
+                            {{else}}
+                                <li onclick="paginSavedAnalsList({{#plus this 1}}{{/plus}})">{{#plus this 1}}{{/plus}}</li>
+                            {{/numberEqual}}
+                        {{/forEachStep}}
+                        <li class="ico back"
+                            onclick="paginSavedAnalsList({{#plus pagenationInfo.nextPaging 1}}{{/plus}});">
+                        </li>
+                        <li class="ico end"
+                            onclick="paginSavedAnalsList({{#plus pagenationInfo.lastPageNum 1}}{{/plus}});">
+                        </li>
+                    </ul>
+                {{/greaterThan}}
+            </div>
+        </div>
+    </script>
+</div>

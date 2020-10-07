@@ -1,0 +1,310 @@
+= REST API Guide
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= 개요
+
+[[overview-http-verbs]]
+== HTTP 동사
+
+본 REST API에서 사용하는 HTTP 동사(verbs)는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 동사 | 용례
+
+| `GET`
+| 리소스를 가져올 때 사용
+
+| `POST`
+| 새 리소스를 만들 때 사용
+
+| `PUT`
+| 기존 리소스를 수정할 때 사용
+
+| `PATCH`
+| 기존 리소스의 일부를 수정할 때 사용
+
+| `DELETE`
+| 기존 리소스를 삭제할 떄 사용
+|===
+
+[[overview-http-status-codes]]
+== HTTP 상태 코드
+
+본 REST API에서 사용하는 HTTP 상태 코드는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 상태 코드 | 용례
+
+| `200 OK`
+| 요청을 성공적으로 처리함
+
+| `201 Created`
+| 새 리소스를 성공적으로 생성함. 응답의 `Location` 헤더에 해당 리소스의 URI가 담겨있다.
+
+| `204 No Content`
+| 기존 리소스를 성공적으로 수정함.
+
+| `400 Bad Request`
+| 잘못된 요청을 보낸 경우. 응답 본문에 더 오류에 대한 정보가 담겨있다.
+
+| `404 Not Found`
+| 요청한 리소스가 없음.
+|===
+
+[[overview-hypermedia]]
+== 하이퍼미디어
+
+본 REST API는 하이퍼미디어와 사용하며 응답에 담겨있는 리소스는 다른 리소스에 대한 링크를 가지고 있다.
+응답은 http://stateless.co/hal_specification.html[Hypertext Application from resource to resource. Language (HAL)] 형식을 따른다.
+링크는 `_links`라는 키로 제공한다. 본 API의 사용자(클라이언트)는 URI를 직접 생성하지 않아야 하며, 리소스에서 제공하는 링크를 사용해야 한다.
+
+[[resources]]
+= 리소스
+
+
+[[resources-geometry-intersection-design-layer-list]]
+== 디자인 레이어 intersection
+
+- 입력 지오메트리와 디자인 레이어가 교차하는 영역에 대한 정보 리턴.
+- **type(land,building), geometry 정보를 필수로 입력해야 한다.**
+- geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.
+- ** buffer 정보는 1을 넘길 수 없다.**
+- buffer 정보는 좌표계에 따라 달라지며, 4326 기준으로 1도는 약 111km 이다. https://help.sap.com/saphelp_iq1608_iqspat/helpdata/en/3c/207ab56c5f1014a95ba9268e096e6a/content.htm?no_cache=true[참고]
+
+[[resources-geometry-intersection-design-layer-land-point]]
+=== Point 입력에 대한 필지 정보
+
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+
+include::{snippets}/geometry-intersection-design-layer-land-point/curl-request.adoc[]
+include::{snippets}/geometry-intersection-design-layer-land-point/http-response.adoc[]
+
+[[resources-geometry-intersection-design-layer-land-linestring]]
+=== lineString 입력에 대한 필지 정보
+
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-land-linestring/curl-request.adoc[]
+
+[[resources-geometry-intersection-design-layer-land-polygon]]
+=== polygon 입력에 대한 필지 정보
+
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-land-polygon/curl-request.adoc[]
+
+
+[[resources-geometry-intersection-design-layer-building-point]]
+=== Point 입력에 대한 건물 정보
+
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+
+include::{snippets}/geometry-intersection-design-layer-building-point/curl-request.adoc[]
+include::{snippets}/geometry-intersection-design-layer-building-point/http-response.adoc[]
+
+[[resources-geometry-intersection-design-layer-building-linestring]]
+=== lineString 입력에 대한 건물 정보
+
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-building-linestring/curl-request.adoc[]
+
+[[resources-geometry-intersection-design-layer-building-polygon]]
+=== polygon 입력에 대한 건물 정보
+
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+
+include::{snippets}/geometry-intersection-design-layer-building-polygon/curl-request.adoc[]
+
+
+[[resources-geometry-intersection-data-list]]
+== 데이터(DataInfo) intersection
+- 입력 지오메트리와 데이터가 교차하는 영역에 대한 정보 리턴.
+- geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.
+- 데이터는 point 정보만 가지고 있기 때문에 point, lineString 으로 검색 시 버퍼 설정이 필요하다.
+
+[[resources-geometry-intersection-data-point]]
+=== point 입력에 대한 데이터 정보
+
+`POST` point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.
+
+include::{snippets}/geometry-intersection-data-point/curl-request.adoc[]
+include::{snippets}/geometry-intersection-data-point/http-response.adoc[]
+
+[[resources-geometry-intersection-data-linestring]]
+=== lineString 입력에 대한 데이터 정보
+
+`POST` point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.
+
+include::{snippets}/geometry-intersection-data-linestring/curl-request.adoc[]
+
+[[resources-geometry-intersection-data-polygon]]
+=== polygon 입력에 대한 데이터 정보
+
+`POST` 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.
+
+include::{snippets}/geometry-intersection-data-polygon/curl-request.adoc[]
+include::{snippets}/geometry-intersection-data-polygon/http-response.adoc[]
+include::{snippets}/geometry-intersection-data-polygon/response-fields.adoc[]
+
+
+
+[[resources-urban-group]]
+== 도시 그룹
+
+도시 그룹 또는 목록을 조회 한다.
+
+[[resources-urban-group-list]]
+=== 도시 그룹 목록 조회
+
+`GET` 요청을 사용하여 도시 그룹을 조회할 수 있다.
+
+include::{snippets}/urban-group-list/curl-request.adoc[]
+include::{snippets}/urban-group-list/http-response.adoc[]
+
+[[resources-urban-group-list-by-depth]]
+=== 도시 그룹 depth 로 조회
+
+`GET` 요청을 사용하여 depth 에 해당하는 도시 그룹을 조회할 수 있다.
+
+include::{snippets}/urban-group-list-by-depth/curl-request.adoc[]
+
+[[resources-urban-group-list-by-parent]]
+=== 도시 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 도시 그룹을 조회할 수 있다.
+
+include::{snippets}/urban-group-list-by-parent/curl-request.adoc[]
+
+[[resources-urban-group-get]]
+=== 도시 그룹 조회
+
+`GET` 요청을 사용해서 도시 그룹 하나를 조회할 수 있다.
+
+include::{snippets}/urban-group-get/curl-request.adoc[]
+include::{snippets}/urban-group-get/http-response.adoc[]
+include::{snippets}/urban-group-get/response-fields.adoc[]
+
+
+[[resources-design-layer-group]]
+== 디자인 레이어 그룹
+
+디자인 레이어 그룹 또는 목록을 조회 한다.
+
+[[resources-design-layer-group-list]]
+=== 디자인 레이어 그룹 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 디자인 레이어 그룹을 조회할 수 있다.
+
+include::{snippets}/design-layer-group-list/curl-request.adoc[]
+include::{snippets}/design-layer-group-list/http-response.adoc[]
+
+[[resources-design-layer-group-list-by-parent]]
+=== 디자인 레이어 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 디자인 레이어 그룹을 조회할 수 있다.
+
+include::{snippets}/design-layer-group-list-by-parent/curl-request.adoc[]
+
+[[resources-design-layer-group-get]]
+=== 디자인 레이어 그룹 조회
+
+`Get` 요청을 사용해서 기존 디자인 레이어 그룹 하나를 조회할 수 있다.
+
+include::{snippets}/design-layer-group-get/curl-request.adoc[]
+include::{snippets}/design-layer-group-get/http-response.adoc[]
+include::{snippets}/design-layer-group-get/response-fields.adoc[]
+
+[[resources-design-layer]]
+== 디자인 레이어
+
+디자인 레이어 또는 목록을 조회 한다.
+
+[[resources-design-layer-list]]
+=== 디자인 레이어 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 디자인 레이어를 조회할 수 있다.
+
+include::{snippets}/design-layer-list/curl-request.adoc[]
+include::{snippets}/design-layer-list/request-parameters.adoc[]
+include::{snippets}/design-layer-list/http-response.adoc[]
+
+[[resources-design-layer-get]]
+=== 디자인 레이어 조회
+
+`GET` 요청을 사용해서 기존 디자인 레이어 하나를 조회할 수 있다.
+
+include::{snippets}/design-layer-get/curl-request.adoc[]
+include::{snippets}/design-layer-get/http-response.adoc[]
+include::{snippets}/design-layer-get/response-fields.adoc[]
+
+
+[[resources-data-library-group]]
+== 데이터 라이브러리 그룹
+
+데이터 라이브러리 그룹 또는 목록을 조회 한다.
+
+[[resources-data-library-group-list]]
+=== 데이터 라이브러리 그룹 목록 조회
+
+`GET` 요청을 사용하여 데이터 라이브러리 그룹을 조회할 수 있다.
+
+include::{snippets}/data-library-group-list/curl-request.adoc[]
+include::{snippets}/data-library-group-list/http-response.adoc[]
+
+[[resources-data-library-group-list-by-depth]]
+=== 데이터 라이브러리 그룹 depth 로 조회
+
+`GET` 요청을 사용하여 depth 에 해당하는 데이터 라이브러리 그룹을 조회할 수 있다.
+
+include::{snippets}/data-library-group-list-by-depth/curl-request.adoc[]
+
+[[resources-data-library-group-list-by-parent]]
+=== 데이터 라이브러리 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 도시 그룹을 조회할 수 있다.
+
+include::{snippets}/data-library-group-list-by-parent/curl-request.adoc[]
+
+[[resources-data-library-group-get]]
+=== 데이터 라이브러리 그룹 조회
+
+`GET` 요청을 사용해서 도시 그룹 하나를 조회할 수 있다.
+
+include::{snippets}/data-library-group-get/curl-request.adoc[]
+include::{snippets}/data-library-group-get/http-response.adoc[]
+include::{snippets}/data-library-group-get/response-fields.adoc[]
+
+
+[[resources-data-library]]
+== 데이터 라이브러리
+
+데이터 라이브러리 또는 목록을 조회 한다.
+
+[[resources-data-library-list]]
+=== 데이터 라이브러리 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 데이터 라이브러리를 조회할 수 있다.
+
+include::{snippets}/data-library-list/curl-request.adoc[]
+include::{snippets}/data-library-list/request-parameters.adoc[]
+include::{snippets}/data-library-list/http-response.adoc[]
+
+[[resources-data-library-get]]
+=== 데이터 라이브러리 조회
+
+`GET` 요청을 사용해서 데이터 라이브러리 하나를 조회할 수 있다.
+
+include::{snippets}/data-library-get/curl-request.adoc[]
+include::{snippets}/data-library-get/http-response.adoc[]
+include::{snippets}/data-library-get/response-fields.adoc[]
+
+

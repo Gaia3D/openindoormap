@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false" />
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+	<typeAliases>
+		<typeAlias type="io.openindoormap.domain.accesslog.AccessLog" alias="accessLog" />
+    	<typeAlias type="io.openindoormap.domain.converter.ConverterJob" alias="converterJob" />
+    	<typeAlias type="io.openindoormap.domain.converter.ConverterJobFile" alias="converterJobFile" />
+		<typeAlias type="io.openindoormap.domain.data.DataGroup" alias="dataGroup" />
+		<typeAlias type="io.openindoormap.domain.data.DataInfo" alias="dataInfo" />
+		<typeAlias type="io.openindoormap.domain.data.DataInfoSimple" alias="dataInfoSimple" />
+		<typeAlias type="io.openindoormap.domain.data.DataAdjustLog" alias="dataAdjustLog" />
+		<typeAlias type="io.openindoormap.domain.data.DataInfoLog" alias="dataInfoLog" />
+		<typeAlias type="io.openindoormap.domain.data.DataAttribute" alias="dataAttribute" />
+		<typeAlias type="io.openindoormap.domain.data.DataAttributeFileInfo" alias="dataAttributeFileInfo" />
+		<typeAlias type="io.openindoormap.domain.data.DataObjectAttribute" alias="dataObjectAttribute" />
+		<typeAlias type="io.openindoormap.domain.data.DataObjectAttributeFileInfo" alias="dataObjectAttributeFileInfo" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayer" alias="designLayer" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerLandDto" alias="designLayerLandDto" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingDto" alias="designLayerBuildingDto" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingHeightDto" alias="designLayerBuildingHeightDto" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryGroup" alias="dataLibraryGroup" />
+		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibrary" alias="dataLibrary" />
+		<typeAlias type="io.openindoormap.domain.policy.GeoPolicy" alias="geoPolicy" />
+    	<typeAlias type="io.openindoormap.domain.issue.Issue" alias="issue" />
+    	<typeAlias type="io.openindoormap.domain.issue.IssueDetail" alias="issueDetail" />
+    	<typeAlias type="io.openindoormap.domain.layer.Layer" alias="layer" />
+    	<typeAlias type="io.openindoormap.domain.layer.LayerGroup" alias="layerGroup" />
+    	<typeAlias type="io.openindoormap.domain.layer.LayerFileInfo" alias="layerFileInfo" />
+    	<typeAlias type="io.openindoormap.domain.menu.Menu" alias="menu" />
+    	<typeAlias type="io.openindoormap.domain.policy.Policy" alias="policy" />
+    	<typeAlias type="io.openindoormap.domain.role.Role" alias="role" />
+    	
+		<typeAlias type="io.openindoormap.domain.uploaddata.UploadData" alias="uploadData" />
+		<typeAlias type="io.openindoormap.domain.uploaddata.UploadDataFile" alias="uploadDataFile" />
+    	<typeAlias type="io.openindoormap.domain.user.UserGroup" alias="userGroup" />
+    	<typeAlias type="io.openindoormap.domain.user.UserGroupMenu" alias="userGroupMenu" />
+    	<typeAlias type="io.openindoormap.domain.user.UserGroupRole" alias="userGroupRole" />
+		<typeAlias type="io.openindoormap.domain.user.UserInfo" alias="userInfo" />
+		<typeAlias type="io.openindoormap.domain.user.UserPolicy" alias="userPolicy"/>
+    	<typeAlias type="io.openindoormap.domain.user.UserSession" alias="userSession" />
+    	
+ 		<typeAlias type="io.openindoormap.domain.country.District" alias="district"/>
+ 		<typeAlias type="io.openindoormap.domain.country.SkSdo" alias="skSdo"/>
+ 		<typeAlias type="io.openindoormap.domain.country.SkSgg" alias="skSgg"/>
+ 		<typeAlias type="io.openindoormap.domain.country.SkEmd" alias="skEmd"/>
+
+		<typeAlias type="io.openindoormap.domain.common.SpatialOperationInfo" alias="spatialOperationInfo" />
+
+		<typeAlias type="io.openindoormap.domain.urban.UrbanGroup" alias="urbanGroup" />
+ 		
+    </typeAliases>
+
+	<typeHandlers>
+		<typeHandler handler="org.apache.ibatis.type.EnumOrdinalTypeHandler" javaType="java.math.RoundingMode"/>
+		<!--<typeHandler handler="org.apache.ibatis.type.LocalDateTimeTypeHandler" javaType="java.time.LocalDateTime"/>-->
+		<typeHandler handler="io.openindoormap.typehandler.LocalDateTimeTypeHandler" javaType="java.time.LocalDateTime" />
+	</typeHandlers>
+
+</configuration>

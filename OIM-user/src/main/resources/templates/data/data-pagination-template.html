@@ -1,0 +1,33 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dataPaginationSource" type="text/x-handlebars-template">
+    {{#greaterThan pagination.totalCount 0}}
+    <ul class="pagination">
+        <li class="ico first" onclick="pagingDataInfoList('{{pagination.firstPage}}', '{{pagination.searchParameters}}');">
+            <th:block th:text="#{common.first}"></th:block>
+        </li>
+        {{#if pagination.existPrePage}}
+        <li class="ico forward" onclick="pagingDataInfoList('{{pagination.prePageNo}}', '{{pagination.searchParameters}}');">
+            <th:block th:text="#{common.forward}"></th:block>
+        </li>
+        {{/if}}
+
+        {{#forEachStep pagination.startPage pagination.endPage 1}}
+        {{#numberEqual this ../pagination.pageNo}}
+        <li class="on">{{this}}</li>
+        {{else}}
+        <li onclick="pagingDataInfoList('{{this}}', '{{../pagination.searchParameters}}');">{{this}}</li>
+        {{/numberEqual}}
+        {{/forEachStep}}
+
+        {{#if pagination.existNextPage}}
+        <li class="ico back" onclick="pagingDataInfoList('{{pagination.nextPageNo}}', '{{pagination.searchParameters}}');">
+            <th:block th:text="#{common.back}"></th:block>
+        </li>
+        {{/if}}
+        <li class="ico end" onclick="pagingDataInfoList('{{pagination.lastPage}}', '{{pagination.searchParameters}}');">
+            <th:block th:text="#{common.end}"></th:block>
+        </li>
+    </ul>
+    {{/greaterThan}}
+</script>
+</html>

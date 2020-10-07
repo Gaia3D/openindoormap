@@ -1,0 +1,77 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="dataContent" class="dataContents">
+    <!--
+    <div class="tabs">
+        <ul id="dataInfoTab" class="tab tab-divide">
+            <li id="dataGroupTab" th:text="#{data.group.list.tab.menu}" data-nav="dataGroupInfoContent"></li>
+            <li id="dataListTab" class="on" th:text="#{data.list.tab.menu}" data-nav="dataInfoContent"></li>
+        </ul>
+    </div>
+    -->
+
+    <form id="searchDataForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
+        <div class="searchDataType">
+            <div>
+                <input type="radio" id="radioData" name="searchWord" class="fas fa-database" value="data_name" checked>
+                <label for="radioData" th:text="#{common.data}"></label>
+            </div>
+            <div>
+                <input type="radio" id="radioGroup" name="searchWord" class="fas fa-layer-group" value="data_group_name">
+                <label for="radioGroup" th:text="#{common.group}"></label>
+            </div>
+            <div>
+                <input type="radio" id="radioAddress" name="searchWord" class="fas fa-address-book" value="data_address_name">
+                <label for="radioAddress" th:text="#{common.address}"></label>
+            </div>
+        </div>
+        <div class="searchDataInputWrap">
+            <div class="searchDataInput">
+                <span class="searchIcon"></span>
+                <label for="searchDataName" th:text="#{common.data.name}" class="hiddenTag"></label>
+                <input type="text" id="searchDataName" name="searchValue" th:placeholder="#{data.enter.data.name}">
+                <button type="submit" id="mapDataSearch" class="btnSearch" th:text="#{common.search}" th:title="#{common.search}"></button>
+            </div>
+        </div>
+        <div class="searchDataFilter">
+            <select id="searchDataType" name="dataType">
+                <option value="" th:text="#{common.all}"></option>
+                <option value="citygml">CityGML</option>
+                <option value="indoorgml">IndoorGML</option>
+                <option value="las">LAS</option>
+                <option value="ifc">IFC</option>
+                <option value="dae">DAE(COLLADA)</option>
+                <option value="obj">OBJ</option>
+                <option value="3ds">3DS</option>
+            </select>
+            <select id="searchDataSharing" name="sharing" style="display: none">
+                <option value="" th:text="#{common.all}"></option>
+                <option value="common" th:text="#{common.common}"></option>
+                <option value="public" th:text="#{common.public}"></option>
+                <option value="private" th:text="#{common.private}"></option>
+                <option value="group" th:text="#{common.group}"></option>
+            </select>
+            <button id="searchFilterMore" class="filterSelect" th:text="#{common.filter.more}"></button>
+        </div>
+    </form>
+
+    <div id="dataSearchSummaryDHTML"></div>
+
+    <div id="dataInfoContent" class="yScroll" style="height: calc(100% - 287px)">
+        <div id="dataGroupListDHTML" style="display:none"></div>
+        <div id="dataListDHTML" style="display:none"></div>
+        <div id="dataAddressListDHTML" style="display:none"></div>
+    </div>
+
+    <!--<div id="dataGroupInfoContent" style="display:none;"></div>-->
+    <!--<div id="dataRoadInfoContent" style="display:none;"></div>-->
+
+    <div id="dataPaginationDHTML" class="paginationWrap"></div>
+
+    <div th:replace="~{/data/data-search-summary-template :: #dataSearchSummarySource}"></div>
+    <div th:replace="~{/data/map-data-template :: #dataListSource}"></div>
+    <div th:replace="~{/data/map-data-group-template :: #dataGroupListSource}"></div>
+    <!--<div th:replace="~{/data/map-data-address :: #dataAddressContent}"></div>-->
+    <div th:replace="~{/data/data-pagination-template :: #dataPaginationSource}"></div>
+
+</div>
+</html>

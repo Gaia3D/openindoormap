@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org">
+<div id="designLayerGroupDialog" class="dialog">
+    <table class="list-table scope-col" summary="디자인 레이어 그룹 다이얼로그">
+        <caption class="hiddenTag">디자인 레이어 그룹 다이얼로그</caption>
+        <col class="col-number"/>
+        <col class="col-name"/>
+        <col class="col-toggle"/>
+        <col class="col-id"/>
+        <col class="col-function"/>
+        <col class="col-date"/>
+        <col class="col-toggle"/>
+        <thead>
+        <tr>
+            <th scope="col" class="col-name">디자인 레이어 그룹명</th>
+            <th scope="col" class="col-toggle">사용 여부</th>
+            <th scope="col" class="col-toggle">사용자 아이디</th>
+            <th scope="col" class="col-toggle">설명</th>
+            <th scope="col" class="col-date">등록일</th>
+            <th scope="col" class="col-date">선택</th>
+        </tr>
+        </thead>
+        <tbody>
+
+<th:block th:if="${designLayerGroupList.empty}">
+            <tr>
+                <td colspan="6" class="col-none">디자인 레이어 그룹이 존재하지 않습니다.</td>
+            </tr>
+</th:block>
+<th:block th:unless="${designLayerGroupList.empty}" th:each="designLayerGroup : ${designLayerGroupList}">
+            <tr>
+                <td class="col-name ellipsis" style="max-width:300px; text-align: left;" nowrap="nowrap">
+    <th:block th:with="paddingLeftValue = ${(designLayerGroup.depth -1)  * 40}">
+        <th:block th:if="${designLayerGroup.depth == 1}">
+                    <span th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em; color: Dodgerblue;|">
+        </th:block>
+        <th:block th:if="${designLayerGroup.depth == 2}">
+                    <span th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em; color: Mediumslateblue;|">
+        </th:block>
+        <th:block th:if="${designLayerGroup.depth == 3}">
+                    <span th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em; color: Tomato;|">
+        </th:block>
+        <th:block th:if="${designLayerGroup.depth == 4}">
+                    <span th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em; color: #82c91e;|">
+        </th:block>
+        <th:block th:if="${designLayerGroup.depth == 5}">
+                    <span th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em; color: #f783ac;|">
+        </th:block>
+                        <i class="fa fa-folder" aria-hidden="true"></i>
+                    </span>
+    </th:block>
+                    <span th:text="${designLayerGroup.designLayerGroupName}"></span>
+
+                </td>
+                <td class="col-type">
+                    <th:block th:if="${#bools.isTrue(designLayerGroup.available)}" th:text="'사용'"></th:block>
+                    <th:block th:if="${#bools.isFalse(designLayerGroup.available)}" th:text="'미사용'"></th:block>
+                </td>
+                <td class="col-type" th:text="${designLayerGroup.userId}"></td>
+                <td class="col-key" th:text="${designLayerGroup.description}"></td>
+                <td class="col-date" th:text="${#temporals.format(designLayerGroup.insertDate, 'yyyy-MM-dd HH:mm:ss')}">
+                </td>
+                <td class="col-toggle">
+                    <a href="#"
+                       th:onclick="confirmParent([[${designLayerGroup.designLayerGroupId}]], [[${designLayerGroup.designLayerGroupName}]], [[${designLayerGroup.depth}]]); return false;">확인</a>
+                </td>
+            </tr>
+</th:block>
+        </tbody>
+    </table>
+    <div class="button-group">
+        <input type="button" id="rootParentSelect" class="button" value="최상위 디자인 그룹으로 선택" />
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dataLibrarySource" type="text/x-handlebars-template">
+	<ul>
+{{#if dataLibraryGroupList}}
+	{{#each dataLibraryGroupList}}
+		<li class="listElement">
+			<div>
+				{{dataLibraryGroupName}}
+			</div>
+		{{#each dataLibraryList}}
+			<div class="data-library" style="padding-left: 20px;" data-id="{{dataLibraryId}}" data-key="{{dataLibraryKey}}" data-path="{{dataLibraryPath}}">
+				{{dataLibraryName}}
+			</div>
+		{{/each}}
+		</li>
+	{{/each}}
+{{/if}}
+	</ul>
+</script>
+</html>

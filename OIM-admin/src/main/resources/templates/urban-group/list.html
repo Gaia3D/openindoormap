@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>도시 그룹</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+				<div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+						<div style="height: 30px;"></div>
+						<div class="list">
+							<div class="list-header row">
+								<div class="list-desc u-pull-left">
+									<div class="button-group">
+										<a href="#" onclick="openAll(); return false;" class="button">펼치기</a>
+										<a href="#" onclick="closeAll(); return false;" class="button">접기</a>
+									</div>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/urban-group/input" class="button">도시 그룹 등록</a>
+									</div>
+								</div>
+							</div>
+							<table class="list-table scope-col" summary="도시 그룹 리스트">
+								<caption class="hiddenTag">도시 그룹</caption>
+								<col class="col-name"/>
+								<col class="col-toggle"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-name"/>
+								<col class="col-functions"/>
+								<col class="col-functions"/>
+								<col class="col-date"/>
+								<thead>
+								<tr>
+									<th scope="col">그룹명</th>
+									<th scope="col">기간</th>
+									<th scope="col">면적</th>
+									<th scope="col">수용 인구</th>
+									<th scope="col">수용 세대</th>
+									<th scope="col">양도 시기</th>
+									<th scope="col">사용 여부</th>
+									<th scope="col">순서</th>
+									<th scope="col">편집</th>
+									<th scope="col">등록일</th>
+								</tr>
+								</thead>
+								<tbody>
+<th:block th:if="${urbanGroupList.empty}">
+								<tr>
+									<td colspan="10" class="col-none">도시 그룹이 존재하지 않습니다.</td>
+								</tr>
+</th:block>
+<th:block th:unless="${urbanGroupList.empty}" th:each="urbanGroup : ${urbanGroupList}">
+								<tr th:class="|rowId-${urbanGroup.urbanGroupId} rowDepth-${urbanGroup.depth} rowAncestor-${urbanGroup.ancestor} rowParent-${urbanGroup.parent}|">
+									<td class="col-key ellipsis" style="max-width: 300px;">
+	<th:block th:with="paddingLeftValue = ${(urbanGroup.depth -1) * 40}">
+										<span th:onclick="childrenDisplayToggle([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.depth}]]);"
+											  th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em;|">
+											<i th:id="|myArrow-${urbanGroup.urbanGroupId}|"
+											   th:class="|fa fa-caret-right depthArrow-${urbanGroup.depth} parentArrow-${urbanGroup.parent}|" aria-hidden="true"></i>
+										</span>&nbsp;
+	</th:block>
+	<th:block th:if="${urbanGroup.depth == 1}">
+										<span style="font-size: 1.5em; color: Dodgerblue;">
+	</th:block>
+	<th:block th:if="${urbanGroup.depth == 2}">
+										<span style="font-size: 1.5em; color: Mediumslateblue;">
+	</th:block>
+	<th:block th:if="${urbanGroup.depth == 3}">
+										<span style="font-size: 1.5em; color: Tomato;">
+	</th:block>
+	<th:block th:if="${urbanGroup.depth == 4}">
+										<span style="font-size: 1.5em; color: #82c91e;">
+	</th:block>
+	<th:block th:if="${urbanGroup.depth == 5}">
+										<span style="font-size: 1.5em; color: #f783ac;">
+	</th:block>
+											<i th:id="|myFolder-${urbanGroup.urbanGroupId}|" th:class="|fa fa-folder depthFolder-${urbanGroup.depth} parentFolder-${urbanGroup.parent}|" aria-hidden="true"></i>
+										</span>
+										<span th:text="${urbanGroup.urbanGroupName}"></span>
+									</td>
+									<td class="col-type">
+										<th:block th:text="${#temporals.format(urbanGroup.startDate, 'yyyy-MM-dd')}"></th:block> ~
+										<th:block th:text="${#temporals.format(urbanGroup.endDate, 'yyyy-MM-dd')}"></th:block>
+									</td>
+									<td class="col-type"><th:block th:text="${urbanGroup.area}"></th:block></td>
+									<td class="col-type"><th:block th:text="${urbanGroup.receivingPopulation}"></th:block></td>
+									<td class="col-type"><th:block th:text="${urbanGroup.receivingHousehold}"></th:block></td>
+									<!--<td class="col-type">
+										<th:block th:text="${urbanGroup.projectOperator}"></th:block>
+									</td>-->
+									<td class="col-type"><th:block th:text="${urbanGroup.transferLocalGovernment}"></th:block></td>
+									<td class="col-type">
+										<th:block th:if="${#bools.isTrue(urbanGroup.available)}">사용</th:block>
+										<th:block th:if="${#bools.isFalse(urbanGroup.available)}">미사용</th:block>
+									</td>
+									<td class="col-type">
+										<div class="button-group">
+											<a href="#" th:onclick="moveUp([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.viewOrder}]]); return false;" class="button" style="text-decoration:none;">위로</a>
+											<a href="#" th:onclick="moveDown([[${urbanGroup.urbanGroupId}]], [[${urbanGroup.viewOrder}]]); return false;" class="button" style="text-decoration:none;">아래로</a>
+										</div>
+									</td>
+									<td class="col-type">
+										<a th:href="@{/urban-group/modify(urbanGroupId=${urbanGroup.urbanGroupId})}" class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
+										<a th:href="@{/urban-group/delete(urbanGroupId=${urbanGroup.urbanGroupId})}" class="image-button button-delete" th:text="#{delete}"
+										   onclick="return deleteWarning();"></a>
+									</td>
+									<td class="col-date">
+										<th:block th:text="${#temporals.format(urbanGroup.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
+									</td>
+								</tr>
+</th:block>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<th:block layout:fragment="pageCustomScript">
+	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/tree.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+
+<script th:inline="javascript">
+	// 위로 이동
+	var upFlag = true;
+	function moveUp(id, viewOrder) {
+		if (upFlag) {
+			upFlag = false;
+			if (viewOrder === 1) {
+				alert("제일 처음 입니다.");
+				upFlag = true;
+				return;
+			}
+
+			var formData = "updateType=UP";
+			$.ajax({
+				url: "/urban-groups/view-order/" + id,
+				type: "POST",
+				headers: {"X-Requested-With": "XMLHttpRequest"},
+				data: formData,
+				success: function (msg) {
+					if (msg.statusCode <= 200) {
+						alert(JS_MESSAGE["update"]);
+						window.location.reload();
+						upFlag = true;
+						openAll();
+					} else {
+						if (msg.errorCode === "urban.group.view-order.invalid") {
+							alert("순서를 변경할 수 없습니다.");
+						} else {
+							alert(JS_MESSAGE[msg.errorCode]);
+						}
+						console.log("---- " + msg.message);
+						upFlag = true;
+					}
+				},
+				error: function (request, status, error) {
+					alert(JS_MESSAGE["ajax.error.message"]);
+					upFlag = true;
+				}
+			});
+		} else {
+			alert("진행 중입니다.");
+			return;
+		}
+	}
+
+	// 아래로 이동
+	var downFlag = true;
+	function moveDown(id, viewOrder) {
+		if (downFlag) {
+			downFlag = false;
+			var formData = "updateType=DOWN";
+			$.ajax({
+				url: "/urban-groups/view-order/" + id,
+				type: "POST",
+				headers: {"X-Requested-With": "XMLHttpRequest"},
+				data: formData,
+				success: function (msg) {
+					if (msg.statusCode <= 200) {
+						alert(JS_MESSAGE["update"]);
+						window.location.reload();
+						downFlag = true;
+						openAll();
+					} else {
+						if (msg.errorCode === "urban.group.view-order.invalid") {
+							alert("순서를 변경할 수 없습니다.");
+						} else {
+							alert(JS_MESSAGE[msg.errorCode]);
+						}
+						console.log("---- " + msg.message);
+						downFlag = true;
+					}
+				},
+				error: function (request, status, error) {
+					alert(JS_MESSAGE["ajax.error.message"]);
+					downFlag = true;
+				}
+			});
+		} else {
+			alert("진행 중입니다.");
+			return;
+		}
+	}
+</script>
+</th:block>
+</body>
+</html>

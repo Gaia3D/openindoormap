@@ -1,0 +1,34 @@
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org">
+	<div id="designLayerTab">
+		<form id="geoPolicyDesignLayer" th:object="${geoPolicy}" method="post" th:action="@{#}" onsubmit="return false;">
+			<table class="input-table scope-row" summary="환경설정 공간정보 테이블">
+			<caption class="hiddenTag">환경설정 공간정보 테이블</caption>
+				<col class="col-label l" />
+				<col class="col-input" />
+				<tr>
+					<th class="col-label l" scope="row">
+						<label for="shapeLandRequiredColumns">디자인 레이어 필지 필수 칼럼</label>
+						<span class="icon-glyph glyph-emark-dot color-warning"></span>
+					</th>
+					<td class="col-input">
+						<input type="text" id="shapeLandRequiredColumns" name="shapeLandRequiredColumns" th:field="*{shapeLandRequiredColumns}" class="l" maxlength="256" />
+					</td>
+				</tr>
+				<tr>
+					<th class="col-label l" scope="row">
+						<label for="shapeBuildingRequiredColumns">디자인 레이어 빌딩 필수 칼럼</label>
+						<span class="icon-glyph glyph-emark-dot color-warning"></span>
+					</th>
+					<td class="col-input">
+						<input type="text" id="shapeBuildingRequiredColumns" name="shapeBuildingRequiredColumns" th:field="*{shapeBuildingRequiredColumns}" class="l" maxlength="256" />
+					</td>
+				</tr>
+			</table>
+			<div class="button-group">
+				<div class="center-buttons">
+					<a href="#" class="button" th:text="#{save}" onclick="updatePolicyDesignLayer();"></a>
+				</div>
+			</div>
+		</form>
+	</div>
+</html>

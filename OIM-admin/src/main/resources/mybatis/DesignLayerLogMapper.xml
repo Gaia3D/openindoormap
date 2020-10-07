@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.DesignLayerLogMapper">
+
+    <!-- design layer 이력 총 건수 -->
+    <select id="getDesignLayerLogTotalCount" parameterType="designLayerLog" resultType="long">
+        /* getDesignLayerLogTotalCount */
+        SELECT COUNT(design_layer_log_id)
+        FROM design_layer_log
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim>
+    </select>
+
+    <!-- 서비스 요청 이력 목록 -->
+    <select id="getListDesignLayerLog" parameterType="designLayerLog" resultType="designLayerLog">
+        /* getListDesignLayerLog */
+        SELECT *
+        FROM design_layer_log
+        <trim prefix="WHERE" prefixOverrides="AND">
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+			AND ${searchWord} = #{searchValue}
+			</if>
+			<if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+			AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+			</if>
+			<if test="startDate != null and startDate != ''">
+			<![CDATA[
+			AND insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+			<if test="endDate != null and endDate != ''">
+			<![CDATA[
+			AND insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+			</if>
+		</trim> 
+        <choose>
+		<when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+		ORDER BY ${orderWord} ${orderValue}
+		</when>
+		<otherwise>
+		ORDER BY insert_date DESC, design_layer_log_id DESC
+		</otherwise>
+		</choose>
+		OFFSET #{offset} LIMIT #{limit}
+    </select>
+	
+	<!-- 서비스 요청 이력 정보 -->
+	<select id="getDesignLayerLog" parameterType="long" resultType="designLayerLog">
+		/* getDesignLayerLog */
+		SELECT * FROM design_layer_log WHERE design_layer_log_id = #{designLayerLogId}
+	</select>
+
+	<!-- 서비스 요청 이력 등록 -->
+	<insert id="insertDesignLayerLog" parameterType="designLayerLog" >
+		/* insertDesignLayerLog */
+		<selectKey keyProperty="designLayerLogId" resultType="long" order="BEFORE">
+    		SELECT NEXTVAL('design_layer_log_seq')
+  		</selectKey>
+		INSERT INTO design_layer_log (
+			design_layer_log_id, design_layer_id, user_id, user_name, status
+		) VALUES (
+			#{designLayerLogId}, #{designLayerId}, #{userId}, #{userName}, #{status}
+		)
+	</insert>
+
+</mapper>

@@ -1,0 +1,102 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="gnbWrap" class="gnbWrap">
+
+	<!-- S: 통합검색 -->
+    <div class="totalSearch">
+        <span class="searchIcon"></span>
+        <label for="fullTextSearch" class="hiddenTag">
+            <th:block th:text="#{search.intergrated}"></th:block>
+        </label>
+        <input type="text" id="fullTextSearch" name="fullTextSearch" th:placeholder="#{search.input.placeholder}"/>
+        <div id="districtSelect" class="district">
+            <th:block th:text="#{search.district.select}"></th:block>
+        </div>
+        <button type="button" id="fullTextSearchButton" th:title="#{common.search}" class="btnTotalSearch">
+            <th:block th:text="#{common.search}"></th:block>
+        </button>
+    </div>
+	<!-- E: 통합검색 -->
+
+	<!-- S: 지역선택 -->
+	<div id="districtSelectContent" class="districtWrap" style="display:none;">
+		<!-- S: 행정구역 명 -->
+		<p id="districtSelectNavDHTML" class="districtNav">
+			<span class="on"><th:block th:text="#{search.administrative.sdo}"></th:block></span>
+			&rsaquo;
+			<span><th:block th:text="#{search.administrative.sgg}"></th:block></span>
+			&rsaquo;
+			<span><th:block th:text="#{search.administrative.emd}"></th:block></span>
+		</p>
+		<!-- E: 행정구역 명 -->
+
+		<!-- S: 행정구역 레이어 -->
+		<div class="districtLayer">
+			<ul id="districtSelectSdoDHTML" class="twoColumn">
+				<li class="on"><th:block th:text="#{common.all}"></th:block></li>
+			</ul>
+			<ul id="districtSelectSggDHTML">
+				<li class="on"><th:block th:text="#{common.all}"></th:block></li>
+			</ul>
+			<ul id="districtSelectEmdDHTML">
+				<li class="on"><th:block th:text="#{common.all}"></th:block></li>
+			</ul>
+		</div>
+		<!-- E: 행정구역 레이어 -->
+
+		<!-- S: 하단 버튼 -->
+		<div class="districtBtn">
+			<button type="button" class="focus" id="districtFlyButton">
+				<th:block th:text="#{search.district.move}"></th:block>
+			</button>
+			<button type="button" class="basic" id="districtCancelButton">
+				<th:block th:text="#{search.district.remove}"></th:block>
+			</button>
+			<button type="button" class="basic" id="districtCloseButton">
+				<th:block th:text="#{common.close}"></th:block>
+			</button>
+		</div>
+		<!-- E: 하단 버튼 -->
+
+		<div th:replace="~{/search/select-nav-template :: #districtSelectNavSource}"></div>
+		<div th:replace="~{/search/select-sdo-template :: #districtSelectSdoSource}"></div>
+		<div th:replace="~{/search/select-sgg-template :: #districtSelectSggSource}"></div>
+		<div th:replace="~{/search/select-emd-template :: #districtSelectEmdSource}"></div>
+
+	</div>
+	<!-- E: 지역선택 -->
+
+	<!-- S: 검색결과 -->
+	<div id="districtSearchResultContent" class="searchContent" style="display:none;">
+		<!-- S: 검색결과 목록 -->
+		<ul id="districtSearchResultDHTML" class="listDefault">
+			<li class="on">
+				<p>
+					<th:block th:text="#{search.administrative.district}"></th:block>
+					<span th:text="|#{common.all} 0 #{common.count.unit}|"></span>
+				</p>
+				<ul style="height:250px" class="yScroll">
+					<li th:text="#{search.no.results}"></li>
+				</ul>
+			</li>
+		</ul>
+		<!-- E: 검색결과 목록 -->
+
+		<!-- S: 검색결과 페이징 -->
+		<div id="districtPaginationDHTML"></div>
+		<!-- E: 검색결과 페이징 -->
+
+		<!-- S: 하단 버튼 -->
+		<div class="districtBtn">
+			<button type="button" class="basic" id="districtSearchCloseButton">
+				<th:block th:text="#{common.close}"></th:block>
+			</button>
+		</div>
+		<!-- E: 하단 버튼 -->
+
+		<div th:replace="~{/search/list-template :: #districtSearchResultSource}"></div>
+		<div th:replace="~{/search/pagination-template :: #districtPaginationSource}"></div>
+	</div>
+	<!-- E: 검색결과 -->
+
+</div>
+</html>

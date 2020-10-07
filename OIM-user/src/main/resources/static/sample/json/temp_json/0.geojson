@@ -1,0 +1,17 @@
+{
+"type": "FeatureCollection",
+"name": "0",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007996187156223, 37.452828197743059 ], [ 127.008036726733309, 37.452751276494233 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008129240127161, 37.452787138427801 ], [ 127.008215516663014, 37.452822480623212 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008186647366259, 37.452674134598006 ], [ 127.008276326028621, 37.452716973775154 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008277318557873, 37.452505659797765 ], [ 127.008379428540053, 37.452551717917387 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008362844720267, 37.452398552944103 ], [ 127.008445618982392, 37.452437876150015 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008382507539054, 37.452371322630654 ], [ 127.008421592846531, 37.452307420098968 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008261513490837, 37.452325610934842 ], [ 127.008295816209909, 37.452258564711208 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008145611879414, 37.452297545073769 ], [ 127.008186671194665, 37.452220623824942 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008066664215391, 37.452269884102222 ], [ 127.00810876552066, 37.45219180734302 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.008047381365714, 37.452301702979106 ], [ 127.007930440277974, 37.45225076863867 ] ] } }
+]
+}

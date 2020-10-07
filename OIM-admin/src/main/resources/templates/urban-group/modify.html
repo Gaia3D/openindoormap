@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>도시 그룹 수정</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+				<div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+						<div class="input-header row">
+							<div class="content-desc u-pull-right">
+								<span class="icon-glyph glyph-emark-dot color-warning"></span>
+								<th:block th:text="#{check}"></th:block>
+							</div>
+						</div>
+						<form id="urbanGroup" th:object="${urbanGroup}" method="post" th:action="@{#}" onsubmit="return false;">
+							<input type="hidden" name="_method" value="PUT" />
+							<table class="input-table scope-row" summary="도시 그룹 수정">
+								<caption class="hiddenTag">도시 그룹 수정</caption>
+								<col class="col-label l" />
+								<col class="col-input" />
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="urbanGroupName">도시 그룹명</label>
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input">
+										<input type="text" id="urbanGroupName" name="urbanGroupName" th:field="*{urbanGroupName}" class="l" maxlength="100" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										도시 그룹 Key
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input">
+										<th:block th:text="${urbanGroup.urbanGroupKey}"></th:block>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="parentName">상위 그룹</label>
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input">
+										<input type="hidden" id="parent" name="parent" th:field="*{parent}" />
+										<input type="text" id="parentName" name="parentName" th:field="*{parentName}" class="l" th:readonly="true" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label l" scope="row">
+										<span>사용여부</span>
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input radio-set">
+										<input type="radio" id="available1" name="available" th:field="*{available}" value="true" />
+										<label for="available1" th:text="#{use}"></label>
+										<input type="radio" id="available2" name="available" th:field="*{available}" value="false" />
+										<label for="available2" th:text="#{not.use}"></label>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="viewStartDate">기간</label>
+									</th>
+									<td class="col-input">
+										<span style="margin: 3px;"><input type="text" id="viewStartDate" name="viewStartDate" class="s date" autocomplete="off" /></span>
+										<span> ~ </span>
+										<span style="margin: 3px;"><input type="text" id="viewEndDate" name="viewEndDate" class="s date" autocomplete="off" /></span>
+									</td>
+								</tr>
+								<!--<tr>
+									<th class="col-label" scope="row">
+										<label for="location">위치</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="location" name="location" class="l" maxlength="256" />
+									</td>
+								</tr>-->
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="area">면적</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="area" name="area" class="l" maxlength="256" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="receivingPopulation">수용 인구</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="receivingPopulation" name="receivingPopulation" class="l" maxlength="256" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="receivingHousehold">수용 세대</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="receivingHousehold" name="receivingHousehold" class="l" maxlength="256" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="projectOperaor">사업 시행자</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="projectOperaor" name="projectOperaor" class="l" maxlength="256" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="transferLocalGovernment">지자체 양도 시기</label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="transferLocalGovernment" name="transferLocalGovernment" class="l" maxlength="256" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label l" scope="row"><label for="description" th:text="#{description}"></label></th>
+									<td class="col-input">
+										<input type="text" id="description" name="description" th:field="*{description}" class="xl" />
+									</td>
+								</tr>
+							</table>
+							<div class="button-group">
+								<div class="center-buttons">
+									<input type="button" th:value="#{save}" onclick="updateUrbanGroup();"/>
+									<a href="/urban-group/list" class="button">목록</a>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="pageCustomScript">
+	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			initDatePicker();
+		});
+
+		function validate() {
+			var number = /^[0-9]+$/;
+			var exceptKorean = /^[a-zA-Z0-9]*$/;
+			if ($("#urbanGroupName").val() === null || $("#urbanGroupName").val() === "") {
+				alert("도시 그룹명을 입력해 주세요.");
+				$("#urbanGroupName").focus();
+				return false;
+			}
+			if ($("#urbanGroupKey").val() === null || $("#urbanGroupKey").val() === "") {
+				alert("도시 그룹 Key(한글불가)을 입력해 주세요.");
+				$("#urbanGroupKey").focus();
+				return false;
+			}
+			if (!exceptKorean.test($("#urbanGroupKey").val())) {
+				alert("도시 그룹 Key는 한글을 입력할 수 없습니다.");
+				$("#urbanGroupKey").val("");
+				$("#urbanGroupKey").focus();
+				return false;
+			}
+		}
+
+		// 저장
+		var updateUrbanGroupFlag = true;
+		function updateUrbanGroup() {
+			if (validate() === false) {
+				return false;
+			}
+			if(updateUrbanGroupFlag) {
+				updateUrbanGroupFlag = false;
+				var formData = $("#urbanGroup").serialize();
+				$.ajax({
+					url: "/urban-groups/[[${urbanGroup.urbanGroupId}]]",
+					type: "POST",
+					headers: {"X-Requested-With": "XMLHttpRequest"},
+					data: formData,
+					success: function(msg){
+						if(msg.statusCode <= 200) {
+							alert(JS_MESSAGE["update"]);
+							window.location.reload();
+						} else {
+							alert(JS_MESSAGE[msg.errorCode]);
+							console.log("---- " + msg.message);
+						}
+						updateUrbanGroupFlag = true;
+					},
+					error:function(request, status, error){
+						alert(JS_MESSAGE["ajax.error.message"]);
+						updateUrbanGroupFlag = true;
+					}
+				});
+			} else {
+				alert(JS_MESSAGE["button.dobule.click"]);
+			}
+		}
+
+		var urbanGroupDialog = $( ".dialog" ).dialog({
+			autoOpen: false,
+			height: 600,
+			width: 1200,
+			modal: true,
+			overflow : "auto",
+			resizable: false
+		});
+
+	</script>
+</th:block>
+</body>
+</html>

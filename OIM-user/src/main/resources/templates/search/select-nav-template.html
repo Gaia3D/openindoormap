@@ -1,0 +1,25 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="districtSelectNavSource" type="text/x-handlebars-template">
+	<span {{#if isSelectedSdo}}class="on"{{/if}}>
+		{{#if sdoName}}
+			{{sdoName}}
+		{{else}}
+			<th:block th:text="#{search.administrative.sdo}"></th:block>
+		{{/if}}
+	</span>&rsaquo;
+	<span {{#if isSelectedSgg}}class="on"{{/if}}>
+		{{#if sggName}}
+			{{sggName}}
+		{{else}}
+			<th:block th:text="#{search.administrative.sgg}"></th:block>
+		{{/if}}
+	</span>&rsaquo;
+	<span {{#if isSelectedEmd}}class="on"{{/if}}>
+		{{#if emdName}}
+			{{emdName}}
+		{{else}}
+			<th:block th:text="#{search.administrative.emd}"></th:block>
+		{{/if}}
+	</span>
+</script>
+</html>

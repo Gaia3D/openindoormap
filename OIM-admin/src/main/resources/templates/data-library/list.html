@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>데이터 라이브러리 목록</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}">
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+				<div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+
+						<!-- S: 검색 -->
+						<div class="filters">
+							<form id="searchForm" th:object="${dataLibrary}" method="get" th:action="@{/data-library/list}" onsubmit="return searchCheck();">
+								<div class="input-group row">
+									<div class="input-set">
+										<label for="searchWord" th:text="#{search.word}"></label>
+										<select id="searchWord" name="searchWord" class="selectBoxClass">
+											<option value="" th:text="#{select}"></option>
+											<option value="data_library_name">데이터 라이브러리명</option>
+										</select>
+										<select id="searchOption" name="searchOption" class="selectBoxClass">
+											<option value="0" th:text="#{search.same}"></option>
+											<option value="1" th:text="#{search.include}"></option>
+										</select>
+										<input type="search" id="searchValue" name="searchValue" class="m" style="float: right;" />
+									</div>
+									<div class="input-set">
+										<label for="startDate" th:text="#{search.date}"></label>
+										<input type="text" id="startDate" name="startDate" class="s date" autocomplete="off" />
+										<span class="delimeter tilde">~</span>
+										<input type="text" id="endDate" name="endDate" class="s date" autocomplete="off" />
+									</div>
+									<div class="input-set">
+										<label for="orderWord" th:text="#{search.order}"></label>
+										<select id="orderWord" name="orderWord" class="selectBoxClass">
+											<option value="" th:text="#{search.basic}"></option>
+											<option value="data_library_name">데이터 라이브러리명</option>
+											<option value="insert_date" th:text="#{search.insert.date}"></option>
+										</select>
+										<select id="orderValue" name="orderValue" class="selectBoxClass">
+											<option value="" th:text="#{search.basic}"></option>
+											<option value="ASC" th:text="#{search.ascending}"></option>
+											<option value="DESC" th:text="#{search.descending.order}"></option>
+										</select>
+										<select id="listCounter" name="listCounter" class="selectBoxClass">
+											<option value="10" th:text="#{search.ten.count}"></option>
+											<option value="50" th:text="#{search.fifty.count}"></option>
+											<option value="100" th:text="#{search.hundred.count}"></option>
+										</select>
+									</div>
+									<div class="input-set">
+										<input type="submit" th:value="#{search}" />
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- E: 검색 -->
+
+						<!-- S: 데이터 목록 -->
+						<div class="list">
+							<form id="listForm" th:object="${dataLibrary}" method="post">
+								<input type="hidden" id="checkIds" name="checkIds" />
+								<div class="list-header row">
+									<div class="list-desc u-pull-left">
+										<span th:text="#{all.d}"></span>
+										<span class="totalCount" th:text="${pagination.totalCount}"></span>
+										<span th:text="#{search.what.count}"></span>
+										<span th:text="|${pagination.pageNo} / ${pagination.lastPage}|"></span>
+										<span th:text="#{search.page}"></span>
+									</div>
+									<!--<div class="list-functions u-pull-right">
+										<div class="button-group">
+											<a href="#" class="button" onclick="uploadDataFile(); return false;">데이터 일괄 업로딩</a>
+										</div>
+									</div>-->
+								</div>
+								<table class="list-table scope-col" summary="데이터 라이브러리 목록">
+									<caption class="hiddenTag">데이터 라이브러리 목록</caption>
+									<colgroup>
+										<col class="col-checkbox"></col>
+										<col class="col-number"></col>
+										<col class="col-name"></col>
+										<col class="col-name"></col>
+										<col class="col-name"></col>
+										<col class="col-functions"></col>
+										<col class="col-functions"></col>
+										<col class="col-functions"></col>
+										<col class="col-functions"></col>
+										<col class="col-functions"></col>
+									</colgroup>
+									<thead>
+										<tr>
+											<th scope="col" class="col-checkbox">
+												<label for="chkAll" class="hiddenTag">전체선택 체크박스</label>
+												<input type="checkbox" id="chkAll" name="chkAll" />
+											</th>
+											<th scope="col" class="col-number" th:text="#{number}"></th>
+											<th scope="col" class="col-name">데이터 라이브러리 그룹명</th>
+											<th scope="col" class="col-name">데이터 라이브러리명</th>
+											<th scope="col" class="col-name">아이디</th>
+											<th scope="col" class="col-name">데이터타입</th>
+											<th scope="col" class="col-name">상태</th>
+											<th scope="col" class="col-name">지도</th>
+											<th scope="col" class="col-name">삭제</th>
+											<th scope="col" class="col-date">등록일</th>
+										</tr>
+									</thead> 
+									<tbody>
+<th:block th:if="${dataLibraryList.empty}">
+										<tr>
+											<td colspan="10" class="col-none" th:text="#{data.library.does.not.exist}"></td>
+										</tr>
+</th:block>
+<th:block th:unless="${dataLibraryList.empty}" th:each="dataLibrary : ${dataLibraryList}">
+										<tr>
+											<td class="col-checkbox">
+												<label class="hiddenTag">선택 체크박스</label>
+												<input type="checkbox" th:id="|dataLibraryId_${dataLibrary.dataLibraryId}|" name="dataLibraryId" value="${dataLibrary.dataLibraryId}" />
+											</td>
+											<td class="col-number" th:text="${pagination.rowNumber - dataLibraryStat.index}"></td>
+											<td class="col-name ellipsis" style="max-width:200px;">
+												<a href="#" class="view-group-detail" th:text="${dataLibrary.dataLibraryGroupName}"
+												   th:onclick="detailDataGroup([[${dataLibrary.dataLibraryGroupId }]]); return false;"></a>
+											</td>
+											<td class="col-name">
+												<a th:href="@{/data-library/modify(dataLibraryId=${dataLibrary.dataLibraryId}, pageNo=${pagination.pageNo}, ${pagination.searchParameters})}"
+												   th:text="${dataLibrary.dataLibraryName}"></a>
+											</td>
+											<td class="col-name" th:text="${dataLibrary.userId}"></td>
+											<td class="col-name" th:text="${dataLibrary.dataType}"></td>
+											<td class="col-type">
+												<th:block th:if="${#strings.equals(dataLibrary.status, 'processing')}">변환중</th:block>
+												<th:block th:if="${#strings.equals(dataLibrary.status, 'use')}">사용중</th:block>
+												<th:block th:if="${#strings.equals(dataLibrary.status, 'unused')}">사용중지</th:block>
+												<th:block th:if="${#strings.equals(dataLibrary.status, 'delete')}">삭제</th:block>
+											</td>
+											<td class="col-type"><a href="#" th:onclick="viewDataLibrary([[${dataLibrary.dataLibraryId}]]); return false;">보기</a></td>
+											<td class="col-functions">
+												<a th:href="@{/data-library/delete(dataLibraryId=${dataLibrary.dataLibraryId})}"
+												   class="image-button button-delete" th:value="#{delete}" onclick="return deleteWarning();"></a>
+											</td>
+											<td class="col-type">
+												<th:block th:text="${#temporals.format(dataLibrary.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
+											</td>
+										</tr>
+</th:block>
+									</tbody>
+								</table>
+							</form>
+						</div>
+						<!-- 페이지 -->
+						<div th:replace="~{/common/pagination :: #paginationArea}"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 데이터 그룹 -->
+<!--	<div th:replace="~{/data/group-dialog :: #dataGroupDialog}"></div>-->
+
+</th:block>
+<th:block layout:fragment="pageCustomScript">
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<!--<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.form.min.js(cacheVersion=${contentCacheVersion})}"></script>-->
+<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var searchWord = "[[${dataLibrary.searchWord}]]";
+		var searchOption = "[[${dataLibrary.searchOption}]]";
+		var orderWord = "[[${dataLibrary.orderWord}]]";
+		var orderValue = "[[${dataLibrary.orderValue}]]";
+		var listCounter = "[[${dataLibrary.listCounter}]]";
+
+		if(searchWord != "") $("#searchWord").val("[[${dataLibrary.searchWord}]]");
+		if(searchOption != "") $("#searchOption").val("[[${dataLibrary.searchOption}]]");
+		if(orderWord != "") $("#orderWord").val("[[${dataLibrary.orderWord}]]");
+		if(orderValue != "") $("#orderValue").val("[[${dataLibrary.orderValue}]]");
+		if(listCounter != "") $("#listCounter").val("[[${dataLibrary.listCounter}]]");
+
+		initDatePicker();
+		initCalendar(new Array("startDate", "endDate"), new Array("[[${dataLibrary.startDate}]]", "[[${dataLibrary.endDate}]]"));
+	});
+
+	// 전체 선택
+	$("#chkAll").click(function() {
+		$(":checkbox[name=dataLibraryId]").prop("checked", this.checked);
+	});
+
+	// 데이터 그룹 정보
+	function detailDataGroup(dataLibraryGroupId) {
+		dataGroupDialog.dialog( "open" );
+
+		$.ajax({
+			url: "/data-library-groups/" + dataLibraryGroupId,
+			//data: { "dataLibraryGroupId" : dataLibraryGroupId },
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					var sharing = msg.dataLibraryGroup.sharing;
+					if(sharing == "common") {
+						sharing = "공통";
+					} else if(sharing == "public") {
+						sharing = "공개";
+					} else if(sharing == "private") {
+						sharing = "비공개";
+					} else if(sharing == "group") {
+						sharing = "그룹";
+					}
+
+					$("#dataGroupNameInfo").html(msg.dataGroup.dataLibraryGroupName);
+					$("#dataGroupKeyInfo").html(msg.dataGroup.dataGroupKey);
+					$("#dataGroupTargetInfo").html(msg.dataGroup.dataGroupTarget);
+					$("#sharingInfo").html(sharing);
+					$("#userIdInfo").html(msg.dataGroup.userId);
+					$("#basicInfo").html(msg.dataGroup.basic ? '기본' : '선택');
+					$("#availableInfo").html(msg.dataGroup.available ? '사용' : '미사용');
+					$("#locationInfo").html(msg.dataGroup.longitude + " / " + msg.dataGroup.latitude);
+					$("#dataCountInfo").html(msg.dataGroup.dataCount);
+					$("#metainfoInfo").html(msg.dataGroup.metainfo);
+					$("#descriptionInfo").html(msg.dataGroup.description);
+
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
+	function searchCheck() {
+		if($("#searchOption").val() == "1") {
+			if(confirm(JS_MESSAGE["search.option.warning"])) {
+				// go
+			} else {
+				return false;
+			}
+		}
+
+		var startDate = $("#startDate").val();
+		var endDate = $("#endDate").val();
+		if(startDate != null && startDate != "" && endDate != null && endDate != "") {
+			if(parseInt(startDate) > parseInt(endDate)) {
+				alert(JS_MESSAGE["search.date.warning"]);
+				$("#startDate").focus();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// 데이터 그룹 정보
+	var dataGroupDialog = $( ".dataGroupDialog" ).dialog({
+		autoOpen: false,
+		width: 800,
+		height: 550,
+		modal: true,
+		resizable: false
+	});
+
+</script>
+</th:block>
+</body>
+</html>

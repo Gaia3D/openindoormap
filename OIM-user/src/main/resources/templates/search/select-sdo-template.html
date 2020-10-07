@@ -1,0 +1,12 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="districtSelectSdoSource" type="text/x-handlebars-template">
+    <li class="on" onclick="changeSdo(this, '')">
+        <th:block th:text="#{common.all}"></th:block>
+    </li>
+    {{#if sdoList}}
+		{{#each sdoList}}
+			<li onclick="changeSdo(this, {{sdoCode}})">{{koname}}<span></span></li>
+		{{/each}}
+    {{/if}}
+</script>
+</html>

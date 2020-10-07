@@ -1,0 +1,63 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dataListSource" type="text/x-handlebars-template">
+    <ul>
+        {{#greaterThan dataList.length 0}}
+        {{#each dataList}}
+        <li class="listElement" onclick="detailDataInfo('/datas/{{dataId}}');">
+            <div class="titleWrap">
+                <p>
+                    <span class="bullet">{{#numberToAlphabet @index}}{{/numberToAlphabet}}.</span>
+                    <span class="title ellipsis" style="max-width: 178px">{{dataName}}</span>
+                    <span class="subTitle">
+                    {{#ifMatch dataGroupTarget 'admin'}}
+                        <th:block th:text="#{data.administrator}"></th:block>
+                    {{else}}
+                        {{#ifMatch userId ../owner}}
+                            {{userId}}
+                        {{else}}
+                            {{userId}}
+                        {{/ifMatch}}
+                    {{/ifMatch}}
+                    </span>
+                </p>
+            </div>
+            <div class="rightButtonWrap">
+                {{#if tiling}}
+                <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="gotoFly('{{longitude}}', '{{latitude}}', '{{altitude}}');">
+                    <p class="buttonLable" th:text="#{common.move}"></p>
+                </button>
+                {{else}}
+                <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');">
+                    <p class="buttonLable" th:text="#{common.move}"></p>
+                </button>
+                {{/if}}
+                {{#if groupVisible}}
+                <button class="fas fa-eye box" th:title="#{common.show}" onclick="visibleData(this, '{{dataGroupId}}', '{{dataKey}}', '{{tiling}}');">
+                    <p class="buttonLable" th:text="#{common.show}"></p>
+                </button>
+                {{else}}
+                <button class="fas fa-eye-slash box" th:title="#{common.show}" onclick="visibleData(this, '{{dataGroupId}}', '{{dataKey}}', '{{tiling}}');">
+                    <p class="buttonLable" th:text="#{common.show}"></p>
+                </button>
+                {{/if}}
+            </div>
+            <div class="infoWrap">
+                <span class="infoTag ellipsis"><span th:text="#{data.group.name.colon}"></span>{{dataGroupName}}</span>
+                {{#greaterThan dataType.length 0}}
+                <span class="infoTag"><span th:text="#{data.type.colon}"></span>{{dataType}}</span>
+                {{/greaterThan}}
+                <span class="infoTag"><span th:text="#{data.sharing.colon}"></span>
+                    {{#ifMatch sharing 'common'}}<th:block th:text="#{common.common}"></th:block>{{/ifMatch}}
+                    {{#ifMatch sharing 'public'}}<th:block th:text="#{common.public}"></th:block>{{/ifMatch}}
+                    {{#ifMatch sharing 'private'}}<th:block th:text="#{common.private}"></th:block>{{/ifMatch}}
+                    {{#ifMatch sharing 'group'}}<th:block th:text="#{common.group}"></th:block>{{/ifMatch}}
+                </span>
+            </div>
+        </li>
+        {{/each}}
+        {{else}}
+            <li class="listElement" th:text="#{data.does.not.exist}"></li>
+        {{/greaterThan}}
+    </ul>
+</script>
+</html>

@@ -1,0 +1,159 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id "org.asciidoctor.convert" version "1.5.9.2"
+    id 'java'
+    id 'war'
+}
+
+apply plugin: 'application'
+mainClassName = 'io.openindoormap.OIMUserApplication'
+
+apply plugin: 'project-report'
+
+group = 'com.io.openindoormap'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+// gradle build -Pprofile=product (develop, test, local)
+final String DEFAULT_PROFILE = 'local'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        resources {
+            if (!project.hasProperty('profile') || !profile) {
+                println " ========== > default profile is local. "
+                ext.profile = DEFAULT_PROFILE
+            }
+
+            if (profile == 'product') {
+                println " ===========> profile file is ${profile}"
+                println " ===========> copy from src/main/resources/product to src/main/resources"
+
+                copy {
+                    from("src/main/resources/product") {
+                        include 'application.properties'
+                        include 'openindoormap.properties'
+                        include 'logback-spring.xml'
+                    }
+                    into "src/main/resources"
+                }
+                exclude "**/develop/*"
+            } else if (profile == 'develop') {
+                println " ===========> profile file is ${profile}"
+                println " ===========> copy from src/main/resources/develop to src/main/resources"
+
+                copy {
+                    from("src/main/resources/develop") {
+                        include 'application.properties'
+                        include 'openindoormap.properties'
+                        include 'logback-spring.xml'
+                    }
+                    into "src/main/resources"
+                }
+                exclude "**/product/*"
+            } else {
+                println " ===========> profile file is ${profile}"
+                //srcDir "src/main/resources"
+                exclude "**/product/*"
+                exclude "**/develop/*"
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation project(':common')
+    //implementation project(':lhdt-cmmn')
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.2'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.springframework.security:spring-security-core:5.2.1.RELEASE'
+
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.4.1'
+
+    implementation 'org.apache.commons:commons-compress:1.18'
+
+    implementation 'org.modelmapper:modelmapper:2.3.6'
+
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.postgresql:postgresql:42.2.14'
+
+    //providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+	compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.12'
+	compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.13'
+	compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.12'
+	
+	//
+    compile fileTree(dir:'libs', include:['*.jar'])
+    
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
+}
+
+test {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+    ignoreFailures = true
+    //exclude '**/*'
+}
+
+asciidoctor {
+    attributes 'snippets': snippetsDir
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+task copyDocument(type: Copy) {
+    println " @@@@@ copyDocument execute @@@@@ "
+    dependsOn asciidoctor
+    from file("build/asciidoc/html5/")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    dependsOn copyDocument
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '6.5'
+}

@@ -1,0 +1,12 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="districtSelectEmdSource" type="text/x-handlebars-template">
+    <li class="on" onclick="changeEmd(this, {{sdoCode}}, {{sggCode}}, '')">
+        <th:block th:text="#{common.all}"></th:block>
+    </li>
+    {{#if emdList}}
+		{{#each emdList}}
+			<li onclick="changeEmd(this, {{../sdoCode}}, {{../sggCode}}, {{emdCode}})">{{koname}}</li>
+		{{/each}}
+    {{/if}}
+</script>
+</html>

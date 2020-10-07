@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.DesignLayerGroupMapper">
+
+	<!-- design layer 그룹 목록 조회 -->
+	<select id="getListDesignLayerGroup" resultType="designLayerGroup">
+		/* getListDesignLayerGroup */
+		WITH RECURSIVE design_layer_group_tree (
+			design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description, insert_date, path, cycle
+		) AS (
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+	        	A.description, A.insert_date, ARRAY[A.view_order], false
+			FROM design_layer_group A
+			WHERE A.available = true
+			<choose>
+				<when test="designLayerGroupId != null and designLayerGroupId > 0">
+					AND A.design_layer_group_id = #{designLayerGrouupId}
+				</when>
+				<otherwise>
+					AND A.parent = 0
+				</otherwise>
+			</choose>
+
+			UNION ALL
+	        SELECT A.design_layer_group_id, A.design_layer_group_name, A.user_id, A.ancestor, A.parent, A.depth, A.view_order, A.children, A.available,
+	        	A.description, A.insert_date, path || A.view_order, A.design_layer_group_id = ANY(path)
+	        FROM design_layer_group A, design_layer_group_tree B
+	        WHERE A.parent = B.design_layer_group_id AND not cycle
+		)
+	    SELECT design_layer_group_id, design_layer_group_name, user_id, ancestor, parent, depth, view_order, children, available, description, insert_date, path
+	    FROM design_layer_group_tree
+		<if test="designLayerGroupId != null and designLayerGroupId > 0">
+			WHERE design_layer_group_id != #{designLayerGrouupId}
+		</if>
+	    ORDER BY path
+	</select>
+
+	<!-- design layer 그룹 정보 -->
+	<select id="getDesignLayerGroup" parameterType="int" resultType="designLayerGroup">
+		/* getDesignLayerGroup */
+		SELECT A.*,
+			CASE
+				WHEN parent > 0 THEN ( SELECT design_layer_group_name FROM design_layer_group WHERE design_layer_group_id = A.parent )
+				ELSE null
+			END AS parentName
+		FROM design_layer_group A
+		WHERE design_layer_group_id = #{designLayerGroupId}
+	</select>
+
+	<!-- 부모와 순서를 가지고 design layer 그룹 정보를 취득 -->
+	<select id="getDesignLayerGroupByParentAndViewOrder" parameterType="designLayerGroup" resultType="designLayerGroup">
+		/* getDesignLayerGroupGroupByParentAndViewOrder */
+		SELECT *
+		FROM design_layer_group
+		WHERE parent = #{parent}
+		<if test="updateType == 'UP'.toString()">
+			<![CDATA[
+			AND view_order < #{viewOrder}
+			]]>
+		ORDER BY view_order DESC
+		</if>
+		<if test="updateType == 'DOWN'.toString()">
+			<![CDATA[
+			AND view_order > #{viewOrder}
+			]]>
+		ORDER BY view_order
+		</if>
+		LIMIT 1
+	</select>
+</mapper>

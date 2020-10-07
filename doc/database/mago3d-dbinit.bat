@@ -13,7 +13,6 @@ set CUR_PATH=%~dp0
 cd C:\Program Files\PostgreSQL\12.2\bin\
 
 psql -U postgres -d mago3d -a -f D:\GIT\mago3d-cms\doc\database\ddl\access_log.sql
-psql -U postgres -d mago3d -a -f D:\GIT\mago3d-cms\doc\database\ddl\civil_voice.sql
 psql -U postgres -d mago3d -a -f D:\GIT\mago3d-cms\doc\database\ddl\constraint
 psql -U postgres -d mago3d -a -f D:\GIT\mago3d-cms\doc\database\ddl\converter.sql
 psql -U postgres -d mago3d -a -f D:\GIT\mago3d-cms\doc\database\ddl\dataInfo.sql

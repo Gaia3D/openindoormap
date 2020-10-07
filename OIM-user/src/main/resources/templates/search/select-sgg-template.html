@@ -1,0 +1,12 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="districtSelectSggSource" type="text/x-handlebars-template">
+    <li class="on" onclick="changeSgg(this, {{sdoCode}}, '')">
+        <th:block th:text="#{common.all}"></th:block>
+    </li>
+    {{#if sggList}}
+		{{#each sggList}}
+			<li onclick="changeSgg(this, {{../sdoCode}}, {{sggCode}})">{{koname}}</li>
+		{{/each}}
+    {{/if}}
+</script>
+</html>

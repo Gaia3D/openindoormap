@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>데이터 라이브러리 그룹 수정</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+				<div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+						<div class="input-header row">
+                            <div class="content-desc u-pull-right">
+                                <span class="icon-glyph glyph-emark-dot color-warning"></span>
+                                <th:block th:text="#{check}"></th:block>
+                            </div>
+						</div>
+
+						<!-- S: 데이터 라이브러리 그룹 수정 -->
+						<form id="dataLibraryGroup" th:object="${dataLibraryGroup}" method="post" th:action="@{#}" onsubmit="return false;">
+							<input type="hidden" name="_method" value="PUT" />
+							<table class="input-table scope-row" summary="데이터 라이브러리 그룹 수정 테이블">
+								<caption class="hiddenTag">데이터 라이브러리 그룹 수정</caption>
+								<colgroup></colgroup>
+									<col class="col-label">
+									<col class="col-input">
+								</colgroup>
+								<tr>
+									<th class="col-label" scope="row">
+										<label for="dataLibraryGroupName">데이터 라이브러리 그룹명</label>
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input">
+										<input type="text" id="dataLibraryGroupName" name="dataLibraryGroupName" th:field="*{dataLibraryGroupName}" class="l" />
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										데이터 라이브러리 그룹 Key(영문,숫자,-,_)
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input" th:text="${dataLibraryGroup.dataLibraryGroupKey}"></td>
+								</tr>
+								<tr>
+									<th class="col-label" scope="row">
+										상위 그룹
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input" th:text="${dataLibraryGroup.parentName}"></td>
+								</tr>
+								<tr>
+				                    <th class="col-label" scope="row">
+				                        <label for="sharing">공유 타입</label>
+				                        <span class="icon-glyph glyph-emark-dot color-warning"></span>
+				                    </th>
+				                    <td class="col-input">
+				                        <select id="sharing" name="sharing" th:field="*{sharing}" class="selectBoxClass">
+											<!--<option value="public">공개</option>-->
+											<option value="common">공통</option>
+											<!--<option value="private">개인</option>
+											<option value="group">그룹</option>-->
+										</select>
+				                    </td>
+				                </tr>
+				                <tr>
+									<th class="col-label l" scope="row">
+										기본 여부
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input radio-set">
+										<th:block th:if="${#bools.isTrue(dataLibraryGroup.basic)}">기본</th:block>
+										<th:block th:if="${#bools.isFalse(dataLibraryGroup.basic)}">선택</th:block>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label l" scope="row">
+										사용 여부
+										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+									</th>
+									<td class="col-input radio-set">
+	<th:block th:if="${#bools.isTrue(dataLibraryGroup.basic)}">사용</th:block>
+	<th:block th:if="${#bools.isFalse(dataLibraryGroup.basic)}">
+										<input type="radio" id="availableTrue" name="available" value="true" />
+										<label for="availableTrue">사용</label>
+										<input type="radio" id="availableFalse" name="available" value="false" />
+										<label for="availableFalse">미사용</label>
+	</th:block>
+									</td>
+								</tr>
+								<tr>
+									<th class="col-label l" scope="row">
+										<label for="description" th:text="#{description}"></label>
+									</th>
+									<td class="col-input">
+										<input type="text" id="description" name="description" th:field="*{description}" class="xl" />
+									</td>
+								</tr>
+							</table>
+							<div class="button-group">
+								<div class="center-buttons">
+									<input type="submit" th:value="#{save}" onclick="updateDataLibraryGroup();"/>
+									<a href="/data-library-group/list" class="button">목록</a>
+								</div>
+							</div>
+						</form>
+						<!-- E: 데이터 라이브러리 그룹 수정 -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="pageCustomScript">
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var isBasic = "[[${dataLibraryGroup.basic}]]";
+		if(isBasic === "false") {
+			// 기본 그룹이 아닐 경우만 사용 유무 수정 가능
+			$("[name=available]").filter("[value='[[${dataLibraryGroup.available}]]']").prop("checked",true);
+		}
+		
+		$("#sharing").val("[[${dataLibraryGroup.sharing}]]");
+	});
+
+	function validate() {
+		var number = /^[0-9]+$/;
+		if ($("#dataLibraryGroupName").val() === null || $("#dataLibraryGroupName").val() === "") {
+			alert("데이터 라이브러리 그룹명을 입력해 주세요.");
+			$("#dataLibraryGroupName").focus();
+			return false;
+		}
+	}
+
+	var dataLibraryGroupDialog = $("#dataLibraryGroupListDialog").dialog({
+		autoOpen: false,
+		height: 600,
+		width: 1200,
+		modal: true,
+		overflow : "auto",
+		resizable: false
+	});
+
+	// 저장
+	var updateDataLibraryGroupFlag = true;
+	function updateDataLibraryGroup() {
+		if (validate() == false) {
+			return false;
+		}
+		if(updateDataLibraryGroupFlag) {
+			updateDataLibraryGroupFlag = false;
+			var formData = $("#dataLibraryGroup").serialize();
+			$.ajax({
+				url: "/data-library-groups/[[${dataLibraryGroup.dataLibraryGroupId}]]",
+				type: "POST",
+				headers: {"X-Requested-With": "XMLHttpRequest"},
+		        data: formData,
+				success: function(msg){
+					if(msg.statusCode <= 200) {
+						alert(JS_MESSAGE["update"]);
+						window.location.reload();
+					} else {
+						alert(JS_MESSAGE[msg.errorCode]);
+						console.log("---- " + msg.message);
+					}
+					updateDataLibraryGroupFlag = true;
+				},
+				error:function(request, status, error){
+			        alert(JS_MESSAGE["ajax.error.message"]);
+			        updateDataLibraryGroupFlag = true;
+				}
+			});
+		} else {
+			alert(JS_MESSAGE["button.dobule.click"]);
+		}
+	}
+</script>
+</body>
+</html>

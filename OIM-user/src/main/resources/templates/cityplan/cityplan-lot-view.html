@@ -1,0 +1,230 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+
+<!-- 
+지구설계 > 단지가시화
+@author gravity
+@since 20200901 init
+ -->
+<div id="lotViewProcess" class="listContents">
+	<div class="form-group form-group-data">
+		<label for="selCity">지구선택</label> <select id="selCity" class="ds-city" name="searchDataGroup">
+			<option value="gc">선택하세요.</option>
+		</select>
+	</div>
+
+	<div class="dataGroupSummary table-data-group-summary">
+		<table class="table-word-break ds-layer-table" summary="레이어 목록">
+			<caption class="hiddenTag">레이어 목록</caption>
+			<colgroup>
+				<col class="col-number" width="10%">
+				<col class="col-number" width="15%">
+				<col class="col-number" width="*">
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col" class="col-number">선택</th>
+					<th scope="col" class="col-number">번호</th>
+					<th scope="col" class="col-number">레이어명</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="col-number" colspan="3">데이터가 없습니다.</td>
+				</tr>
+				
+			</tbody>
+		</table>
+	</div>
+	
+	<script>
+	/**
+	 * 단지 가시화 
+	 * @since 20200901	init
+	 */
+	let LotViewObj = function(){		
+		this.cityData = {};
+		this.layerData = {};
+	};
+	
+	
+	/*
+	 * 초기
+	 * @param {Viewer} 뷰어
+	 * @param {object} 정책
+	 */
+	LotViewObj.prototype.init = function(){		
+		//
+		this.setEventHandler();
+	};
+	
+	
+	/*
+	 * 이벤트 등록
+	 */
+	LotViewObj.prototype.setEventHandler = function(){
+		//
+		let the = this;
+		
+		//단지가시화 - 아코디언 클릭		
+    	Ppui.click('.ds-li-lot-view > p:nth-child(1)', function(){
+    		let b = Ppui.hasClass(this.parentElement, 'on');
+    		//
+    		if(!b){
+    			return;
+    		}
+    		
+	    	//단지가시화 - 지구 데이터 목록 조회
+	    	let cityData =	lotViewObj.getCityData();
+	    	//콤보박스 데이터 바인드
+	    	Ppui.bindDatas(document.querySelector('.ds-city'), cityData.datas, {'tkey':'cityName', 'vkey':'cityNo', 'append':false});
+	    	
+	    	//지구 콤보박스 change이벤트 발생
+	    	Ppui.trigger('.ds-city', 'change');
+    	});
+
+
+		//지구 change
+    	Ppui.change('.ds-city', function(){
+    		//레이어 목록 바인드
+    		let _bindLayerDatas = function(layerData){
+    			var source = $("#lot-view-layer-template").html();
+				var template = Handlebars.compile(source);
+				
+				Handlebars.registerHelper('counter', function(index){
+					return index+1;
+				});
+				
+				var htmlString = template(layerData);
+				
+                document.querySelector('.ds-layer-table > tbody').innerHTML = htmlString;
+    		};
+    		
+    		//지도위의 레이어 삭제
+    		let _removeLayers = function(layerData){
+    			if(Pp.isNull(layerData) || Pp.isEmpty(layerData.datas)){
+    				return;
+    			}
+    			
+    			//
+    			for(let i=0; i<layerData.datas.length; i++){
+    				let d = layerData.datas[i];
+    				
+    				//
+    				the.offLayer(d.layerKey);
+    			}
+    		};
+    		
+    		//지도위의 레이어 삭제
+    		_removeLayers(lotViewObj.layerData);
+    		
+    		//
+    		let cityNo = this.value;
+    		//레이어 목록 조회
+    		let layerData = lotViewObj.getLayerData(cityNo);
+    		
+    		//레이어 목록 바인드
+    		_bindLayerDatas(layerData);
+
+			//레이어 체크박스 이벤트
+			Ppui.click('.ds-layer', function(){				
+				//
+				if(this.checked){
+					lotViewObj.onLayer(this.value);
+				}else{
+					lotViewObj.offLayer(this.value);
+				}
+			});
+    	});
+	};
+	
+	
+	
+	/*
+	 * on 레이어
+	 * @param {string} layerKey 레이어키
+	 */
+	LotViewObj.prototype.onLayer = function(layerKey){
+		OIM.map.addLayer(layerKey);
+	};
+	
+	
+	/*
+	 * off 레이어
+	 * @param {string} layerKey 레이어키
+	 */
+	LotViewObj.prototype.offLayer = function(layerKey){
+		OIM.map.removeLayer(layerKey);
+	};
+	
+	
+	
+	/**
+	 * 지구 데이터 목록 조회
+	 */
+	LotViewObj.prototype.getCityData = function(){
+		//
+		let data = {};
+		
+		Pp.submitAjax('../cityplan/lot-view/city-datas', [], function(res){
+			data = res;
+		}, {'method':'get', 'async':false});
+		
+		//
+		this.cityData = data;
+		return data;
+		//return [{'cityNo':'1', 'cityName':'인천계양'}, {'cityNo':'2', 'cityName':'하남 교산'}];
+	};
+	
+	
+	/**
+	 * 레이어 목록 조회
+	 * @param {string} cityNo
+	 */
+	LotViewObj.prototype.getLayerData = function(cityNo){
+		 //
+		let data={};
+		
+		Pp.submitAjax('../cityplan/lot-view/city-datas/'+cityNo+'/layer-datas', [], function(res){
+			data = res;
+		}, {'method':'get', 'async':false});
+		
+		//
+		this.layerData = data;
+		return data;
+		
+		/*
+		let json = {};
+		json.datas = [];
+		json.datas.push({'layerKey':'layerkey', layerName: cityNo + '의 layer명'});
+		json.datas.push({'layerKey':'sk_sdo', layerName: cityNo + '의 sk_sdo'});
+		
+		//
+		return json;
+		*/
+	};
+	
+	//인스턴스 생성
+	let lotViewObj = new LotViewObj();
+	
+	//
+	window.addEventListener('load', function(){
+		lotViewObj.init();    	
+	});	
+	
+	//TODO 지도위 마우스 클릭시 해당 레이어 정보 표시하기
+	</script>
+	
+	<!-- 단지가시화 - 레이어 목록 -->
+    <script id="lot-view-layer-template" type="text/x-handlebars-template">
+		{{#each datas}}
+		<tr>
+		   	<td class="col-number"><input type="checkbox" class="ds-layer" value="{{layerKey}}"/></td>
+		   	<td class="col-number">{{counter @index}}</td>
+		   	<td class="col-number">{{layerName}}</td>
+		</tr>
+		{{/each}}
+	</script>
+	
+	
+</div>
+</html>

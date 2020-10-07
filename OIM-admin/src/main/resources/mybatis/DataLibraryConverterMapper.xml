@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.DataLibraryConverterMapper">
+
+    <!-- 데이터 라이브러리 converter job 총 건수 -->
+    <select id="getDataLibraryConverterJobTotalCount" parameterType="dataLibraryConverterJob" resultType="long">
+        /* getDataLibraryConverterJobTotalCount */
+        SELECT COUNT(data_library_converter_job_id)
+        FROM data_library_converter_job
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <if test="userId != null and userId != ''">
+                user_id = #{userId}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+                AND ${searchWord} = #{searchValue}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+                AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+            </if>
+            <if test="startDate != null and startDate != ''">
+                <![CDATA[
+			AND insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+			AND insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+            </if>
+        </trim>
+    </select>
+
+    <!-- 데이터 라이브러리 converter job file 총 건수 -->
+    <select id="getDataLibraryConverterJobFileTotalCount" parameterType="dataLibraryConverterJobFile" resultType="long">
+        /* getDataLibraryConverterJobFileTotalCount */
+        SELECT COUNT(data_library_converter_job_file_id)
+        FROM data_library_converter_job_file
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <if test="userId != null and userId != ''">
+                user_id = #{userId}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+                AND ${searchWord} = #{searchValue}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+                AND ${searchWord} LIKE '%' || #{searchValue} || '%'
+            </if>
+            <if test="startDate != null and startDate != ''">
+                <![CDATA[
+			AND insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+			AND insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+			]]>
+            </if>
+        </trim>
+    </select>
+
+    <!-- 데이터 라이브러리 converter job 목록 -->
+    <select id="getListDataLibraryConverterJob" parameterType="dataLibraryConverterJob" resultType="dataLibraryConverterJob">
+        /* getListDataLibraryConverterJob */
+        SELECT X.*,
+            (   SELECT COUNT(data_library_converter_job_file_id) 
+                FROM data_library_converter_job_file 
+                WHERE data_library_converter_job_id = X.data_library_converter_job_id) AS converter_file_count
+        FROM (
+            SELECT A.*
+            FROM data_library_converter_job A
+            <trim prefix="WHERE" prefixOverrides="AND">
+                <if test="userId != null and userId != ''">
+                    user_id = #{userId}
+                </if>
+                <if test="status != null and status != ''">
+                    AND A.status = #{status}
+                </if>
+                <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+                    AND A.${searchWord} = #{searchValue}
+                </if>
+                <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+                    AND A.${searchWord} LIKE '%' || #{searchValue} || '%'
+                </if>
+                <if test="startDate != null and startDate != ''">
+                    <![CDATA[
+                    AND A.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+                    ]]>
+                </if>
+                <if test="endDate != null and endDate != ''">
+                    <![CDATA[
+                    AND A.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+                    ]]>
+                </if>
+            </trim>
+            <choose>
+                <when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+                    ORDER BY A.${orderWord} ${orderValue}
+                </when>
+                <otherwise>
+                    ORDER BY A.insert_date DESC, A.data_library_converter_job_id DESC
+                </otherwise>
+            </choose>
+            OFFSET #{offset} LIMIT #{limit}
+        ) X
+    </select>
+
+    <!-- 데이터 라이브러리 converter job file 목록 -->
+    <select id="getListDataLibraryConverterJobFile" parameterType="dataLibraryConverterJobFile" resultType="dataLibraryConverterJobFile">
+        /* getListDataLibraryConverterJobFile */
+        SELECT X.*
+        FROM (
+            SELECT A.*, B.file_name
+            FROM data_library_converter_job_file A, data_library_upload_file B
+            WHERE A.data_library_upload_file_id = B.data_library_upload_file_id
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="status != null and status != ''">
+                AND A.status = #{status}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '0'.toString()">
+                AND B.${searchWord} = #{searchValue}
+            </if>
+            <if test="searchWord != null and searchWord != '' and searchValue != null and searchValue != '' and searchOption == '1'.toString()">
+                AND B.${searchWord} LIKE '%' || #{searchValue} || '%'
+            </if>
+            <if test="startDate != null and startDate != ''">
+                <![CDATA[
+                    AND A.insert_date >= TO_TIMESTAMP(#{startDate}, 'YYYYMMDDHH24MISSUS')
+                    ]]>
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                    AND A.insert_date <= TO_TIMESTAMP(#{endDate}, 'YYYYMMDDHH24MISSUS')
+                    ]]>
+            </if>
+            <choose>
+                <when test="orderWord != null and orderWord != '' and orderValue != null and orderValue != ''">
+                    ORDER BY A.${orderWord} ${orderValue}
+                </when>
+                <otherwise>
+                    ORDER BY A.insert_date DESC, A.data_library_converter_job_id DESC
+                </otherwise>
+            </choose>
+            OFFSET #{offset} LIMIT #{limit}
+        ) X
+    </select>
+
+    <!-- 데이터 라이브러리 데이터 변환 파일 목록 -->
+    <select id="getListDataLibraryConverterJobFileByParent" parameterType="dataLibraryConverterJob" resultType="dataLibraryConverterJobFile">
+		/* getListDataLibraryConverterJobFileByParent */
+		SELECT *
+		FROM data_library_converter_job_file
+		WHERE data_library_converter_job_id = #{dataLibraryConverterJobId}
+	</select>
+
+    <!-- 데이터 라이브러리 converter job 등록 -->
+    <insert id="insertDataLibraryConverterJob" parameterType="dataLibraryConverterJob">
+        /* insertDataLibraryConverterJob */
+        <selectKey keyProperty="dataLibraryConverterJobId" resultType="long" order="BEFORE">
+            SELECT NEXTVAL('data_library_converter_job_seq')
+        </selectKey>
+        INSERT INTO data_library_converter_job(
+            data_library_converter_job_id, data_library_upload_id, data_library_group_target, user_id, title, usf, converter_template, y_axis_up, file_count,
+            <if test="status != null and status != ''">
+                status,
+            </if>
+            error_code
+        ) VALUES (
+            #{dataLibraryConverterJobId}, #{dataLibraryUploadId}, #{dataLibraryGroupTarget}, #{userId}, #{title}, #{usf}, #{converterTemplate}, #{yAxisUp}, #{fileCount},
+            <if test="status != null and status != ''">
+                #{status},
+            </if>
+            #{errorCode}
+        )
+    </insert>
+
+    <!-- 데이터 라이브러리 converter job file 등록 -->
+    <insert id="insertDataLibraryConverterJobFile" parameterType="dataLibraryConverterJobFile">
+        /* insertDataLibraryConverterJobFile */
+        <selectKey keyProperty="dataLibraryConverterJobFileId" resultType="long" order="BEFORE">
+            SELECT NEXTVAL('data_library_converter_job_file_seq')
+        </selectKey>
+        INSERT INTO data_library_converter_job_file(
+            data_library_converter_job_file_id, data_library_converter_job_id, data_library_upload_id, data_library_upload_file_id, data_library_group_id, user_id,
+            <if test="status != null and status != ''">
+                status,
+            </if>
+            error_code
+        ) VALUES (
+            #{dataLibraryConverterJobFileId}, #{dataLibraryConverterJobId}, #{dataLibraryUploadId}, #{dataLibraryUploadFileId}, #{dataLibraryGroupId}, #{userId},
+            <if test="status != null and status != ''">
+                #{status},
+            </if>
+            #{errorCode}
+        )
+    </insert>
+
+    <!-- 데이터 라이브러리 converter job -->
+    <update id="updateDataLibraryConverterJob" parameterType="dataLibraryConverterJob">
+        /* updateDataLibraryConverterJob */
+        UPDATE data_library_converter_job
+        SET
+        <if test="title != null and title != ''">
+            title = #{title},
+        </if>
+        <if test="status != null and status != ''">
+            status = #{status},
+        </if>
+        <if test="converterTemplate != null and converterTemplate != ''">
+            converter_type = #{converterTemplate},
+        </if>
+        <if test="usf != null">
+            usf = #{usf},
+        </if>
+        <if test="yAxisUp != null">
+            y_axis_up = #{yAxisUp},
+        </if>
+        <if test="errorCode != null and errorCode != ''">
+            error_code = #{errorCode},
+        </if>
+            update_date = now()
+        WHERE data_library_converter_job_id = #{dataLibraryConverterJobId}
+        <if test="userId != null and userId != ''">
+            AND user_id = #{userId}
+        </if>
+    </update>
+
+    <!-- 데이터 라이브러리 converter job file -->
+    <update id="updateDataLibraryConverterJobFile" parameterType="dataLibraryConverterJobFile">
+        /* updateDataLibraryConverterJobFile */
+        UPDATE data_library_converter_job_file
+        <set>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="errorCode != null and errorCode != ''">
+                error_code = #{errorCode},
+            </if>
+        </set>
+        WHERE data_library_converter_job_file_id = #{dataLibraryConverterJobFileId}
+        <if test="userId != null and userId != ''">
+            AND user_id = #{userId}
+        </if>
+    </update>
+</mapper>

@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="designLayerSource" type="text/x-handlebars-template">
+	<ul>
+{{#if designLayerList}}
+	{{#each designLayerList}}
+		<li class="listElement">
+			<div data-ogctype="{{ogcWebServices}}" data-id="{{designLayerId}}" data-layername="{{designLayerKey}}">
+				{{designLayerName}}
+			</div>
+		</li>
+	{{/each}}
+{{/if}}
+	</ul>
+</script>
+</html>

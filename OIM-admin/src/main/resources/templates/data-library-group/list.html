@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>데이터 라이브러리 그룹</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+                <div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+						<div style="height: 30px;"></div>
+						<div class="list">
+							<div class="list-header row">
+								<div class="list-desc u-pull-left">
+									<div class="button-group">
+										<a href="#" class="button" onclick="openAll(); return false;">펼치기</a>
+										<a href="#" class="button" onclick="closeAll(); return false;">접기</a>
+										<!-- <a href="/layer/tree" class="button">그룹 수정/등록</a> -->
+									</div>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/data-library-group/input" class="button">데이터 라이브러리 그룹 등록</a>
+									</div>
+								</div>
+							</div>
+
+							<!-- S: 데이터 라이브러리 그룹 목록 -->
+							<table class="list-table scope-col" summary="데이터 라이브러리 그룹 트리">
+								<caption class="hiddenTag">데이터 라이브러리 그룹</caption>
+								<colgroup>
+									<col class="col-name"></col>
+									<col class="col-name"></col>
+									<col class="col-name"></col>
+									<!-- <col class="col-toggle"></col> -->
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-date"></col>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col">그룹명</th>
+					                    <th scope="col">그룹 Key</th>
+					                    <th scope="col">공유 유형</th>
+					                    <!-- <th scope="col">기본 여부</th> -->
+					                    <th scope="col">사용 여부</th>
+					                    <th scope="col">데이터 라이브러리 건수</th>
+					                    <th scope="col">순서</th>
+					                    <th scope="col">수정</th>
+					                    <th scope="col">삭제</th>
+					                    <th scope="col">등록일</th>
+									</tr>
+								</thead>
+								<tbody>
+<th:block th:if="${dataLibraryGroupList.empty}">
+									<tr>
+										<td colspan="9" class="col-none">데이터 라이브러리 그룹이 존재하지 않습니다.</td>
+                                    </tr>
+</th:block>
+<th:block th:unless="${dataLibraryGroupList.empty}" th:each="dataLibraryGroup : ${dataLibraryGroupList}">
+									<tr th:class="|rowId-${dataLibraryGroup.dataLibraryGroupId} rowDepth-${dataLibraryGroup.depth} rowAncestor-${dataLibraryGroup.ancestor} rowParent-${dataLibraryGroup.parent}|">
+										<td class="col-key ellipsis" style="max-width: 300px;">
+	<th:block th:with="paddingLeftValue = ${(dataLibraryGroup.depth -1)  * 40}">
+											<span th:onclick="childrenDisplayToggle([[${dataLibraryGroup.dataLibraryGroupId}]], [[${dataLibraryGroup.depth}]]);"
+												  th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em;|">
+												<i th:id="|myArrow-${dataLibraryGroup.dataLibraryGroupId}|"
+												   th:class="|fa fa-caret-right depthArrow-${dataLibraryGroup.depth} parentArrow-${dataLibraryGroup.parent}|" aria-hidden="true"></i>
+											</span>&nbsp;
+	</th:block>
+	<th:block th:if="${dataLibraryGroup.depth == 1}">
+											<span style="font-size: 1.5em; color: Dodgerblue;">
+	</th:block>
+	<th:block th:if="${dataLibraryGroup.depth == 2}">
+											<span style="font-size: 1.5em; color: Mediumslateblue;">
+	</th:block>
+	<th:block th:if="${dataLibraryGroup.depth == 3}">
+											<span style="font-size: 1.5em; color: Tomato;">
+	</th:block>
+	<th:block th:if="${dataLibraryGroup.depth == 4}">
+											<span style="font-size: 1.5em; color: #82c91e;">
+	</th:block>
+	<th:block th:if="${dataLibraryGroup.depth == 5}">
+											<span style="font-size: 1.5em; color: #f783ac;">
+	</th:block>
+												<i th:id="|myFolder-${dataLibraryGroup.dataLibraryGroupId}|"
+												   th:class="|fa fa-folder depthFolder-${dataLibraryGroup.depth} parentFolder-${dataLibraryGroup.parent}|" aria-hidden="true"></i>
+											</span>
+											<span th:text="${dataLibraryGroup.dataLibraryGroupName}"></span>
+										</td>
+										<td class="col-key" th:text="${dataLibraryGroup.dataLibraryGroupKey}"></td>
+                                        <td class="col-type" th:text="${dataLibraryGroup.sharing}"></td>
+                                        <td class="col-type">
+											<th:block th:if="${#bools.isTrue(dataLibraryGroup.available)}">사용</th:block>
+											<th:block th:if="${#bools.isFalse(dataLibraryGroup.available)}">미사용</th:block>
+										</td>
+                                        <td class="col-count" th:if="${dataLibraryGroup.dataLibraryCount > 0}">
+                                            <a th:href="@{/data-library/list(searchOption=0, searchWord=data_group_name, searchValue=${dataLibraryGroup.dataLibraryGroupName})}"
+											   class="linkButton" th:text="${dataLibraryGroup.dataLibraryCount}"></a>
+                                        </td>
+                                        <td class="col-count" th:if="${dataLibraryGroup.dataLibraryCount == 0}" th:text="${dataLibraryGroup.dataLibraryCount}"></td>
+										<td class="col-type">
+                                            <div class="button-group">
+                                                <a href="#" class="button"
+												   th:onclick="moveUp([[${dataLibraryGroup.dataLibraryGroupId}]], [[${dataLibraryGroup.viewOrder}]]); return false;" style="text-decoration:none;">위로</a>
+                                                <a href="#" class="button"
+												   th:onclick="moveDown([[${dataLibraryGroup.dataLibraryGroupId}]], [[${dataLibraryGroup.viewOrder}]]); return false;" style="text-decoration:none;">아래로</a>
+                                            </div>
+                                        </td>
+                                        <td class="col-type">
+											<a th:href="@{/data-library-group/modify(dataLibraryGroupId=${dataLibraryGroup.dataLibraryGroupId})}" class="image-button button-edit">수정</a>
+                                        </td>
+                                        <td class="col-type" th:if="${#bools.isTrue(dataLibraryGroup.basic)}" th:text="|불가(기본)|"></td>
+                                        <td class="col-type" th:if="${#bools.isFalse(dataLibraryGroup.basic)}">
+                                            <a th:href="@{/data-library-group/delete(dataLibraryGroupId=${dataLibraryGroup.dataLibraryGroupId})}"
+											   class="image-button button-delete" th:value="#{delete}" onclick="return deleteWarning();"></a>
+                                        </td>
+                                        <td class="col-date">
+											<th:block th:text="${#temporals.format(dataLibraryGroup.insertDate, 'yyyy-MM-dd HH:mm')}"></th:block>
+										</td>
+									</tr>
+</th:block>
+								</tbody>
+							</table>
+							<!-- E: 데이터 라이브러리 그룹 목록 -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+</th:block>
+<th:block layout:fragment="pageCustomScript">
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.form.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/tree.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+	// 위로 이동
+    var upFlag = true;
+    function moveUp(id, viewOrder) {
+        if(upFlag) {
+            upFlag = false;
+            if(viewOrder === "1") {
+                alert("제일 처음 입니다.");
+                upFlag = true;
+                return;
+            }
+
+            var formData = "updateType=UP";
+    	    $.ajax({
+    			url: "/data-library-groups/view-order/" + id,
+    			type: "POST",
+    			headers: {"X-Requested-With": "XMLHttpRequest"},
+    	        data: formData,
+    			success: function(msg){
+    				if(msg.statusCode <= 200) {
+    					alert(JS_MESSAGE["update"]);
+    					window.location.reload();
+    					upFlag = true;
+    					openAll();
+    				} else {
+						if(msg.errorCode === "data.library.group.view-order.invalid") {
+							alert("순서를 변경할 수 없습니다.");
+						} else {
+							alert(JS_MESSAGE[msg.errorCode]);
+						}
+    					console.log("---- " + msg.message);
+    					upFlag = true;
+    				}
+    			},
+    			error:function(request, status, error){
+    		        alert(JS_MESSAGE["ajax.error.message"]);
+    		        upFlag = true;
+    			}
+    		});
+        } else {
+            alert("진행 중입니다.");
+            return;
+        }
+    }
+
+    // 아래로 이동
+    var downFlag = true;
+    function moveDown(id, viewOrder) {
+        if(downFlag) {
+            downFlag = false;
+            var formData = "updateType=DOWN";
+    	    $.ajax({
+    			url: "/data-library-groups/view-order/" + id,
+    			type: "POST",
+    			headers: {"X-Requested-With": "XMLHttpRequest"},
+    	        data: formData,
+    			success: function(msg){
+    				if(msg.statusCode <= 200) {
+    					alert(JS_MESSAGE["update"]);
+    					window.location.reload();
+    					downFlag = true;
+    					openAll();
+    				} else {
+    					if(msg.errorCode === "data.library.group.view-order.invalid") {
+							alert("순서를 변경할 수 없습니다.");
+						} else {
+							alert(JS_MESSAGE[msg.errorCode]);
+						}
+    					console.log("---- " + msg.message);
+    					downFlag = true;
+    				}
+    			},
+    			error:function(request, status, error){
+    		        alert(JS_MESSAGE["ajax.error.message"]);
+    		        downFlag = true;
+    			}
+    		});
+        } else {
+            alert("진행 중입니다.");
+            return;
+        }
+    }
+</script>
+</th:block>
+</body>
+</html>

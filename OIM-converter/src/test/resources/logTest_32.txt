@@ -1,0 +1,26 @@
+{
+   "conversionJobResult" : [
+      {
+         "bGeoReferenced" : true,
+         "endTime" : "2020-08-26 15:33:13",
+         "fileName" : "admin_20200826134541_10856380634300.citygml",
+         "fullPath" : "C:\\data\\OIM\\upload-data\\2020\\08\\admin_10856371190700/admin_20200826134541_10856380634300.citygml",
+         "message" : "",
+         "resultStatus" : "success",
+         "startTime" : "2020-08-26 15:33:12"
+      },
+      {
+         "endTime" : "2020-08-26 15:33:13",
+         "fileName" : "admin_20200826134541_10856389959800.citygml",
+         "fullPath" : "C:\\data\\OIM\\upload-data\\2020\\08\\admin_10856371190700/admin_20200826134541_10856389959800.citygml",
+         "message" : "CitygmlReader::readRawDataFile : no city model in file",
+         "resultStatus" : "failure",
+         "startTime" : "2020-08-26 15:33:13"
+      }
+   ],
+   "endTime" : "2020-08-26 15:33:13",
+   "isSuccess" : true,
+   "numberOfFilesConverted" : 1,
+   "numberOfFilesToBeConverted" : 2,
+   "startTime" : "2020-08-26 15:33:11"
+}

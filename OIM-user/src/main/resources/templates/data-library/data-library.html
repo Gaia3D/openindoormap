@@ -1,0 +1,110 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="dataLibraryContent" class="modelerContent contents yScroll fullHeight" style="display:none;">
+<ul class="listDrop">
+
+	<li class="on">
+		<p>데이터 라이브러리<span class="collapse-icon">icon</span></p>
+    </li>
+</ul>
+       
+	<div class="ds-modeler" style="border: 1px solid #efefef;padding:5px;">
+		<h3 class="">데이터 라이브러리 </h3>
+		
+		<div class="form-group form-group-data">
+			<label for="data-library-group">그룹</label> 
+			<select id="data-library-group" >
+				<option value="">전체</option>
+				<!-- by js -->
+			</select>
+		</div>
+
+		<div class="list">
+			<div class="ds-modeler-list dataGroupSummary table-data-group-summary">
+				<!-- by js -->
+			</div>
+
+			<div class="pagination"></div>
+
+		</div>
+	</div>
+
+	<div class="ds-tool marT10" style="border: 1px solid #efefef;padding:5px;">
+		<h3 class="">도구</h3>
+		<div class="">
+			<button class="textBtnSub  ds-tool-select">선택</button>
+			<button class="textBtnSub  ds-tool-delete">삭제</button>
+			<button class="textBtnSub  ds-tool-move">이동</button>
+			<button class="textBtnSub  ds-tool-rotate">회전</button>
+		</div>
+		<div>
+			<button class="textBtnSub  ds-tool-point" style="width:32% !important;">점으로생성</button>
+			<button class="textBtnSub  ds-tool-line" style="width:32% !important;">선으로생성</button>
+			<button class="textBtnSub  ds-tool-selectbypolygon" style="width:32% !important;">범위로선택</button>
+		</div>
+	</div>
+
+
+	<div class="mt-10" style="border: 1px solid #efefef;padding:5px;">
+		<h3>선택된</h3>
+		<div class="ds-selected-list"></div>
+		
+		<h3 class="mt-10">변경할</h3>
+		<div class="ds-tobe"></div>
+		<button class="textBtnSub">선택...</button>
+		<button class="textBtnSub">변경</button>
+	</div>
+
+	<!--
+
+		<div class="ds-category marT10" style="border: 1px solid #efefef;padding:5px;">
+			<h3 class=" marT10">카테고리</h3>
+			<div class="form-group form-group-data">
+				<label for="before-category">변경전</label> 
+				<input type="text" name="selectedDataLibrary" class="ds-selected-data-library" readonlye="readonly"/>
+			</div>
+			<div class="form-group form-group-data">
+				<label for="after-category">변경후</label> <select id="after-category" name="searchDataGroup">
+					<option value="">선택</option>
+				</select>
+			</div>
+			
+			<div class="form-group button-group-center">
+				<button type="button" class="btnTextF ds-change-category" title="검색">변경</button>
+			</div>
+			
+		</div>
+	-->
+
+<style>
+.text-left {text-align:left !important;}
+</style>	
+
+
+<!--  -->
+<script id="data-library-template" type="text/x-handlebars-template">
+<table class="table-word-break ds-data-library-list" summary="데이터 라이브러리 목록">
+	<caption class="hiddenTag">데이터 라이브러리 목록</caption>
+	<colgroup>
+		<col class="col-number" width="10%">
+		<col class="col-number" width="*">
+		<col class="col-number" width="*">
+	</colgroup>
+	<thead>
+		<tr>
+			<th scope="col" class="col-number">선택</th>
+			<th scope="col" class="col-number">데이터 라이브러리</th>
+			<th scope="col" class="col-number">그룹</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each datas}}
+		<tr >
+			<td class="col-number"><input type="radio" name="dataLibraryId" value="{{dataLibraryId}}"></td>
+			<td class="col-number text-left cursor-pointer">{{dataLibraryName}}</td>
+			<td class="col-number text-left cursor-pointer">{{showGroupName dataLibraryGroupId}}</td>
+		</tr>
+		{{/each}}
+	</tbody>
+</table>
+</script>
+</div>

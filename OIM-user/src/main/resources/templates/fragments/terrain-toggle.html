@@ -1,0 +1,10 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+    <div id="terrainToggle" style="position: absolute;right: 270px;z-index: 1000;margin: 10px;cursor:pointer;">
+        <div id="terrainType-base" class="on" data-type="base" style="width:64px;height:58px;display: inline-block;border-radius: 5px;border: 1px solid #C6C6C6;">
+        	<img th:src="@{/images/{lang}/ic_map_contour.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;border: 1px solid #C6C6C6;">
+        </div>
+        <div id="terrainType-new" data-type="new" style="width:64px;height:58px;display: inline-block;border-radius: 5px;border: 1px solid #C6C6C6">
+        	<img th:src="@{/images/{lang}/ic_map_flat.png(lang=${lang},cacheVersion=${contentCacheVersion})}" style="border-radius: 5px;border: 1px solid #C6C6C6;">
+        </div>
+    </div>
+</html>

@@ -1,0 +1,60 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<body>
+    <header id="headerWrap">
+        <div class="HamMenu on"><a href="#">메뉴</a></div>
+        <h1>OPEN INDOOR MAP</h1>
+        <div class="gnb">
+            <th:block th:if="${session.USER_SESSION}">
+                <ul>
+                    <li class="user">
+                        <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
+                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
+                            <th:block th:text="#{common.api.document}"></th:block></a>
+                        <a href="/sign/signout" class="sign" title="Sign out">Sign out</a>
+                    </li>
+                </ul>
+            </th:block>
+            <th:block th:unless="${session.USER_SESSION}">
+                <ul>
+                    <li>
+                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
+                            <th:block th:text="#{common.api.document}"></th:block></a>
+                    </li>
+                    <li class="user">
+                        <a href="/sign/signin" class="sign">Sign in</a>
+                    </li>
+                </ul>
+            </th:block>
+        </div>
+
+		<script>
+        window.addEventListener('load', function() {
+		    let _hamMenuClick = function(){
+                Ppui.click('.HamMenu', function(){
+                    if(Ppui.hasClass(this, 'on')){
+                        Ppui.hide(['.navWrap', '#gnbWrap']);		
+                        document.querySelector('#magoContainer').style.width = '100%';
+                    }else{
+                        Ppui.show(['.navWrap', '#gnbWrap']);					
+                        document.querySelector('#magoContainer').style.width = 'calc(100% - 445px)';
+                    }
+                    
+                    //
+                    Ppui.toggleClass(this, 'on');
+                });
+            };
+
+            //
+            let interval = setInterval(function(){
+                if(typeof MAGO3D_INSTANCE !== "undefined" && MAGO3D_INSTANCE) {
+                    clearInterval(interval);
+                    //
+                    _hamMenuClick();
+                }
+            }, 500);
+
+		});
+		</script>
+    </header>
+</body>
+</html>
