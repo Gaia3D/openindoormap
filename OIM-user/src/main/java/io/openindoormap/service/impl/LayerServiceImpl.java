@@ -24,10 +24,21 @@ public class LayerServiceImpl implements LayerService {
     }
     /**
     * layer 목록
+    * @param layer
     * @return
     */
     @Transactional(readOnly=true)
     public List<Layer> getListLayer(Layer layer) {
         return layerMapper.getListLayer(layer);
     }
+
+    /**
+     * layer 정보 취득
+     * @param layerId
+     * @return
+     */
+     @Transactional(readOnly=true)
+	public Layer getLayer(Long layerId) {
+    	 return layerMapper.getLayer(layerId);
+	}
 }

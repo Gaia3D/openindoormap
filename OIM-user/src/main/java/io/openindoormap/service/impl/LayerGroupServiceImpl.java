@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
 import io.openindoormap.domain.layer.Layer;
 import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.persistence.LayerGroupMapper;
@@ -22,6 +23,7 @@ public class LayerGroupServiceImpl implements LayerGroupService {
 		this.layerService = layerService;
 		this.layerGroupMapper = layerGroupMapper;
 	}
+	
 	
 	/**
 	 * 레이어 그룹 목록 및 하위 레이어를 조회
@@ -56,4 +58,24 @@ public class LayerGroupServiceImpl implements LayerGroupService {
 
 		return layerGroupList;
 	}
+
+
+	/**
+	 * 레이어 그룹 목록
+	 */
+	@Transactional(readOnly = true)
+	public List<LayerGroup> getListLayerGroup() {
+		return layerGroupMapper.getListLayerGroup();
+	}
+
+	/**
+     * 레이어 그룹 정보 조회
+     * @param layerGroupId
+     * @return
+     */
+	@Transactional(readOnly = true)
+	public LayerGroup getLayerGroup(Integer layerGroupId) {
+		return layerGroupMapper.getLayerGroup(layerGroupId);
+	}
+
 }
