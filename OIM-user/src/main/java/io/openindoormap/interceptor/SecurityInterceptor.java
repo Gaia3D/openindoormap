@@ -48,7 +48,9 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
     	
     	boolean isExceptionURI = false;
     	int exceptionURICount = URLSupport.EXCEPTION_URI.length;
+    	
     	for(int i=0 ; i<exceptionURICount; i++) {
+    		
     		if(uri.indexOf(URLSupport.EXCEPTION_URI[i]) >= 0) {
     			isExceptionURI = true;
     			break;
@@ -57,8 +59,7 @@ public class SecurityInterceptor extends HandlerInterceptorAdapter {
     	
     	// 예외 URL 은 통과 처리
     	if(isExceptionURI) {
-//    		log.info("################################### exception uri");
-    		return true;
+   			return true;
     	}
     	
     	String loginUrl = URLSupport.SIGNIN_URL;
