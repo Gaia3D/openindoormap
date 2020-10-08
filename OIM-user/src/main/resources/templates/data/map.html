@@ -143,11 +143,13 @@
 		<!-- E: MAP SETTING WRAP -->
 		
 		<!-- S: BASE MAP TOGGLE -->
-		<div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div>
+		<!-- 토글주석 -->
+		<!-- <div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div> -->
 		<!-- E: BASE MAP TOGGLE -->
 		
 		<!-- S: BASE MAP TOGGLE -->
-		<div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div>
+		<!-- 토글주석 -->
+		<!-- <div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div> -->
 		<!-- E: BASE MAP TOGGLE -->
 
 		<div class="sliderWrap" id="saRange">
@@ -407,8 +409,9 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
 		
-		var baseMapController = new BaseMapController(viewer);
-		var terrainController = new TerrainController(viewer, 'http://118.42.112.206:9997/tilesets/terrain/');
+		/* 토글주석 */
+		/* var baseMapController = new BaseMapController(viewer); */
+		/* var terrainController = new TerrainController(viewer, 'http://118.42.112.206:9997/tilesets/terrain/'); */
 		
         var promises = [];
         var garaJsonCnt = 28;

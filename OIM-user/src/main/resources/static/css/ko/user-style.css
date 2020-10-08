@@ -49,7 +49,7 @@ h1 {
 	color: #fff;
 	cursor: pointer;
 	font-weight: normal;
-	background: url(/images/ko/lhdt-logo.png) no-repeat 0 0;
+	/*background: url(/images/ko/lhdt-logo.png) no-repeat 0 0;*/
 	text-indent: -9999px;
 	background-size: 110px;
 }
