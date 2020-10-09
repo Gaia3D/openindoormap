@@ -1,0 +1,34 @@
+version: '3'
+#volumes:
+#  mago3d-postgres-data:
+#  mago3d-geoserver-data:
+
+services:
+  db:
+#    image: postgis/postgis:12-master
+    container_name: oim-db
+    restart: always
+    build:
+      context: ./doc/docker/postgres
+      dockerfile: Dockerfile
+    volumes:
+      - ./doc/database:/database
+      - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+    ports:
+      - 15432:5432
+    environment:
+      - TZ=Asia/Seoul
+      - POSTGRES_DB=lhdt
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8
+      - ALLOW_IP_RANGE=0.0.0.0/0
+#  geoserver:
+#    container_name: oim-geoserver
+#    restart: always
+#    build:
+#      context: ./doc/docker/geoserver
+#      dockerfile: Dockerfile
+#    ports:
+#      - 18080:8080
+  #rabbitmq:
