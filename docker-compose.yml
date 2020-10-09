@@ -10,19 +10,30 @@ services:
       context: ./doc/docker/postgres
       dockerfile: Dockerfile
     volumes:
-      - ./doc/database:/database
-      - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+      - ./doc/database:/database:ro
+      - ./init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh:ro
     ports:
       - 15432:5432
+      - 18080:8080
 
   geoserver:
     container_name: oim-geoserver
     restart: always
-    build:
-      context: ./doc/docker/geoserver
-      dockerfile: Dockerfile
+    image: gaia3d/geoserver:oim-2.17.3
+#    build:
+#      context: ./doc/docker/geoserver
+#      dockerfile: Dockerfile
     volumes:
       - oim-geoserver-data:/geoserver-data
+    network_mode: "service:db"
+
+  rabbitmq:
+    container_name: oim-rabbitmq
+    restart: always
+    image: gaia3d/rabbitmq:oim-3.8.9
+#    build:
+#      context: ./doc/docker/rabbitmq
+#      dockerfile: Dockerfile
     ports:
-      - 18080:8080
-  #rabbitmq:
+      - 5672:5672
+      - 15672:15672

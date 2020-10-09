@@ -11,4 +11,22 @@ RUN \
     unzip /tmp/geoserver-2.17.3-war.zip -d /usr/local/tomcat/webapps && \
     rm -rf /tmp/geoserver-2.17.3-war.zip
 
+# Enable CORS
+RUN sed -i '\:</web-app>:i\
+<filter>\n\
+    <filter-name>CorsFilter</filter-name>\n\
+    <filter-class>org.apache.catalina.filters.CorsFilter</filter-class>\n\
+    <init-param>\n\
+        <param-name>cors.allowed.origins</param-name>\n\
+        <param-value>*</param-value>\n\
+    </init-param>\n\
+    <init-param>\n\
+        <param-name>cors.allowed.methods</param-name>\n\
+        <param-value>GET,POST,HEAD,OPTIONS,PUT</param-value>\n\
+    </init-param>\n\
+</filter>\n\
+<filter-mapping>\n\
+    <filter-name>CorsFilter</filter-name>\n\
+    <url-pattern>/*</url-pattern>\n\
+</filter-mapping>' /usr/local/tomcat/conf/web.xml
 
