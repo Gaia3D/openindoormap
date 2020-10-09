@@ -1,4 +1,4 @@
-CREATE DATABASE lhdt
+CREATE DATABASE oim
 WITH OWNER = postgres
 	ENCODING = 'UTF8'
 	TEMPLATE = template0
