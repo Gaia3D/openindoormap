@@ -43,13 +43,13 @@ header {
 
 h1 {
 	width: 500px;
-	margin: 5px 15px;
+	margin: 15px 15px;
 	font-size: 22px;
 	letter-spacing: -1px;
 	color: #fff;
 	cursor: pointer;
 	font-weight: normal;
-	text-indent: -9999px;
+	/*text-indent: -9999px;*/
 	background-size: 110px;
 }
 
