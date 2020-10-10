@@ -1,7 +1,7 @@
 update geopolicy set
 	geoserver_data_url = 'http://localhost:18080/geoserver',
-	geoserver_data_workspace = 'lhdt',
-	geoserver_data_store ='lhdt',
+	geoserver_data_workspace = 'oim',
+	geoserver_data_store ='oim',
 	geoserver_user ='admin',
 	geoserver_password = 'geoserver';
 

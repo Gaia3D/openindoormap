@@ -5,6 +5,7 @@
 ## 변경된 db 반영시에는 지우고 다시 실행
     - -v 옵션을 줘야 docker 에서 사용하는 volume(geoserver-data) 이 모두 삭제됨. geoserver 의 데이터를 유지하고 싶을 경우에는 -v 옵션 생략
     - docker-compose down -v
+    - docker image rm openindoormap_db
     - docker-compose up -d
 
 ## Dockerfile, docker-compose.yml 파일만 변경되었을 경우에는 다시 빌드
