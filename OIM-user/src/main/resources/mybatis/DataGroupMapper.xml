@@ -9,28 +9,36 @@
 		SELECT COUNT(A.data_group_id) 
 		FROM data_group A , user_info B
 		WHERE A.user_id = B.user_id
+		<choose>
+			<when test="userId != null and userId != '' and userGroupId != null and userGroupId >= 0">
+				AND (
+						A.data_group_target = 'admin'
+					OR
+					(
+						A.data_group_target = 'user'
+						AND A.user_id = #{userId}
+					)
+					OR
+					(
+						A.data_group_target = 'user'
+						AND A.user_id != #{userId}
+						AND (A.sharing = 'common' OR A.sharing = 'public')
+					)
+					OR
+					(
+						A.data_group_target = 'user'
+						AND A.user_id != #{userId}
+						AND A.sharing = 'group'
+						AND B.user_group_id = #{userGroupId}
+					)
+				)
+			</when>
+			<otherwise>
+				AND A.sharing IN ('common', 'public')
+			</otherwise>
+		</choose>
 		<if test="userId != null and userId != '' and userGroupId != null and userGroupId >= 0">
-			AND (
-					A.data_group_target = 'admin'
-				OR
-				(
-					A.data_group_target = 'user'
-					AND A.user_id = #{userId}
-				)
-				OR
-				(
-					A.data_group_target = 'user'
-					AND A.user_id != #{userId}
-					AND (A.sharing = 'common' OR A.sharing = 'public')
-				)
-				OR
-				(
-					A.data_group_target = 'user'
-					AND A.user_id != #{userId}
-					AND A.sharing = 'group'
-					AND B.user_group_id = #{userGroupId}
-				)
-			)
+
 	    </if>
 <!-- 		<trim prefix="WHERE" prefixOverrides="AND"> -->
 		<if test="userId != null and userId != '' and userGroupId == null">
@@ -141,29 +149,34 @@
 		SELECT *, ST_X(A.location) AS longitude, ST_Y(A.location) AS latitude
 		FROM data_group A, user_info B
 		WHERE A.user_id = B.user_id
-		<if test="userId != null and userId != '' and userGroupId != null and userGroupId >= 0">
-			AND (
-					A.data_group_target = 'admin'
+		<choose>
+			<when test="userId != null and userId != '' and userGroupId != null and userGroupId >= 0">
+				AND (
+				A.data_group_target = 'admin'
 				OR
 				(
-					A.data_group_target = 'user'
-					AND A.user_id = #{userId}
+				A.data_group_target = 'user'
+				AND A.user_id = #{userId}
 				)
 				OR
 				(
-					A.data_group_target = 'user'
-					AND A.user_id != #{userId}
-					AND (A.sharing = 'common' OR A.sharing = 'public')
+				A.data_group_target = 'user'
+				AND A.user_id != #{userId}
+				AND (A.sharing = 'common' OR A.sharing = 'public')
 				)
 				OR
 				(
-					A.data_group_target = 'user'
-					AND A.user_id != #{userId}
-					AND A.sharing = 'group'
-					AND B.user_group_id = #{userGroupId}
+				A.data_group_target = 'user'
+				AND A.user_id != #{userId}
+				AND A.sharing = 'group'
+				AND B.user_group_id = #{userGroupId}
 				)
-			)
-	    </if>
+				)
+			</when>
+			<otherwise>
+				AND A.sharing IN ('common', 'public')
+			</otherwise>
+		</choose>
 <!-- 	    <trim prefix="WHERE" prefixOverrides="AND"> -->
 		<if test="userId != null and userId != '' and userGroupId == null">
 		AND	A.user_id = #{userId}
