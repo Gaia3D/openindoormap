@@ -1,7 +1,7 @@
 FROM tomcat:9.0.38-jdk11-adoptopenjdk-openj9
 
 ENV JAVA_OPTS=-D-Xms4096m-Xmx4096m
-ENV GEOSERVER_DATA_DIR=/geoserver-data
+#ENV GEOSERVER_DATA_DIR=/geoserver-data
 
 RUN \
     apt-get update && \
