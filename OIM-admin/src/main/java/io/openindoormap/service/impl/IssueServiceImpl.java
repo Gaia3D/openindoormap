@@ -2,11 +2,11 @@ package io.openindoormap.service.impl;
 
 import java.util.List;
 
+import io.openindoormap.domain.issue.Issue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.openindoormap.domain.issue.Issue;
 import io.openindoormap.persistence.IssueMapper;
 import io.openindoormap.service.IssueService;
 

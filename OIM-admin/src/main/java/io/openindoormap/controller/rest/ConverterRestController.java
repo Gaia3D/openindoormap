@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.openindoormap.domain.Key;
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.converter.ConverterJob;
+import io.openindoormap.domain.Key;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.ConverterService;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Data Converter

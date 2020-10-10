@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.data.DataAdjustLog;
 import io.openindoormap.service.DataAdjustLogService;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 데이터 geometry 변경 이력

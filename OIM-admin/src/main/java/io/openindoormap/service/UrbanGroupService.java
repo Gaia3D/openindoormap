@@ -1,9 +1,9 @@
 package io.openindoormap.service;
 
-import java.util.List;
-
 import io.openindoormap.domain.urban.UrbanGroup;
 import io.openindoormap.domain.user.UserGroup;
+
+import java.util.List;
 
 public interface UrbanGroupService {
 

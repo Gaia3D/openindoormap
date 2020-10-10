@@ -1,10 +1,5 @@
 package io.openindoormap.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.Move;
 import io.openindoormap.domain.extrusionmodel.DataLibraryGroup;
@@ -12,6 +7,10 @@ import io.openindoormap.persistence.DataLibraryGroupMapper;
 import io.openindoormap.service.DataLibraryGroupService;
 import io.openindoormap.service.DataLibraryService;
 import io.openindoormap.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

@@ -1,9 +1,8 @@
 package io.openindoormap.domain.extrusionmodel;
 
+import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import io.openindoormap.domain.common.Search;
 
 import java.time.LocalDateTime;
 

@@ -1,12 +1,12 @@
 package io.openindoormap.service;
 
-import java.util.List;
-import java.util.Map;
-
-import io.openindoormap.domain.extrusionmodel.DesignLayer;
-import io.openindoormap.domain.extrusionmodel.DesignLayerFileInfo;
 import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
 import io.openindoormap.domain.policy.GeoPolicy;
+import io.openindoormap.domain.extrusionmodel.DesignLayer;
+import io.openindoormap.domain.extrusionmodel.DesignLayerFileInfo;
+
+import java.util.List;
+import java.util.Map;
 
 public interface DesignLayerService {
 

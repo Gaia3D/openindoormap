@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import io.openindoormap.domain.common.Search;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import io.openindoormap.domain.common.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

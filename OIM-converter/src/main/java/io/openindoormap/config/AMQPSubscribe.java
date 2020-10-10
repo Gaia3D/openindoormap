@@ -1,5 +1,5 @@
 package io.openindoormap.config;
-//package lhdt.config;
+//package io.openindoormap.config;
 //
 //import java.io.IOException;
 //import java.net.URI;
@@ -15,11 +15,11 @@ package io.openindoormap.config;
 //import org.springframework.web.client.RestTemplate;
 //
 //import lombok.extern.slf4j.Slf4j;
-//import lhdt.domain.ConverterJob;
-//import lhdt.domain.ConverterJobStatus;
-//import lhdt.domain.QueueMessage;
-//import lhdt.domain.ServerTarget;
-//import lhdt.support.ProcessBuilderSupport;
+//import io.openindoormap.domain.ConverterJob;
+//import io.openindoormap.domain.ConverterJobStatus;
+//import io.openindoormap.domain.QueueMessage;
+//import io.openindoormap.domain.ServerTarget;
+//import io.openindoormap.support.ProcessBuilderSupport;
 //
 //@Slf4j
 //@Component

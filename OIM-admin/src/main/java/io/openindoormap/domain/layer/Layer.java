@@ -3,10 +3,10 @@ package io.openindoormap.domain.layer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import io.openindoormap.domain.common.Search;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import io.openindoormap.domain.common.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

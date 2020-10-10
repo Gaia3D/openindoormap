@@ -76,10 +76,10 @@
 						<form id="uploadData" th:object="${uploadData}" th:action="@{#}" method="post" onsubmit="return false;">
 							<table class="input-table scope-row">
 								<colgroup>
-									<col class="col-label l" style="width: 13%"></col>
-									<col class="col-input" style="width: 37%"></col>
-									<col class="col-label l" style="width: 13%"></col>
-									<col class="col-input" style="width: 37%"></col>
+									<col class="col-label l" style="width: 11%"></col>
+									<col class="col-input" style="width: 39%"></col>
+									<col class="col-label l" style="width: 12%"></col>
+									<col class="col-input" style="width: 38%"></col>
 								</colgroup>
 								<tr>
 									<th class="col-label" scope="row">
@@ -106,10 +106,10 @@
 									</th>
 									<td class="col-input">
 										<select id="sharing" name="sharing" class="selectBoxClass">
-											<option value="public">공개</option>
+											<!--<option value="public">공개</option>-->
 											<option value="common">공통</option>
-											<option value="private">비공개</option>
-											<option value="group">그룹 공개</option>
+											<!--<option value="private">비공개</option>-->
+											<!--<option value="group">그룹공개</option>-->
 										</select>
 									</td>
 									<th class="col-label m" scope="row">
@@ -125,16 +125,26 @@
 											<option value="3ds"> 3DS </option>
 											<option value="obj"> OBJ </option>
 											<option value="dae"> COLLADA(DAE) </option>
+											<option value="fbx"> FBX </option>
 										</select>
 									</td>
 								</tr>
 								<tr>
 									<th class="col-label" scope="row">
-										<label for="longitude">대표 위치 (경도/위도/높이)</label>
-										<span class="icon-glyph glyph-emark-dot color-warning"></span>
+										<label for="heightReference">높이 설정 방법</label>
 									</th>
-									<td colspan="3" class="col-input">
-										<label for="longitude" class="hiddenTag">대표 위치 (경도)</label>
+									<td class="col-input radio-set">
+										<select id="heightReference" name="heightReference" class="selectBoxClass">
+											<option value="none" selected="selected"> 해발 고도 </option>
+											<option value="clampToGround"> Terrain(지형)에 맞춤 </option>
+											<option value="relativeToGround"> Terrain(지형)으로 부터 높이 설정 </option>
+										</select>
+									</td>
+									<th class="col-label" scope="row">
+										<label for="longitude">대표 위치 (경도)</label>
+										<!-- <span class="icon-glyph glyph-emark-dot color-warning"></span> -->
+									</th>
+									<td class="col-input">
 										<input type="text" id="longitude" name="longitude" class="m" placeholder="longitude" />
 										<label for="latitude" class="hiddenTag">대표 위치 (위도)</label>
 										<input type="text" id="latitude" name="latitude" class="m" placeholder="latitude" />
@@ -292,6 +302,7 @@
 				formData.append("dataGroupId", $("#dataGroupId").val());
 				formData.append("sharing", $("#sharing").val());
 				formData.append("dataType", $("#dataType").val());
+				formData.append("heightReference", $("#heightReference").val());
 				formData.append("longitude", $("#longitude").val());
 				formData.append("latitude", $("#latitude").val());
 				formData.append("altitude", $("#altitude").val());
@@ -342,7 +353,7 @@
 		}
 		
 		// citygml 인 경우 longitude, latitude를 입력하지 않음
-		if($("#dataType").val() !== "citygml") {
+		if($("#dataType").val() !== "citygml" && $("#dataType").val() !== "las" ) {
 			if ($("#longitude").val() === "") {
 				alert("대표 위치(경도)를 입력하여 주십시오.");
 				$("#longitude").focus();

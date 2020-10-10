@@ -1,5 +1,10 @@
 package io.openindoormap.controller.view;
 
+import io.openindoormap.domain.layer.LayerGroup;
+import io.openindoormap.domain.urban.UrbanGroup;
+import io.openindoormap.domain.policy.Policy;
+import io.openindoormap.service.UrbanGroupService;
+import io.openindoormap.service.PolicyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,12 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import io.openindoormap.domain.layer.LayerGroup;
-import io.openindoormap.domain.policy.Policy;
-import io.openindoormap.domain.urban.UrbanGroup;
-import io.openindoormap.service.PolicyService;
-import io.openindoormap.service.UrbanGroupService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

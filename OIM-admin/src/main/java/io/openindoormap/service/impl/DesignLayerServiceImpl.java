@@ -1,5 +1,18 @@
 package io.openindoormap.service.impl;
 
+import io.openindoormap.config.PropertiesConfig;
+import io.openindoormap.domain.ShapeFileExt;
+import io.openindoormap.domain.extrusionmodel.*;
+import io.openindoormap.domain.layer.LayerFileInfo;
+import io.openindoormap.domain.policy.GeoPolicy;
+import io.openindoormap.geospatial.LayerStyleParser;
+import io.openindoormap.geospatial.Ogr2OgrExecute;
+import io.openindoormap.persistence.DesignLayerFileInfoMapper;
+import io.openindoormap.persistence.DesignLayerMapper;
+import io.openindoormap.security.Crypt;
+import io.openindoormap.service.DesignLayerService;
+import io.openindoormap.service.GeoPolicyService;
+import io.openindoormap.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -14,20 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.ShapeFileExt;
-import io.openindoormap.domain.extrusionmodel.*;
-import io.openindoormap.domain.layer.LayerFileInfo;
-import io.openindoormap.domain.policy.GeoPolicy;
-import io.openindoormap.geospatial.LayerStyleParser;
-import io.openindoormap.geospatial.Ogr2OgrExecute;
-import io.openindoormap.persistence.DesignLayerFileInfoMapper;
-import io.openindoormap.persistence.DesignLayerMapper;
-import io.openindoormap.security.Crypt;
-import io.openindoormap.service.DesignLayerService;
-import io.openindoormap.service.GeoPolicyService;
-import io.openindoormap.support.LogMessageSupport;
 
 import java.io.*;
 import java.nio.charset.Charset;

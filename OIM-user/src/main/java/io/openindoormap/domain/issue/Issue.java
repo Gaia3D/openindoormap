@@ -1,10 +1,9 @@
 package io.openindoormap.domain.issue;
 
+import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.openindoormap.domain.common.Search;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

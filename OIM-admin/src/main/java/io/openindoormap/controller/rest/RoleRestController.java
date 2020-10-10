@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.config.CacheConfig;
 import io.openindoormap.domain.cache.CacheName;
 import io.openindoormap.domain.cache.CacheParams;
 import io.openindoormap.domain.cache.CacheType;
 import io.openindoormap.domain.role.Role;
 import io.openindoormap.service.RoleService;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController

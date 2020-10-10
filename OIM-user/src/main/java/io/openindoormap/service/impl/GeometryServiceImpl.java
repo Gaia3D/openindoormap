@@ -1,8 +1,5 @@
 package io.openindoormap.service.impl;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.openindoormap.domain.common.SpatialOperationInfo;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.extrusionmodel.DesignLayerBuildingDto;
@@ -11,6 +8,8 @@ import io.openindoormap.domain.extrusionmodel.DesignLayerLandDto;
 import io.openindoormap.persistence.GeometryMapper;
 import io.openindoormap.service.GeometryService;
 import io.openindoormap.support.GeometrySupport;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

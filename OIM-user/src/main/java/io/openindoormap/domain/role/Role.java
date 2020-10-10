@@ -1,9 +1,8 @@
 package io.openindoormap.domain.role;
 
+import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import io.openindoormap.domain.common.Search;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;

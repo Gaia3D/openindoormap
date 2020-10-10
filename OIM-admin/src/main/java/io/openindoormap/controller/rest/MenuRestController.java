@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.config.CacheConfig;
 import io.openindoormap.domain.cache.CacheName;
 import io.openindoormap.domain.cache.CacheParams;
@@ -26,7 +27,6 @@ import io.openindoormap.domain.menu.MenuTarget;
 import io.openindoormap.domain.menu.MenuType;
 import io.openindoormap.service.MenuService;
 import io.openindoormap.utils.StringUtil;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 메뉴 관리

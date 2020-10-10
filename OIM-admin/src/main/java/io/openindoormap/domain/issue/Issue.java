@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

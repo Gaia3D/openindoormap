@@ -1,12 +1,12 @@
 package io.openindoormap.service;
 
-import java.util.List;
-
 import io.openindoormap.domain.common.SpatialOperationInfo;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.extrusionmodel.DesignLayerBuildingDto;
 import io.openindoormap.domain.extrusionmodel.DesignLayerBuildingHeightDto;
 import io.openindoormap.domain.extrusionmodel.DesignLayerLandDto;
+
+import java.util.List;
 
 public interface GeometryService {
 

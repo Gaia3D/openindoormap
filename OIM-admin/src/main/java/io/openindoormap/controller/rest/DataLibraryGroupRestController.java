@@ -1,16 +1,15 @@
 package io.openindoormap.controller.rest;
 
+import io.openindoormap.domain.Key;
+import io.openindoormap.domain.extrusionmodel.DataLibraryGroup;
+import io.openindoormap.domain.user.UserSession;
+import io.openindoormap.service.DataLibraryGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import io.openindoormap.domain.Key;
-import io.openindoormap.domain.extrusionmodel.DataLibraryGroup;
-import io.openindoormap.domain.user.UserSession;
-import io.openindoormap.service.DataLibraryGroupService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

@@ -1,13 +1,12 @@
 package io.openindoormap.domain.common;
 
+import io.openindoormap.domain.ConverterType;
+import io.openindoormap.domain.ServerTarget;
+import io.openindoormap.domain.uploaddata.UploadDataType;
 import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-
-import io.openindoormap.domain.ConverterType;
-import io.openindoormap.domain.ServerTarget;
-import io.openindoormap.domain.uploaddata.UploadDataType;
 
 @ToString
 @Builder

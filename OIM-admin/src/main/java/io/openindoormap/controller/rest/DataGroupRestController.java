@@ -3,7 +3,6 @@ package io.openindoormap.controller.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import io.openindoormap.domain.*;
 import io.openindoormap.domain.data.DataGroup;
 import io.openindoormap.domain.data.DataInfoLegacy;

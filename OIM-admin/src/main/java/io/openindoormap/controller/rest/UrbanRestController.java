@@ -1,9 +1,8 @@
-package io.openindoormap.controller.rest;
-//package lhdt.controller.rest;
+//package io.openindoormap.controller.rest;
 //
-//import lhdt.controller.AuthorizationController;
-//import lhdt.domain.urban.Urban;
-//import lhdt.service.NewTownService;
+//import io.openindoormap.controller.AuthorizationController;
+//import io.openindoormap.domain.urban.Urban;
+//import io.openindoormap.service.NewTownService;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.http.HttpStatus;

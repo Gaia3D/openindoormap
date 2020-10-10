@@ -1,10 +1,9 @@
 package io.openindoormap.domain.converter;
 
-import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import io.openindoormap.domain.ConverterJobStatus;
 import io.openindoormap.domain.common.Search;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

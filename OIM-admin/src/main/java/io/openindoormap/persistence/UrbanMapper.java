@@ -1,7 +1,6 @@
-package io.openindoormap.persistence;
-//package lhdt.persistence;
+//package io.openindoormap.persistence;
 //
-//import lhdt.domain.urban.Urban;
+//import io.openindoormap.domain.urban.Urban;
 //import org.springframework.stereotype.Repository;
 //
 //import java.util.List;

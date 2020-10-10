@@ -1,11 +1,5 @@
 package io.openindoormap.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.data.DataObjectAttribute;
 import io.openindoormap.domain.data.DataObjectAttributeFileInfo;
@@ -16,6 +10,11 @@ import io.openindoormap.service.DataObjectAttributeService;
 import io.openindoormap.service.DataService;
 import io.openindoormap.support.LogMessageSupport;
 import io.openindoormap.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 

@@ -1,7 +1,6 @@
 package io.openindoormap.domain.data;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

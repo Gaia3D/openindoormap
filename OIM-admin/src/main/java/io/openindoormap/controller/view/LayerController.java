@@ -2,7 +2,6 @@ package io.openindoormap.controller.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openindoormap.controller.AuthorizationController;
 import io.openindoormap.domain.*;
 import io.openindoormap.domain.common.Pagination;

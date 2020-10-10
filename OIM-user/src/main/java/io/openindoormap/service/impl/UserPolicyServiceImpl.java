@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.cache.CacheManager;
 import io.openindoormap.domain.policy.GeoPolicy;
 import io.openindoormap.domain.user.UserPolicy;
 import io.openindoormap.persistence.UserPolicyMapper;
 import io.openindoormap.service.GeoPolicyService;
 import io.openindoormap.service.UserPolicyService;
-import lombok.extern.slf4j.Slf4j;
 
 
 @Service

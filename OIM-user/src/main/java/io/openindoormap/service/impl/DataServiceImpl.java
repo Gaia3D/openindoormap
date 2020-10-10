@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.openindoormap.domain.MethodType;
 import io.openindoormap.domain.data.DataGroup;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.data.DataInfoLog;
 import io.openindoormap.domain.data.DataInfoSimple;
+import io.openindoormap.domain.MethodType;
 import io.openindoormap.persistence.DataMapper;
 import io.openindoormap.service.DataGroupService;
 import io.openindoormap.service.DataLogService;

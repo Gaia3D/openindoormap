@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.openindoormap.domain.Key;
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.cache.CacheManager;
 import io.openindoormap.domain.data.DataInfo;
-import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.domain.policy.GeoPolicy;
+import io.openindoormap.domain.Key;
+import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.domain.user.UserPolicy;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.DataService;
 import io.openindoormap.service.LayerGroupService;
 import io.openindoormap.service.UserPolicyService;
 import io.openindoormap.support.LayerDisplaySupport;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 초기 로딩 policy init

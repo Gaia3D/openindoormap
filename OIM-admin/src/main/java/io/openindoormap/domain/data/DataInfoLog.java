@@ -3,11 +3,11 @@ package io.openindoormap.domain.data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import io.openindoormap.domain.MethodType;
+import io.openindoormap.domain.common.Search;
+import io.openindoormap.domain.SharingType;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import io.openindoormap.domain.MethodType;
-import io.openindoormap.domain.SharingType;
-import io.openindoormap.domain.common.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

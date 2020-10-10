@@ -1,9 +1,8 @@
-package io.openindoormap.service.impl;
-//package lhdt.service.impl;
+//package io.openindoormap.service.impl;
 //
-//import lhdt.domain.urban.Urban;
-//import lhdt.persistence.NewTownMapper;
-//import lhdt.service.UrbanService;
+//import io.openindoormap.domain.urban.Urban;
+//import io.openindoormap.persistence.NewTownMapper;
+//import io.openindoormap.service.UrbanService;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Service;
 //import org.springframework.transaction.annotation.Transactional;

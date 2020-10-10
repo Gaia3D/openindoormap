@@ -1,8 +1,7 @@
 package io.openindoormap.persistence;
 
-import org.springframework.stereotype.Repository;
-
 import io.openindoormap.domain.urban.UrbanGroup;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

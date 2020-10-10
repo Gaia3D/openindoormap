@@ -2,7 +2,6 @@ package io.openindoormap.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.ConverterType;
 import io.openindoormap.domain.LocationUdateType;

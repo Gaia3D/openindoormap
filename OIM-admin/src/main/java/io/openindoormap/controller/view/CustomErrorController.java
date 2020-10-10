@@ -1,5 +1,4 @@
-package io.openindoormap.controller.view;
-//package lhdt.controller.view;
+//package io.openindoormap.controller.view;
 //
 //import java.util.Map;
 //

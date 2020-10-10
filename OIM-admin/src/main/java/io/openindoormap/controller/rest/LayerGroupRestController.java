@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.Key;
 import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.LayerGroupService;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController

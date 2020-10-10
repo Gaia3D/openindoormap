@@ -1,7 +1,6 @@
-package io.openindoormap.service;
-//package lhdt.service;
+//package io.openindoormap.service;
 //
-//import lhdt.domain.urban.Urban;
+//import io.openindoormap.domain.urban.Urban;
 //
 //import java.util.List;
 //

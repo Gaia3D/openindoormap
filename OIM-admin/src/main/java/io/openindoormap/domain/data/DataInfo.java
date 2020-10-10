@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import io.openindoormap.domain.MethodType;
+import io.openindoormap.domain.common.Search;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import io.openindoormap.domain.MethodType;
-import io.openindoormap.domain.common.Search;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

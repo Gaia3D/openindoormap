@@ -1,12 +1,11 @@
 package io.openindoormap.persistence;
 
-import org.springframework.stereotype.Repository;
-
 import io.openindoormap.domain.common.SpatialOperationInfo;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.extrusionmodel.DesignLayerBuildingDto;
 import io.openindoormap.domain.extrusionmodel.DesignLayerBuildingHeightDto;
 import io.openindoormap.domain.extrusionmodel.DesignLayerLandDto;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

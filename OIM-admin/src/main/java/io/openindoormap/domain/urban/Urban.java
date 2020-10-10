@@ -1,7 +1,6 @@
-package io.openindoormap.domain.urban;
-//package lhdt.domain.urban;
+//package io.openindoormap.domain.urban;
 //
-//import lhdt.domain.common.Search;
+//import io.openindoormap.domain.common.Search;
 //import lombok.*;
 //import org.springframework.format.annotation.DateTimeFormat;
 //

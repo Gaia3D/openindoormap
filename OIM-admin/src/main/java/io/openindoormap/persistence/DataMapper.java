@@ -2,10 +2,9 @@ package io.openindoormap.persistence;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
-
 import io.openindoormap.domain.common.FileInfo;
 import io.openindoormap.domain.data.*;
+import org.springframework.stereotype.Repository;
 
 /**
  * Data

@@ -1,10 +1,9 @@
 package io.openindoormap.domain.extrusionmodel;
 
-import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import io.openindoormap.domain.ConverterJobStatus;
 import io.openindoormap.domain.common.Search;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

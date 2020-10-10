@@ -1,5 +1,5 @@
 
-psql -U postgres lhdt;
+psql -U postgres oim;
 
 
 

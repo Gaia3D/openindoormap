@@ -1,10 +1,9 @@
 package io.openindoormap.domain.extrusionmodel;
 
+import io.openindoormap.domain.common.Search;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import io.openindoormap.domain.common.Search;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

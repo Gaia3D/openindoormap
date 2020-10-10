@@ -1,11 +1,11 @@
 package io.openindoormap.service;
 
-import java.util.List;
-import java.util.Map;
-
+import io.openindoormap.domain.policy.GeoPolicy;
 import io.openindoormap.domain.layer.Layer;
 import io.openindoormap.domain.layer.LayerFileInfo;
-import io.openindoormap.domain.policy.GeoPolicy;
+
+import java.util.List;
+import java.util.Map;
 
 public interface LayerService {
 

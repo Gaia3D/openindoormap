@@ -1,5 +1,18 @@
 package io.openindoormap.service.impl;
 
+import io.openindoormap.config.PropertiesConfig;
+import io.openindoormap.domain.policy.GeoPolicy;
+import io.openindoormap.domain.layer.Layer;
+import io.openindoormap.domain.layer.LayerFileInfo;
+import io.openindoormap.domain.ShapeFileExt;
+import io.openindoormap.geospatial.LayerStyleParser;
+import io.openindoormap.geospatial.Ogr2OgrExecute;
+import io.openindoormap.persistence.LayerFileInfoMapper;
+import io.openindoormap.persistence.LayerMapper;
+import io.openindoormap.security.Crypt;
+import io.openindoormap.service.GeoPolicyService;
+import io.openindoormap.service.LayerService;
+import io.openindoormap.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,20 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.ShapeFileExt;
-import io.openindoormap.domain.layer.Layer;
-import io.openindoormap.domain.layer.LayerFileInfo;
-import io.openindoormap.domain.policy.GeoPolicy;
-import io.openindoormap.geospatial.LayerStyleParser;
-import io.openindoormap.geospatial.Ogr2OgrExecute;
-import io.openindoormap.persistence.LayerFileInfoMapper;
-import io.openindoormap.persistence.LayerMapper;
-import io.openindoormap.security.Crypt;
-import io.openindoormap.service.GeoPolicyService;
-import io.openindoormap.service.LayerService;
-import io.openindoormap.support.LogMessageSupport;
 
 import java.io.File;
 import java.util.*;

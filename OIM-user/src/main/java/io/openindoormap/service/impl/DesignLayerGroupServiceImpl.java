@@ -1,14 +1,13 @@
 package io.openindoormap.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.openindoormap.domain.extrusionmodel.DesignLayer;
 import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
 import io.openindoormap.persistence.DesignLayerGroupMapper;
 import io.openindoormap.service.DesignLayerGroupService;
 import io.openindoormap.service.DesignLayerService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

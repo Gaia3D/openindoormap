@@ -6,11 +6,11 @@ import java.util.List;
 
 import javax.validation.constraints.Size;
 
+import io.openindoormap.domain.common.Search;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import io.openindoormap.domain.common.Search;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.Key;
-import io.openindoormap.domain.SharingType;
 import io.openindoormap.domain.cache.CacheManager;
 import io.openindoormap.domain.data.DataGroup;
+import io.openindoormap.domain.Key;
 import io.openindoormap.domain.policy.Policy;
+import io.openindoormap.domain.SharingType;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.DataGroupService;
 import io.openindoormap.utils.FileUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 사용자 데이터 그룹 관리

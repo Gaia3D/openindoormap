@@ -1,5 +1,5 @@
 package io.openindoormap.config;
-//package lhdt.config;
+//package io.openindoormap.config;
 //
 //import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 //import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -16,12 +16,12 @@ package io.openindoormap.config;
 //import org.springframework.stereotype.Controller;
 //import org.springframework.web.bind.annotation.RestController;
 //
-//import lhdt.security.Crypt;
+//import io.openindoormap.security.Crypt;
 //import lombok.extern.slf4j.Slf4j;
 //
 //@Slf4j
 //@Configuration
-//@ComponentScan(basePackages = {"lhdt.config"}, includeFilters = {
+//@ComponentScan(basePackages = {"io.openindoormap.config"}, includeFilters = {
 //		@Filter(type = FilterType.ANNOTATION, value = Component.class),
 //		@Filter(type = FilterType.ANNOTATION, value = Controller.class),
 //		@Filter(type = FilterType.ANNOTATION, value = RestController.class)})

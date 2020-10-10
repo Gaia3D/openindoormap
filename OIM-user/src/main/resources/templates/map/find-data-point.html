@@ -196,7 +196,7 @@
 	//Cesium.Ion.defaultAccessToken = '';
 	//var viewer = new Cesium.Viewer('magoContainer');
 	var MAGO3D_INSTANCE;
-	// lhdt 전역 네임스페이스
+	// 전역 네임스페이스
 	let dataGroupMap = new Map();
 	dataGroupMap.set(parseInt('${dataInfo.dataGroupId}'), '[[${dataInfo.dataGroupName}]]');
 	var OIM = OIM ||{
@@ -281,16 +281,6 @@
 	    	var dataInfo = result.result;
 	    	initData(dataInfo);
 	    });
-
-	    // 기본 레이어 랜더링
-// 		setTimeout(function(){
-// 			var map = new mapInit(magoInstance, LHDT.baseLayers, geoPolicyJson);
-//         	map.initLayer();
-//         }, geoPolicyJson.initDuration * 1000);
-
-		/* setTimeout(function(){
-			changeObjectMove();
-        }, 5000); */
 
 	}
 	/*

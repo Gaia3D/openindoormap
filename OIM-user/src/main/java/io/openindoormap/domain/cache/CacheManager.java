@@ -1,14 +1,14 @@
 package io.openindoormap.domain.cache;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.openindoormap.domain.data.DataInfoSimple;
 import io.openindoormap.domain.menu.Menu;
 import io.openindoormap.domain.policy.GeoPolicy;
 import io.openindoormap.domain.policy.Policy;
 import io.openindoormap.domain.user.UserGroupMenu;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO 귀찮고, 전부 select 성 데이터고 관리자가 혼자라서 getInstance를 사용하지 않았음. 바람직 하지는 않음

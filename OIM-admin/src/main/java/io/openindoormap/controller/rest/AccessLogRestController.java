@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.accesslog.AccessLog;
 import io.openindoormap.domain.common.Pagination;
 import io.openindoormap.service.AccessLogService;
 import io.openindoormap.utils.DateUtils;
 import io.openindoormap.utils.FormatUtils;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController

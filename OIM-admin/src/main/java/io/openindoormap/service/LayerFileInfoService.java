@@ -1,9 +1,9 @@
 package io.openindoormap.service;
 
+import io.openindoormap.domain.layer.LayerFileInfo;
+
 import java.util.List;
 import java.util.Map;
-
-import io.openindoormap.domain.layer.LayerFileInfo;
 
 public interface LayerFileInfoService {
 

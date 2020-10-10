@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.config.CacheConfig;
 import io.openindoormap.controller.AuthorizationController;
 import io.openindoormap.domain.cache.CacheName;
@@ -26,7 +27,6 @@ import io.openindoormap.domain.user.UserGroup;
 import io.openindoormap.domain.user.UserGroupMenu;
 import io.openindoormap.domain.user.UserGroupRole;
 import io.openindoormap.service.UserGroupService;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController

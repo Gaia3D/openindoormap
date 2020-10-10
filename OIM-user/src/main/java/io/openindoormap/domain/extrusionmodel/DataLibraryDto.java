@@ -1,7 +1,6 @@
 package io.openindoormap.domain.extrusionmodel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.openindoormap.domain.MethodType;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

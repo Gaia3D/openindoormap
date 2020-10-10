@@ -2,9 +2,9 @@ package io.openindoormap.domain.api;
 
 import java.time.LocalDateTime;
 
+import io.openindoormap.domain.common.Search;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import io.openindoormap.domain.common.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

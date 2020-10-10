@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.controller.AuthorizationController;
 import io.openindoormap.domain.Key;
 import io.openindoormap.domain.PageType;
@@ -33,7 +34,6 @@ import io.openindoormap.support.PasswordSupport;
 import io.openindoormap.support.SQLInjectSupport;
 import io.openindoormap.utils.DateUtils;
 import io.openindoormap.utils.FormatUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 사용자

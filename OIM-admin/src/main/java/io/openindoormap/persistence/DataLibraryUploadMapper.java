@@ -1,12 +1,11 @@
 package io.openindoormap.persistence;
 
-import org.springframework.stereotype.Repository;
-
 import io.openindoormap.domain.extrusionmodel.DataLibrary;
 import io.openindoormap.domain.extrusionmodel.DataLibraryGroup;
 import io.openindoormap.domain.extrusionmodel.DataLibraryUpload;
 import io.openindoormap.domain.extrusionmodel.DataLibraryUploadFile;
 import io.openindoormap.domain.uploaddata.UploadDataFile;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

@@ -122,9 +122,9 @@
 					<td class="col-input">
 						<select id="sharing" name="sharing" class="selectBoxClass">
 							<option value="public"><th:block th:text="#{common.public}"></th:block></option>
-							<option value="common"><th:block th:text="#{common.common}"></th:block></option>
+							<!--<option value="common"><th:block th:text="#{common.common}"></th:block></option>-->
 							<option value="private"><th:block th:text="#{common.private}"></th:block></option>
-							<option value="group"><th:block th:text="#{common.group}"></th:block></option>
+							<!--<option value="group"><th:block th:text="#{common.group}"></th:block></option>-->
 						</select>
 					</td>
 					<th class="col-label m" scope="row">
@@ -140,15 +140,26 @@
 							<option value="3ds"> 3DS </option>
 							<option value="obj"> OBJ </option>
 							<option value="dae"> COLLADA(DAE) </option>
+							<option value="fbx"> FBX </option>
 						</select>
 					</td>
 				</tr>
 				<tr>
 					<th class="col-label" scope="row">
+						<label for="heightReference">높이 설정 방법</label>
+					</th>
+					<td class="col-input radio-set">
+						<select id="heightReference" name="heightReference" class="selectBoxClass">
+							<option value="none" selected="selected"> 해발 고도 </option>
+							<option value="clampToGround"> Terrain(지형)에 맞춤 </option>
+							<option value="relativeToGround"> Terrain(지형)으로 부터 높이 설정 </option>
+						</select>
+					</td>
+					<th class="col-label" scope="row">
 						<label for="longitude"><th:block th:text="#{upload.representative.location}"></th:block></label>
 						<!-- <span class="icon-glyph glyph-emark-dot color-warning"></span> -->
 					</th>
-					<td colspan="3" class="col-input">
+					<td class="col-input">
 						<input type="text" id="longitude" name="longitude" class="m" placeholder="longitude" />
 						<input type="text" id="latitude" name="latitude" class="m" placeholder="latitude" />
 						<input type="text" id="altitude" name="altitude" class="m" placeholder="altitude" />
@@ -298,6 +309,7 @@
 				formData.append("dataGroupId", $("#dataGroupId").val());
 				formData.append("sharing", $("#sharing").val());
 				formData.append("dataType", $("#dataType").val());
+				formData.append("heightReference", $("#heightReference").val());
 				formData.append("longitude", $("#longitude").val());
 				formData.append("latitude", $("#latitude").val());
 				formData.append("altitude", $("#altitude").val());
@@ -352,19 +364,16 @@
 			if ($("#longitude").val() === "") {
 				alert(JS_MESSAGE["representative.longitude.empty"]);
 				$("#longitude").focus();
-				//$("#longitude").val('0');
 				return false;
 			}
 			if ($("#latitude").val() === "") {
 				alert(JS_MESSAGE["representative.latitude.empty"]);
 				$("#latitude").focus();
-				//$("#latitude").val('0');
 				return false;
 			}
 			if ($("#altitude").val() === "") {
 				alert(JS_MESSAGE["representative.altitude.empty"]);
 				$("#altitude").focus();
-				//$("#altitude").val('0');
 				return false;
 			}
 			if(!locationValidation($("#longitude").val(), $("#latitude").val(), $("#altitude").val())) {

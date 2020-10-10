@@ -1,10 +1,9 @@
 package io.openindoormap.domain.country;
 
+import io.openindoormap.domain.common.Search;
 import lombok.*;
 
 import java.math.BigDecimal;
-
-import io.openindoormap.domain.common.Search;
 
 @ToString(callSuper = true)
 @Builder

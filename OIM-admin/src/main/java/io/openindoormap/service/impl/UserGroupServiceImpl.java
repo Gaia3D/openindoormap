@@ -6,16 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.domain.Depth;
 import io.openindoormap.domain.Move;
-import io.openindoormap.domain.YOrN;
 import io.openindoormap.domain.user.UserGroup;
 import io.openindoormap.domain.user.UserGroupMenu;
 import io.openindoormap.domain.user.UserGroupRole;
+import io.openindoormap.domain.YOrN;
 import io.openindoormap.persistence.UserGroupMapper;
 import io.openindoormap.service.UserGroupService;
 import io.openindoormap.service.UserService;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service

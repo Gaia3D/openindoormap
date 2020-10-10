@@ -1,5 +1,19 @@
 package io.openindoormap.controller.rest;
 
+import io.openindoormap.config.PropertiesConfig;
+import io.openindoormap.domain.*;
+import io.openindoormap.domain.policy.Policy;
+import io.openindoormap.domain.uploaddata.UploadData;
+import io.openindoormap.domain.uploaddata.UploadDataFile;
+import io.openindoormap.domain.UploadDataType;
+import io.openindoormap.domain.UploadDirectoryType;
+import io.openindoormap.domain.user.UserSession;
+import io.openindoormap.service.PolicyService;
+import io.openindoormap.service.UploadDataService;
+import io.openindoormap.support.LogMessageSupport;
+import io.openindoormap.utils.DateUtils;
+import io.openindoormap.utils.FileUtils;
+import io.openindoormap.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,19 +22,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.*;
-import io.openindoormap.domain.policy.Policy;
-import io.openindoormap.domain.uploaddata.UploadData;
-import io.openindoormap.domain.uploaddata.UploadDataFile;
-import io.openindoormap.domain.user.UserSession;
-import io.openindoormap.service.PolicyService;
-import io.openindoormap.service.UploadDataService;
-import io.openindoormap.support.LogMessageSupport;
-import io.openindoormap.utils.DateUtils;
-import io.openindoormap.utils.FileUtils;
-import io.openindoormap.utils.FormatUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

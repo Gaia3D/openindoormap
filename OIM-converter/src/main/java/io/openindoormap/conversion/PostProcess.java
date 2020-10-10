@@ -1,7 +1,6 @@
 package io.openindoormap.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.*;
 import io.openindoormap.support.LogMessageSupport;
@@ -42,8 +41,8 @@ public class PostProcess {
 
         // 2. 위치, 속성 파일 파싱
         UploadDataType uploadDataType = queueMessage.getUploadDataType();
-        if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType) {
-            parseLocationAttributeFile(objectMapper, queueMessage.getOutputFolder(), converterResultLog);
+        if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType || UploadDataType.LAS == uploadDataType) {
+            parseLocationAttributeFile(uploadDataType, objectMapper, queueMessage.getOutputFolder(), converterResultLog);
         }
 
         // 3. API 호출
@@ -167,12 +166,13 @@ public class PostProcess {
 
     /**
      * 위치, 속성 파일 파싱
-     * @param objectMapper  objectMapper
+     * @param uploadDataType
+     * @param objectMapper
      * @param outputFolder
-     * @param resultLog resultLog
-     * @throws IOException  IOException
+     * @param resultLog
+     * @throws IOException
      */
-    private static void parseLocationAttributeFile(ObjectMapper objectMapper, String outputFolder, ConverterResultLog resultLog) throws IOException {
+    private static void parseLocationAttributeFile(UploadDataType uploadDataType, ObjectMapper objectMapper, String outputFolder, ConverterResultLog resultLog) throws IOException {
 
         for (ConversionJobResult result : resultLog.getConversionJobResult()) {
             if (ConverterJobResultStatus.SUCCESS != result.getResultStatus()) {
@@ -185,7 +185,7 @@ public class PostProcess {
             String locationFilePath = outputFilePath + File.separator + "lonsLats.json";
             String attributeFilePath = outputFilePath + File.separator + "attributes.json";
 
-            if (invalidFilePath(locationFilePath) || invalidFilePath(attributeFilePath)) throw new FileNotFoundException("The file in the specified path cannot be found.");
+            if (invalidFilePath(locationFilePath)) throw new FileNotFoundException("The file in the specified path cannot be found.");
 
             ConverterLocation location = objectMapper.readValue(Paths.get(locationFilePath).toFile(), ConverterLocation.class);
             log.info("longitude = {}, latitude = {}", location.getLongitude(), location.getLatitude());
@@ -194,11 +194,15 @@ public class PostProcess {
             // File attributeFile = attributeFilePath.toFile();
             // List<Map<String, Object>> attributes = objectMapper.readValue(attributeFile, new TypeReference<>() {});
 
-            // json 파일을 Object로 변환하여 전송할 예정이였으나, json string으로 DB에 넣기 때문에 string 변경함.
-            byte[] jsonData = Files.readAllBytes(Paths.get(attributeFilePath));
-            String attributes = new String(jsonData, StandardCharsets.UTF_8);
-            log.info(">>>>>>>>>> attributesJson : {}", attributes);
-            result.setAttributes(attributes);
+            if (UploadDataType.CITYGML == uploadDataType || UploadDataType.INDOORGML == uploadDataType) {
+                if(!invalidFilePath(attributeFilePath)) {
+                    // json 파일을 Object로 변환하여 전송할 예정이였으나, json string으로 DB에 넣기 때문에 string 변경함.
+                    byte[] jsonData = Files.readAllBytes(Paths.get(attributeFilePath));
+                    String attributes = new String(jsonData, StandardCharsets.UTF_8);
+                    log.info(">>>>>>>>>> attributesJson : {}", attributes);
+                    result.setAttributes(attributes);
+                }
+            }
         }
     }
 

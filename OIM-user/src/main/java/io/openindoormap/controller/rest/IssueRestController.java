@@ -1,11 +1,5 @@
 package io.openindoormap.controller.rest;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
-
 import io.openindoormap.domain.Key;
 import io.openindoormap.domain.PageType;
 import io.openindoormap.domain.common.Pagination;
@@ -14,6 +8,11 @@ import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.IssueService;
 import io.openindoormap.support.SQLInjectSupport;
 import io.openindoormap.utils.WebUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

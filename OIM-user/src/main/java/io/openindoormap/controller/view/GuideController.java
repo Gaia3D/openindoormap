@@ -1,15 +1,14 @@
 package io.openindoormap.controller.view;
 
+import io.openindoormap.domain.cache.CacheManager;
+import io.openindoormap.domain.Key;
+import io.openindoormap.domain.policy.Policy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import io.openindoormap.domain.Key;
-import io.openindoormap.domain.cache.CacheManager;
-import io.openindoormap.domain.policy.Policy;
 
 import javax.servlet.http.HttpServletRequest;
 

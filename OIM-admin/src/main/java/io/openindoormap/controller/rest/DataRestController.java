@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.Key;
-import io.openindoormap.domain.common.FileInfo;
 import io.openindoormap.domain.data.DataAttribute;
 import io.openindoormap.domain.data.DataAttributeFileInfo;
 import io.openindoormap.domain.data.DataFileInfo;
@@ -28,13 +27,14 @@ import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.data.DataObjectAttribute;
 import io.openindoormap.domain.data.DataObjectAttributeFileInfo;
 import io.openindoormap.domain.data.DataSmartTilingFileInfo;
+import io.openindoormap.domain.common.FileInfo;
+import io.openindoormap.domain.Key;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.DataAttributeService;
 import io.openindoormap.service.DataObjectAttributeService;
 import io.openindoormap.service.DataService;
 import io.openindoormap.service.DataSmartTilingService;
 import io.openindoormap.utils.FileUtils;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController

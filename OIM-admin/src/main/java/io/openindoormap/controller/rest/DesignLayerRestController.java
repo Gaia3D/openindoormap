@@ -1,7 +1,6 @@
 package io.openindoormap.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.controller.AuthorizationController;
 import io.openindoormap.domain.Key;
