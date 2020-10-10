@@ -52,8 +52,14 @@ function update() {
 				if(msg.statusCode <= 200) {
 					alert(JS_MESSAGE["save"]);
 				} else {
-					alert(msg.message);
-					console.log("---- " + msg.message);
+					if(msg.statusCode === 401) {
+						if(confirm("로그인 후 사용가능합니다.")) {
+							window.location = "sign/signin";
+						}
+					} else {
+						alert(msg.message);
+						console.log("---- " + msg.message);
+					}
 				}
 				updateUserPolicyFlag = true;
 			},

@@ -61,8 +61,10 @@ public class DataController {
 		log.info("@@ dataInfo = {}, pageNo = {}", dataInfo, pageNo);
 
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		dataInfo.setUserGroupId(userSession.getUserGroupId());
-		dataInfo.setUserId(userSession.getUserId());
+		String userId = userSession == null ? "" : userSession.getUserId();
+		int userGroupId = userSession == null ? 0 : userSession.getUserGroupId();
+		dataInfo.setUserGroupId(userGroupId);
+		dataInfo.setUserId(userId);
 
 		if(!StringUtils.isEmpty(dataInfo.getStartDate())) {
 			dataInfo.setStartDate(dataInfo.getStartDate().substring(0, 8) + DateUtils.START_TIME);
@@ -88,7 +90,7 @@ public class DataController {
 		}
 
 		model.addAttribute(pagination);
-		model.addAttribute("owner", userSession.getUserId());
+		model.addAttribute("owner", userId);
 		model.addAttribute("dataInfoList", dataInfoList);
 		
 		return "/data/list";
@@ -111,35 +113,11 @@ public class DataController {
 		log.info("@@ DataController list dataInfo = {}, pageNo = {}", dataInfo, pageNo);
 
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		
-		String roleCheckResult = roleValidator(request, userSession.getUserGroupId(), RoleKey.USER_DATA_READ.name());
-		if(roleCheckResult != null) return roleCheckResult;
-
-		UserPolicy userPolicy = userPolicyService.getUserPolicy(userSession.getUserId());
-		Long commonDataCount = 0L;
-		Long publicDataCount = 0L;
-		Long privateDataCount = 0L;
-		Long groupDataCount = 0L;
-		dataInfo.setUserId(userSession.getUserId());
-		dataInfo.setUserGroupId(userSession.getUserGroupId());
-
-		// 그룹별 통계
-		/*
-		List<DataInfo> groupDataCountList = dataService.getDataTotalCountBySharing(dataInfo);
-		for(DataInfo statisticDataInfo : groupDataCountList) {
-			if(SharingType.COMMON == SharingType.valueOf(statisticDataInfo.getSharing().toUpperCase())) {
-				commonDataCount = statisticDataInfo.getDataCount();
-			} else if(SharingType.PUBLIC == SharingType.valueOf(statisticDataInfo.getSharing().toUpperCase())) {
-				publicDataCount = statisticDataInfo.getDataCount();
-			} else if(SharingType.PRIVATE == SharingType.valueOf(statisticDataInfo.getSharing().toUpperCase())) {
-				privateDataCount = statisticDataInfo.getDataCount();
-			} else if(SharingType.GROUP == SharingType.valueOf(statisticDataInfo.getSharing().toUpperCase())) {
-				groupDataCount = statisticDataInfo.getDataCount();
-			}
-		}
-		dataInfo.setUserGroupId(userSession.getUserGroupId());
-		dataInfo.setUserId(userSession.getUserId());
-		*/
+		String userId = userSession == null ? "" : userSession.getUserId();
+		int userGroupId = userSession == null ? 0 : userSession.getUserGroupId();
+		UserPolicy userPolicy = userPolicyService.getUserPolicy(userId);
+		dataInfo.setUserId(userId);
+		dataInfo.setUserGroupId(userGroupId);
 
 		if(!StringUtils.isEmpty(dataInfo.getStartDate())) {
 			dataInfo.setStartDate(dataInfo.getStartDate().substring(0, 8) + DateUtils.START_TIME);
@@ -167,24 +145,17 @@ public class DataController {
 
 		// 데이터 그룹
 		DataGroup dataGroup = new DataGroup();
-		dataGroup.setUserId(userSession.getUserId());
-		dataGroup.setUserGroupId(userSession.getUserGroupId());
+		dataGroup.setUserId(userId);
+		dataGroup.setUserGroupId(userGroupId);
 		List<DataGroup> dataGroupList = dataGroupService.getAllListDataGroup(dataGroup);
 
 		model.addAttribute(pagination);
 
 		model.addAttribute("totalCount", totalCount);
-
-		//model.addAttribute("dataGroupTotalCount", groupDataCountList.size());
-		//model.addAttribute("commonDataCount", commonDataCount);
-		//model.addAttribute("publicDataCount", publicDataCount);
-		//model.addAttribute("privateDataCount", privateDataCount);
-		//model.addAttribute("groupDataCount", groupDataCount);
-
 		model.addAttribute("dataList", dataList);
 		model.addAttribute("dataGroupList", dataGroupList);
 		model.addAttribute("userPolicy", userPolicy);
-		model.addAttribute("owner", userSession.getUserId());
+		model.addAttribute("owner", userId);
 
 		return "/data/map";
 	}

@@ -38,12 +38,6 @@ public class DataGroupRestController {
 	
 	@Autowired
 	private DataGroupService dataGroupService;
-//	@Autowired
-//	private GeoPolicyService geoPolicyService;
-//	@Autowired
-//	private ObjectMapper objectMapper;
-//	@Autowired
-//	private PolicyService policyService;
 
 	/**
 	 * 데이터 그룹 전체 목록
@@ -53,17 +47,21 @@ public class DataGroupRestController {
 	 */
 	@GetMapping(value = "/all")
 	public Map<String, Object> allList(HttpServletRequest request, DataGroup dataGroup) {
+
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+
 		dataGroup.setSearchWord(SQLInjectSupport.replaceSqlInection(dataGroup.getSearchWord()));
 		dataGroup.setOrderWord(SQLInjectSupport.replaceSqlInection(dataGroup.getOrderWord()));
 		
 		log.info("@@@@@ list dataGroup = {}", dataGroup);
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
-		
-		dataGroup.setUserId(userSession.getUserId());
-		dataGroup.setUserGroupId(userSession.getUserGroupId());
+		String userId = userSession == null ? "" : userSession.getUserId();
+		int userGroupId = userSession == null ? 0 : userSession.getUserGroupId();
+
+		dataGroup.setUserGroupId(userGroupId);
+		dataGroup.setUserId(userId);
 		List<DataGroup> dataGroupList = dataGroupService.getAllListDataGroup(dataGroup);
 		int statusCode = HttpStatus.OK.value();
 		
@@ -90,15 +88,18 @@ public class DataGroupRestController {
 		String message = null;
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		
+		String userId = userSession == null ? "" : userSession.getUserId();
+		int userGroupId = userSession == null ? 0 : userSession.getUserGroupId();
+
+		dataGroup.setUserGroupId(userGroupId);
+		dataGroup.setUserId(userId);
+
 		if(!StringUtils.isEmpty(dataGroup.getStartDate())) {
 			dataGroup.setStartDate(dataGroup.getStartDate().substring(0, 8) + DateUtils.START_TIME);
 		}
 		if(!StringUtils.isEmpty(dataGroup.getEndDate())) {
 			dataGroup.setEndDate(dataGroup.getEndDate().substring(0, 8) + DateUtils.END_TIME);
 		}
-		dataGroup.setUserId(userSession.getUserId());
-		dataGroup.setUserGroupId(userSession.getUserGroupId());
 		long totalCount = dataGroupService.getDataGroupTotalCount(dataGroup);
 		
 		Pagination pagination = new Pagination(	request.getRequestURI(),
@@ -119,7 +120,7 @@ public class DataGroupRestController {
 		int statusCode = HttpStatus.OK.value();
 		
 		result.put("pagination", pagination);
-		result.put("owner", userSession.getUserId());
+		result.put("owner", userId);
 		result.put("dataGroupList", dataGroupList);
 		result.put("statusCode", statusCode);
 		result.put("errorCode", errorCode);

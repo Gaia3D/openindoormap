@@ -57,7 +57,6 @@ public class DataRestController {
 		String message = null;
 		
 		DataInfo dataInfo = new DataInfo();
-		//dataInfo.setUserId(userSession.getUserId());
 		dataInfo.setDataGroupId(dataGroupId);
 		List<DataInfo> dataInfoList = dataService.getAllListData(dataInfo);
 		result.put("dataInfoList", dataInfoList);
@@ -88,9 +87,10 @@ public class DataRestController {
 		String message = null;
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		
-		dataInfo.setUserGroupId(userSession.getUserGroupId());
-		dataInfo.setUserId(userSession.getUserId());
+		String userId = userSession == null ? "" : userSession.getUserId();
+		int userGroupId = userSession == null ? 0 : userSession.getUserGroupId();
+		dataInfo.setUserGroupId(userGroupId);
+		dataInfo.setUserId(userId);
 		if(!StringUtils.isEmpty(dataInfo.getStartDate())) {
 			dataInfo.setStartDate(dataInfo.getStartDate().substring(0, 8) + DateUtils.START_TIME);
 		}
@@ -118,7 +118,7 @@ public class DataRestController {
 		int statusCode = HttpStatus.OK.value();
 		
 		result.put("pagination", pagination);
-		result.put("owner", userSession.getUserId());
+		result.put("owner", userId);
 		result.put("dataList", dataList);
 		result.put("statusCode", statusCode);
 		result.put("errorCode", errorCode);

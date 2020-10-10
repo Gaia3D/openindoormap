@@ -59,8 +59,9 @@ public class ServletConfig implements WebMvcConfigurer {
 				.addPathPatterns("/**")
 				.excludePathPatterns("/f4d/**", "/guide/**", "/sample/**", "/css/**", "/geopolicies/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
 		registry.addInterceptor(securityInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**", "/sign/**", "/cache/reload", "/guide/**", "/geopolicies/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+				.addPathPatterns("/user-policy/**", "/data-group/**", "/map/**", "/upload-data/**", "/upload-datas/**",
+						"/converter/**", "/converters/**","data/list", "/data-log/list");
+//				.excludePathPatterns("/f4d/**", "/sign/**", "/cache/reload", "/guide/**", "/geopolicies/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
 		registry.addInterceptor(cSRFHandlerInterceptor)
 				.addPathPatterns("/**")
 				.excludePathPatterns("/f4d/**",
@@ -110,7 +111,7 @@ public class ServletConfig implements WebMvcConfigurer {
 	
 	@Override
     public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("forward:/adminsvc/sign/signin");
+		registry.addViewController("/").setViewName("forward:/data/map");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 	

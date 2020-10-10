@@ -70,9 +70,9 @@ public class GeoPolicyRestController {
 		String message = null;
 		
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		String userId = userSession.getUserId();
+		String userId = userSession == null ? "" : userSession.getUserId();
 		GeoPolicy geoPolicy = CacheManager.getGeoPolicy();
-		UserPolicy userPolicy = userPolicyService.getUserPolicy(userSession.getUserId());
+		UserPolicy userPolicy = userPolicyService.getUserPolicy(userId);
 		if(userId != null) {
 			if(dataId != null && !"".equals(dataId.trim())) {
 				// dataId가 있을경우 data 위치로 가기 위해 위치값을 변경해줌 

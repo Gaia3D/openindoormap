@@ -40,7 +40,8 @@ public class LayerRestController {
 	@GetMapping
 	public Map<String, Object> list(HttpServletRequest request, Model model) {
 		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		String baseLayers = userPolicyService.getUserPolicy(userSession.getUserId()).getBaseLayers();
+		String userId = userSession == null ? "" : userSession.getUserId();
+		String baseLayers = userPolicyService.getUserPolicy(userId).getBaseLayers();
 		Map<String, Object> result = new HashMap<>();
 		String errorCode = null;
 		String message = null;

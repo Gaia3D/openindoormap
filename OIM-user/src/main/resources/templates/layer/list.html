@@ -5,7 +5,7 @@
 		<button class="textBtnSub" th:text="#{common.turn.off}" onClick="turnOffAllLayer(); return false;"></button>
 		<button class="textBtnSub" th:text="#{common.unfold}" onClick="openAllLayerTree(); return false;"></button>
 		<button class="textBtnSub" th:text="#{common.folding}" onClick="closeAllLayerTree(); return false;"></button>
-		<button class="textBtn" th:text="#{common.save}" onClick="saveUserLayers(); return false;"></button>
+<!--		<button class="textBtn" th:text="#{common.save}" onClick="saveUserLayers(); return false;"></button>-->
 	</div>
 	<form id="layerForm" th:object="${userPolicy}" th:action="@{#}" style="height: calc(100% - 50px)">
 		<input type="hidden" id="baseLayers" name="baseLayers"/>

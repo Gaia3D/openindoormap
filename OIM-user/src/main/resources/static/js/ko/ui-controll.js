@@ -34,12 +34,14 @@ $(function() {
         $(this).removeClass("on");
         $("#" + $(this).attr("data-nav")).hide();
     });
-	
-	if(currentUrl === undefined || currentUrl === null || currentUrl === "") {
+	var urlIndex = currentUrl.split("/").length
+	var urlCheck = currentUrl.split("/")[urlIndex-1];
+	if(currentUrl === undefined || currentUrl === null || currentUrl === "" || !urlCheck || urlCheck ==='#') {
 		// default 활성화
 		$("#dataMenu").addClass('on');
 		$('#dataContent').toggle(true);
 		$('#contentsWrap').toggle(true);
+		$('button#closeLeftBtn').toggle(true);
 	} else {
 		$('button#closeLeftBtn').toggle(true);
 		// 다른거 활성화
@@ -69,7 +71,7 @@ $(function() {
 			$("#converterMenu").addClass('on');
 			//$('#contentsWrap').toggle(true);
 			// 데이터 변환 탭 변경 시
-			$(".tab > li").siblings().removeClass("on");
+			//$(".tab > li").siblings().removeClass("on");
 			if(location.href.indexOf("/data-group/list") > 0
 					|| location.href.indexOf("/data-group/modify") > 0) { 
 				$("#tabDataGroupList").addClass("on");
@@ -107,9 +109,7 @@ $(function() {
     // 상세 메뉴 클릭 시 기본 동작
     $("ul.nav li[data-nav]:not(:empty)").click(function() {
         var active = $(this).attr('data-nav');
-        var display = $(this).toggleClass('on').hasClass('on');
-        
-        // 변환(upload-data)이 아닌 컨텐츠 클릭시 다시 지도 페이지로 돌아감 
+        // 변환(upload-data)이 아닌 컨텐츠 클릭시 다시 지도 페이지로 돌아감
         if(location.href.indexOf("upload") > 0 
         	|| location.href.indexOf("converter") > 0 
         	|| location.href.indexOf("group") > 0 
@@ -124,9 +124,17 @@ $(function() {
         
         // 변환 클릭 이벤트시 url 변경 
         if(active === "converterContent") {
-        	window.location="../upload-data/list";
+			if(!OIM.userId) {
+				if(confirm("로그인 후 사용가능합니다.")) {
+					window.location = "sign/signin";
+				} else {
+					return;
+				}
+			} else {
+				window.location="../upload-data/list";
+			}
         }
-
+		var display = $(this).toggleClass('on').hasClass('on');
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {
             $(this).removeClass('on');
             $('#' + $(this).attr('data-nav')).hide();
@@ -167,19 +175,6 @@ $(function() {
 		var index = parentObj.index();
 		$('#simulationContent ul.listDrop > li').eq(index).toggleClass('on');
 	});
-
-	/*
-	$('div.district').hover(function() {
-		$('div.districtWrap').css('display', 'block');
-	}, function(){
-		$('div.districtWrap').css('display', 'none');
-	});
-	$('div.districtWrap').hover(function() {
-		$('div.districtWrap').css('display', 'block');
-	}, function(){
-		$('div.districtWrap').css('display', 'none');
-	});
-	 */
 });
 
 function allMenuDisplay() {
