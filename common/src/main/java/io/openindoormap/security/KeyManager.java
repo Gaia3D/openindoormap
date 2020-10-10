@@ -8,7 +8,7 @@ import java.util.Base64;
 @Slf4j
 public class KeyManager {
 
-	private static final String randomKeyword = "dGRobCNAISBzaSBlbWFuIHltIC50ZGhsQCEgcm9mIGFlZGkgZGFiIGEgZWthbSB0b24gb2QgZXNhZWxwICx5ZWsgdGVyY3MjIGRudW9mIGV2YWggdW95IGZJ";
+	private static final String randomKeyword = "bWlvJCNAISBzaSBlbWFuIHltIC5taW8jQCEgcm9mIGFlZGkgZGFiIGEgZWthbSB0b24gb2QgZXNhZWxwICx5ZWsgdGVyY3MjIGRudW9mIGV2YWggdW95IGZJ";
 
 	public static String getInitKey() {
 		String result = null;

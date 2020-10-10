@@ -36,8 +36,8 @@ class PasswordTest {
 	@DisplayName("비밀번호 테스트")
 	void bCryptPasswordEncoderTest() throws Exception {
 		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
-		String encodePassword = bCryptPasswordEncoder.encode("lhdt");
+		String encodePassword = bCryptPasswordEncoder.encode("oim");
 		log.info("encodePassword = {}", encodePassword);
-		assertEquals(bCryptPasswordEncoder.matches("test", "$2a$10$7Y4jEH.GYaAaWuZxVt6Eq.EOUQBxbBk/I.7B3cURSR7BCuku3scjq"), true);
+//		assertEquals(bCryptPasswordEncoder.matches("test", "$2a$10$7Y4jEH.GYaAaWuZxVt6Eq.EOUQBxbBk/I.7B3cURSR7BCuku3scjq"), true);
 	}
 }

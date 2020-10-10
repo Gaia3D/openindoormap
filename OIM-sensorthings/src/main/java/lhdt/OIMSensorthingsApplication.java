@@ -6,15 +6,15 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class LhdtSensorthingsApplication extends SpringBootServletInitializer {
+public class OIMSensorthingsApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LhdtSensorthingsApplication.class, args);
+		SpringApplication.run(OIMSensorthingsApplication.class, args);
 	}
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(LhdtSensorthingsApplication.class);
+		return application.sources(OIMSensorthingsApplication.class);
 	}
 
 }
