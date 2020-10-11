@@ -126,7 +126,7 @@ $(function() {
         if(active === "converterContent") {
 			if(!OIM.userId) {
 				if(confirm("로그인 후 사용가능합니다.")) {
-					window.location = "sign/signin";
+					window.location = getRedirectSigninUrl();
 				} else {
 					return;
 				}

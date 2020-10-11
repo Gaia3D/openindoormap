@@ -371,3 +371,12 @@ function locationValidation(longitude, latitude, altitude) {
 function basicObjectClone (obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
+
+function getRedirectSigninUrl() {
+	var currentUrl = window.location.href;
+	var urlIndex = currentUrl.split("/").length
+	var urlCheck = currentUrl.split("/")[urlIndex-1];
+	var location = (!urlCheck || urlCheck ==='#') ? "/sign/signin" : "../sign/signin";
+
+	return location;
+}

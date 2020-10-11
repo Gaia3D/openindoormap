@@ -57,14 +57,6 @@
 
 <!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
-<!--	탬플릿 Warp		-->
-<div id="template-warp">
-	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-view-anals-widget :: #lsViewAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-free-anals-widget :: #lsFreeAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-height-anals-widget :: #lsHeightViewAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-saved-anals-widget :: #lsSavedAnalsWrap}"></div>
-</div>
 <div id="loadingWrap">
 	<div class="loading">
 		<span class="spinner"></span>
@@ -84,18 +76,9 @@
 
 		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div th:replace="~{/data-library/data-library :: #dataLibraryContent}"></div>
-			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
-			<div th:replace="~{/landscape/landscape :: #landScapeContent}"></div>
-			<div th:replace="~{/sunshine/sunshine :: #sunShineContent}"></div>
-
 			<!-- S: DATA -->
 			<div th:replace="~{/data/data :: #dataContent}"></div>
 			<!-- E: DATA -->
-
-			<!-- S: LAYER -->
-			<div th:replace="~{/extrusion/list :: #extrusionContent}"></div>
-			<!-- E: LAYER -->
 
 			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
@@ -189,9 +172,6 @@
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
 
-<div th:replace="~{/extrusion/data-library-toolbar-dialog :: #dataLibraryDialog}"></div>
-<div th:replace="~{/extrusion/design-layer-toolbar-dialog :: #designLayerDialog}"></div>
-
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -217,18 +197,20 @@
 <script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
+<!--DS lib-->
+<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>
+<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
+<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-
-<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<!--<script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
@@ -300,10 +282,30 @@
 		// TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
 		if(viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
 		viewer.scene.globe.depthTestAgainstTerrain = true;
+		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
+
+
+		viewer.clock.onTick.addEventListener(function(e){
+			var pitchDeg = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
+			for(var i in viewer.dataSources._dataSources) {
+ 				var ds = viewer.dataSources._dataSources[i];
+ 				if(ds instanceof Cesium.CustomDataSource) {
+ 					var entities = ds.entities.values;
+ 					entities.forEach(function(entity) {
+ 						entity.label.scale = (pitchDeg > -30) ? 0 : 0.5;
+ 					});
+ 				}
+ 			}
+		});
+
+		// 행정 구역 이동
+        // DistrictControll(magoInstance);
 
         dataGroupList();
 		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
 		mapDataInfoList(1, dataInfoParams);
+		//mapDataGroupList(1, null);
+        //mapDataInfoList(1, null, null, null);
 
         // 환경 설정.
         UserPolicy(magoInstance);
@@ -326,6 +328,103 @@
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
+
+        var promises = [];
+        var garaJsonCnt = 28;
+        for(var i=0;i<garaJsonCnt;i++) {
+			promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
+        }
+        
+        $.when.apply($,promises).then(function(){
+            for(var i in arguments) {
+                var geoJson = arguments[i][0];
+                var segments2dArray = [];
+                var segmentsArray = geoJson.features;
+                var segmentsCount = segmentsArray.length;
+                for(var j=0; j<segmentsCount; j++)
+                {
+                    var segment = segmentsArray[j].geometry.coordinates;
+                    var strPoint2D = new Mago3D.Point2D(segment[0][0], segment[0][1]);
+                    var endPoint2D = new Mago3D.Point2D(segment[1][0], segment[1][1]);
+                    var segment2d = new Mago3D.Segment2D(strPoint2D, endPoint2D);
+                    segments2dArray.push(segment2d);
+                }
+                
+                segments2dObj[i] = segments2dArray;
+            }
+        });
+		
+        /* yhjeong 2020.10.10
+        var sampleJsonURL = 'http://localhost/sample/json';
+        $.ajax({
+			url: sampleJsonURL + '/workshop-data.json',
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(json){
+				f4dController.addF4dGroup(json);
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
+			var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+			searchDataAPI(magoInstance, dataGroupId, dataKey);
+		});
+		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
+			.then(function(result){
+			sensorThingsController.setCellSpaceList(result);
+			const dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+			for (let index = 1; index < 8; index++) {
+				$.ajax({
+					url : sampleJsonURL + '/data/alphadom_sensor_' + index + '.json',
+					type : 'get',
+					success : function(response){
+						sensorThingsController.arrangeDataFromSensorThingsAPIData(response);
+						sensorThingsController.calculateSumOfOccupancyOfBuilding();
+						sensorThingsController.calculateSumOfOccupancyOfFloor(dataGroupId, dataKey);
+						//G3P["OccupancyOfBuilding"] = calculateSumOfOccupancyOfBuilding();
+						//document.getElementById("totalOccupancyText").innerText = G3P["OccupancyOfBuilding"];
+						//G3P["ListOfFloorOccupancy"] = calculateSumOfOccupancyOfFloor('result','Alphadom_IndoorGML_data');
+						//console.log(G3P["OccupancyOfBuilding"]);
+					}
+				});
+			}
+		});
+		*/
+
+       /* $.ajax({
+            url: 'http://localhost/sample/json/allfourland.json',
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function(json){
+            	console.info(json);
+            	 var children = json.children;
+	
+                f4dController.addF4dGroup(json);
+            },
+            error:function(request,status,error){
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        }); */
+        
+        /* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
+        	var model = e.add;
+        	var geoLocData = model.getCurrentGeoLocationData();
+        	var geoCoord = geoLocData.geographicCoord;
+        	
+        	//model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
+        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+        	promise.then(function(t){
+        		model.setTerrainHeight(t[0].height);
+        		
+        		//console.info(t[0].height);
+        		//console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
+        	});
+        }); */
+
 	}
 
 	// smart tiling data flyTo
@@ -619,6 +718,48 @@
 		}
 
 	}
+
+	function visibleData(_this, dataGroupId, dataKey, dataTiling) {
+		event.stopPropagation();
+		if (dataGroupId === null || dataGroupId === '' ||
+				dataKey === null || dataKey === '' ||
+				dataTiling === null || dataTiling === '') {
+			alert(JS_MESSAGE["data.info.incorrect"]);
+			return;
+		}
+
+		var option = true;
+		if ($(_this).hasClass("fa-eye")) {
+			option = false;
+		}
+
+		if (dataTiling === 'true') {
+			dataKey = "F4D_" + dataKey;
+		}
+
+		dataGroupId = parseInt(dataGroupId);
+		if (!isExistDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey)) {
+			alert(JS_MESSAGE["data.not.loaded"]);
+			return;
+		}
+		var optionObject = { isVisible : option };
+		setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
+
+		if ($(_this).hasClass("fa-eye")) {
+			$(_this).removeClass("fa-eye");
+			$(_this).addClass("fa-eye-slash");
+		} else {
+			$(_this).removeClass("fa-eye-slash");
+			$(_this).addClass("fa-eye");
+		}
+
+	}
+
+	function detailBuildingInfo() {
+		// yhjeong 2020.10.10
+		// $('#buildingInfoWrap').show();
+	}
+
 </script>
 </body>
 </html>

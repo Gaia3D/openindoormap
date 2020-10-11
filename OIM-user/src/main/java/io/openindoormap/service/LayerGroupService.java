@@ -1,9 +1,8 @@
 package io.openindoormap.service;
 
-import java.util.List;
-
-import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
 import io.openindoormap.domain.layer.LayerGroup;
+
+import java.util.List;
 
 public interface LayerGroupService {
 
