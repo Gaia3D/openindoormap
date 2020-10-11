@@ -38,6 +38,8 @@ function mapInit(magoInstance, baseLayers, policy) {
 	var baseMapLength = imageryLayers._layers.filter(function(f){
 		return f.baseMapName;
 	}).length;
+
+	baseMapLength = baseMapLength === 0 ? 1 : baseMapLength;
 	
 	/**
 	 * wms layer init
