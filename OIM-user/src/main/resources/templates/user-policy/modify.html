@@ -6,6 +6,50 @@
 <input type="hidden" id="userPolicyId" name="userPolicyId"/>
 <div class="userPolicyContent">
 	<div class="button-group-align marB10">
+		<h3 class="h3-heading">LOD (Level Of Detail)</h3>
+		<button type="button" id="changeLodButton" class="btnTextF right-align" th:text="#{common.apply}"></button>
+	</div>
+	<div class="userPolicyContentDetail">
+		<div class="form-group form-group-policy">
+			<label for="geoLod0">LOD0</label>
+			<input type="text" id="geoLod0" name="lod0" th:field="*{lod0}" size="15" />M
+		</div>
+		<div class="form-group form-group-policy">
+			<label for="geoLod1">LOD1</label>
+			<input type="text" id="geoLod1" name="lod1" th:field="*{lod1}" size="15" />M
+		</div>
+		<div class="form-group form-group-policy">
+			<label for="geoLod2">LOD2</label>
+			<input type="text" id="geoLod2" name="lod2" th:field="*{lod2}" size="15" />M
+		</div>
+		<div class="form-group form-group-policy">
+			<label for="geoLod3">LOD3</label>
+			<input type="text" id="geoLod3" name="lod3" th:field="*{lod3}" size="15" />M
+		</div>
+		<div class="form-group form-group-policy">
+			<label for="geoLod4">LOD4</label>
+			<input type="text" id="geoLod4" name="lod4" th:field="*{lod4}" size="15" />M
+		</div>
+		<div class="form-group form-group-policy">
+			<label for="geoLod5">LOD5</label>
+			<input type="text" id="geoLod5" name="lod5" th:field="*{lod5}" size="15" />M
+		</div>
+	</div>
+</div>
+<div class="userPolicyContent">
+	<div class="button-group-align marB10">
+		<h3 class="h3-heading">SSAO</h3>
+		<button type="button" id="changeSsaoButton" class="btnTextF right-align" th:text="#{common.apply}"></button>
+	</div>
+	<div class="userPolicyContentDetail">
+		<div class="form-group form-group-policy">
+			<label for="ssaoRadius" th:text="#{policy.init.ssao}"></label>
+			<input type="text" id="ssaoRadius" name="ssaoRadius" th:field="*{ssaoRadius}" size="15" />M
+		</div>
+	</div>
+</div>
+<div class="userPolicyContent">
+	<div class="button-group-align marB10">
 		<h3 class="h3-heading" th:text="#{policy.init.position}"></h3>
 		<button type="button" id="findStartPoint" class="btnTextF right-align" th:text="#{common.select}"></button>
 	</div>
