@@ -57,14 +57,6 @@
 
 <!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
-<!--	탬플릿 Warp		-->
-<div id="template-warp">
-	<div th:replace="~{/landscape-widget/landscape-widget :: #landscapeDiffWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-view-anals-widget :: #lsViewAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-free-anals-widget :: #lsFreeAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-height-anals-widget :: #lsHeightViewAnalsWarp}"></div>
-	<div th:replace="~{/landscape-widget/ls-saved-anals-widget :: #lsSavedAnalsWrap}"></div>
-</div>
 <div id="loadingWrap">
 	<div class="loading">
 		<span class="spinner"></span>
@@ -84,20 +76,9 @@
 
 		<!-- S: CONTENTS WRAP -->
 		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div th:replace="~{/data-library/data-library :: #dataLibraryContent}"></div>
-			
-
-			<div th:replace="~{/cityplan/cityplan :: #cityPlanContent}"></div>
-			<div th:replace="~{/landscape/landscape :: #landScapeContent}"></div>
-			<div th:replace="~{/sunshine/sunshine :: #sunShineContent}"></div>
-
 			<!-- S: DATA -->
 			<div th:replace="~{/data/data :: #dataContent}"></div>
 			<!-- E: DATA -->
-
-			<!-- S: LAYER -->
-			<div th:replace="~{/extrusion/list :: #extrusionContent}"></div>
-			<!-- E: LAYER -->
 
 			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
@@ -191,9 +172,6 @@
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
 
-<div th:replace="~{/extrusion/data-library-toolbar-dialog :: #dataLibraryDialog}"></div>
-<div th:replace="~{/extrusion/design-layer-toolbar-dialog :: #designLayerDialog}"></div>
-
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -225,38 +203,14 @@
 <link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
 <link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
 <script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
-<!--<script type="text/javascript" th:src="@{/externlib/ds/pp-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
-<!--<script type="text/javascript" th:src="@{/externlib/ds/ppui-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
-<!--<script type="text/javascript" th:src="@{/externlib/ds/ppmap-0.9-legacy.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
-<!--<script type="text/javascript" th:src="@{/externlib/ds/dsobj-0.1-snapshot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"  defer></script>-->
-
-<!--<script type="text/javascript" th:src="@{/js/{lang}/design-layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/data-library.js(lang=${lang},cacheVersion=${contentCacheVersion})}" defer></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapedirect.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-free.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-saved.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-view.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape-height.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscapediff.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-sunshine.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-buildheight.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/anals-landscape.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--//DS lib-->
 
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/js/{lang}/map-data-group.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<!--<script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
-<script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
@@ -330,22 +284,7 @@
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
 
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, function(result) {
-			var nodeId = result.selected.data.nodeId;
-			var id;
-			if(nodeId === "F4D_GC1_1284") {
-				id = 1;
-			} else if (nodeId === "F4D_GC2_341") {
-				id = 2;
-			} else if (nodeId === "F4D_GC1_251") {
-				id = 3;
-			} else if (nodeId === "masterplan_34") {
-				id = 4;
-			}
-			
-			detailTestDataInfo(id);
-		});
-		
+
 		viewer.clock.onTick.addEventListener(function(e){
 			var pitchDeg = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
 			for(var i in viewer.dataSources._dataSources) {
@@ -359,9 +298,6 @@
  			}
 		});
 
-		//우측 상단 지도 컨트롤러, 당분간 map-controll.js 파일 삭제하지 말아주세요 ㅠㅠ
-		//MapControll(viewer);
-		
 		// 행정 구역 이동
         // DistrictControll(magoInstance);
 
@@ -373,8 +309,6 @@
 		//mapDataGroupList(1, null);
         //mapDataInfoList(1, null, null, null);
 
-		extrusion();
-
         // 환경 설정.
         UserPolicy(magoInstance);
 
@@ -384,13 +318,6 @@
         setTimeout(function(){
         	OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
         	OIM.map.initLayer();
-
-			// 분석
-			// AnalsBuildHeight(viewer, magoInstance);
-			// AnalsLandScapeDirection(viewer, magoInstance);
-			// AnalsSunshine(viewer, magoInstance);
-			// AnalsLandScape();
-			// AnalsHeightLandScapeView(viewer, magoInstance);
         	cesiumCreditAlt(); //웹접근성
         }, geoPolicyJson.initDuration * 1000);
 
@@ -399,32 +326,10 @@
 
 		OIM.issueController = new IssueController(magoInstance);
 		
-		// extrusionTools(magoInstance);
-		
-		f4dController.addSmartTileGroup({
-			dataGroupId : 10000,
-			dataGroupKey : 'sKorea_Gyeonggi_Gwacheon',
-			dataGroupName : '과천시 건물들',
-			dataGroupPath : 'infra/demo/sKorea_Gyeonggi_Gwacheon/',
-			smartTileIndexPath: "infra/_TILE"
-		});
-		
-		f4dController.addSmartTileGroup({
-			dataGroupId : 10001,
-			dataGroupKey : 'sKorea_Gyeonggi_Gwacheon_lhdt',
-			dataGroupName : '과천시 건물들2',
-			dataGroupPath : 'infra/demo/sKorea_Gyeonggi_Gwacheon_lhdt/',
-			smartTileIndexPath: "infra/_TILE2"
-		});
-		
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
-		
-		/* 토글주석 */
-		/* var baseMapController = new BaseMapController(viewer); */
-		/* var terrainController = new TerrainController(viewer, 'http://118.42.112.206:9997/tilesets/terrain/'); */
-		
+
         var promises = [];
         var garaJsonCnt = 28;
         for(var i=0;i<garaJsonCnt;i++) {
@@ -973,248 +878,6 @@
 			$(_this).addClass("fa-eye");
 		}
 
-	}
-
-	// extrusion model 예제, 예제라서 하드 코딩하지만, 서비스 구현시는 이렇게 하면 안됨, hanldebars.js 로 구현해야 함
-	function extrusion() {
-		$.ajax({
-			url: "/extrusions",
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					showUrbanGroup(msg);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	function showUrbanGroup(msg) {
-		var oneDepthUrbanGroupList = msg.oneDepthUrbanGroupList;
-		var twoDepthUrbanGroupList = msg.twoDepthUrbanGroupList;
-		var oneDepthContent = "";
-		if(oneDepthUrbanGroupList != null && oneDepthUrbanGroupList.length > 0) {
-			for (i = 0; i < oneDepthUrbanGroupList.length; i++) {
-				var urbanGroup = oneDepthUrbanGroupList[i];
-				oneDepthContent = oneDepthContent
-						+ "<option value=\"" + urbanGroup.urbanGroupId + "\">" + urbanGroup.urbanGroupName + "</option>";
-			}
-		}
-		$("#oneDepthUrbanGroup").html("");
-		$("#oneDepthUrbanGroup").html(oneDepthContent);
-
-		var twoDepthContent = "";
-		if(twoDepthUrbanGroupList != null && twoDepthUrbanGroupList.length > 0) {
-			for (i = 0; i < twoDepthUrbanGroupList.length; i++) {
-				var twoUrbanGroup = twoDepthUrbanGroupList[i];
-				twoDepthContent = twoDepthContent
-						+ "<option value=\"" + twoUrbanGroup.urbanGroupId + "\">" + twoUrbanGroup.urbanGroupName + "</option>";
-			}
-		}
-		$("#twoDepthUrbanGroup").html("");
-		$("#twoDepthUrbanGroup").html(twoDepthContent);
-
-		showDesignLayer(7);
-		showDataLibrary();
-	}
-
-	// 디자인 레이어
-	function showDesignLayer(urbanGroupId) {
-		$.ajax({
-			url: "/extrusions/" + urbanGroupId + "/design-layers",
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					var template = Handlebars.compile($("#designLayerSource").html());
-					var designLayerHtml = template(msg);
-
-					$("#designLayerDHTML").html("").append(designLayerHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	// 데이터 라이브러리
-	function showDataLibrary() {
-		$.ajax({
-			url: "/extrusions/data-library-groups",
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					var template = Handlebars.compile($("#dataLibrarySource").html());
-					var dataLibraryHtml = template(msg);
-
-					$("#dataLibraryDHTML").html("").append(dataLibraryHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	// 디자인 레이어 버튼 클릭
-	$("#designLayerToolToggle").click(function() {
-		designLayerDialog.dialog( "open" );
-		dataLibraryDialog.dialog( "close" );
-	});
-	// 디자인 레이어 로그
-	var designLayerDialog = $( "#designLayerDialog" ).dialog({
-		autoOpen: false,
-		width: 300,
-		height: 200,
-		modal: false,
-		overflow : "auto",
-		resizable: false
-	});
-	
-	// 데이터라이브러리 레이어 버튼 클릭
-	$("#dataLibraryToolToggle").click(function() {
-		dataLibraryDialog.dialog( "open" );
-		designLayerDialog.dialog( "close" );
-	});
-	// 데이터라이브러리 다이얼 로그
-	var dataLibraryDialog = $( "#dataLibraryDialog" ).dialog({
-		autoOpen: false,
-		width: 300,
-		height: 200,
-		modal: false,
-		overflow : "auto",
-		resizable: false
-	});
-	
-	// 시연용 임시 코드
-	function entityToMagoExtrusionBuilding(entity, layername) {
-		var properties = entity.properties;
-		var id = properties.build_id.getValue();
-		var height = properties.build_height.getValue();
-		var floorHeight = properties.build_floor.getValue();
-		floorHeight = floorHeight ? floorHeight : 1;
-		
-		height = (!height || height.length === 0) ? 3.3 * floorHeight : height;
-			
- 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
- 		polygonHierarchy.pop();
- 		
-   	 	//var targetArray = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-   	 	//console.info(targetArray);
-   	 	var polygon2d = Mago3D.Polygon2D.makePolygonByCartesian3Array(polygonHierarchy.reverse());
- 		polygon2d.calculateNormal();
-   	 	if(polygon2d.normal < 0)
-   		{
-   			polygon2d.reverseSense();
-   		}
-		var segments2dArray = []; 
-		if(layername.indexOf('plan1') > -1) {
-			segments2dArray = segments2dObj[id]; 
-		}
- 		
- 		var resultSplittedPolygons = Mago3D.Polygon2D.splitPolygonByMultipleSegments(polygon2d, segments2dArray, undefined, 1E-2);
-   	 	var splittedPolygonsCount = resultSplittedPolygons.length;
-   		var geoCoordsListsArray = [];
-   		for(var k=0; k<splittedPolygonsCount; k++)
-   		{
-   			var splittedPolygon2d = resultSplittedPolygons[k];
-   			var geographicCoordsArray = [];
-   			var coordsCount = splittedPolygon2d.point2dList.getPointsCount();
-   			for(var j=0; j<coordsCount; j++)
-   			{
-   				var point2d = splittedPolygon2d.point2dList.getPoint(j);
-   				var geoCoord = new Mago3D.GeographicCoord(point2d.x, point2d.y, 0.0);
-   				geographicCoordsArray.push(geoCoord);
-   			}
-   			var geoCoordList = new Mago3D.GeographicCoordsList(geographicCoordsArray);
-   			geoCoordsListsArray.push(geoCoordList);
-   		}
-
-   		var building = new Mago3D.ExtrusionBuilding(geoCoordsListsArray, parseFloat(height), {
- 			//color : new Mago3D.Color(0, 112 / 255, 192 / 255, 1), 연한 파랑
- 			//color : new Mago3D.Color(148/255, 216 / 255, 246 / 255, 1), 진한 파랑
- 			//color : new Mago3D.Color(1, 229 / 255, 212 / 255, 1),
- 			//wireframeColor4 :  new Mago3D.Color(244/255, 115 / 255, 120 / 255, 1),
- 			
- 			color : new Mago3D.Color(152/255, 224 / 255, 173 / 255, 1),
- 			wireframeColor4 :  new Mago3D.Color(34/255, 177 / 255, 76 / 255, 1),
- 			
- 			//color : new Mago3D.Color(248/255, 248/ 255, 248/ 255, 1),
- 			//wireframeColor4 :  new Mago3D.Color(217/255, 217 / 255, 217 / 255, 1),
- 			renderWireframe : true
- 		});
-   		building.options.limitationInfringingDynamicColor4 = new Mago3D.DynamicColor(1.0, 0.5, 1.0, 1.0);
-   		building.floorHeight = 3.3;
-	 	
-   		return building;
-	}
-
-	// 테스트 다이어러 로그
-	var dataInfoTestDialog = $( "#dataInfoTestDialogDHTML" ).dialog({
-		autoOpen: false,
-		width: 500,
-		height: 720,
-		modal: true,
-		overflow : "auto",
-		resizable: false
-	});
-
-	//데이터 상세 정보 조회
-	function detailTestDataInfo(id) {
-		if(!id) return;
-		var dataInfo1 = { "altitude": "63.3475037274624", "attributeExist": false, "dataGroupId": 2, "dataGroupKey": "masterplan", "dataGroupName": "기본 그룹", "dataType": "3DS",
-			"dataGroupTarget": "admin", "dataId": 200752, "dataKey": "Museum", "dataName": "masterplan_249", "heading": 0, "latitude": "37.4384039960509", "longitude": "127.00568415409452",
-			"mappingType": "origin", "metainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"", "objectAttributeExist": false, "pitch": 0, "roll": 0,
-			"userId": "admin", "userName": "관리자", "viewInsertDate": "2020-09-21 17:06:33", "viewMetainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"",
-			"viewUpdateDate": "", "description" : "국립 과천 과학관 입니다." };
-		var dataInfo2 = { "altitude": "43.05765936504676", "attributeExist": false, "dataGroupId": 2, "dataGroupKey": "masterplan", "dataGroupName": "기본 그룹", "dataType": "3DS",
-			"dataGroupTarget": "admin", "dataId": 200753, "dataKey": "Museum", "dataName": "masterplan_249", "heading": 0, "latitude": "37.44023642695907", "longitude": "126.99700029110193",
-			"mappingType": "origin", "metainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"", "objectAttributeExist": false, "pitch": 0, "roll": 0,
-			"userId": "admin", "userName": "관리자", "viewInsertDate": "2020-09-21 17:06:33", "viewMetainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"",
-			"viewUpdateDate": "", "description" : "관문 실내 체육관 입니다."  };
-		var dataInfo3 = { "altitude": "61.20433016312577", "attributeExist": false, "dataGroupId": 2, "dataGroupKey": "masterplan", "dataGroupName": "기본 그룹", "dataType": "3DS",
-			"dataGroupTarget": "admin", "dataId": 200754, "dataKey": "Museum", "dataName": "masterplan_249", "heading": 0, "latitude": "37.447651950734915", "longitude": "127.01300231686602",
-			"mappingType": "origin", "metainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"", "objectAttributeExist": false, "pitch": 0, "roll": 0,
-			"userId": "admin", "userName": "관리자", "viewInsertDate": "2020-09-21 17:06:33", "viewMetainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"",
-			"viewUpdateDate": "", "description" : "서울 경마 공원 해피빌 입니다."  };
-		var dataInfo4 = { "altitude": "61.20433016312577", "attributeExist": false, "dataGroupId": 2, "dataGroupKey": "masterplan", "dataGroupName": "기본 그룹", "dataType": "3DS",
-			"dataGroupTarget": "admin", "dataId": 4, "dataKey": "Museum", "dataName": "masterplan_249", "heading": 0, "latitude": "37.447651950734915", "longitude": "127.01300231686602",
-			"mappingType": "origin", "metainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"", "objectAttributeExist": false, "pitch": 0, "roll": 0,
-			"userId": "admin", "userName": "관리자", "viewInsertDate": "2020-09-21 17:06:33", "viewMetainfo": "{\"nodeType\": \"masterplan\", \"isPhysical\": true, \"flipYTexCoords\": true}\"",
-			"viewUpdateDate": "", "description" : "학교 입니다."  };
-		//var test = JSON.parse(dataInfo);
-
-		dataInfoTestDialog.dialog( "open" );
-		var viewJson = dataInfo1;
-		var title = "국립 과천 과학관";
-		if(id == 2) {
-			title = "관문 실내 체육관";
-			viewJson = dataInfo2;
-		} else if(id == 3) {
-			title = "서울 경마 공원 해피빌";
-			viewJson = dataInfo3;
-		} else if(id == 4) {
-			title = "학교";
-			viewJson = dataInfo4;
-		}
-		dataInfoTestDialog.dialog( "option", "title", title);
-		var template = Handlebars.compile($("#dataInfoTestSource").html());
-		var dataInfoHtml = template(viewJson);
-		$("#dataInfoTestDialogDHTML").html("").append(dataInfoHtml);
 	}
 
 	function detailBuildingInfo() {

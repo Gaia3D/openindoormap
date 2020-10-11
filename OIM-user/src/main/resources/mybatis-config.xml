@@ -22,13 +22,6 @@
 		<typeAlias type="io.openindoormap.domain.data.DataAttributeFileInfo" alias="dataAttributeFileInfo" />
 		<typeAlias type="io.openindoormap.domain.data.DataObjectAttribute" alias="dataObjectAttribute" />
 		<typeAlias type="io.openindoormap.domain.data.DataObjectAttributeFileInfo" alias="dataObjectAttributeFileInfo" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayer" alias="designLayer" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerLandDto" alias="designLayerLandDto" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingDto" alias="designLayerBuildingDto" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingHeightDto" alias="designLayerBuildingHeightDto" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryGroup" alias="dataLibraryGroup" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibrary" alias="dataLibrary" />
 		<typeAlias type="io.openindoormap.domain.policy.GeoPolicy" alias="geoPolicy" />
     	<typeAlias type="io.openindoormap.domain.issue.Issue" alias="issue" />
     	<typeAlias type="io.openindoormap.domain.issue.IssueDetail" alias="issueDetail" />
@@ -54,9 +47,6 @@
  		<typeAlias type="io.openindoormap.domain.country.SkEmd" alias="skEmd"/>
 
 		<typeAlias type="io.openindoormap.domain.common.SpatialOperationInfo" alias="spatialOperationInfo" />
-
-		<typeAlias type="io.openindoormap.domain.urban.UrbanGroup" alias="urbanGroup" />
- 		
     </typeAliases>
 
 	<typeHandlers>

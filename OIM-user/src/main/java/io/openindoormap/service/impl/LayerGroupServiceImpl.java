@@ -1,16 +1,14 @@
 package io.openindoormap.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
 import io.openindoormap.domain.layer.Layer;
 import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.persistence.LayerGroupMapper;
 import io.openindoormap.service.LayerGroupService;
 import io.openindoormap.service.LayerService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class LayerGroupServiceImpl implements LayerGroupService {

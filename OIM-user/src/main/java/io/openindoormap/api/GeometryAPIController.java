@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import io.openindoormap.domain.common.SpatialOperationInfo;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.data.DataInfoDto;
-import io.openindoormap.domain.extrusionmodel.DesignLayer;
 import io.openindoormap.service.GeometryService;
 
 import javax.validation.Valid;
@@ -35,36 +34,6 @@ public class GeometryAPIController {
 
     private final GeometryService geometryService;
     private final ModelMapper modelMapper;
-
-    /**
-     * geoemtry 정보와 intersection 필지, 빌딩 정보 리턴
-     * @param spatialOperationInfo
-     * @return
-     */
-    @PostMapping("/intersection/design-layers")
-    public ResponseEntity<?> getIntersectionDesignLayers(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {
-        if (errors.hasErrors()) {
-            return badRequest(errors);
-        }
-
-        String type = spatialOperationInfo.getType().toUpperCase();
-        List<?> designLayerList = new ArrayList<>();
-        if(DesignLayer.DesignLayerType.LAND == DesignLayer.DesignLayerType.valueOf(type)) {
-            designLayerList = geometryService.getIntersectionDesignLayerLands(spatialOperationInfo);
-        } else if(DesignLayer.DesignLayerType.BUILDING == DesignLayer.DesignLayerType.valueOf(type)) {
-            designLayerList = geometryService.getIntersectionDesignLayerBuildings(spatialOperationInfo);
-        } else if(DesignLayer.DesignLayerType.BUILDING_HEIGHT == DesignLayer.DesignLayerType.valueOf(type)) {
-            designLayerList = geometryService.getIntersectionDesignLayerBuildingHeights(spatialOperationInfo);
-        }
-        List<EntityModel<?>> designLayerEntity = designLayerList.stream().map(EntityModel::of).collect(Collectors.toList());
-
-        CollectionModel<EntityModel<?>> model = CollectionModel.of(designLayerEntity);
-
-        model.add(linkTo(GeometryAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resources-geometry-intersection-design-layer-list").withRel("profile"));
-
-        return ResponseEntity.ok(model);
-    }
 
     @PostMapping("/intersection/datas")
     public ResponseEntity<?> getIntersectionDatas(@RequestBody @Valid SpatialOperationInfo spatialOperationInfo, Errors errors) {

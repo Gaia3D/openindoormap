@@ -1,11 +1,9 @@
 package io.openindoormap.persistence;
 
-import java.util.List;
-
+import io.openindoormap.domain.layer.Layer;
 import org.springframework.stereotype.Repository;
 
-import io.openindoormap.domain.extrusionmodel.DesignLayer;
-import io.openindoormap.domain.layer.Layer;
+import java.util.List;
 
 @Repository
 public interface LayerMapper {

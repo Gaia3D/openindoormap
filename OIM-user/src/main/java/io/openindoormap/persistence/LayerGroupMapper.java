@@ -1,11 +1,9 @@
 package io.openindoormap.persistence;
 
-import java.util.List;
-
+import io.openindoormap.domain.layer.LayerGroup;
 import org.springframework.stereotype.Repository;
 
-import io.openindoormap.domain.extrusionmodel.DesignLayerGroup;
-import io.openindoormap.domain.layer.LayerGroup;
+import java.util.List;
 
 @Repository
 public interface LayerGroupMapper {
