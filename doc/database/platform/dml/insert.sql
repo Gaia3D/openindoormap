@@ -62,10 +62,11 @@ values
 insert into menu(menu_id, menu_type, menu_target, name, name_en, ancestor, parent, depth, view_order, url, url_alias, html_id, html_content_id,
     css_class, default_yn, use_yn, display_yn)
 values
-    (1101, '1', '0', '데이터', 'DATA', 1101, 0, 1, 5, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
-    (1102, '1', '0', '변환', 'CONVERTER', 1102, 0, 1, 6, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
-    (1104, '1', '0', '레이어', 'LAYER', 1104, 0, 1, 8, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
-    (1105, '1', '0', '환경설정', 'USER POLICY', 1105, 0, 1, 9, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
+    (1101, '1', '0', '데이터', 'DATA', 1101, 0, 1, 1, '/data/map', null, 'dataMenu', 'dataContent', 'data', 'Y', 'Y', 'Y'),
+    (1102, '1', '0', '변환', 'CONVERTER', 1102, 0, 1, 2, '/upload-data/list', null, 'converterMenu', 'converterContent', 'converter', 'Y', 'Y', 'Y'),
+    (1103, '1', '0', '레이어', 'LAYER', 1103, 0, 1, 3, '/layer/list', null, 'layerMenu', 'layerContent', 'layer', 'Y', 'Y', 'Y'),
+    (1104, '1', '0', '사물인터넷', 'IoT', 1104, 0, 1, 4, '/iot/list', null, 'iotMenu', 'iotContent', 'userPolicy', 'Y', 'Y', 'Y'),
+    (1105, '1', '0', '환경설정', 'USER POLICY', 1105, 0, 1, 5, '/user-policy/modify', null, 'userPolicyMenu', 'userPolicyContent', 'userPolicy', 'Y', 'Y', 'Y');
 
 
 
@@ -116,11 +117,13 @@ values
 	(88, 1, 88, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1101, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1102, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 1, 1103, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1104, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 1, 1105, 'Y'),
 
 	(NEXTVAL('user_group_menu_seq'), 2, 1101, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1102, 'Y'),
+	(NEXTVAL('user_group_menu_seq'), 2, 1103, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1104, 'Y'),
 	(NEXTVAL('user_group_menu_seq'), 2, 1105, 'Y');
 

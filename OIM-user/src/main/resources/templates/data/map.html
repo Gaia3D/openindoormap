@@ -103,6 +103,10 @@
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
 			<!-- E: LAYER -->
 
+			<!-- S: IoT -->
+			<div th:replace="~{/iot/list :: #iotContent}"></div>
+			<!-- E: IoT -->
+
 			<!-- S: SETTING -->
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
 			<!-- E: SETTING -->
@@ -140,6 +144,10 @@
 
 		<!-- S: MAP SETTING WRAP -->
 		<div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
+		<!-- E: MAP SETTING WRAP -->
+
+		<!-- S: MAP SETTING WRAP -->
+		<div th:replace="~{/iot/building-info :: #buildingInfoWrap}"></div>
 		<!-- E: MAP SETTING WRAP -->
 		
 		<!-- S: BASE MAP TOGGLE -->
@@ -250,6 +258,7 @@
 <!--<script type="text/javascript" th:src="@{/js/{lang}/extrusion.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>-->
 <script type="text/javascript" th:src="@{/js/{lang}/base-map-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 
@@ -274,6 +283,8 @@
 	};
 	OIM.userId = '[[${owner}]]';
 	var segments2dObj = {};
+	var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+	var sensorThingsController = new SensorThingsController(dataGroupId, dataKey);
 	initPolicy(function(policy, baseLayers){
 		OIM.policy = policy;
 		OIM.baseLayers = baseLayers;
@@ -438,7 +449,78 @@
                 segments2dObj[i] = segments2dArray;
             }
         });
+		
+        /* yhjeong 2020.10.10
+        var sampleJsonURL = 'http://localhost/sample/json';
+        $.ajax({
+			url: sampleJsonURL + '/workshop-data.json',
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(json){
+				f4dController.addF4dGroup(json);
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
+			var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+			searchDataAPI(magoInstance, dataGroupId, dataKey);
+		});
+		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
+			.then(function(result){
+			sensorThingsController.setCellSpaceList(result);
+			const dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+			for (let index = 1; index < 8; index++) {
+				$.ajax({
+					url : sampleJsonURL + '/data/alphadom_sensor_' + index + '.json',
+					type : 'get',
+					success : function(response){
+						sensorThingsController.arrangeDataFromSensorThingsAPIData(response);
+						sensorThingsController.calculateSumOfOccupancyOfBuilding();
+						sensorThingsController.calculateSumOfOccupancyOfFloor(dataGroupId, dataKey);
+						//G3P["OccupancyOfBuilding"] = calculateSumOfOccupancyOfBuilding();
+						//document.getElementById("totalOccupancyText").innerText = G3P["OccupancyOfBuilding"];
+						//G3P["ListOfFloorOccupancy"] = calculateSumOfOccupancyOfFloor('result','Alphadom_IndoorGML_data');
+						//console.log(G3P["OccupancyOfBuilding"]);
+					}
+				});
+			}
+		});
+		*/
+
+       /* $.ajax({
+            url: 'http://localhost/sample/json/allfourland.json',
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function(json){
+            	console.info(json);
+            	 var children = json.children;
+	
+                f4dController.addF4dGroup(json);
+            },
+            error:function(request,status,error){
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        }); */
         
+        /* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
+        	var model = e.add;
+        	var geoLocData = model.getCurrentGeoLocationData();
+        	var geoCoord = geoLocData.geographicCoord;
+        	
+        	//model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
+        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
+        	promise.then(function(t){
+        		model.setTerrainHeight(t[0].height);
+        		
+        		//console.info(t[0].height);
+        		//console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
+        	});
+        }); */
+
 	}
 
 	// smart tiling data flyTo
@@ -1135,6 +1217,10 @@
 		$("#dataInfoTestDialogDHTML").html("").append(dataInfoHtml);
 	}
 
+	function detailBuildingInfo() {
+		// yhjeong 2020.10.10
+		// $('#buildingInfoWrap').show();
+	}
 
 </script>
 </body>
