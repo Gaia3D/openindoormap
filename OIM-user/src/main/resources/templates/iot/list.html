@@ -1,23 +1,23 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="iotContent" class="dataContents">
 
-    <form id="searchDataForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
+    <form id="searchIotForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
         <div class="searchDataType">
             <div>
-                <input type="radio" id="radioData" name="searchWord" class="fas fa-street-view" value="iot_indoor" checked>
-                <label for="radioData" th:text="'재실자'"></label>
+                <input type="radio" id="radioIndoor" name="searchWord" class="fas fa-street-view" value="iot_indoor" checked>
+                <label for="radioIndoor" th:text="'재실자'"></label>
             </div>
             <div>
-                <input type="radio" id="radioGroup" name="searchWord" class="fas fa-industry" value="iot_dust">
-                <label for="radioGroup" th:text="'미세먼지'"></label>
+                <input type="radio" id="radioDust" name="searchWord" class="fas fa-industry" value="iot_dust">
+                <label for="radioDust" th:text="'미세먼지'"></label>
             </div>
         </div>
         <div class="searchDataInputWrap">
             <div class="searchDataInput">
                 <span class="searchIcon"></span>
-                <label for="searchDataName" th:text="#{common.data.name}" class="hiddenTag"></label>
-                <input type="text" id="searchDataName" name="searchValue" th:placeholder="#{data.enter.data.name}">
-                <button type="submit" id="mapDataSearch" class="btnSearch" th:text="#{common.search}" th:title="#{common.search}"></button>
+                <label for="searchName" th:text="#{common.data.name}" class="hiddenTag"></label>
+                <input type="text" id="searchName" name="searchValue" th:placeholder="#{data.enter.data.name}">
+                <button type="submit" id="iotSearch" class="btnSearch" th:text="#{common.search}" th:title="#{common.search}"></button>
             </div>
         </div>
     </form>
@@ -40,13 +40,13 @@
     </div>
     <!--<div id="dataSearchSummaryDHTML"></div>-->
 
-    <div id="dataInfoContent" class="yScroll" style="height: calc(100% - 340px)">
-        <div id="dataGroupListDHTML" style="display:none"></div>
-        <div id="dataListDHTML" style="display:none"></div>
-        <div id="dataAddressListDHTML" style="display:none"></div>
-        <div id="iotInddorListDHTML" style="display:block">
+    <div id="iotInfoContent" class="yScroll" style="height: calc(100% - 340px)">
+        <!--<div id="dataGroupListDHTML" style="display:none"></div>-->
+        <!--<div id="dataListDHTML" style="display:none"></div>-->
+        <!--<div id="dataAddressListDHTML" style="display:none"></div>-->
+        <div id="iotIndoorListDHTML" style="display:block">
             <ul>
-                <li class="listElement" onclick="detailBuildingInfo();">
+                <li class="listElement" onclick="detailBuildingInfo('result', 'Alphadom_IndoorGML_data');">
                     <div class="titleWrap">
                         <p>
                             <span class="bullet">A.</span>
@@ -64,7 +64,7 @@
                     </div>
                     <div class="infoWrap">
                         <span class="infoTag ellipsis"><span th:text="'건물명:'"></span>알파돔</span>
-                        <span class="infoTag"><span th:text="'전체인원:'"></span>0명</span>
+                        <span class="infoTag"><span th:text="'전체인원:'"></span>2,430명</span>
                     </div>
                 </li>
             </ul>
@@ -73,8 +73,7 @@
 
     <!--<div id="dataGroupInfoContent" style="display:none;"></div>-->
     <!--<div id="dataRoadInfoContent" style="display:none;"></div>-->
-
-    <div id="dataPaginationDHTML" class="paginationWrap"></div>
+    <!--<div id="dataPaginationDHTML" class="paginationWrap"></div>-->
 
     <div th:replace="~{/data/data-search-summary-template :: #dataSearchSummarySource}"></div>
     <div th:replace="~{/data/map-data-template :: #dataListSource}"></div>
