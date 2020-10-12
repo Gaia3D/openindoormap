@@ -111,7 +111,7 @@ public class ServletConfig implements WebMvcConfigurer {
 	
 	@Override
     public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("forward:/data/map");
+		registry.addViewController("/").setViewName("redirect:/data/map");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 	

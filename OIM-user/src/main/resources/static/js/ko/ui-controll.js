@@ -34,14 +34,11 @@ $(function() {
         $(this).removeClass("on");
         $("#" + $(this).attr("data-nav")).hide();
     });
-	var urlIndex = currentUrl.split("/").length
-	var urlCheck = currentUrl.split("/")[urlIndex-1];
-	if(currentUrl === undefined || currentUrl === null || currentUrl === "" || !urlCheck || urlCheck ==='#') {
+	if(currentUrl === undefined || currentUrl === null || currentUrl === "") {
 		// default 활성화
 		$("#dataMenu").addClass('on');
 		$('#dataContent').toggle(true);
 		$('#contentsWrap').toggle(true);
-		$('button#closeLeftBtn').toggle(true);
 	} else {
 		$('button#closeLeftBtn').toggle(true);
 		// 다른거 활성화
@@ -69,9 +66,8 @@ $(function() {
 		} else {
 			// 데이터 변환
 			$("#converterMenu").addClass('on');
-			//$('#contentsWrap').toggle(true);
 			// 데이터 변환 탭 변경 시
-			//$(".tab > li").siblings().removeClass("on");
+			$(".tab > li").siblings().removeClass("on");
 			if(location.href.indexOf("/data-group/list") > 0
 					|| location.href.indexOf("/data-group/modify") > 0) { 
 				$("#tabDataGroupList").addClass("on");
@@ -99,7 +95,6 @@ $(function() {
 	
 	// 상세 메뉴 닫기
 	$('button#closeLeftBtn').click(function() {
-		//$('ul.nav li[data-nav]').removeClass('on');
 		$('#contentsWrap').hide();
 		$('ul.nav li.on').removeClass('on');
 		$(this).hide();
@@ -109,6 +104,7 @@ $(function() {
     // 상세 메뉴 클릭 시 기본 동작
     $("ul.nav li[data-nav]:not(:empty)").click(function() {
         var active = $(this).attr('data-nav');
+
         // 변환(upload-data)이 아닌 컨텐츠 클릭시 다시 지도 페이지로 돌아감
         if(location.href.indexOf("upload") > 0 
         	|| location.href.indexOf("converter") > 0 
@@ -117,15 +113,21 @@ $(function() {
         	|| location.href.indexOf("/data/modify") > 0 
         	|| location.href.indexOf("/data-adjust-log") > 0
         	|| location.href.indexOf("/data-log") > 0) {
-        	$(this).removeClass('on');
+			$(this).removeClass('on');
         	var classId = $(this).attr('class');
+        	// 변환탭인데 다시 누르면 그냥 return
+        	if(classId === "converter") {
+				$(this).addClass('on');
+        		return;
+			}
         	window.location="../data/map#" + classId;
         }
         
         // 변환 클릭 이벤트시 url 변경 
         if(active === "converterContent") {
+        	// session 없으면 로그인 confirm. 아니면 변환 메뉴로
 			if(!OIM.userId) {
-				if(confirm("로그인 후 사용가능합니다.")) {
+				if (confirm("로그인 후 사용가능합니다.")) {
 					window.location = getRedirectSigninUrl();
 				} else {
 					return;
@@ -134,6 +136,7 @@ $(function() {
 				window.location="../upload-data/list";
 			}
         }
+
 		var display = $(this).toggleClass('on').hasClass('on');
         $("ul.nav li[data-nav]:not(:empty)").not($(this)).each(function() {
             $(this).removeClass('on');

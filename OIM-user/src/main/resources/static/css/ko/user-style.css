@@ -3115,3 +3115,37 @@ user-select: none; /* Standard syntax */
 .tabSetup li.shadow.on {
 	background-position: center -472px;
 }
+
+.building-detail {
+	height: 340px;
+	width: 300px;
+	position: fixed;
+	z-index: 1000;
+	top: 10px;
+	right: 60px;
+	background-color: #fff;
+	overflow-x: hidden;
+	/* transition: 0.5s; */
+	margin-top: 50px;
+	padding: 10px;
+}
+.building-meta {
+	display: flex;
+	align-items: center;
+	margin-bottom: 15px;
+}
+.building-count {
+	width: 27%;
+	height: 50px;
+	color: #fff;
+	font-size: 17px;
+	line-height: 21px;
+	border-radius: 15px;
+	padding-top: 7px;
+}
+.building-count p {
+	text-align: center;
+}
+.occupancy {
+	font-size: 24px;
+}

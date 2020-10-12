@@ -95046,7 +95046,7 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 		ctx.save();
 		ctx.fillStyle = hex;
 		ctx.strokeStyle = '#364049';
-		ctx.lineWidth = 2;
+		ctx.lineWidth = 4;
 		ctx.beginPath();
 
 		var p2dLength = p2dArray.length;
@@ -95079,7 +95079,7 @@ SpeechBubble.prototype.getPng = function (imageSize, color, textOption)
 			//			ctx.font = fontPixel + "px " + fontType;
 			ctx.fillStyle = fontColor;
 			ctx.strokeStyle = fontBorderColor;
-			ctx.textAlign = "start";
+			ctx.textAlign = "center";
 
 			var splitText = textValue.split('\n');
 			var tlen = splitText.length;
