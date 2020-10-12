@@ -46,6 +46,7 @@ SensorThingsController.prototype.calculateSumOfOccupancyOfFloor = function(dataG
     for (let i = 21; i >= 7; i--) {
         const floorObj = {
             floor: i,
+            floorName: (i - 6) + " 층",
             sum: 0
         };
         listOfSum.push(floorObj);

@@ -335,33 +335,7 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
 
-        var promises = [];
-        var garaJsonCnt = 28;
-        for(var i=0;i<garaJsonCnt;i++) {
-			promises.push($.ajax({url: `http://localhost/sample/json/temp_json/${i}.geojson`, dataType: "json"}));
-        }
-        
-        $.when.apply($,promises).then(function(){
-            for(var i in arguments) {
-                var geoJson = arguments[i][0];
-                var segments2dArray = [];
-                var segmentsArray = geoJson.features;
-                var segmentsCount = segmentsArray.length;
-                for(var j=0; j<segmentsCount; j++)
-                {
-                    var segment = segmentsArray[j].geometry.coordinates;
-                    var strPoint2D = new Mago3D.Point2D(segment[0][0], segment[0][1]);
-                    var endPoint2D = new Mago3D.Point2D(segment[1][0], segment[1][1]);
-                    var segment2d = new Mago3D.Segment2D(strPoint2D, endPoint2D);
-                    segments2dArray.push(segment2d);
-                }
-                
-                segments2dObj[i] = segments2dArray;
-            }
-        });
-
-
-        var sampleJsonURL = 'http://localhost/sample/json';
+        var sampleJsonURL = '/sample/json';
         $.ajax({
 			url: sampleJsonURL + '/workshop-data.json',
 			type: "GET",
