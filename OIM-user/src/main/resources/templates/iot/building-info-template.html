@@ -1,6 +1,6 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="buildingInfoSource" type="text/x-handlebars-template">
-<div id="buildingInfoWrap" class="building-detail">
+<div id="buildingInfoWrap" class="building-detail" style="display: none">
     <div class="building-meta">
         <div class="building-count" style="background-color: #0B7500">
             <p class="occupancy">{{occupancyOfBuilding}}</p>
@@ -11,7 +11,7 @@
             <p><span>재실자</span><span style="color: #0B7500">보통</span></p>
         </div>
     </div>
-    <div class="basicTable">
+    <div class="basicTable yScroll" style="height: 240px;">
         <table>
             <tr>
                 <th>층</th>
@@ -31,6 +31,7 @@
             {{/greaterThan}}
         </table>
     </div>
+    <button class="basic" onclick="sensorThingsController.closeFloorInformation()">닫기</button>
 </div>
 </script>
 </html>

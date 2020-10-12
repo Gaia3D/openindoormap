@@ -67,7 +67,7 @@ SensorThingsController.prototype.calculateSumOfOccupancyOfFloor = function(dataG
 SensorThingsController.prototype.openFloorInformation = function(dataGroupId, dataKey) {
     var _this = this;
     var template = Handlebars.compile($("#buildingInfoSource").html());
-    $("#buildingInfoDHTML").html("").append(template(_this))
+    $("#buildingInfoDHTML").html("").append(template(_this));
     $('#buildingInfoWrap').show();
     if ($('#mapSettingWrap').css('width') !== '0px') {
         $('#buildingInfoWrap').css('right', '400px');
@@ -85,10 +85,21 @@ SensorThingsController.prototype.openFloorInformation = function(dataGroupId, da
                 changeColorAPI(MAGO3D_INSTANCE.getMagoManager(), dataGroupId, _this.selectedDataKey, [sensor.cellSpaceId], "isPhysical=true", rgbColorCode);
             }
         }
+        const magoManager = MAGO3D_INSTANCE.getMagoManager();
+        const objMarkerManager = magoManager.objMarkerManager;
+        objMarkerManager.deleteObjects();
         _this.displaySelectedFloor(floor, dataGroupId);
         _this.displaySelectedFloorMaker(floor, dataGroupId, _this.selectedDataKey);
+        /*
+        window.setInterval(function(){
+            _this.displaySelectedFloorMaker(floor, dataGroupId, _this.selectedDataKey);
+        }, 2000);
+         */
         searchDataAPI(MAGO3D_INSTANCE, dataGroupId, _this.selectedDataKey);
     });
+
+
+
 };
 SensorThingsController.prototype.closeFloorInformation = function(dataGroupId, dataKey) {
     $('#buildingInfoWrap').hide();
@@ -125,7 +136,7 @@ SensorThingsController.prototype.displaySelectedFloor = function(floor, dataGrou
 SensorThingsController.prototype.displaySelectedFloorMaker = function(floor, dataGroupId, dataKey) {
     const magoManager = MAGO3D_INSTANCE.getMagoManager();
     const objMarkerManager = magoManager.objMarkerManager;
-    objMarkerManager.deleteObjects();
+    //objMarkerManager.deleteObjects();
     this.selectedFloorSensorList = [];
     for (const data of this.dataSource) {
         if (data.floor === floor) {
@@ -144,7 +155,7 @@ SensorThingsController.prototype.displaySelectedFloorMaker = function(floor, dat
     };
     let rgbColorCode;
     for (const sensor of this.selectedFloorSensorList) {
-        const sensorValue = sensor.Datastreams.Observations[0].result;
+        const sensorValue = sensor.Datastreams.Observations[0].result /*+ parseInt(Math.random() * 10)*/;
         commentTextOption.text = sensorValue.toString();
 
         rgbColorCode = this.getOccupancyColor(sensorValue);
@@ -171,7 +182,14 @@ SensorThingsController.prototype.displaySelectedFloorMaker = function(floor, dat
             target: target,
             id: sensor.cellSpaceId
         };
-        objMarkerManager.newObjectMarkerSpeechBubble(options, magoManager);
+
+        const marker = objMarkerManager.getObjectMarkerById(sensor.cellSpaceId);
+        if (marker) {
+            marker.setImageFilePath(Mago3D.SpeechBubble.getImage(speechBubbleOptions, magoManager));
+        } else {
+            objMarkerManager.newObjectMarkerSpeechBubble(options, magoManager);
+        }
+
     }
 }
 SensorThingsController.prototype.getOccupancyColor = function (value) {
@@ -184,4 +202,146 @@ SensorThingsController.prototype.getOccupancyColor = function (value) {
     } else if (value >= 6) {
         return "255,255,0,200";
     }
+};
+SensorThingsController.prototype.getSensorInformation = function(marker) {
+    const _this = this;
+    const sensorId = marker.id;
+    const selectedSensorArray = _this.dataSource.filter(sensor => sensor.cellSpaceId === sensorId);
+
+    const sensorData = {};
+    if (selectedSensorArray === undefined || selectedSensorArray.length === 0) {
+        return;
+    }
+
+    const selectedSensor = selectedSensorArray[0];
+    sensorData.sensorId = sensorId;
+    sensorData.sensorDatastreams = selectedSensor.Datastreams;
+    sensorData.sensorName = selectedSensor.name;
+    sensorData.sensorGMLId = selectedSensor.gmlID;
+    sensorData.lastValue = sensorData.sensorDatastreams.Observations[0].result;
+    sensorData.lastTime = sensorData.sensorDatastreams.Observations[0].phenomenonTime;
+
+    var template = Handlebars.compile($("#sensorInfoSource").html());
+    $("#sensorInfoDHTML").html("").append(template(sensorData));
+
+    const thingsResultList = [];
+    const thingsTimeList = [];
+    for (let i = 0; i < sensorData.sensorDatastreams.Observations.length; i++) {
+        const observation = sensorData.sensorDatastreams.Observations[i];
+        thingsResultList.push(observation.result);
+        thingsTimeList.push(observation.phenomenonTime);
+    }
+    this.drawSensorChart(thingsTimeList, thingsResultList, "sensorChart");
+    $('#sensorInfoWrap').show();
+};
+SensorThingsController.prototype.gotoSensor = function(sensorId) {
+    const cellSpace = this.cellSpaceList[sensorId];
+    const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
+    const magoManager = MAGO3D_INSTANCE.getMagoManager();
+    const targetNode = magoManager.hierarchyManager.getNodeByDataKey(this.dataGroupId, this.selectedDataKey);
+    const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
+    const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
+    const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
+    const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
+
+    const longitude = Number(wgs84CoordinateObject.longitude);
+    const latitude = Number(wgs84CoordinateObject.latitude);
+    const altitude = Number(wgs84CoordinateObject.altitude);
+
+    if (isNaN(longitude) || isNaN(latitude) || isNaN(altitude))
+        return;
+
+    magoManager.flyTo(longitude, latitude, altitude + 10.0, 3);
+};
+SensorThingsController.prototype.drawSensorChart = function(xData, yData, canvasName) {
+    sensorChart = new Chart(document.getElementById(canvasName), {
+            type: 'line',
+            data: {
+                labels: xData,
+                datasets: [{
+                    label: "people",
+                    data: yData,
+                    fill: false,
+                    borderColor: "rgba(255, 201, 14, 1)"
+                }]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                maintainAspectRatio: false,
+                hover: {
+                    mode: 'index',
+                    intersect: true
+                },
+                plugins: {
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                            rangeMin: {
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                x: null,
+                                y: null
+                            }
+                        },
+                        zoom: {
+                            enabled: true,
+                            drag: false,
+                            mode: 'x',
+                            rangeMin: {
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                x: null,
+                                y: null
+                            },
+                            speed: 0.03
+                        }
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            parser: "YYYY-MM-DD HH:mm:ss",
+                            second: 'mm:ss',
+                            minute: 'HH:mm',
+                            hour: 'HH:mm',
+                            day: 'MMM DD',
+                            month: 'YYYY MMM',
+                            tooltipFormat: 'YYYY-MM-DD HH:mm',
+                            displayFormats: {
+                                second: 'HH:mm:ss a'
+                            }
+                        },
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'date'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'number'
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            minRotation: 0,
+                            min: 0,
+                            max: 15
+                        }
+                    }]
+                }
+            }
+        }
+    );
+};
+SensorThingsController.prototype.closeSensorInformation = function() {
+    $('#sensorInfoWrap').hide();
 };

@@ -3124,7 +3124,7 @@ user-select: none; /* Standard syntax */
 	top: 10px;
 	right: 60px;
 	background-color: #fff;
-	overflow-x: hidden;
+	/*overflow-x: hidden;*/
 	/* transition: 0.5s; */
 	margin-top: 50px;
 	padding: 10px;
@@ -3148,4 +3148,39 @@ user-select: none; /* Standard syntax */
 }
 .occupancy {
 	font-size: 24px;
+}
+
+.sensor-detail {
+	height: 340px;
+	width: 100%;
+	position: fixed;
+	z-index: 1000;
+	bottom: 10px;
+	background-color: #fff;
+	overflow-x: hidden;
+	/* transition: 0.5s; */
+	margin-top: 50px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+}
+.info-container {
+	width: 20%;
+}
+.info-container ul li {
+	margin-bottom: 5px;
+}
+.info-container ul li label {
+	display: inline-block;
+	width: 60px;
+	vertical-align: middle;
+}
+.info-container ul li input {
+	display: inline-block;
+	width: 256px;
+	padding: 5px;
+}
+.chart-container {
+	width: 50%;
+	height: 100%;
 }

@@ -186,11 +186,11 @@
 <script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
 <script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -243,6 +243,7 @@
 		userId : '[[${owner}]]'
 	};
 	var segments2dObj = {};
+	var sensorChart;
 	var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
 	var sensorThingsController = new SensorThingsController(dataGroupId, dataKey);
 	initPolicy(function(policy, baseLayers){
@@ -407,7 +408,7 @@
 		});
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
-			console.info(e);
+			sensorThingsController.getSensorInformation(e.selected);
 		});
 
        /* $.ajax({
@@ -452,7 +453,7 @@
 		}
 
 		gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, 500, 3);
-		hereIamMarker(longitude, latitude, altitude);
+		//hereIamMarker(longitude, latitude, altitude);
 	}
 
 	function flyTo(dataGroupId, dataKey) {
@@ -467,7 +468,7 @@
 
 		 var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
 		 var geographic = node.data.bbox.geographicCoord;
-		 hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
+		 //hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
 	}
 
 	var hereIamTimeOut;
