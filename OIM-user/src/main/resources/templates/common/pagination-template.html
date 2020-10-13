@@ -1,5 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<script id="dataPaginationSource" type="text/x-handlebars-template">
+<script id="paginationSource" type="text/x-handlebars-template">
     {{#greaterThan pagination.totalCount 0}}
     <ul class="pagination">
         <li class="ico first" onclick="pagingDataInfoList('{{pagination.firstPage}}', '{{pagination.searchParameters}}');">
