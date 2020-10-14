@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 데이터 그룹
@@ -21,6 +22,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataGroup extends Search {
+	
+	private List<DataInfoSimple> datas;
 
 	/****** 화면 표시용 *******/
 	private String parentName;
