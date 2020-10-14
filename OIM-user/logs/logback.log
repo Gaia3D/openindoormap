@@ -1,0 +1,8 @@
+[2020-10-13 13:51:58:86326][restartedMain] DEBUG o.s.web.context.ContextLoader - Published root WebApplicationContext as ServletContext attribute with name [org.springframework.web.context.WebApplicationContext.ROOT]
+[2020-10-13 13:51:58:86326][restartedMain] INFO  o.s.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 1069 ms
+[2020-10-13 13:51:58:86742][restartedMain] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerMapping - 78 mappings in 'requestMappingHandlerMapping'
+[2020-10-13 13:51:58:86808][restartedMain] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/] in 'viewControllerHandlerMapping'
+[2020-10-13 13:51:58:86815][restartedMain] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/f4d/**, /f4d/sample/**, /sample/json/**, /sample/images/**, /css/**, /externlib/**, /images/**, /js/**, /docs/**, /swagger-ui.html, /webjars/**] in 'resourceHandlerMapping'
+[2020-10-13 13:51:58:86817][restartedMain] DEBUG o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/**] in 'defaultServletHandlerMapping'
+[2020-10-13 13:51:58:86838][restartedMain] DEBUG o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+[2020-10-13 13:51:58:86845][restartedMain] DEBUG o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 3 @ExceptionHandler, 1 ResponseBodyAdvice

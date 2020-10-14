@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import io.openindoormap.domain.layer.LayerGroup;
 import io.openindoormap.domain.layer.LayerGroupDto;
 import io.openindoormap.service.LayerGroupService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Slf4j
+@Api(tags = {"LayerGroupAPI"})
 @RestController
 @AllArgsConstructor
 @RequestMapping(value = "/api/layer-groups", produces = MediaTypes.HAL_JSON_VALUE)
@@ -36,7 +40,8 @@ public class LayerGroupAPIController {
      *
      * @return
      */
-    @GetMapping
+    @ApiOperation(value = "레이어 그룹 목록 조회")
+    @GetMapping(produces = "application/json; charset=UTF-8")
     public ResponseEntity<CollectionModel<EntityModel<LayerGroupDto>>> getLayerGroups() {
         List<EntityModel<LayerGroupDto>> layerGroupList = layerGroupService.getListLayerGroup()
                 .stream()
@@ -58,7 +63,9 @@ public class LayerGroupAPIController {
      * @param id 레이어 그룹 아이디
      * @return
      */
-    @GetMapping("/{id}")
+    @ApiOperation(value = "레이어 그룹 한건 조회")
+    @ApiImplicitParam(name = "id", value = "아이디")
+    @GetMapping(value = "/{id}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<EntityModel<LayerGroupDto>> getLayerGroupById(@PathVariable("id") Integer id) {
         LayerGroupDto dto = modelMapper.map(layerGroupService.getLayerGroup(id), LayerGroupDto.class);
         EntityModel<LayerGroupDto> layerGroup = EntityModel.of(dto);
@@ -73,7 +80,9 @@ public class LayerGroupAPIController {
      * @param id
      * @return
      */
-    @GetMapping("/parent/{id}")
+    @ApiOperation(value = "parent 에 대한 레이어 그룹 목록 조회")
+    @ApiImplicitParam(name = "id", value = "아이디")
+    @GetMapping(value = "/parent/{id}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<CollectionModel<EntityModel<LayerGroupDto>>> getLayerGroupByParent(@PathVariable("id") Integer id) {
         List<EntityModel<LayerGroupDto>> layerGroupList = layerGroupService.getListLayerGroup()
                 .stream()

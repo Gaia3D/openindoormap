@@ -51,6 +51,8 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter{
     	
     	boolean isExceptionURI = false;
     	int exceptionURICount = URLSupport.EXCEPTION_URI.length;
+    	//log.info("****************"+URLSupport.EXCEPTION_URI[0]);
+    	log.info("****************");
     	for(int i=0 ; i<exceptionURICount; i++) {
     		if(uri.indexOf(URLSupport.EXCEPTION_URI[i]) >= 0) {
     			isExceptionURI = true;
@@ -62,6 +64,8 @@ public class CSRFHandlerInterceptor extends HandlerInterceptorAdapter{
     	if(isExceptionURI) {
     		return true;
     	}
+    	
+    	log.info("****************"+isExceptionURI);
     	
     	String loginUrl = URLSupport.SIGNIN_URL;
     	String method = request.getMethod();

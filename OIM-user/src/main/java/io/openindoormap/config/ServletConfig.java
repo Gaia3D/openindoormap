@@ -2,6 +2,16 @@ package io.openindoormap.config;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.Tag;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,14 +35,17 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
 import io.openindoormap.interceptor.*;
 
 @Slf4j
+@EnableSwagger2
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = {"io.openindoormap.config", "io.openindoormap.controller.view", "io.openindoormap.controller.rest", "io.openindoormap.interceptor"}, includeFilters = {
-		@Filter(type = FilterType.ANNOTATION, value = Component.class),
-		@Filter(type = FilterType.ANNOTATION, value = Controller.class),
-		@Filter(type = FilterType.ANNOTATION, value = RestController.class)})
+@ComponentScan(basePackages = { "io.openindoormap.api", "io.openindoormap.config", "io.openindoormap.controller.view",
+		"io.openindoormap.controller.rest", "io.openindoormap.interceptor" }, includeFilters = {
+				@Filter(type = FilterType.ANNOTATION, value = Component.class),
+				@Filter(type = FilterType.ANNOTATION, value = Controller.class),
+				@Filter(type = FilterType.ANNOTATION, value = RestController.class) })
+
 public class ServletConfig implements WebMvcConfigurer {
-	
+
 	@Autowired
 	private PropertiesConfig propertiesConfig;
 
@@ -46,47 +59,45 @@ public class ServletConfig implements WebMvcConfigurer {
 	private LogInterceptor logInterceptor;
 	@Autowired
 	private SecurityInterceptor securityInterceptor;
-	
+
 	@Override
-    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-        configurer.enable();
-    }
-	
+	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+		configurer.enable();
+	}
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		log.info(" @@@ ServletConfig addInterceptors @@@@ ");
-		registry.addInterceptor(localeInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**", "/guide/**", "/sample/**", "/css/**", "/geopolicies/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
-		registry.addInterceptor(securityInterceptor)
-				.addPathPatterns("/user-policy/**", "/data-group/**", "/map/**", "/upload-data/**", "/upload-datas/**",
-						"/converter/**", "/converters/**","data/list", "/data-log/list");
+		registry.addInterceptor(localeInterceptor).addPathPatterns("/**").excludePathPatterns("/f4d/**", "/guide/**",
+				"/sample/**", "/css/**", "/geopolicies/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
+		registry.addInterceptor(securityInterceptor).addPathPatterns("/user-policy/**", "/data-group/**", "/map/**",
+				"/upload-data/**", "/upload-datas/**", "/converter/**", "/converters/**", "data/list",
+				"/data-log/list");
 //				.excludePathPatterns("/f4d/**", "/sign/**", "/cache/reload", "/guide/**", "/geopolicies/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
-		registry.addInterceptor(cSRFHandlerInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",
-						"/sign/**", "/cache/reload", "/data-groups/view-order/*", "/layer-groups/view-order/*", "/upload-datas", "/issues", "/datas/**",
-						"/guide/**", "/geopolicies/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
-		registry.addInterceptor(logInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**",	"/sign/**", "/cache/reload", "/guide/**", "/geopolicies/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
-		registry.addInterceptor(configInterceptor)
-				.addPathPatterns("/**")
-				.excludePathPatterns("/f4d/**", "/sign/**", "/cache/reload", "/guide/**", "/geopolicies/**", "/sample/**", "/css/**", "/externlib/**", "favicon*", "/images/**", "/js/**");
-    }
-	
+		registry.addInterceptor(cSRFHandlerInterceptor).addPathPatterns("/**").excludePathPatterns("/f4d/**",
+				"/sign/**", "/cache/reload", "/data-groups/view-order/*", "/layer-groups/view-order/*", "/upload-datas",
+				"/issues", "/datas/**", "/guide/**", "/geopolicies/**", "/css/**", "/externlib/**", "favicon*",
+				"/swagger-ui/**", "/images/**", "/js/**");
+		registry.addInterceptor(logInterceptor).addPathPatterns("/**").excludePathPatterns("/f4d/**", "/sign/**",
+				"/cache/reload", "/guide/**", "/geopolicies/**", "/css/**", "/externlib/**", "favicon*", "/images/**",
+				"/js/**");
+		registry.addInterceptor(configInterceptor).addPathPatterns("/**").excludePathPatterns("/f4d/**", "/sign/**",
+				"/cache/reload", "/guide/**", "/geopolicies/**", "/sample/**", "/css/**", "/externlib/**", "favicon*",
+				"/images/**", "/js/**");
+	}
+
 	@Bean
 	public LayoutDialect layoutDialect() {
 		return new LayoutDialect();
 	}
-	
+
 	@Bean
 	public LocaleResolver localeResolver() {
 		return new SessionLocaleResolver();
 	}
 
 	@Bean
-	public ReloadableResourceBundleMessageSource messageSource(){
+	public ReloadableResourceBundleMessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 		messageSource.setBasename("classpath:/messages/messages");
 		messageSource.setDefaultEncoding("UTF-8");
@@ -94,34 +105,36 @@ public class ServletConfig implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public MessageSourceAccessor getMessageSourceAccessor(){
+	public MessageSourceAccessor getMessageSourceAccessor() {
 		ReloadableResourceBundleMessageSource m = messageSource();
 		return new MessageSourceAccessor(m);
 	}
-	
+
 	/**
-     * anotation @Valid 를 사용하려면 이 빈을 생성해 줘야 함
-     */
-    @Bean
-    public LocalValidatorFactoryBean getValidator() {
-        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
-        bean.setValidationMessageSource(messageSource());
-        return bean;
-    }
+	 * anotation @Valid 를 사용하려면 이 빈을 생성해 줘야 함
+	 */
+	@Bean
+	public LocalValidatorFactoryBean getValidator() {
+		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+		bean.setValidationMessageSource(messageSource());
+		return bean;
+	}
+	
 	
 	@Override
-    public void addViewControllers(ViewControllerRegistry registry) {
+	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/").setViewName("forward:/data/map");
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
-	
+		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+	}
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		log.info(" @@@ ServletConfig addResourceHandlers @@@");
-		
+
 		// F4D converter file 경로
 		registry.addResourceHandler("/f4d/**").addResourceLocations("file:" + propertiesConfig.getDataServiceDir());
-		registry.addResourceHandler("/f4d/sample/**").addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
+		registry.addResourceHandler("/f4d/sample/**")
+				.addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
 		registry.addResourceHandler("/sample/json/**").addResourceLocations("classpath:static/sample/json/");
 		registry.addResourceHandler("/sample/images/**").addResourceLocations("classpath:static/sample/images/");
 		registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
@@ -129,10 +142,13 @@ public class ServletConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
 		registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
 		registry.addResourceHandler("/docs/**").addResourceLocations("classpath:static/docs/");
-		
+		registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+
 //		registry.addResourceHandler("/static/**").addResourceLocations("classpath:static/");
 	}
 	
+
 	@Bean
 	public RequestDataValueProcessor requestDataValueProcessor() {
 		log.info(" @@@ ServletConfig requestDataValueProcessor @@@ ");
@@ -143,4 +159,27 @@ public class ServletConfig implements WebMvcConfigurer {
 	public ModelMapper modelMapper() {
 		return new ModelMapper();
 	}
+	
+	
+
+	@Bean
+    public Docket apiDocket() {
+
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(getApiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("io.openindoormap.api"))
+                .paths(PathSelectors.any())
+                .build();
+    }
+
+    private ApiInfo getApiInfo() {
+
+        return new ApiInfoBuilder()
+                .title("Swagger API Doc")
+                .description("More description about the API")
+                .version("1.0.0")
+                .build();
+    }
+
 }

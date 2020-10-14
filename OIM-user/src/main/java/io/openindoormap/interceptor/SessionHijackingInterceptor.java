@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SessionHijackingInterceptor extends HandlerInterceptorAdapter {
 
 
-    private static final String[] EXCEPTION_URI = { "signin", "signout", "call-api" , "/guide/help" };
+    private static final String[] EXCEPTION_URI = { "signin", "signout", "call-api" , "/guide/help"};
 
     private static final String POPUP_URL = "popup";
     

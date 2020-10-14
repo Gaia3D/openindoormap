@@ -98,6 +98,9 @@ dependencies {
 
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.postgresql:postgresql:42.2.14'
+    
+    implementation 'io.springfox:springfox-swagger2:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
     //providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'

@@ -1,0 +1,81 @@
+13:54:13.660-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - Starting OIMUserApplication on DESKTOP-4KSM4RE with PID 18084 (D:\repository\indoormap\OIM-user\bin\main started by user in D:\repository\indoormap\OIM-user)
+13:54:13.660-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - No active profile set, falling back to default profiles: default
+13:54:14.425-[32mINFO [0;39m-io.openindoormap.config.RootConfig -  ### RootConfig sqlSessionFactory ### 
+13:54:14.632-[32mINFO [0;39m-o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 80 (http)
+13:54:14.633-[32mINFO [0;39m-o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-80"]
+13:54:14.633-[32mINFO [0;39m-o.a.catalina.core.StandardService - Starting service [Tomcat]
+13:54:14.634-[32mINFO [0;39m-o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.35]
+13:54:14.670-[32mINFO [0;39m-o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+13:54:14.670-[32mINFO [0;39m-o.s.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 1008 ms
+13:54:14.804-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ User Profile = local, stackTraceEnable = true *************
+13:54:14.804-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:14.804-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ User Cache Init Start *************
+13:54:14.805-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:14.805-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload policy ************
+13:54:14.806-[32mINFO [0;39m-io.openindoormap.config.RootConfig -  ### RootConfig transactionManager ### 
+13:54:14.807-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Starting...
+13:54:14.820-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Start completed.
+13:54:14.829-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload geoPolicy ************
+13:54:14.837-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload menu ************
+13:54:14.872-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload role ************
+13:54:14.884-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:14.884-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************* User Cache Init End **************
+13:54:14.884-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:15.060-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig addInterceptors @@@@ 
+13:54:15.122-[32mINFO [0;39m-o.s.b.a.e.web.EndpointLinksResolver - Exposing 2 endpoint(s) beneath base path '/actuator'
+13:54:15.145-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig addResourceHandlers @@@
+13:54:15.165-[32mINFO [0;39m-o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+13:54:15.179-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig requestDataValueProcessor @@@ 
+13:54:15.180-[32mINFO [0;39m-io.openindoormap.OIMUserApplication -  $$$ OIMUserApplication registerListener $$$ 
+13:54:15.521-[32mINFO [0;39m-o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-80"]
+13:54:15.524-[32mINFO [0;39m-o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 80 (http) with context path ''
+13:54:15.611-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:15.646-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:15.655-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:15.665-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - Started OIMUserApplication in 2.045 seconds (JVM running for 224.987)
+13:54:15.668-[32mINFO [0;39m-o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+13:54:23.428-[32mINFO [0;39m-o.s.b.a.SpringApplicationAdminMXBeanRegistrar$SpringApplicationAdmin - Application shutdown requested.
+13:54:23.833-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Shutdown initiated...
+13:54:23.836-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Shutdown completed.
+13:54:30.785-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - Starting OIMUserApplication on DESKTOP-4KSM4RE with PID 9188 (D:\repository\indoormap\OIM-user\bin\main started by user in D:\repository\indoormap\OIM-user)
+13:54:30.788-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - No active profile set, falling back to default profiles: default
+13:54:30.936-[32mINFO [0;39m-o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+13:54:30.936-[32mINFO [0;39m-o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+13:54:32.656-[32mINFO [0;39m-io.openindoormap.config.RootConfig -  ### RootConfig sqlSessionFactory ### 
+13:54:33.232-[32mINFO [0;39m-o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 80 (http)
+13:54:33.242-[32mINFO [0;39m-o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-80"]
+13:54:33.242-[32mINFO [0;39m-o.a.catalina.core.StandardService - Starting service [Tomcat]
+13:54:33.242-[32mINFO [0;39m-o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.35]
+13:54:33.353-[32mINFO [0;39m-o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+13:54:33.353-[32mINFO [0;39m-o.s.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 2417 ms
+13:54:33.621-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ User Profile = local, stackTraceEnable = true *************
+13:54:33.622-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:33.622-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ User Cache Init Start *************
+13:54:33.622-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:33.623-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload policy ************
+13:54:33.625-[32mINFO [0;39m-io.openindoormap.config.RootConfig -  ### RootConfig transactionManager ### 
+13:54:33.630-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+13:54:33.695-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+13:54:33.736-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload geoPolicy ************
+13:54:33.744-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload menu ************
+13:54:33.792-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************ Cache Reload role ************
+13:54:33.808-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:33.808-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - ************* User Cache Init End **************
+13:54:33.809-[32mINFO [0;39m-io.openindoormap.config.CacheConfig - *************************************************
+13:54:34.178-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig addInterceptors @@@@ 
+13:54:34.340-[32mINFO [0;39m-o.s.b.a.e.web.EndpointLinksResolver - Exposing 2 endpoint(s) beneath base path '/actuator'
+13:54:34.386-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig addResourceHandlers @@@
+13:54:34.443-[32mINFO [0;39m-o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+13:54:34.624-[32mINFO [0;39m-i.openindoormap.config.ServletConfig -  @@@ ServletConfig requestDataValueProcessor @@@ 
+13:54:34.625-[32mINFO [0;39m-io.openindoormap.OIMUserApplication -  $$$ OIMUserApplication registerListener $$$ 
+13:54:35.148-[32mINFO [0;39m-o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-80"]
+13:54:35.169-[32mINFO [0;39m-o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port(s): 80 (http) with context path ''
+13:54:35.524-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:35.589-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:35.599-[32mWARN [0;39m-s.d.s.r.o.OperationImplicitParameterReader - Unable to interpret the implicit parameter configuration with dataType: , dataTypeClass: class java.lang.Void
+13:54:35.621-[32mINFO [0;39m-io.openindoormap.OIMUserApplication - Started OIMUserApplication in 5.186 seconds (JVM running for 6.47)
+13:54:36.524-[32mINFO [0;39m-o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+13:54:36.525-[32mINFO [0;39m-o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+13:54:36.530-[32mINFO [0;39m-o.s.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+13:55:09.747-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+13:55:09.751-[32mINFO [0;39m-com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
