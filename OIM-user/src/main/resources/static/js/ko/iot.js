@@ -1,7 +1,5 @@
 $(document).ready(function() {
 
-    iotDataSearch(1);
-
     // 검색 버튼 클릭
     $('#iotSearch').click(function() {
         iotDataSearch(1);
