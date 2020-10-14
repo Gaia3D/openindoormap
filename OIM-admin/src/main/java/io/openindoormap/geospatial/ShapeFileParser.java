@@ -1,30 +1,16 @@
 package io.openindoormap.geospatial;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openindoormap.domain.ShapeFileField;
-import io.openindoormap.domain.extrusionmodel.DesignLayer;
 import io.openindoormap.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.dbf.DbaseFileHeader;
 import org.geotools.data.shapefile.dbf.DbaseFileReader;
 import org.geotools.data.shapefile.files.ShpFileType;
 import org.geotools.data.shapefile.files.ShpFiles;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.springframework.util.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 /**
  * Shape file 관련 유틸
@@ -37,63 +23,6 @@ public class ShapeFileParser {
 
     public ShapeFileParser(String filePath) {
         this.filePath = filePath;
-    }
-
-    /**
-     * shape 파일로 부터 extrusion model 시뮬레이션에 필요한 필수 컬럼(design layer) 과 옵션 컬럼 값을 추출
-     * @param extrusionColumns
-     * @return
-     */
-    public List<DesignLayer> getExtrusionModelList(ObjectMapper objectMapper, String extrusionColumns) {
-        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ extrusionColumns = {}", extrusionColumns);
-        List<DesignLayer> extrusionModelList = new ArrayList<>();
-        if(StringUtils.isEmpty(extrusionColumns)) return extrusionModelList;
-
-        List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
-        try {
-            ShapefileDataStore shpDataStore = new ShapefileDataStore(new File(filePath).toURI().toURL());
-            shpDataStore.setCharset(StandardCharsets.UTF_8);
-            String typeName = shpDataStore.getTypeNames()[0];
-            FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = shpDataStore.getFeatureSource(typeName);
-            FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
-            FeatureIterator<SimpleFeature> features = collection.features();
-
-            log.info("@@@@@@@@@@@@@@@@@@@@@@@ features = {}", features);
-            // 이게 한 row 같음
-            while (features.hasNext()) {
-                Map<String, String> attributesMap = new HashMap<>();
-
-                SimpleFeature feature = features.next();
-                DesignLayer designLayer = new DesignLayer();
-                log.info("@@@@@@@@@@@@@@@@@@@@@@@ feature = {}", feature);
-                // 한 row의 속성들
-                for (Property attribute : feature.getProperties()) {
-                    String attributeName = String.valueOf(attribute.getName()).toLowerCase();
-                    log.info("@@@@@@@@@@@@@@@@@@@@@@@ attributeName = {}", attributeName);
-                    if(columnList.contains(attributeName)) {
-                        // 필수 속성값일 경우
-                        if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.THE_GEOM.getValue())) {
-                            designLayer.setTheGeom(attribute.getValue().toString());
-                        } else if(attributeName.equalsIgnoreCase(DesignLayer.RequiredColumn.SHAPE_ID.getValue())) {
-                            designLayer.setShapeId((Long) attribute.getValue());
-                        }
-                    } else {
-                        // 옵션 속성 값일 경우 json 통으로 넣음.
-                        if(attribute.getValue() != null) {
-                            attributesMap.put(attributeName, attribute.getValue().toString());
-                        }
-                    }
-                }
-
-                designLayer.setAttributes(objectMapper.writeValueAsString(attributesMap));
-                extrusionModelList.add(designLayer);
-            }
-            features.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return extrusionModelList;
     }
 
     /**

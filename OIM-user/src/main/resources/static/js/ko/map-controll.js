@@ -1105,6 +1105,7 @@ var mapControllEvent = function(magoInstance) {
 			$('#mapCtrlWrap').css('right', '340px');
 			$('#mapCtrlCompassOut').css('right', '340px');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '340px');
+			$('#buildingInfoWrap').css('right', '400px');
 			$('#baseMapToggle').css({
 				right : '392px'
 			});
@@ -1116,6 +1117,7 @@ var mapControllEvent = function(magoInstance) {
 			$('#mapCtrlWrap').css('right', '0');
 			$('#mapCtrlCompassOut').css('right', '0');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
+			$('#buildingInfoWrap').css('right', '60px');
 			$('#baseMapToggle').css({
 				right : '50px'
 			});
@@ -1157,34 +1159,20 @@ var mapControllEvent = function(magoInstance) {
 	var defaultSelectInteraction = magoInstance.getMagoManager().defaultSelectInteraction;
 	defaultSelectInteraction.on('active', function(e) {
 		var targetType = defaultSelectInteraction.getTargetType();
-		
-		if(targetType === 'f4d') {
-			$('#selectModeF4d').addClass('on');
-		} else if(targetType === 'native') {
-			$('#selectModeNative').addClass('on');
-		} else {
-			$('#selectModeObject').addClass('on');
-		}
+		console.log('active : ' + targetType);
 	});
-	
 	defaultSelectInteraction.on('deactive', function(e) {
 		var targetType = defaultSelectInteraction.getTargetType();
-		
-		if(targetType === 'f4d') {
-			$('#selectModeF4d').removeClass('on');
-		} else if(targetType === 'native') {
-			$('#selectModeNative').removeClass('on');
-		} else {
-			$('#selectModeObject').removeClass('on');
-		}
+		console.log('deactive : ' + targetType);
 	});
 
 	// SELECT, MOVE MODE
 	$('#selectModeF4d').click(function() {
 		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		$('.selectMode').not(this).removeClass('on');
 		defaultSelectInteraction.setTargetType('f4d');
+		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
+		$(this).toggleClass('on');
 	});
 	$('#moveModeF4d').click(function() {
 		$(this).siblings('button').removeClass('on');
@@ -1193,9 +1181,10 @@ var mapControllEvent = function(magoInstance) {
 
 	$('#selectModeObject').click(function() {
 		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		$('.selectMode').not(this).removeClass('on');
 		defaultSelectInteraction.setTargetType('object');
+		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
+		$(this).toggleClass('on');
 	});
 	$('#moveModeObject').click(function() {
 		$(this).siblings('button').removeClass('on');
@@ -1204,9 +1193,10 @@ var mapControllEvent = function(magoInstance) {
 
 	$('#selectModeNative').click(function() {
 		$(this).siblings('button').removeClass('on');
-		
-		defaultSelectInteraction.setActive(!defaultSelectInteraction.getActive());
+		$('.selectMode').not(this).removeClass('on');
 		defaultSelectInteraction.setTargetType('native');
+		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
+		$(this).toggleClass('on');
 	});
 	$('#moveModeNative').click(function() {
 		$(this).siblings('button').removeClass('on');

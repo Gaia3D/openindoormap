@@ -1,0 +1,37 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="buildingInfoSource" type="text/x-handlebars-template">
+<div id="buildingInfoWrap" class="building-detail" style="display: none">
+    <div class="building-meta">
+        <div class="building-count" style="background-color: #0B7500">
+            <p class="occupancy">{{occupancyOfBuilding}}</p>
+            <p>명</p>
+        </div>
+        <div class="padL15">
+            <p>{{dataKey}}</p>
+            <p><span>재실자</span><span style="color: #0B7500">보통</span></p>
+        </div>
+    </div>
+    <div class="basicTable yScroll" style="height: 240px;">
+        <table>
+            <tr>
+                <th>층</th>
+                <th>인원(명)</th>
+            </tr>
+            {{#greaterThan listOfFloorOccupancy.length 0}}
+            {{#each listOfFloorOccupancy}}
+            <tr data-floor="{{floor}}">
+                <td class="center">{{floorName}}</td>
+                <td class="center">{{sum}}</td>
+            </tr>
+            {{/each}}
+            {{else}}
+            <tr>
+                <td colspan="2" th:text="#{data.does.not.exist}"></td>
+            </tr>
+            {{/greaterThan}}
+        </table>
+    </div>
+    <button class="basic" onclick="sensorThingsController.closeFloorInformation()">닫기</button>
+</div>
+</script>
+</html>

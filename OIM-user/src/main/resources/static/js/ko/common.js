@@ -373,10 +373,10 @@ function basicObjectClone (obj) {
 }
 
 function getRedirectSigninUrl() {
-	var currentUrl = window.location.href;
-	var urlIndex = currentUrl.split("/").length
-	var urlCheck = currentUrl.split("/")[urlIndex-1];
-	var location = (!urlCheck || urlCheck ==='#') ? "/sign/signin" : "../sign/signin";
+	// var currentUrl = window.location.href;
+	// var urlIndex = currentUrl.split("/").length
+	// var urlCheck = currentUrl.split("/")[urlIndex-1];
+	// var location = (!urlCheck || urlCheck ==='#') ? "/sign/signin" : "../sign/signin";
 
-	return location;
+	return "/sign/signin";
 }

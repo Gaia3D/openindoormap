@@ -2008,22 +2008,39 @@ z-index:100;
 
 
 /* 데이터 목록 / 범례 */
-/*
 .legendWrap {
-margin-bottom: 10px;
-text-align: center;
-border: 1px solid #ddd;
-padding: 10px;
+	padding: 15px 10px;
 }
-.legendWrap legend {
-padding: 0 10px;
+.legend {
+	display: flex;
+	justify-content: space-around;
+	height: 60px;
+	align-items: center;
+	border: 1px solid #0066a2;
 }
-.legendWrap li {
-display: inline-flex;
-margin-right: 5px;
-align-items: center;
+.legend .color {
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	margin: 0 auto 5px;
 }
-*/
+.legend .good {
+	background-color: dodgerblue;
+}
+.legend .normal {
+	background-color: green;
+}
+.legend .bad {
+	background-color: gold;
+}
+.legend .very-bad {
+	background-color: orangered;
+}
+.legend .nodata {
+	background-color: dimgray;
+}
+
+/*
 .legendWrap {
 margin-bottom: 10px;
 border: 1px solid #ddd;
@@ -2068,6 +2085,7 @@ background-color: coral;
 span.gr {
 background-color: darkturquoise
 }
+*/
 
 /* 데이터 상세 */
 .dataList {
@@ -3114,4 +3132,73 @@ user-select: none; /* Standard syntax */
 }
 .tabSetup li.shadow.on {
 	background-position: center -472px;
+}
+
+.building-detail {
+	height: 340px;
+	width: 300px;
+	position: fixed;
+	z-index: 1000;
+	top: 10px;
+	right: 60px;
+	background-color: #fff;
+	/*overflow-x: hidden;*/
+	/* transition: 0.5s; */
+	margin-top: 50px;
+	padding: 10px;
+}
+.building-meta {
+	display: flex;
+	align-items: center;
+	margin-bottom: 15px;
+}
+.building-count {
+	width: 27%;
+	height: 50px;
+	color: #fff;
+	font-size: 17px;
+	line-height: 21px;
+	border-radius: 15px;
+	padding-top: 7px;
+}
+.building-count p {
+	text-align: center;
+}
+.occupancy {
+	font-size: 24px;
+}
+
+.sensor-detail {
+	height: 340px;
+	width: 100%;
+	position: fixed;
+	z-index: 1000;
+	bottom: 10px;
+	background-color: #fff;
+	overflow-x: hidden;
+	/* transition: 0.5s; */
+	margin-top: 50px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+}
+.info-container {
+	width: 20%;
+}
+.info-container ul li {
+	margin-bottom: 5px;
+}
+.info-container ul li label {
+	display: inline-block;
+	width: 60px;
+	vertical-align: middle;
+}
+.info-container ul li input {
+	display: inline-block;
+	width: 256px;
+	padding: 5px;
+}
+.chart-container {
+	width: 50%;
+	height: 100%;
 }
