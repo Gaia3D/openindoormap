@@ -354,10 +354,12 @@
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
+        /*
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
 			var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-			// searchDataAPI(magoInstance, dataGroupId, dataKey);
+			searchDataAPI(magoInstance, dataGroupId, dataKey);
 		});
+         */
 		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
 			.then(function(result){
 			sensorThingsController.setCellSpaceList(result);
