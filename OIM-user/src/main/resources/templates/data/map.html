@@ -351,7 +351,7 @@
 		});
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
 			var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-			searchDataAPI(magoInstance, dataGroupId, dataKey);
+			// searchDataAPI(magoInstance, dataGroupId, dataKey);
 		});
 		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
 			.then(function(result){
@@ -383,38 +383,6 @@
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
 			sensorThingsController.getSensorInformation(e.selected);
 		});
-
-       /* $.ajax({
-            url: 'http://localhost/sample/json/allfourland.json',
-            type: "GET",
-            headers: {"X-Requested-With": "XMLHttpRequest"},
-            dataType: "json",
-            success: function(json){
-            	console.info(json);
-            	 var children = json.children;
-	
-                f4dController.addF4dGroup(json);
-            },
-            error:function(request,status,error){
-                alert(JS_MESSAGE["ajax.error.message"]);
-            }
-        }); */
-        
-        /* magoManager.modeler.on(Mago3D.Modeler.EVENT_TYPE.ADD, function(e){
-        	var model = e.add;
-        	var geoLocData = model.getCurrentGeoLocationData();
-        	var geoCoord = geoLocData.geographicCoord;
-        	
-        	//model.setTerrainHeight(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)));
-        	var promise = Cesium.sampleTerrain(viewer.terrainProvider, 17, [Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)]);
-        	promise.then(function(t){
-        		model.setTerrainHeight(t[0].height);
-        		
-        		//console.info(t[0].height);
-        		//console.info(viewer.scene.globe.getHeight(Cesium.Cartographic.fromDegrees(geoCoord.longitude, geoCoord.latitude)))
-        	});
-        }); */
-
 	}
 
 	// smart tiling data flyTo
