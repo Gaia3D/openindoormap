@@ -1,9 +1,8 @@
 package io.openindoormap.service;
 
-import java.util.List;
-
 import io.openindoormap.domain.data.DataGroup;
-import io.openindoormap.domain.extrusionmodel.DataLibraryGroup;
+
+import java.util.List;
 
 public interface DataGroupService {
 	

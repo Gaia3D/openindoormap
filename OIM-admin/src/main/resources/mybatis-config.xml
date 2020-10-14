@@ -15,12 +15,6 @@
     	<typeAlias type="io.openindoormap.domain.converter.ConverterJobFile" alias="converterJobFile" />
 		<typeAlias type="io.openindoormap.domain.data.DataAdjustLog" alias="dataAdjustLog" />
 		<typeAlias type="io.openindoormap.domain.data.DataAttribute" alias="dataAttribute" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryConverterJob" alias="dataLibraryConverterJob" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryConverterJobFile" alias="dataLibraryConverterJobFile" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryGroup" alias="dataLibraryGroup" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibrary" alias="dataLibrary" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryUpload" alias="dataLibraryUpload" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DataLibraryUploadFile" alias="dataLibraryUploadFile" />
 		<typeAlias type="io.openindoormap.domain.data.DataFileInfo" alias="dataFileInfo" />
 		<typeAlias type="io.openindoormap.domain.data.DataFileParseLog" alias="dataFileParseLog" />
 		<typeAlias type="io.openindoormap.domain.data.DataSmartTilingFileInfo" alias="dataSmartTilingFileInfo" />
@@ -32,22 +26,12 @@
 		<typeAlias type="io.openindoormap.domain.data.DataInfo" alias="dataInfo" />
 		<typeAlias type="io.openindoormap.domain.data.DataInfoSimple" alias="dataInfoSimple" />
 		<typeAlias type="io.openindoormap.domain.data.DataInfoLog" alias="dataInfoLog" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerGroup" alias="designLayerGroup" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayer" alias="designLayer" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerLand" alias="designLayerLand" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuilding" alias="designLayerBuilding" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingHeight" alias="designLayerBuildingHeight" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerBuildingUnit" alias="designLayerBuildingUnit" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerAttribute" alias="designLayerAttribute" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerFileInfo" alias="designLayerFileInfo" />
-		<typeAlias type="io.openindoormap.domain.extrusionmodel.DesignLayerLog" alias="designLayerLog" />
 		<typeAlias type="io.openindoormap.domain.policy.GeoPolicy" alias="geoPolicy" />
 		<typeAlias type="io.openindoormap.domain.issue.Issue" alias="issue" />
     	<typeAlias type="io.openindoormap.domain.layer.Layer" alias="layer" />
     	<typeAlias type="io.openindoormap.domain.layer.LayerGroup" alias="layerGroup" />
     	<typeAlias type="io.openindoormap.domain.layer.LayerFileInfo" alias="layerFileInfo" />
     	<typeAlias type="io.openindoormap.domain.menu.Menu" alias="menu" />
-		<typeAlias type="io.openindoormap.domain.urban.UrbanGroup" alias="urbanGroup" />
 		<typeAlias type="io.openindoormap.domain.policy.Policy" alias="policy" />
     	<typeAlias type="io.openindoormap.domain.role.Role" alias="role" />
 		<typeAlias type="io.openindoormap.domain.uploaddata.UploadData" alias="uploadData" />

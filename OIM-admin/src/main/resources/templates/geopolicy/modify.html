@@ -29,11 +29,9 @@
 							<ul>
 								<li><a href="#geopolicyTab">공간정보</a></li>
 								<li><a href="#geoserverTab">GeoServer</a></li>
-								<li><a href="#designLayerTab">디자인 레이어</a></li>
 							</ul>
 							<div th:replace="~{/geopolicy/modify-geopolicy :: #geopolicyTab}"></div>
 							<div th:replace="~{/geopolicy/modify-geoserver :: #geoserverTab}"></div>
-							<div th:replace="~{/geopolicy/modify-design-layer :: #designLayerTab}"></div>
 						</div>
 					</div>
 				</div>
@@ -113,36 +111,6 @@
 	    } else {
 	        alert("진행 중입니다.");
 	        return;
-		}
-	}
-
-	var updatePolicyDesignLayerFlag = true;
-	function updatePolicyDesignLayer() {
-		if(updatePolicyDesignLayerFlag) {
-			updatePolicyDesignLayerFlag = false;
-			var formData = $('#geoPolicyDesignLayer').serialize();
-			$.ajax({
-				url: "/geopolicies/design-layer/" + [[${geoPolicy.geoPolicyId}]],
-				type: "POST",
-				headers: {"X-Requested-With": "XMLHttpRequest"},
-				data: formData,
-				success: function(msg){
-					if(msg.statusCode <= 200) {
-						alert("디자인 레이어 정책이 수정 되었습니다");
-					} else {
-						alert(JS_MESSAGE[msg.errorCode]);
-						console.log("---- " + msg.message);
-					}
-					updatePolicyGeoServerFlag = true;
-				},
-				error:function(request, status, error){
-					alert(JS_MESSAGE["ajax.error.message"]);
-					updatePolicyGeoServerFlag = true;
-				}
-			});
-		} else {
-			alert("진행 중입니다.");
-			return;
 		}
 	}
 

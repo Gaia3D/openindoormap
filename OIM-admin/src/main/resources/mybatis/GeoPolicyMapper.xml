@@ -18,7 +18,7 @@
 			terrain_value = #{terrainValue},
 			data_api_url = #{dataApiUrl},
 			data_service_path = #{dataServicePath},
-			data_change_request_decision = #{dataChangeRequestDecision},
+			data_change_request_decision = #{dataChangeRequestDecision}
 			<!-- init_camera_enable = #{initCameraEnable},
 			init_latitude = #{initLatitude},
 			init_longitude = #{initLongitude},
@@ -58,8 +58,6 @@
 			memory_management = #{memoryManagement},
 			layer_source_coordinate = #{layerSourceCoordinate},
 			layer_target_coordinate = #{layerTargetCoordinate}, -->
-			shape_land_required_columns = #{shapeLandRequiredColumns},
-			shape_building_required_columns = #{shapeBuildingRequiredColumns}
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
 
@@ -88,14 +86,4 @@
 			geoserver_wms_version = #{geoserverWmsVersion}
 		WHERE geopolicy_id = #{geoPolicyId}
 	</update>
-
-	<!-- 디자인 레이어 정책 수정 -->
-	<update id="updateGeoPolicyDesignLayer" parameterType="geoPolicy">
-		/* updateGeoPolicyDesignLayer */
-		UPDATE geopolicy
-		SET shape_land_required_columns = #{shapeLandRequiredColumns},
-			shape_building_required_columns = #{shapeBuildingRequiredColumns}
-		WHERE geopolicy_id = #{geoPolicyId}
-	</update>
-
 </mapper>
