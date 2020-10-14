@@ -2008,22 +2008,39 @@ z-index:100;
 
 
 /* 데이터 목록 / 범례 */
-/*
 .legendWrap {
-margin-bottom: 10px;
-text-align: center;
-border: 1px solid #ddd;
-padding: 10px;
+	padding: 15px 10px;
 }
-.legendWrap legend {
-padding: 0 10px;
+.legend {
+	display: flex;
+	justify-content: space-around;
+	height: 60px;
+	align-items: center;
+	border: 1px solid #0066a2;
 }
-.legendWrap li {
-display: inline-flex;
-margin-right: 5px;
-align-items: center;
+.legend .color {
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	margin: 0 auto 5px;
 }
-*/
+.legend .good {
+	background-color: dodgerblue;
+}
+.legend .normal {
+	background-color: green;
+}
+.legend .bad {
+	background-color: gold;
+}
+.legend .very-bad {
+	background-color: orangered;
+}
+.legend .nodata {
+	background-color: dimgray;
+}
+
+/*
 .legendWrap {
 margin-bottom: 10px;
 border: 1px solid #ddd;
@@ -2068,6 +2085,7 @@ background-color: coral;
 span.gr {
 background-color: darkturquoise
 }
+*/
 
 /* 데이터 상세 */
 .dataList {

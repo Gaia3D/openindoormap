@@ -17,13 +17,12 @@ import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
-import io.openindoormap.domain.extrusionmodel.DesignLayer;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 public class GeotoolsTests {
@@ -58,50 +57,6 @@ public class GeotoolsTests {
                 }
             }
         }
-    }
-
-    @Disabled
-    void 특정필드_필터() throws IOException {
-        String extrusionRequiredColumns = "the_geom, layer, angle, flnum";
-        String[] columns = extrusionRequiredColumns.split(",");
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
-        FeatureIterator<SimpleFeature> features = collection.features();
-        while (features.hasNext()) {
-            SimpleFeature feature = features.next();
-            DesignLayer extrusionModel = new DesignLayer();
-            for (Property attribute : feature.getProperties()) {
-                boolean test = Arrays.stream(columns).anyMatch(f -> f.trim().equalsIgnoreCase(String.valueOf(attribute.getName())));
-                log.info("anyMatch ============== {} : {}", attribute.getName(), test);
-            }
-        }
-    }
-
-    @Disabled
-    void 특정필드_추출() throws IOException {
-        List<DesignLayer> extrusionModelList = new ArrayList<>();
-        String extrusionColumns = "the_geom, layer, angle, flnum";
-        List<String> columnList = Arrays.asList(extrusionColumns.trim().toLowerCase().split(","));
-        FeatureSource<SimpleFeatureType, SimpleFeature> shapeFeatureSource = getShape();
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = shapeFeatureSource.getFeatures();
-        FeatureIterator<SimpleFeature> features = collection.features();
-        while (features.hasNext()) {
-            SimpleFeature feature = features.next();
-            DesignLayer extrusionModel = new DesignLayer();
-            for (Property attribute : feature.getProperties()) {
-                String attributeName = String.valueOf(attribute.getName()).toLowerCase();
-                if (columnList.contains(attributeName)) {
-                    if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.THE_GEOM))) {
-                        extrusionModel.setTheGeom(attribute.getValue().toString());
-                    }
-//                    else if (attributeName.equalsIgnoreCase(String.valueOf(DesignLayer.RequiredColumn.ATTRIBUTES))) {
-//                        extrusionModel.setAttributes(attribute.getValue().toString());
-//                    }
-                }
-            }
-            extrusionModelList.add(extrusionModel);
-        }
-        log.info("extrutionModelList =========== {} ", extrusionModelList);
     }
 
     @Disabled

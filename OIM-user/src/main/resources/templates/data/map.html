@@ -204,11 +204,11 @@
 <script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <!--DS lib-->
-<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>
-<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />
-<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
-<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>
+<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
+<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
+<!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
+<!--<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />-->
+<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
 
 <script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -219,6 +219,7 @@
 <script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/iot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript">
 	window.CESIUM_BASE_URL = '/externlib/CesiumUnminified/';
@@ -313,6 +314,10 @@
 		mapDataInfoList(1, dataInfoParams);
 		//mapDataGroupList(1, null);
         //mapDataInfoList(1, null, null, null);
+
+		// 사물인터넷
+		var iotInfoParams = { searchWord : "iot_occupancy", searchValue : null };
+		occupancyList(1, iotInfoParams);
 
         // 환경 설정.
         UserPolicy(magoInstance);

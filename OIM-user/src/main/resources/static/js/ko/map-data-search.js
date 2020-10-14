@@ -98,10 +98,10 @@ function initSearchForm() {
    $('#searchFilterContent').hide();
 }
 
-function getFormData($form){
+function getFormData($form) {
    var unindexed_array = $form.find(':visible').serializeArray();
    var indexed_array = {};
-   $.map(unindexed_array, function(n, i){
+   $.map(unindexed_array, function (n, i) {
       if (indexed_array[n['name']]) {
          indexed_array[n['name']] += ',' + n['value'];
       } else {
@@ -230,12 +230,12 @@ function mapDataInfoList(pageNo, params) {
                $("#dataListDHTML").html("").append(template(msg));
 
                //핸들바 템플릿 컴파일
-               var templateSearchSummary = Handlebars.compile($("#dataSearchSummarySource").html());
+               var templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
                //핸들바 템플릿에 데이터를 바인딩해서 HTML 생성
                $("#dataSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
 
                //핸들바 템플릿 컴파일
-               var templatePagination = Handlebars.compile($("#dataPaginationSource").html());
+               var templatePagination = Handlebars.compile($("#paginationSource").html());
                //핸들바 템플릿에 데이터를 바인딩해서 HTML 생성
                $("#dataPaginationDHTML").html("").append(templatePagination(msg));
 
@@ -309,12 +309,12 @@ function mapDataGroupList(pageNo, params) {
                $("#dataGroupListDHTML").html("").append(template(msg));
 
                //핸들바 템플릿 컴파일
-               var templateSearchSummary = Handlebars.compile($("#dataSearchSummarySource").html());
+               var templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
                //핸들바 템플릿에 데이터를 바인딩해서 HTML 생성
                $("#dataSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
 
                //핸들바 템플릿 컴파일
-               var templatePagination = Handlebars.compile($("#dataPaginationSource").html());
+               var templatePagination = Handlebars.compile($("#paginationSource").html());
                //핸들바 템플릿에 데이터를 바인딩해서 HTML 생성
                $("#dataPaginationDHTML").html("").append(templatePagination(msg));
 
