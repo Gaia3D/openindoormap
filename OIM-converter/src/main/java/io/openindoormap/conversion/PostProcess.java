@@ -185,11 +185,11 @@ public class PostProcess {
             String locationFilePath = outputFilePath + File.separator + "lonsLats.json";
             String attributeFilePath = outputFilePath + File.separator + "attributes.json";
 
-            if (invalidFilePath(locationFilePath)) throw new FileNotFoundException("The file in the specified path cannot be found.");
-
-            ConverterLocation location = objectMapper.readValue(Paths.get(locationFilePath).toFile(), ConverterLocation.class);
-            log.info("longitude = {}, latitude = {}", location.getLongitude(), location.getLatitude());
-            result.setLocation(location);
+            if (!invalidFilePath(locationFilePath))  {
+                ConverterLocation location = objectMapper.readValue(Paths.get(locationFilePath).toFile(), ConverterLocation.class);
+                log.info("longitude = {}, latitude = {}", location.getLongitude(), location.getLatitude());
+                result.setLocation(location);
+            }
 
             // File attributeFile = attributeFilePath.toFile();
             // List<Map<String, Object>> attributes = objectMapper.readValue(attributeFile, new TypeReference<>() {});
