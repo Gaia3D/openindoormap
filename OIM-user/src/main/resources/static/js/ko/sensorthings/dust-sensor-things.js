@@ -74,16 +74,6 @@ DustSensorThings.prototype.updateContentPosition = function() {
         const cai = this.getComprehensiveAirQualityIndex(observation);
         const caiText = this.getComprehensiveAirQualityIndexMessage(cai);
 
-        location.contents = {
-            id : locationId,
-            value: observation,
-            unit: unit,
-            stationName: thing.name,
-            addr: addr,
-            cai: cai,
-            caiText: caiText
-        };
-
         const coordinates = location.location.geometry.coordinates;
         const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
         const magoManager = this.magoInstance.getMagoManager();
@@ -99,19 +89,30 @@ DustSensorThings.prototype.updateContentPosition = function() {
             resultScreenCoord.y >= top && resultScreenCoord.y <= bottom) {
 
             if ($overlaySelector.length === 0) {
+                location.contents = {
+                    id : locationId,
+                    value: observation,
+                    unit: unit,
+                    stationName: thing.name,
+                    addr: addr,
+                    cai: cai,
+                    caiText: caiText,
+                    top: resultScreenCoord.y,
+                    left: resultScreenCoord.x
+                };
                 const template = Handlebars.compile($("#overlaySource").html());
                 const html = template(location.contents);
                 $containerSelector.prepend(html);
+            } else {
+                $overlaySelector.children().css({
+                    position: 'absolute',
+                    top: resultScreenCoord.y,
+                    left: resultScreenCoord.x,
+                    backgroundColor: 'rgb(0, 255, 255)',
+                    zIndex: 1000
+                });
             }
-
-            $overlaySelector.children().css({
-                position: 'absolute',
-                top: resultScreenCoord.y,
-                left: resultScreenCoord.x,
-                backgroundColor: 'rgb(0, 255, 255)',
-                zIndex: 1000
-            });
-            $overlaySelector.css('visibility', 'visible');
+            $overlaySelector.show();
 
         }
     }
@@ -133,7 +134,7 @@ DustSensorThings.prototype.updateContentValue = function() {
                 location.contents.value = msg.Things[0].Datastreams[0].Observations[0].result;
                 const $overlaySelector = $('#overlay_' + locationId);
                 $overlaySelector.find('.overlay-value').text(location.contents.value);
-                $overlaySelector.css('visibility', 'visible');
+                $overlaySelector.show();
             },
             error: function (request, status, error) {
                 alert(JS_MESSAGE["ajax.error.message"]);

@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="overlaySource" type="text/x-handlebars-template">
     <div id="overlay_{{id}}" class="overlayWarp" style="position: relative">
-        <div>
+        <div style="position: absolute;top: {{top}}px;left: {{left}}px;background-color: #00fafa;z-index: 1000">
             <div>
                 <p class="overlay-value">{{value}}</p>
                 <p>{{unit}}</p>

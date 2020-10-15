@@ -3,7 +3,7 @@ var SensorThings = function(magoInstance) {
     this.magoInstance = magoInstance;
     this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
     this.queryString = '';
-
+    this.type = 'occupancy'; // occupancy, dust
     // http://localhost:8888/FROST-Server/v1.0/ObservedProperties(1)/Datastreams?$select=@iot.id,description,unitOfMeasurement&$expand=Observations($select=result,phenomenonTime;$orderby=phenomenonTime%20desc;$top=1;$count=true),Thing($select=@iot.id,name,description;$expand=Locations($select=location,name))
     // http://localhost:8888/FROST-Server/v1.0/Locations?$select=location,name&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description;$filter=ObservedProperty/name eq '미세먼지(PM10) Particulates'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)
 

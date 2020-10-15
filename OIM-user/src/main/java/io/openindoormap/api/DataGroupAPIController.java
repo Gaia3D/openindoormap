@@ -29,8 +29,8 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/data-groups")
-public class DataGroupController {
+@RequestMapping("/api/data-groups")
+public class DataGroupAPIController {
 
 	@Autowired
 	private DataService dataService;

@@ -409,7 +409,7 @@
 		});
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e)=> {
-			$('.overlayWarp').css('visibility', 'hidden');
+			$('.overlayWarp').hide();
 		});
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e)=> {
 			dustSensorThings.updateContentPosition();
