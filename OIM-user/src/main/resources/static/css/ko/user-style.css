@@ -2016,7 +2016,7 @@ z-index:100;
 	justify-content: space-around;
 	height: 60px;
 	align-items: center;
-	border: 1px solid #0066a2;
+	border: 1px solid #ccc;
 }
 .legend .color {
 	width: 15px;

@@ -150,3 +150,9 @@ JS_MESSAGE["simulation.analysis.start"] = "분석 시작 후 위치를 선택해
 JS_MESSAGE["simulation.select.location"] = "위치를 지정해주시기 바랍니다.";
 
 JS_MESSAGE["policy.camera.location"] = "카메라를 지표면에 더 가까이 이동해주세요.";
+
+
+JS_MESSAGE["iot.occupancy.legend.good"]="좋음";
+JS_MESSAGE["iot.occupancy.legend.normal"]="보통";
+JS_MESSAGE["iot.occupancy.legend.bad"]="나쁨";
+JS_MESSAGE["iot.occupancy.legend.very-bad"]="매우나쁨";
