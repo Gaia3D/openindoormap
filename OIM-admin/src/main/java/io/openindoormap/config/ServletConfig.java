@@ -2,6 +2,7 @@ package io.openindoormap.config;
 
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
+import org.json.simple.parser.JSONParser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -190,5 +191,10 @@ public class ServletConfig implements WebMvcConfigurer {
 	@Bean
 	public ModelMapper modelMapper() {
 		return new ModelMapper();
+	}
+
+	@Bean
+	public JSONParser jsonParser() {
+		return new JSONParser();
 	}
 }
