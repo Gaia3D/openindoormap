@@ -3,10 +3,12 @@ package io.openindoormap.service.impl;
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.model.Id;
 import de.fraunhofer.iosb.ilt.sta.model.Sensor;
+import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.builder.*;
 import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractDatastreamBuilder;
 import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractFeatureOfInterestBuilder;
 import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractLocationBuilder;
+import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
@@ -25,7 +27,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.FileReader;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -39,61 +40,67 @@ import java.util.Map;
 @Slf4j
 public class AirQualityServiceImpl implements AirQualityService {
 
+    private final SensorThingsService sensorThingsService;
     private final PropertiesConfig propertiesConfig;
     private final JSONParser parser;
 
     @Override
     public void initSensorData() {
-        // sensorThingsAPI server
-        SensorThingsService service = null;
+        // 기존 데이터가 있고 저장소 목록에 변동사항이 없다면 return
+        if(initDataExistCheck()) {
+            log.info("============================ init data Exist ============================");
+            return;
+        } else {
+            // TODO : 기존 데이터 삭제 필요
+        }
+
         JSONObject stationJson = null;
         try {
-            service = new SensorThingsService(new URL(propertiesConfig.getSensorThingsApiServer()));
             stationJson = getListStation();
         } catch (Exception e) {
             LogMessageSupport.printMessage(e, "-------- AirQualityService Error = {}", e.getMessage());
         }
         // 저장소 목록
         List<?> stationList = (List<?>) stationJson.get("list");
-        int id = 0;
+        int id = getThingsLastId();
         try {
             // ObservedProperty PM10
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("pm10Value")
                     .description("미세먼지(PM10) Particulates")
                     .definition("https://en.wikipedia.org/wiki/Particulates")
                     .build());
 
             // ObservedProperty PM2.5
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("pm25Value")
                     .description("미세먼지(PM2.5) Particulates")
                     .definition("https://en.wikipedia.org/wiki/Particulates")
                     .build());
 
             // ObservedProperty 아황산가스 농도
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("so2Value")
                     .description("아황산가스 농도 Sulfur_dioxide")
                     .definition("https://en.wikipedia.org/wiki/Sulfur_dioxide")
                     .build());
 
             // ObservedProperty 일산화탄소 농도
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("coValue")
                     .description("일산화탄소 농도 Carbon_monoxide")
                     .definition("https://en.wikipedia.org/wiki/Carbon_monoxide")
                     .build());
 
             // ObservedProperty 오존 농도
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("o3Value")
                     .description("오존 농도 Ozone")
                     .definition("https://en.wikipedia.org/wiki/Ozone")
                     .build());
 
             // ObservedProperty 이산화질소 농도
-            service.create(ObservedPropertyBuilder.builder()
+            sensorThingsService.create(ObservedPropertyBuilder.builder()
                     .name("no2Value")
                     .description("이산화질소 Nitrogen_dioxide")
                     .definition("https://en.wikipedia.org/wiki/Nitrogen_dioxide")
@@ -119,14 +126,14 @@ public class AirQualityServiceImpl implements AirQualityService {
                 thingProperties.put("mangName", json.get("mangName"));
                 thingProperties.put("item", json.get("item"));
 
-                service.create(ThingBuilder.builder()
+                sensorThingsService.create(ThingBuilder.builder()
                         .name(stationName)
                         .description("한국환경공단 측정소")
                         .properties(thingProperties)
                         .build());
 
                 // Location
-                service.create(LocationBuilder.builder()
+                sensorThingsService.create(LocationBuilder.builder()
                         .name((String) json.get("addr"))
                         .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
                         .description("대기질 측정소 위치")
@@ -134,7 +141,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream PM10
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("미세먼지(PM10)")
                         .description("미세먼지(PM10)")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -154,7 +161,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream PM2.5
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("미세먼지(PM2.5)")
                         .description("미세먼지(PM2.5)")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -174,7 +181,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream 아황산가스 농도
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("아황산가스 농도")
                         .description("아황산가스 농도")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -194,7 +201,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream 일산화탄소 농도
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("일산화탄소 농도")
                         .description("일산화탄소 농도")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -214,7 +221,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream 오존 농도
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("오존 농도")
                         .description("오존 농도")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -234,7 +241,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // DataStream 이산화질소 농도
-                service.create(DatastreamBuilder.builder()
+                sensorThingsService.create(DatastreamBuilder.builder()
                         .name("이산화질소 농도")
                         .description("이산화질소 농도")
                         .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
@@ -254,7 +261,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // FeatureOfInterest
-                service.create(FeatureOfInterestBuilder.builder()
+                sensorThingsService.create(FeatureOfInterestBuilder.builder()
                         .name(stationName + " 측정소")
                         .description("한국환경공단 대기질 측정소")
                         .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
@@ -277,6 +284,11 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
+    /**
+     * 측정소 목록 조회
+     * @return
+     * @throws Exception
+     */
     private JSONObject getListStation() throws Exception {
         boolean mockEnable = propertiesConfig.isMockEnable();
         JSONObject stationJson;
@@ -308,8 +320,51 @@ public class AirQualityServiceImpl implements AirQualityService {
         return stationJson;
     }
 
+    /**
+     * 초기 데이터 존재하는지 체크
+     * @return
+     */
     private boolean initDataExistCheck() {
+        boolean dataExistFlag = false;
+        String AIR_QUALITY_THINGS_FILER = "'한국환경공단 측정소'";
+        try {
+            JSONObject stationJson = getListStation();
+            List<?> stationList = (List<?>) stationJson.get("list");
+            EntityList<Thing> things = sensorThingsService.things()
+                    .query()
+                    .filter("description eq " + AIR_QUALITY_THINGS_FILER)
+                    .orderBy("id desc")
+                    .top(1)
+                    .list();
 
-        return true;
+            List<Thing> thingList = things.toList();
+            int idCount = thingList.size() > 0 ? Integer.parseInt(thingList.get(0).getId().toString()) : 0;
+            int stationCount = stationList.size();
+            dataExistFlag = idCount > 0 && idCount == stationCount;
+        } catch (Exception e) {
+            LogMessageSupport.printMessage(e, "-------- AirQualityService ServiceFailureException = {}", e.getMessage());
+        }
+
+        return dataExistFlag;
+    }
+
+    private int getThingsLastId() {
+        int idCount = 0;
+        try {
+            JSONObject stationJson = getListStation();
+            List<?> stationList = (List<?>) stationJson.get("list");
+            EntityList<Thing> things = sensorThingsService.things()
+                    .query()
+                    .orderBy("id desc")
+                    .top(1)
+                    .list();
+
+            List<Thing> thingList = things.toList();
+            idCount = thingList.size() > 0 ? Integer.parseInt(thingList.get(0).getId().toString()) : 0;
+        } catch (Exception e) {
+            LogMessageSupport.printMessage(e, "-------- AirQualityService ServiceFailureException = {}", e.getMessage());
+        }
+
+        return idCount;
     }
 }
