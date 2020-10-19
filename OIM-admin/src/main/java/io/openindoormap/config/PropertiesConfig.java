@@ -90,5 +90,4 @@ public class PropertiesConfig {
     private String ogr2ogrPort;
 
     private String sensorThingsApiServer;
-    private boolean sensorDataInitEnable;
 }

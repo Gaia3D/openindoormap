@@ -1,5 +1,7 @@
 package io.openindoormap.config;
 
+import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
+import io.openindoormap.interceptor.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import org.json.simple.parser.JSONParser;
@@ -24,8 +26,8 @@ import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
-import io.openindoormap.interceptor.*;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -196,5 +198,15 @@ public class ServletConfig implements WebMvcConfigurer {
 	@Bean
 	public JSONParser jsonParser() {
 		return new JSONParser();
+	}
+
+	/**
+	 * sensorThingsAPI 요청 클라이언트 bean
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	@Bean
+	public SensorThingsService sensorThingsService() throws MalformedURLException {
+		return new SensorThingsService(new URL(propertiesConfig.getSensorThingsApiServer()));
 	}
 }
