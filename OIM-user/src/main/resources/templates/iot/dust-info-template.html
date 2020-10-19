@@ -1,0 +1,88 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dustInfoSource" type="text/x-handlebars-template">
+<button id="closeDustInfo" class="circle-small fas fa-times float-right marT5 marR5" th:title="#{common.close}"></button>
+<div class="sensor-detail">
+    <div class="chart-container">
+        <h3 class="chart-title" th:text="#{iot.dust.cai}"></h3>
+        <button class="chart-info far fa-question-circle"></button>
+        <div class="half-doughnut-chart-container">
+            <canvas id="doughnutChart" width="300" height="200"></canvas>
+            <canvas id="doughnutChartBar" width="300" height="200"></canvas>
+            <p class="percent">{{pm10}}</p>
+            <p class="label"><span>{{min}}</span><span>{{max}}</span></p>
+        </div>
+        <p class="chart-description">
+            <span class="dust lv{{cai}}"></span>
+            <span class="dusttx"><span th:text="#{iot.dust}"></span> PM<sub>10</sub></span>
+        </p>
+    </div>
+    <!-- 측정항목-->
+    <div class="chart-container">
+        <table class="dustList">
+            <thead>
+            <th>측정항목</th>
+            <th>측정농도</th>
+            <th>등급(CAI)</th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>미세먼지 PM<sub>10</sub></td>
+                <td>19㎍/m³</td>
+                <td>
+                    <span class="dust lv1"></span>
+                    <span class="dusttx">좋음</span>
+                </td>
+            </tr>
+            <tr>
+                <td>초미세먼지 PM<sub>2.5</sub></td>
+                <td>45㎍/m³</td>
+                <td>
+                    <span class="dust lv2"></span>
+                    <span class="dusttx">보통</span>
+                </td>
+            </tr>
+            <tr>
+                <td>오존 O<sub>3</sub></td>
+                <td>45㎍/m³</td>
+                <td>
+                    <span class="dust lv3"></span>
+                    <span class="dusttx">나쁨</span>
+                </td>
+            </tr>
+            <tr>
+                <td>아황산가스 SO<sub>2</sub></td>
+                <td>45㎍/m³</td>
+                <td>
+                    <span class="dust lv4"></span>
+                    <span class="dusttx">매우나쁨</span>
+                </td>
+            </tr>
+            <tr>
+                <td>일산화탄소 CO</td>
+                <td>2㎍/m³</td>
+                <td>
+                    <span class="dust nodata"></span>
+                    <span class="dusttx">데이터없음</span>
+                </td>
+            </tr>
+            <tr>
+                <td>이산화질소 NO<sub>2</sub></td>
+                <td>2㎍/m³</td>
+                <td>
+                    <span class="dust nodata"></span>
+                    <span class="dusttx">데이터없음</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="chart-container">
+        <canvas id="hourlyAirQualityChart" width="300" height="200"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="dailyAirQualityChart" width="300" height="200"></canvas>
+    </div>
+    <!-- // 측정항목-->
+</div>
+</script>
+</html>

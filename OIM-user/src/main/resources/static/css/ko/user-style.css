@@ -1963,6 +1963,7 @@ z-index:100;
 .marR1{margin-right:1px !important}
 .marR5{margin-right:5px !important}
 .marR10{margin-right:10px !important}
+.marR40{margin-right:40px !important}
 .marM0{margin-left:0px !important}
 .marB0{margin-bottom:0 !important;}
 .marB5{margin-bottom:5px !important;}
@@ -2028,16 +2029,19 @@ z-index:100;
 	background-color: dodgerblue;
 }
 .legend .normal {
-	background-color: green;
+	/*background-color: green;*/
+	background-color: #00c73c;
 }
 .legend .bad {
 	background-color: gold;
 }
 .legend .very-bad {
-	background-color: orangered;
+	/*background-color: orangered;*/
+	background-color: #ff5959;
 }
 .legend .nodata {
-	background-color: dimgray;
+	/*background-color: dimgray;*/
+	background-color: #555;
 }
 
 /*
@@ -2290,11 +2294,24 @@ button.circle {
 	height: 45px;
 	font-size: 25px;
 	border: 1px solid #797979;
-	border-radius: 25px;
+	border-radius: 50%;
 	background-color: #fff;
 	color: #797979;
 }
 button.circle:hover {
+	color: #258fff;
+	border: 1px solid #258fff;
+}
+button.circle-small {
+	width: 30px;
+	height: 30px;
+	font-size: 20px;
+	border: 1px solid #797979;
+	border-radius: 50%;
+	background-color: #fff;
+	color: #797979;
+}
+button.circle-small:hover {
 	color: #258fff;
 	border: 1px solid #258fff;
 }
@@ -3134,19 +3151,9 @@ user-select: none; /* Standard syntax */
 	background-position: center -472px;
 }
 
-.building-detail {
-	height: 340px;
-	width: 300px;
-	position: fixed;
-	z-index: 1000;
-	top: 10px;
-	right: 60px;
-	background-color: #fff;
-	/*overflow-x: hidden;*/
-	/* transition: 0.5s; */
-	margin-top: 50px;
-	padding: 10px;
-}
+
+/*
+
 .building-meta {
 	display: flex;
 	align-items: center;
@@ -3167,20 +3174,303 @@ user-select: none; /* Standard syntax */
 .occupancy {
 	font-size: 24px;
 }
+*/
 
-.sensor-detail {
-	height: 340px;
+/* 측정소 정보 */
+.sInfoWrap {
+	width: 325px;
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	margin: 0 auto 15px;
+}
+.sInfo {
+	display: flex;
+}
+.sInfo > ul {
+	flex: 1 1 auto;
+}
+.sInfo > ul:first-child {
+	width: 80px;
+	border-radius: 7px;
+}
+.sInfo > ul:first-child > li {
+	padding-top: 7px;
+	text-align: center;
+	color: #fff;
+}
+.sInfo > ul:first-child > li.state {
+	padding-top: 10px;
+	font-size: 16px;
+}
+.sInfo > ul:first-child.nodata > li.state {
+	letter-spacing: -2px;
+}
+.sInfo > ul:first-child > li.result {
+	font-weight: bold;
+	font-size: 27px;
+}
+.sInfo > ul:first-child > li.unit {
+	font-size: 12px;
+}
+.sInfo > ul:last-child {
+	padding: 3px 0;
+}
+.sInfo > ul:last-child > li {
+	width: 225px;
+	padding: 2px 0 2px 10px;
+}
+.sInfo > ul:last-child > li > * {
+	font-size: 12px;
+}
+.sInfo > ul:last-child > li > label {
+	display: inline-block;
+	min-width: 60px;
+	color: #777;
+}
+.sInfo > ul:last-child > li > a {
+	display: inline-block;
+	width: 150px;
+	text-decoration: underline;
+}
+.btnCt {
+	text-align: center;
+}
+.btnCt > button.more {
 	width: 100%;
+	font-size: 11px;
+	color: #555;
+	border-radius: 3px;
+	cursor: pointer;
+	border: none;
+	/*border: 2px solid #ccc;*/
+	background-color: transparent;
+	background-image: url(../images/btn_more.png);
+	background-repeat: no-repeat;
+	background-position: 115px 6px;
+}
+.btnCt > button.more.on {
+	background-position: 115px -46px;
+}
+.mResult > li {
+	display: inline-block;
+	margin-right: 5px;
+	font-size: 11px;
+}
+.mResult > li > span {
+	display: inline-block;
+}
+.mResult > li > span.result {
+	display: inline-block;
+	padding: 2px;
+	border-radius: 2px;
+	background-color: #eee;
+}
+
+/* 측정항목 */
+table.dustList {
+	width: 90%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+table.dustList thead {
+	border-bottom: 2px solid #ccc;
+	background-color: #eee;
+}
+table.dustList thead th {
+	padding: 5px 10px;
+	text-align: left;
+	color: #262b3f;
+}
+table.dustList thead th:nth-child(2) {
+	text-align: center;
+}
+table.dustList td {
+	padding: 3px 10px;
+	border-bottom: 1px solid #ccc;
+	text-align: left;
+}
+table.dustList td * {
+	vertical-align: middle;
+
+}
+table.dustList td:nth-child(1) {
+	font-weight: bold;
+}
+table.dustList td:nth-child(2) {
+	text-align: center;
+}
+
+.dust {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+}
+.lv1 {
+	background-color: #32a1ff;
+}
+.lv2 {
+	background-color: #00c73c;
+}
+.lv3 {
+	/*background-color: #fd9b5a;*/
+	background-color: gold;
+}
+.lv4 {
+	background-color: #ff5959;
+}
+.nodata {
+	background: #555 /*url(../images/ico_x.png) no-repeat center center*/;
+}
+.txlv1 {
+	color: #32a1ff;
+}
+.txlv2 {
+	color: #00c73c;
+}
+.txlv3 {
+	color: #fd9b5a;
+}
+.txlv4 {
+	color: #ff5959;
+}
+.txlv5 {
+	color: #555;
+}
+.brLeft {
+	border-radius: 5px 0 0 5px;
+}
+.dusttx {
+	display: inline-block;
+	font-size: 12px;
+}
+
+/* 측정태그 */
+.abs {
+	position: absolute;
+}
+.dustStation {
+	display: flex;
+	padding: 0;
+	border-radius: 7px;
+	border: 1px solid #555;
+	/*box-shadow: 1px 1px 1px #ccc;*/
+	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+	cursor: pointer;
+	background-color: #fff;
+}
+.dustStation > li {
+	flex: 1 1 auto;
+	margin: 0;
+	padding: 5px;
+	list-style-type: none;
+}
+.dustStation > li * {
+	vertical-align: middle;
+}
+.dustStation > li.scolor > span {
+	display: block;
+	color: #fff;
+	font-size: 11px;
+	text-align: center;
+	border-radius: 7px 0 0 7px;
+}
+.dustStation > li.scolor > span:nth-child(1) {
+	font-size: 22px;
+}
+.dustStation > li.sname {
+}
+.dustStation > li.sname > p {
+	width: 80px;
+	margin: 0;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
+span.subTit {
+	display: inline-block;
+	margin-right: 5px;
+	font-size: 11px;
+}
+span.subResult {
+	display: inline-block;
+	font-size: 11px;
+}
+.dustStation > li.sname > span * {
+	vertical-align: middle;
+}
+.inc {
+	color: #ff5959;
+}
+.dec {
+	color: #32a1ff;
+}
+
+/* TBODY에만 스크롤 */
+.scrollTable {
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+.scrollTable table {
+	border-collapse: collapse;
+}
+.scrollTable table th {
+	position: -webkit-sticky;
+	position: sticky;
+	top: -1px;
+	z-index: 1;
+}
+.scrollTable > table {
+	width:100%;
+}
+.scrollTable > table th {
+	padding: 4px;
+	border: 1px solid #dfdfdf;
+	background-color: #eee;
+}
+.scrollTable > table tbody tr {
+	cursor: pointer;
+}
+.scrollTable > table tbody tr td {
+	padding: 5px 5px;
+	border-right: 1px solid #dfdfdf;
+	border-left: 1px solid #dfdfdf;
+	border-bottom: 1px solid #bbb;
+	font-size: 14px;
+	text-align: center;
+}
+.scrollTable > table tbody tr.on {
+	background-color: #ccc;
+}
+
+/* 화면 하단 상세정보 */
+.building-detail {
 	position: fixed;
 	z-index: 1000;
-	bottom: 10px;
+	top: 10px;
+	right: 60px;
 	background-color: #fff;
-	overflow-x: hidden;
+	/*overflow-x: hidden;*/
 	/* transition: 0.5s; */
 	margin-top: 50px;
 	padding: 10px;
+}
+.sensor-detail-wrap {
+	height: 250px;
+	width: 100%;
+	position: absolute;
+	z-index: 1000;
+	bottom: 0;
+	background-color: #ecf1fb;
+	overflow-x: hidden;
+}
+.sensor-detail {
 	display: flex;
-	align-items: center;
+	height: 100%;
+	flex-wrap: nowrap;
+	overflow-x: auto;
 }
 .info-container {
 	width: 20%;
@@ -3199,6 +3489,60 @@ user-select: none; /* Standard syntax */
 	padding: 5px;
 }
 .chart-container {
-	width: 50%;
-	height: 100%;
+	position: relative;
+	width: 337px;
+	background-color: #fff;
+	border-radius: 10%;
+	margin: 10px 0 0 10px;
+	flex: 0 0 auto;
+}
+.chart-title {
+	position: absolute;
+	top: 5%;
+	left: 5%;
+	color: #797979;
+	line-height: 25px;
+}
+.chart-info {
+	position: absolute;
+	top: 5%;
+	right: 5%;
+	border: none;
+	font-size: 25px;
+	background-color: #ffffff00;
+	color: #ccc;
+}
+.chart-description {
+	text-align: center;
+}
+/* half doughnut */
+.half-doughnut-chart-container {
+	position: relative;
+	width: 180px;
+	height: 180px;
+	margin: 0 auto;
+	top: 58%;
+	transform: translate(0, -50%);
+}
+.half-doughnut-chart-container > canvas {
+	position: absolute;
+}
+.percent {
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, 0);
+	font-size: 60px;
+	font-weight: bold;
+	top: 45%;
+}
+.label {
+	position: absolute;
+	width: 100%;
+	bottom: 30%;
+}
+.label span:first-child {
+	float: left;
+}
+.label span:last-child {
+	float: right;
 }

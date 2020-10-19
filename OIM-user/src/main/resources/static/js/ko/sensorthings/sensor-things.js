@@ -1,94 +1,102 @@
-var SensorThings = function(magoInstance) {
+const SensorThings = function (magoInstance) {
 
     this.magoInstance = magoInstance;
     this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
     this.queryString = '';
-    this.type = 'occupancy'; // occupancy, dust
+    this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
+
     // http://localhost:8888/FROST-Server/v1.0/ObservedProperties(1)/Datastreams?$select=@iot.id,description,unitOfMeasurement&$expand=Observations($select=result,phenomenonTime;$orderby=phenomenonTime%20desc;$top=1;$count=true),Thing($select=@iot.id,name,description;$expand=Locations($select=location,name))
-    // http://localhost:8888/FROST-Server/v1.0/Locations?$select=location,name&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description;$filter=ObservedProperty/name eq '미세먼지(PM10) Particulates'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)
+    // http://localhost:8888/FROST-Server/v1.0/Locations?$select=@iot.id,location,name&$top=5&$count=true&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description;$filter=ObservedProperty/name eq '미세먼지(PM10) Particulates'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)
 
 };
 
-SensorThings.prototype.init = function() {
+
+SensorThings.prototype.init = function () {
+};
+
+SensorThings.prototype.dataSearch = function (pageNo) {
+    $('#iotInfoContent div').hide();
+    const $form = $("#searchIotForm");
+    const params = getFormData($form);
+
+    if (this.type === 'iot_occupancy') {
+        this.occupancyList(pageNo, params);
+    } else if (this.type === 'iot_dust') {
+        this.dustList(pageNo, params);
+    }
 
 };
-SensorThings.prototype.getFormData = function() {
-    var unindexed_array = $form.find(':visible').serializeArray();
-    var indexed_array = {};
-    $.map(unindexed_array, function (n, i) {
-        if (indexed_array[n['name']]) {
-            indexed_array[n['name']] += ',' + n['value'];
-        } else {
-            indexed_array[n['name']] = n['value'];
+
+SensorThings.prototype.occupancyList = function (pageNo, params) {
+    const _this = this;
+    $.ajax({
+        url: _this.FROST_SERVER_URL +
+            'Locations?$select=@iot.id,location,name&$top=1&$count=true&$expand=' +
+            'Things($select=@iot.id,name,description),' +
+            'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'미세먼지(PM10) Particulates\'),' +
+            'Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)',
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+            console.info(msg);
+
+            const pagination = new Pagination(pageNo, msg['@iot.count'], 1, msg['@iot.nextLink']);
+            msg.pagination = pagination;
+
+            const templateLegend = Handlebars.compile($("#iotLegendSource").html());
+            $("#iotLegendDHTML").html("").append(templateLegend(params));
+
+            const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
+            $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
+
+            const template = Handlebars.compile($("#occupancyListSource").html());
+            $("#iotOccupancyListDHTML").html("").append(template(msg));
+
+            const templatePagination = Handlebars.compile($("#paginationSource").html());
+            $("#iotPaginationDHTML").html("").append(templatePagination(msg));
+
+            $('#iotOccupancyListDHTML').show();
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
         }
     });
-    return indexed_array;
 };
 
+SensorThings.prototype.dustList = function (pageNo, params) {
+    const _this = this;
+    $.ajax({
+        url: _this.FROST_SERVER_URL +
+            'Locations?$select=@iot.id,location,name&$top=1&$count=true&$expand=' +
+            'Things($select=@iot.id,name,description),' +
+            'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'미세먼지(PM10) Particulates\'),' +
+            'Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)',
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+            console.info(msg);
 
-function occupancyList(pageNo, params) {
-/*
-    var templateLegend = Handlebars.compile($("#iotLegendSource").html());
-    $("#iotLegendDHTML").html("").append(templateLegend(params));
+            const pagination = new Pagination(pageNo, msg['@iot.count'], 1, msg['@iot.nextLink']);
+            msg.pagination = pagination;
 
-    var templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
-    $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
+            const templateLegend = Handlebars.compile($("#iotLegendSource").html());
+            $("#iotLegendDHTML").html("").append(templateLegend(params));
 
-    var template = Handlebars.compile($("#occupancyListSource").html());
-    $("#iotOccupancyListDHTML").html("").append(template(msg));
+            const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
+            $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
 
-    var templatePagination = Handlebars.compile($("#paginationSource").html());
-    $("#iotPaginationDHTML").html("").append(templatePagination(msg));
-*/
-    $('#iotOccupancyListDHTML').show();
-}
+            const template = Handlebars.compile($("#dustListSource").html());
+            $("#iotDustListDHTML").html("").append(template(msg));
 
-function dustList(pageNo, params) {
-/*
-    var templateLegend = Handlebars.compile($("#iotLegendSource").html());
-    $("#iotLegendDHTML").html("").append(templateLegend(params));
+            const templatePagination = Handlebars.compile($("#paginationSource").html());
+            $("#iotPaginationDHTML").html("").append(templatePagination(msg));
 
-    var templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
-    $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
-
-    var template = Handlebars.compile($("#dustListSource").html());
-    $("#iotDustListDHTML").html("").append(template(msg));
-
-    var templatePagination = Handlebars.compile($("#paginationSource").html());
-    $("#iotPaginationDHTML").html("").append(templatePagination(msg));
-*/
-    $('#iotDustListDHTML').show();
-}
-
-// 검색 버튼 클릭
-$('#iotSearch').click(function() {
-    iotDataSearch(1);
-
-    dustSensorThings.updateContentValue();
-    setInterval(function(){
-        dustSensorThings.updateContentValue();
-    }, 1000 * 60 * 60);
-
-});
-
-// 검색 엔터키
-$('#iotSearch').keyup(function(e) {
-    if (e.keyCode == 13) {
-        iotDataSearch(1);
-    }
-});
-
-function iotDataSearch(pageNo) {
-
-    $('#iotInfoContent div').hide();
-
-    var $form = $("#searchIotForm");
-    var params = getFormData($form);
-
-    if (params.searchWord === 'iot_occupancy') {
-        //occupancyList(pageNo, params);
-    } else if (params.searchWord === 'iot_dust') {
-        //dustList(pageNo, params);
-    }
-
-}
+            $('#iotDustListDHTML').show();
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+};
