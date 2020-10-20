@@ -11,6 +11,14 @@ set init_longitude = '127.00598139968887',
 	init_latitude = '37.44829387479118';
 commit;
 
+update geopolicy
+set lod0 = '200',
+	lod1 = '500',
+	lod2 = '1000',
+	lod3 = '2000',
+    lod4 = '5000',
+commit;
+
 -- smart tiling 이후에 해 줘야 할 작업, 벌크 업로드 시 처리됨.
 -- 1 데이터 건수 수정	
 

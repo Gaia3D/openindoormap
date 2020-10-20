@@ -52,6 +52,49 @@
 		    opacity: 0.7;
 		}
     </style>
+
+	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
+	<script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/district-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
+	<!--DS lib-->
+	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
+	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
+	<!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
+	<!--<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />-->
+	<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
+
+	<script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+
 </head>
 <body>
 
@@ -79,19 +122,15 @@
 			<!-- S: DATA -->
 			<div th:replace="~{/data/data :: #dataContent}"></div>
 			<!-- E: DATA -->
-
 			<!-- S: LAYER -->
 			<div th:replace="~{/layer/list :: #layerContent}"></div>
 			<!-- E: LAYER -->
-
 			<!-- S: IoT -->
 			<div th:replace="~{/iot/list :: #iotContent}"></div>
 			<!-- E: IoT -->
-
 			<!-- S: SETTING -->
 			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
 			<!-- E: SETTING -->
-
 		</div>
 		<!-- E: CONTENTS WRAP -->
 
@@ -100,7 +139,6 @@
 			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
 		</div>
 		<!-- E: CONTENTS BTN -->
-
 	</div>
 	<!-- E: NAV WRAP -->
 
@@ -110,7 +148,6 @@
 
 	<!-- S: CTRL WRAP -->
 	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
-
 	<!-- E: CTRL WRAP -->
 
 	<!-- S: MAP -->
@@ -127,16 +164,11 @@
 		<div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
 		<!-- E: MAP SETTING WRAP -->
 
-		<!-- S: BUILDING INFO WRAP -->
+		<!-- S: BUILDING INFO TEMPLATE -->
 		<div id="buildingInfoDHTML"></div>
 		<div th:replace="~{/iot/building-info-template :: #buildingInfoSource}"></div>
-		<!-- E: BUILDING INFO WRAP -->
+		<!-- E: BUILDING INFO TEMPLATE -->
 
-		<!-- S: SENSOR INFO WRAP -->
-		<div id="sensorInfoDHTML"></div>
-		<div th:replace="~{/iot/sensor-info-template :: #sensorInfoSource}"></div>
-		<!-- E: SENSOR INFO WRAP -->
-		
 		<!-- S: BASE MAP TOGGLE -->
 		<!-- 토글주석 -->
 		<!-- <div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div> -->
@@ -160,13 +192,10 @@
 				<span id="positionBoxHeight" style="display: block;">D2D4E1</span>
 			</div>
 		</div>
-	</div>
-	
-	<div id="magoDivideContainer" class="mapWrap2">
-	</div>
 
-	<!-- E: MAP -->
 	</div>
+	<div id="magoDivideContainer" class="mapWrap2"></div>
+	<!-- E: MAP -->
 </div>
 <!-- E: WRAP -->
 
@@ -177,51 +206,12 @@
 <div th:replace="~{/data/data-object-attribute-dialog :: #dataObjectAttributeDialog}"></div>
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
-
-<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
-<script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/district-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-
-<!--DS lib-->
-<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
-<!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
-<!--<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />-->
-<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
-
-<script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/iot.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<div th:replace="~{/common/overlay-template :: #overlaySource}"></div>
+<div th:replace="~{/iot/occupancy-info-template :: #occupancyInfoSource}"></div>
+<div th:replace="~{/iot/dust-info-template :: #dustInfoSource}"></div>
 
 <script type="text/javascript">
+
 	window.CESIUM_BASE_URL = '/externlib/CesiumUnminified/';
 	function webMercatorToCartesian3(coordinates){
 		var wmp = new Cesium.WebMercatorProjection();
@@ -247,6 +237,11 @@
 	var sensorChart;
 	var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
 	var sensorThingsController = new SensorThingsController(dataGroupId, dataKey);
+
+	let sensorThings;
+	let occupancySensorThings;
+	let dustSensorThings;
+
 	initPolicy(function(policy, baseLayers){
 		OIM.policy = policy;
 		OIM.baseLayers = baseLayers;
@@ -271,7 +266,7 @@
 		 * @param {object} callback loadstart callback, loadend callback. option.
 		 * @param {object} options  viewer parameter. option.
 		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
-		*/
+		 */
 		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, option);
 
 	}
@@ -280,7 +275,7 @@
 		var magoInstance = e;
 		var geoPolicyJson = OIM.policy;
 		var viewer = magoInstance.getViewer();
-		
+
 		viewer.dataSources.dataSourceAdded.addEventListener(function(){
 			stopLoading();
 		});
@@ -292,57 +287,72 @@
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
 
-
 		viewer.clock.onTick.addEventListener(function(e){
 			var pitchDeg = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
 			for(var i in viewer.dataSources._dataSources) {
- 				var ds = viewer.dataSources._dataSources[i];
- 				if(ds instanceof Cesium.CustomDataSource) {
- 					var entities = ds.entities.values;
- 					entities.forEach(function(entity) {
- 						entity.label.scale = (pitchDeg > -30) ? 0 : 0.5;
- 					});
- 				}
- 			}
+				var ds = viewer.dataSources._dataSources[i];
+				if(ds instanceof Cesium.CustomDataSource) {
+					var entities = ds.entities.values;
+					entities.forEach(function(entity) {
+						entity.label.scale = (pitchDeg > -30) ? 0 : 0.5;
+					});
+				}
+			}
 		});
 
-		// 행정 구역 이동
-        // DistrictControll(magoInstance);
+		var vLayer = new Cesium.ImageryLayer(new Cesium.UrlTemplateImageryProvider({
+			url : 'https://map.pstatic.net/nrb/styles/basic/1602137999/{z}/{x}/{y}@2x.png?mt=bg.ol.ts.lko',
+			enablePickFeatures : false
+		}), {
+			show : true
+		});
+		viewer.imageryLayers.add(vLayer);
 
-        dataGroupList();
+
+		// 행정 구역 이동
+		// DistrictControll(magoInstance);
+
+		dataGroupList();
 		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
 		mapDataInfoList(1, dataInfoParams);
 		//mapDataGroupList(1, null);
-        //mapDataInfoList(1, null, null, null);
+		//mapDataInfoList(1, null, null, null);
 
-		// 사물인터넷
-		var iotInfoParams = { searchWord : "iot_occupancy", searchValue : null };
-		occupancyList(1, iotInfoParams);
+		// 사물 인터넷
+		sensorThings = new SensorThings(magoInstance);
+		occupancySensorThings = new OccupancySensorThings(magoInstance);
+		dustSensorThings = new DustSensorThings(magoInstance);
 
-        // 환경 설정.
-        UserPolicy(magoInstance);
+		dustSensorThings.init();
+		occupancySensorThings.init();
+
+		// 사물인터넷 초기화면
+		sensorThings.dataSearch(1);
+
+		// 환경 설정.
+		UserPolicy(magoInstance);
 
 		//AnalsLandScapeView(viewer, magoInstance);
 
-        // 기본 레이어 랜더링
-        setTimeout(function(){
-        	OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
-        	OIM.map.initLayer();
+		// 기본 레이어 랜더링
+		setTimeout(function(){
+			OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
+			OIM.map.initLayer();
 
-        	cesiumCreditAlt(); //웹접근성
-        }, geoPolicyJson.initDuration * 1000);
+			cesiumCreditAlt(); //웹접근성
+		}, geoPolicyJson.initDuration * 1000);
 
 		//지도상에 데이터 다루는거
 		MapDataControll(magoInstance);
 
 		OIM.issueController = new IssueController(magoInstance);
-		
+
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
 
-        var sampleJsonURL = '/sample/json';
-        $.ajax({
+		var sampleJsonURL = '/sample/json';
+		$.ajax({
 			url: sampleJsonURL + '/workshop-data.json',
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
@@ -354,28 +364,28 @@
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
-        /*
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
-			var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-			searchDataAPI(magoInstance, dataGroupId, dataKey);
-		});
+		/*
+        magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
+            var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+            searchDataAPI(magoInstance, dataGroupId, dataKey);
+        });
          */
 		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
-			.then(function(result){
-			sensorThingsController.setCellSpaceList(result);
-			const dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-			for (let index = 1; index < 8; index++) {
-				$.ajax({
-					url : sampleJsonURL + '/data/alphadom_sensor_' + index + '.json',
-					type : 'get',
-					success : function(response){
-						sensorThingsController.arrangeDataFromSensorThingsAPIData(response);
-						sensorThingsController.calculateSumOfOccupancyOfBuilding();
-						sensorThingsController.calculateSumOfOccupancyOfFloor(dataGroupId, dataKey);
+				.then(function(result){
+					sensorThingsController.setCellSpaceList(result);
+					const dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
+					for (let index = 1; index < 8; index++) {
+						$.ajax({
+							url : sampleJsonURL + '/data/alphadom_sensor_' + index + '.json',
+							type : 'get',
+							success : function(response){
+								sensorThingsController.arrangeDataFromSensorThingsAPIData(response);
+								sensorThingsController.calculateSumOfOccupancyOfBuilding();
+								sensorThingsController.calculateSumOfOccupancyOfFloor(dataGroupId, dataKey);
+							}
+						});
 					}
 				});
-			}
-		});
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, (e)=> {
 			let dataGroupId = e.selected.data.projectId;
 			let dataKey = e.selected.data.nodeId;
@@ -386,10 +396,18 @@
 			let dataKey = e.deselected.data.nodeId;
 			sensorThingsController.closeFloorInformation(dataGroupId, dataKey);
 		});
-
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
 			sensorThingsController.getSensorInformation(e.selected);
 		});
+
+		// 지도상의 센서 위치 갱신
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
+			$('.overlayWarp').hide();
+		});
+		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e) => {
+			dustSensorThings.updateContentPosition();
+		});
+
 	}
 
 	// smart tiling data flyTo
@@ -412,11 +430,11 @@
 		}
 
 		//  searchDataAPI
-		 searchDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey);
+		searchDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey);
 
-		 var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
-		 var geographic = node.data.bbox.geographicCoord;
-		 //hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
+		var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
+		var geographic = node.data.bbox.geographicCoord;
+		//hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
 	}
 
 	var hereIamTimeOut;
@@ -477,158 +495,6 @@
 			return;
 		}
 		gotoFlyAPI(MAGO3D_INSTANCE, parseFloat(longitude), parseFloat(latitude), parseFloat(altitude), parseFloat(duration));
-	}
-
-	// 데이터 정보 다이얼 로그
-	var dataInfoDialog = $( "#dataInfoDialogDHTML" ).dialog({
-		autoOpen: false,
-		width: 500,
-		height: 720,
-		modal: true,
-		overflow : "auto",
-		resizable: false
-	});
-
-	//데이터 상세 정보 조회
-	function detailDataInfo(url) {
-		dataInfoDialog.dialog( "open" );
-		$.ajax({
-			url: url,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					dataInfoDialog.dialog( "option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
-
-				    var template = Handlebars.compile($("#dataInfoSource").html());
-				    var dataInfoHtml = template(msg.dataInfo);
-
-				    $("#dataInfoDialogDHTML").html("").append(dataInfoHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	// 데이터 속성 다이얼 로그
-	var dataAttributeDialog = $( "#dataAttributeDialog" ).dialog({
-		autoOpen: false,
-		width: 600,
-		height: 350,
-		modal: true,
-		resizable: false
-	});
-	// 부산 데이터 속성용 다이얼 로그
-	var sampleDataAttributeDialog = $( "#sampleDataAttributeDialogDHTML" ).dialog({
-		autoOpen: false,
-		width: 500,
-		height: 600,
-		modal: true,
-		resizable: false
-	});
-
-	// 데이터 속성
-	function detailDataAttribute(dataId, dataGroupKey, dataKey, dataName) {
-		sampleDataAttributeDialog.dialog( "open" );
-		$.ajax({
-			url: "/attribute-repository/" + dataKey,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					if(msg.attributeRepository !== null) {
-						var template = Handlebars.compile($("#sampleDataAttributeSource").html());
-						var html = template(msg.attributeRepository);
-						$("#sampleDataAttributeDialogDHTML").html("").append(html);
-					}
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	// 데이터 Object 속성 다이얼 로그
-	var dataObjectAttributeDialog = $( "#dataObjectAttributeDialog" ).dialog({
-		autoOpen: false,
-		width: 800,
-		height: 550,
-		modal: true,
-		resizable: false
-	});
-
-	// 데이터 Object 속성
-	function detailDataObjectAttribute(dataId, dataName) {
-		dataObjectAttributeDialog.dialog( "open" );
-		$("#dataNameForObjectAttribute").html(dataName);
-
-		$.ajax({
-			url: "/datas/object/attributes/" + dataId,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					if(msg.dataObjectAttribute !== null) {
-						//$("#dataObjectAttributeForOrigin").html(msg.dataObjectAttribute.attributes);
-						$("#dataObjectAttributeViewer").html("");
-						var jsonViewer = new JSONViewer();
-						document.querySelector("#dataObjectAttributeViewer").appendChild(jsonViewer.getContainer());
-						jsonViewer.showJSON(JSON.parse(msg.dataObjectAttribute.attributes), -1, -1);
-					}
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
-
-	// 데이터 그룹 다이얼로그
-	var dataGroupDialog = $( "#dataGroupDialogDHTML" ).dialog({
-		autoOpen: false,
-		width: 500,
-		height: 620,
-		modal: true,
-		overflow : "auto",
-		resizable: false
-	});
-
-	// 데이터 그룹 상세 정보 조회
-	function detailDataGroup(url) {
-		dataGroupDialog.dialog( "open" );
-		$.ajax({
-			url: url,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					dataGroupDialog.dialog( "option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
-
-				    var template = Handlebars.compile($("#dataGroupSource").html());
-				    var dataGroupHtml = template(msg.dataGroup);
-
-				    $("#dataGroupDialogDHTML").html("").append(dataGroupHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
 	}
 
 	function visibleGroup(_this, dataGroupId) {
@@ -724,6 +590,161 @@
 		sensorThingsController.openFloorInformation(dataGroupId, dataKey);
 	}
 
+	// 데이터 정보 다이얼 로그
+	var dataInfoDialog = $( "#dataInfoDialogDHTML" ).dialog({
+		autoOpen: false,
+		width: 500,
+		height: 720,
+		modal: true,
+		overflow : "auto",
+		resizable: false
+	});
+
+	//데이터 상세 정보 조회
+	function detailDataInfo(url) {
+		dataInfoDialog.dialog( "open" );
+		$.ajax({
+			url: url,
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					dataInfoDialog.dialog( "option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
+
+					var template = Handlebars.compile($("#dataInfoSource").html());
+					var dataInfoHtml = template(msg.dataInfo);
+
+					$("#dataInfoDialogDHTML").html("").append(dataInfoHtml);
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
+
+	// 데이터 속성 다이얼 로그
+	var dataAttributeDialog = $( "#dataAttributeDialog" ).dialog({
+		autoOpen: false,
+		width: 600,
+		height: 350,
+		modal: true,
+		resizable: false
+	});
+
+	// 부산 데이터 속성용 다이얼 로그
+	var sampleDataAttributeDialog = $( "#sampleDataAttributeDialogDHTML" ).dialog({
+		autoOpen: false,
+		width: 500,
+		height: 600,
+		modal: true,
+		resizable: false
+	});
+
+	// 데이터 속성
+	function detailDataAttribute(dataId, dataGroupKey, dataKey, dataName) {
+		sampleDataAttributeDialog.dialog( "open" );
+		$.ajax({
+			url: "/attribute-repository/" + dataKey,
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					if(msg.attributeRepository !== null) {
+						var template = Handlebars.compile($("#sampleDataAttributeSource").html());
+						var html = template(msg.attributeRepository);
+						$("#sampleDataAttributeDialogDHTML").html("").append(html);
+					}
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
+	// 데이터 Object 속성 다이얼 로그
+	var dataObjectAttributeDialog = $( "#dataObjectAttributeDialog" ).dialog({
+		autoOpen: false,
+		width: 800,
+		height: 550,
+		modal: true,
+		resizable: false
+	});
+
+	// 데이터 Object 속성
+	function detailDataObjectAttribute(dataId, dataName) {
+		dataObjectAttributeDialog.dialog( "open" );
+		$("#dataNameForObjectAttribute").html(dataName);
+
+		$.ajax({
+			url: "/datas/object/attributes/" + dataId,
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					if(msg.dataObjectAttribute !== null) {
+						//$("#dataObjectAttributeForOrigin").html(msg.dataObjectAttribute.attributes);
+						$("#dataObjectAttributeViewer").html("");
+						var jsonViewer = new JSONViewer();
+						document.querySelector("#dataObjectAttributeViewer").appendChild(jsonViewer.getContainer());
+						jsonViewer.showJSON(JSON.parse(msg.dataObjectAttribute.attributes), -1, -1);
+					}
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
+	// 데이터 그룹 다이얼로그
+	var dataGroupDialog = $( "#dataGroupDialogDHTML" ).dialog({
+		autoOpen: false,
+		width: 500,
+		height: 620,
+		modal: true,
+		overflow : "auto",
+		resizable: false
+	});
+
+	// 데이터 그룹 상세 정보 조회
+	function detailDataGroup(url) {
+		dataGroupDialog.dialog( "open" );
+		$.ajax({
+			url: url,
+			type: "GET",
+			headers: {"X-Requested-With": "XMLHttpRequest"},
+			dataType: "json",
+			success: function(msg){
+				if(msg.statusCode <= 200) {
+					dataGroupDialog.dialog( "option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
+
+					var template = Handlebars.compile($("#dataGroupSource").html());
+					var dataGroupHtml = template(msg.dataGroup);
+
+					$("#dataGroupDialogDHTML").html("").append(dataGroupHtml);
+				} else {
+					alert(JS_MESSAGE[msg.errorCode]);
+				}
+			},
+			error:function(request,status,error){
+				alert(JS_MESSAGE["ajax.error.message"]);
+			}
+		});
+	}
+
 </script>
+
 </body>
 </html>

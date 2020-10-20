@@ -1,106 +1,295 @@
 package io.openindoormap.api;
 
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import io.openindoormap.domain.*;
 import io.openindoormap.domain.data.DataGroup;
-import io.openindoormap.domain.data.DataGroupDto;
+import io.openindoormap.domain.data.DataInfoLegacy;
+import io.openindoormap.domain.data.DataInfoLegacyWrapper;
+import io.openindoormap.domain.data.DataInfoSimple;
+import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.service.DataGroupService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
+import io.openindoormap.service.DataService;
+import io.openindoormap.support.LogMessageSupport;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import java.util.Map;
 
 @Slf4j
-@Api(tags = {"DataGroupAPI"})
 @RestController
-@AllArgsConstructor
-@RequestMapping(value = "/api/data-groups", produces = MediaTypes.HAL_JSON_VALUE)
+@RequestMapping("/api/data-groups")
 public class DataGroupAPIController {
 
-    private final DataGroupService dataGroupService;
-    private final ModelMapper modelMapper;
+	@Autowired
+	private DataService dataService;
+	@Autowired
+	private DataGroupService dataGroupService;
 
-    /**
-     * 데이터 그룹 목록 조회
-     *
-     * @return
-     */
-    @ApiOperation(value = "데이터 그룹 목록 조회")
-    @GetMapping(produces = "application/json; charset=UTF-8")
-    public ResponseEntity<CollectionModel<EntityModel<DataGroupDto>>> getDesignLayerGroups() {
-        List<EntityModel<DataGroupDto>> dataGroupList = dataGroupService.getListDataGroup(new DataGroup())
-                .stream()
-                .map(f -> EntityModel.of(modelMapper.map(f, DataGroupDto.class))
-                        .add(linkTo(DataGroupAPIController.class).slash(f.getDataGroupId()).withSelfRel()))
-                .collect(Collectors.toList());
+	@Autowired
+	private ObjectMapper objectMapper;
 
-        CollectionModel<EntityModel<DataGroupDto>> model = CollectionModel.of(dataGroupList);
+	/**
+	 * 그룹Key 중복 체크
+	 * @param request
+	 * @param dataGroup
+	 * @return
+	 */
+	@GetMapping(value = "/duplication")
+	public Map<String, Object> dataGroupKeyDuplicationCheck(HttpServletRequest request, DataGroup dataGroup) {
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
 
-        model.add(linkTo(DataGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resources-data-group-list").withRel("profile"));
+		// TODO @Valid 로 구현해야 함
+		if(StringUtils.isEmpty(dataGroup.getDataGroupKey())) {
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", "data.group.key.empty");
+			result.put("message", message);
+			return result;
+		}
 
-        return ResponseEntity.ok(model);
-    }
+		Boolean duplication = dataGroupService.isDataGroupKeyDuplication(dataGroup);
+		log.info("@@ duplication = {}", duplication);
+		int statusCode = HttpStatus.OK.value();
+		
+		result.put("duplication", duplication);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+	
+	/**
+	 * 사용자 데이터 그룹 정보
+	 * @param dataGroup
+	 * @return
+	 */
+	@GetMapping("/{dataGroupId:[0-9]+}")
+	public Map<String, Object> detail(	HttpServletRequest request, @PathVariable Integer dataGroupId, DataGroup dataGroup ) {
+		log.info("@@@@@ detail dataGroup = {}, dataGroupId = {}", dataGroup, dataGroupId);
+		
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		
+		dataGroup = dataGroupService.getDataGroup(dataGroup);
+		int statusCode = HttpStatus.OK.value();
+		
+		result.put("dataGroup", dataGroup);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+	
+	/**
+	 * 데이터 그룹 등록
+	 * @param request
+	 * @param dataGroup
+	 * @param bindingResult
+	 * @return
+	 */
+	@PostMapping
+	public Map<String, Object> insert(HttpServletRequest request, @Valid @ModelAttribute DataGroup dataGroup, BindingResult bindingResult) {
+		log.info("@@@@@ insert-group dataGroup = {}", dataGroup);
 
-    /**
-     * 데이터 그룹 한건 조회
-     *
-     * @param id 데이터 그룹 아이디
-     * @return
-     */
-    @ApiOperation(value = "데이터 그룹 한건 조회")
-    @ApiImplicitParam(name = "id", value = "아이디")
-    @GetMapping(value = "/{id}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<EntityModel<DataGroupDto>> getDataGroupById(@PathVariable("id") Integer id) {
-    	
-    	DataGroup dGroup = new DataGroup();
-    	dGroup.setDataGroupId(id);
-    	
-        DataGroupDto dto = modelMapper.map(dataGroupService.getDataGroup(dGroup), DataGroupDto.class);
-        EntityModel<DataGroupDto> dataGroup = EntityModel.of(dto);
-        dataGroup.add(linkTo(DataGroupAPIController.class).slash(id).withSelfRel());
-        dataGroup.add(Link.of("/docs/index.html#resources-data-group-get").withRel("profile"));
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		
+		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
 
-        return ResponseEntity.ok(dataGroup);
-    }
+		if(bindingResult.hasErrors()) {
+			message = bindingResult.getAllErrors().get(0).getDefaultMessage();
+			log.info("@@@@@ message = {}", message);
+			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+			result.put("errorCode", errorCode);
+			result.put("message", message);
+            return result;
+		}
 
-    /**
-     * parent 에 대한 데이터 그룹 목록 조회
-     * @param id
-     * @return
-     */
-    @ApiOperation(value = "parent 에 대한 데이터 그룹 목록 조회")
-    @ApiImplicitParam(name = "id", value = "아이디")
-    @GetMapping(value = "/parent/{id}", produces = "application/json; charset=UTF-8")
-    public ResponseEntity<CollectionModel<EntityModel<DataGroupDto>>> getDataGroupByParent(@PathVariable("id") Integer id) {
-        List<EntityModel<DataGroupDto>> dataGroupList = dataGroupService.getListDataGroup(
-                DataGroup.builder().dataGroupId(id).build())
-                .stream()
-                .map(f -> EntityModel.of(modelMapper.map(f, DataGroupDto.class))
-                        .add(linkTo(DataGroupAPIController.class).slash(f.getDataGroupId()).withSelfRel()))
-                .collect(Collectors.toList());
+		dataGroup.setUserId(userSession.getUserId());
+		if(dataGroup.getLongitude() != null && dataGroup.getLatitude() != null) {
+			dataGroup.setLocationUpdateType(LocationUdateType.USER.name().toLowerCase());
+			dataGroup.setLocation("POINT(" + dataGroup.getLongitude() + " " + dataGroup.getLatitude() + ")");
+		}
+		
+		dataGroupService.insertDataGroup(dataGroup);
+		int statusCode = HttpStatus.OK.value();
 
-        CollectionModel<EntityModel<DataGroupDto>> model = CollectionModel.of(dataGroupList);
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
 
-        model.add(linkTo(DataGroupAPIController.class).withSelfRel());
-        model.add(Link.of("/docs/index.html#resources-data-group-parent").withRel("profile"));
+	/**
+	 * 데이터 그룹 수정
+	 * @param request
+	 * @param dataGroup
+	 * @param bindingResult
+	 * @return
+	 */
+	@PostMapping("/{dataGroupId:[0-9]+}")
+	public Map<String, Object> update(HttpServletRequest request, @PathVariable Integer dataGroupId, @Valid DataGroup dataGroup, BindingResult bindingResult) {
+		log.info("@@ dataGroup = {}", dataGroup);
+		
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		
+		if(dataGroup.getLongitude() != null && dataGroup.getLatitude() != null) {
+			dataGroup.setLocationUpdateType(LocationUdateType.USER.name().toLowerCase());
+			dataGroup.setLocation("POINT(" + dataGroup.getLongitude() + " " + dataGroup.getLatitude() + ")");
+		}
+		
+		dataGroupService.updateDataGroup(dataGroup);
+		int statusCode = HttpStatus.OK.value();
 
-        return ResponseEntity.ok(model);
-    }
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+
+	/**
+	 * 데이터 그룹 트리 순서 수정 (up/down)
+	 * @param request
+	 * @param dataGroupId
+	 * @param dataGroup
+	 * @return
+	 */
+	@PostMapping(value = "/view-order/{dataGroupId:[0-9]+}")
+	public Map<String, Object> moveDataGroup(HttpServletRequest request, @PathVariable Integer dataGroupId, @ModelAttribute DataGroup dataGroup) {
+		log.info("@@ dataGroup = {}", dataGroup);
+
+		Map<String, Object> result = new HashMap<>();
+		String errorCode = null;
+		String message = null;
+		
+		dataGroup.setDataGroupId(dataGroupId);
+		int updateCount = dataGroupService.updateDataGroupViewOrder(dataGroup);
+		int statusCode = HttpStatus.OK.value();
+		if(updateCount == 0) {
+			statusCode = HttpStatus.BAD_REQUEST.value();
+			errorCode = "data.group.view-order.invalid";
+		}
+
+		result.put("statusCode", statusCode);
+		result.put("errorCode", errorCode);
+		result.put("message", message);
+		return result;
+	}
+
+	/**
+	 * Smart Tiling 데이터 다운로드
+	 * @param request
+	 * @param response
+	 * @param dataGroupId
+	 * @return
+	 */
+	@GetMapping(value = "/download/{dataGroupId:[0-9]+}")
+	public String downloadSmartTiling(HttpServletRequest request, HttpServletResponse response, @PathVariable Integer dataGroupId) {
+		log.info("@@ dataGroupId = {}", dataGroupId);
+		
+		response.setContentType("application/force-download");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + dataGroupId + ".json\"");
+		
+		DataGroup dataGroup = DataGroup.builder().dataGroupId(dataGroupId).build();
+		dataGroup = dataGroupService.getDataGroup(dataGroup);
+		
+		List<DataInfoSimple> dataInfoList = dataService.getListAllDataByDataGroupId(dataGroupId);
+		dataGroup.setDatas(dataInfoList);
+		try {
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			String dataJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataGroup);
+			
+			// 불필요한 코드
+			dataJson = dataJson.replaceAll("<", "&lt;");
+			dataJson = dataJson.replaceAll(">", "&gt;");
+			response.getWriter().write(dataJson);
+		} catch(JsonProcessingException e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		} catch(RuntimeException e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		} catch(Exception e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		}
+			
+		return null;
+	}
+
+	/**
+	 * Smart Tiling Converter용 JSON 다운로드
+	 * @param request
+	 * @param response
+	 * @param dataGroupId
+	 * @return
+	 */
+	@GetMapping(value = "/download/converter/{dataGroupId:[0-9]+}")
+	public String downloadSmartTilingConverter(HttpServletRequest request, HttpServletResponse response, @PathVariable Integer dataGroupId) {
+		log.info("@@ dataGroupId = {}", dataGroupId);
+		
+		response.setContentType("application/force-download");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Disposition", "attachment; filename=\"converter_" + dataGroupId + ".json\"");
+		
+		DataGroup dataGroup = DataGroup.builder().dataGroupId(dataGroupId).build();
+		dataGroup = dataGroupService.getDataGroup(dataGroup);
+		
+		List<DataInfoSimple> dataInfoList = dataService.getListAllDataByDataGroupId(dataGroupId);
+		dataGroup.setDatas(dataInfoList);
+		
+		try {
+			
+			DataInfoLegacyWrapper tgt = new DataInfoLegacyWrapper();
+			List<DataInfoLegacy> childrens = new ArrayList<>();
+			
+			for (DataInfoSimple info : dataInfoList) {
+				DataInfoLegacy children = new DataInfoLegacy();
+				children.setLatitude(info.getLatitude());
+				children.setLongitude(info.getLongitude());
+				children.setDataId(info.getDataId());
+				children.setDataGroupId(info.getDataGroupId());
+				children.setData_key(info.getDataKey());
+				children.setData_name(info.getDataName());
+				children.setMapping_type(info.getMappingType());
+				children.setHeight(info.getAltitude());
+				children.setHeading(info.getHeading());
+				children.setPitch(info.getPitch());
+				children.setRoll(info.getRoll());
+				children.setAttributes(info.getMetainfo());
+				childrens.add(children);
+			}
+			tgt.setChildren(childrens);
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			String result = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(tgt);
+			
+			// 불필요한 코드
+			//dataJson = dataJson.replaceAll("<", "&lt;");
+			//dataJson = dataJson.replaceAll(">", "&gt;");
+			response.getWriter().write(result);
+		} catch(JsonProcessingException e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ jsonProcessing exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		} catch(RuntimeException e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ runtime exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		} catch(Exception e) {
+			LogMessageSupport.printMessage(e, "@@@@@@@@@@@@ exception. message = {}", e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
+		}
+			
+		return null;
+	}
 }
