@@ -1,6 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <div id="iotContent" class="dataContents">
-
     <form id="searchIotForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
         <div class="searchDataType">
             <div>
@@ -21,7 +20,6 @@
             </div>
         </div>
     </form>
-
     <div id="iotLegendDHTML"></div>
     <div id="iotSearchSummaryDHTML"></div>
     <div id="iotInfoContent" class="yScroll" style="height: calc(100% - 340px)">
@@ -29,12 +27,50 @@
         <div id="iotDustListDHTML" style="display:none"></div>
     </div>
     <div id="iotPaginationDHTML" class="paginationWrap"></div>
-
     <div th:replace="~{/iot/legend-template :: #iotLegendSource}"></div>
     <div th:replace="~{/common/search-summary-template :: #searchSummarySource}"></div>
     <div th:replace="~{/iot/occupancy-template :: #occupancyListSource}"></div>
     <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
     <div th:replace="~{/common/pagination-template :: #paginationSource}"></div>
+    <script type="text/javascript" th:src="@{/js/{lang}/common/pagination.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/dust-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/occupancy-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
 
+            // 한 시간에 한번씩 자료 갱신
+            setInterval(function () {
+                dustSensorThings.updateContentValue();
+            }, 1000 * 60 * 60);
+
+            // 검색 버튼 클릭
+            $('#iotSearch').click(function () {
+                sensorThings.dataSearch(1);
+            });
+
+            // 검색 엔터키
+            $('#iotSearch').keyup(function (e) {
+                if (e.keyCode == 13) {
+                    sensorThings.dataSearch(1);
+                }
+            });
+
+            // 검색조건 변경
+            $('#iotContent input[name="searchWord"]').change(function (e) {
+                sensorThings.type = this.value;
+            });
+
+            $('#magoContainer').on('click', '.overlayWarp > ul', function () {
+                const locationId = $(this).data('id');
+                dustSensorThings.getSensorInformation(locationId);
+            });
+
+            $('#magoContainer').on('click', '#closeDustInfo', function () {
+                dustSensorThings.closeSensorInformation();
+            });
+
+        });
+    </script>
 </div>
 </html>

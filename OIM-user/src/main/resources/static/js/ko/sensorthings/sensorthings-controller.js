@@ -222,8 +222,14 @@ SensorThingsController.prototype.getSensorInformation = function(marker) {
     sensorData.lastValue = sensorData.sensorDatastreams.Observations[0].result;
     sensorData.lastTime = sensorData.sensorDatastreams.Observations[0].phenomenonTime;
 
-    var template = Handlebars.compile($("#sensorInfoSource").html());
-    $("#sensorInfoDHTML").html("").append(template(sensorData));
+    const $occupancyInfoWrap = $('#occupancyInfoWrap');
+    var template = Handlebars.compile($("#occupancyInfoSource").html());
+    const html = template(sensorData);
+    if ($occupancyInfoWrap.length === 0) {
+        const wrapper ='<div id="occupancyInfoWrap" class="sensor-detail-wrap">' + html + '</div>';
+        $('.cesium-viewer').append(wrapper);
+    }
+    $occupancyInfoWrap.html(html);
 
     const thingsResultList = [];
     const thingsTimeList = [];
@@ -233,7 +239,7 @@ SensorThingsController.prototype.getSensorInformation = function(marker) {
         thingsTimeList.push(observation.phenomenonTime);
     }
     this.drawSensorChart(thingsTimeList, thingsResultList, "sensorChart");
-    $('#sensorInfoWrap').show();
+    $occupancyInfoWrap.show();
 };
 SensorThingsController.prototype.gotoSensor = function(sensorId) {
     const cellSpace = this.cellSpaceList[sensorId];
@@ -344,5 +350,5 @@ SensorThingsController.prototype.drawSensorChart = function(xData, yData, canvas
     );
 };
 SensorThingsController.prototype.closeSensorInformation = function() {
-    $('#sensorInfoWrap').hide();
+    $('#occupancyInfoWrap').hide();
 };
