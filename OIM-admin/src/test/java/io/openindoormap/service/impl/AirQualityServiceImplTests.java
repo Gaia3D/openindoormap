@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.net.MalformedURLException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -34,7 +37,12 @@ class AirQualityServiceImplTests {
     }
 
     @Test
-    void 미세먼지_데이터_유무_확인() throws MalformedURLException, ServiceFailureException {
+    void 미세먼지_데이터_넣기() {
+        sensorService.insertSensorData();
+    }
+
+    @Test
+    void 미세먼지_데이터_유무_확인() throws ServiceFailureException {
         //http://localhost:8888/FROST-Server/v1.0/Things?$count=true&$filter=description eq '한국환경공단 측정소'&$orderBy=id desc&$top=1
         EntityList<Thing> things = sensorThingsService.things()
                 .query()
@@ -65,17 +73,25 @@ class AirQualityServiceImplTests {
     }
 
     @Test
-    void 측정소별_데이터스트림() throws MalformedURLException, ServiceFailureException {
+    void 측정소별_데이터스트림() throws ServiceFailureException {
         //http://localhost:8888/FROST-Server/v1.0/Things?$filter= name eq '반송로'&$expand=Datastreams
         EntityList<Thing> things = sensorThingsService.things()
                 .query()
                 .filter("name eq '반송로'")
-                .expand("Datastreams($orderby=id asc)")
+                .expand("Datastreams($orderby=id desc)")
                 .list();
 
         EntityList<Datastream> datastreams = things.toList().get(0).getDatastreams();
         for(var datastream : datastreams) {
             log.info("datastream ================== {} ", datastream);
         }
+    }
+
+    @Test
+    void test() {
+        String time = "2020-10-21 17:00";
+        LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+        log.info("test ================== {} ", zonedDateTime);
     }
 }
