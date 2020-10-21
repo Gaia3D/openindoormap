@@ -6,7 +6,7 @@ import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
-import io.openindoormap.service.SensorService;
+import io.openindoormap.service.AirQualityService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +27,7 @@ class AirQualityServiceImplTests {
 
     @Qualifier("airQualityService")
     @Autowired
-    private SensorService sensorService;
+    private AirQualityService sensorService;
     @Autowired
     private SensorThingsService sensorThingsService;
 
@@ -39,6 +39,11 @@ class AirQualityServiceImplTests {
     @Test
     void 미세먼지_데이터_넣기() {
         sensorService.insertSensorData();
+    }
+
+    @Test
+    void 미세먼지_한달_더미_데이터() {
+        sensorService.initMonthMockData();
     }
 
     @Test
@@ -90,8 +95,21 @@ class AirQualityServiceImplTests {
     @Test
     void test() {
         String time = "2020-10-21 17:00";
-        LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
-        log.info("test ================== {} ", zonedDateTime);
+//        LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+//        t = t.plusHours(1);
+//        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+//        log.info("test ================== {} ", zonedDateTime);
+        for(int i=0; i< 24;i++) {
+            LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            t = t.minusDays(1);
+            t = t.plusHours(i);
+            ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+
+            log.info("zonedDateTime =========================== {} ", zonedDateTime);
+            log.info("getYear =========================== {} ", t.getYear());
+            log.info("getMonthValue =========================== {} ", t.getMonthValue());
+            log.info("getDayOfMonth =========================== {} ", t.getDayOfMonth());
+            log.info("getHour =========================== {} ", t.getHour());
+        }
     }
 }

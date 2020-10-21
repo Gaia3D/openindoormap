@@ -11,4 +11,6 @@ public interface AirQualityService extends SensorService {
     @Override
     void insertSensorData();
 
+    void initMonthMockData();
+
 }

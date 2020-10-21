@@ -338,6 +338,71 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
+    @Override
+    public void initMonthMockData() {
+        JSONObject stationJson = null;
+        try {
+            stationJson = getListStation();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<?> stationList = (List<?>) stationJson.get("list");
+        for(var station : stationList) {
+            var jsonObject = (JSONObject) station;
+            var stationName = (String)jsonObject.get("stationName");
+            JSONObject json = new JSONObject();
+            try {
+                json.clear();
+                for(int i=0; i< 24;i++) {
+                    JSONObject result = getAirQualityData(stationName);
+                    LocalDateTime t = LocalDateTime.parse((String)result.get("dataTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                    t = t.minusDays(1);
+                    t = t.plusHours(i);
+                    ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+                    EntityList<Thing> things = sensorThingsService.things()
+                            .query()
+                            .filter("name eq " + "'"+ stationName +"'")
+                            .expand("Datastreams($orderby=id asc)")
+                            .list();
+                    Thing thing = things.toList().get(0);
+                    EntityList<Datastream> datastreamList = thing.getDatastreams();
+                    for(var datastream : datastreamList) {
+                        String name = datastream.getName();
+                        if(name.equals(AirQuality.PM10.getValue())) {
+                            json.put("value", result.get("pm10Value"));
+                            json.put("grade", result.get("pm10Grade"));
+                        } else if(name.equals(AirQuality.PM25.getValue())) {
+                            json.put("value", result.get("pm25Value"));
+                            json.put("grade", result.get("pm25Grade"));
+                        } else if(name.equals(AirQuality.SO2.getValue())) {
+                            json.put("value", result.get("so2Value"));
+                            json.put("grade", result.get("so2Grade"));
+                        } else if(name.equals(AirQuality.CO.getValue())) {
+                            json.put("value", result.get("coValue"));
+                            json.put("grade", result.get("coGrade"));
+                        } else if(name.equals(AirQuality.O3.getValue())) {
+                            json.put("value", result.get("o3Value"));
+                            json.put("grade", result.get("o3Grade"));
+                        } else if(name.equals(AirQuality.NO2.getValue())) {
+                            json.put("value", result.get("no2Value"));
+                            json.put("grade", result.get("no2Grade"));
+                        }
+                        sensorThingsService.create(ObservationBuilder.builder()
+                                .phenomenonTime(new TimeObject(ZonedDateTime.now()))
+                                .resultTime(zonedDateTime)
+                                .result(json)
+                                .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId()))).build())
+                                .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
+                                .build());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * 측정소 목록 조회
      * @return
