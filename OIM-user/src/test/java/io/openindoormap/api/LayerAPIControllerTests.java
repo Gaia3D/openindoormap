@@ -41,8 +41,6 @@ class LayerAPIControllerTests extends BaseControllerTest {
         given(layerService.getListLayer(any())).willReturn(getLayerList());
 
         this.mockMvc.perform(get("/api/layers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaTypes.HAL_JSON)
                 .param("layerGroupId", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())

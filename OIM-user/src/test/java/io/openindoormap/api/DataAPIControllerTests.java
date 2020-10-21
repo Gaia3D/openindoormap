@@ -4,17 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
-
-import io.openindoormap.api.LayerAPIController;
 import io.openindoormap.common.BaseControllerTest;
+import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.layer.Layer;
-import io.openindoormap.service.LayerService;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
+import io.openindoormap.service.DataService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -28,121 +21,158 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(LayerAPIController.class)
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
+@WebMvcTest(DataAPIController.class)
 class DataAPIControllerTests extends BaseControllerTest {
 
     @MockBean
-    private LayerService layerService;
+    private DataService dataService;
 
     @Test
-    @DisplayName("Layer 목록 조회 하기")
-    public void getLayers() throws Exception {
+    @DisplayName("데이터 목록 조회 하기")
+    public void getDatas() throws Exception {
         // given
-        given(layerService.getListLayer(any())).willReturn(getLayerList());
+        given(dataService.getListData(any())).willReturn(getDataList());
+        
+        
 
-        this.mockMvc.perform(get("/api/layers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaTypes.HAL_JSON)
-                .param("layerGroupId", "1"))
+        this.mockMvc.perform(get("/api/datas")
+                .param("dataGroupId", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 //.andExpect(jsonPath("page").exists())
-                .andExpect(jsonPath("_embedded.layers[0]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("layer-list", requestParameters(parameterWithName("layerGroupId").description("레이어 그룹 고유번호"))));
+                .andDo(document("data-list", requestParameters(parameterWithName("dataGroupId").description("데이터 그룹 고유번호"))));
     }
-
+    
+    
     @Test
-    @DisplayName("Layer 단일 조회 하기")
-    public void getLayer() throws Exception {
-        Layer mock = getLayerById();
-        given(layerService.getLayer(any())).willReturn(mock);
+    @DisplayName("데이터 상세 정보 조회 하기")
+    public void getDataById() throws Exception {
+        // given
+    	DataInfo mock = getdataById();
+        given(dataService.getData(any())).willReturn(mock);
 
-        this.mockMvc.perform(get("/api/layers/{id}", mock.getLayerId()))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("layerId").exists())
-                .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("layer-get",
-                        /**
-                         * relaxedResponseFields 를 쓰면 모든 필드를 기술할 필요가 없다.
-                         * 하지만 모든 필드를 기술하지 않으므로 정확한 문서를 만들지 못한다.
-                         * responseFields를 쓰면 모든 필드를 기술해야 한다.
-                         */
-                        relaxedResponseFields(
-                                fieldWithPath("layerId").description("layer 고유번호"),
-                                fieldWithPath("layerGroupId").description("layer 그룹 고유번호"),
-                                fieldWithPath("layerKey").description("layer 고유키(API용)"),
-                                fieldWithPath("layerName").description("layer 명"),
-                                fieldWithPath("layerType").description("layer 분류. Raster, Vector"),
-                                fieldWithPath("userId").description("사용자명"),
-                                fieldWithPath("ogcWebServices").description("OGC Web Services (wms, wfs, wcs, wps)"),
-                                fieldWithPath("geometryType").description("도형 타입"),
-                                fieldWithPath("layerFillColor").description("외곽선 색상"),
-                                fieldWithPath("layerLineColor").description("외곽선 두께"),
-                                fieldWithPath("layerLineStyle").description("채우기 색상"),
-                                fieldWithPath("layerAlphaStyle").description("투명도"),
-                                fieldWithPath("viewOrder").description("나열 순서"),
-                                fieldWithPath("zindex").description("지도위에 노출 순위(css z-index와 동일)"),
-                                fieldWithPath("available").description("사용유무"),
-                                fieldWithPath("cacheAvailable").description("캐시 사용 유무"),
-                                fieldWithPath("coordinate").description("좌표계 정보"),
-                                fieldWithPath("description").description("설명"),
-                                fieldWithPath("updateDate").description("수정일"),
-                                fieldWithPath("insertDate").description("등록일")
-                        )
-                ));
+        this.mockMvc.perform(get("/api/datas/{id}", mock.getDataId()))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("dataId").exists())
+        .andExpect(jsonPath("_links.self").exists())
+        .andExpect(jsonPath("_links.profile").exists())
+        .andDo(document("data-get",
+                /**
+                 * relaxedResponseFields 를 쓰면 모든 필드를 기술할 필요가 없다.
+                 * 하지만 모든 필드를 기술하지 않으므로 정확한 문서를 만들지 못한다.
+                 * responseFields를 쓰면 모든 필드를 기술해야 한다.
+                 */
+                relaxedResponseFields(
+                        fieldWithPath("userId").description("사용자 고유번호"),
+                        fieldWithPath("updateUserId").description("수정자 아이디"),
+                        fieldWithPath("dataId").description("고유번호"),
+                        fieldWithPath("dataGroupId").description("Data Group 고유번호"),
+                        fieldWithPath("converterJobId").description("converter job 고유번호"),
+                        fieldWithPath("dataGroupName").description("Data Group 이름"),
+                        fieldWithPath("dataGroupTarget").description("admin : 관리자용 데이터 그룹, user : 일반 사용자용 데이터 그룹"),
+                        fieldWithPath("dataGroupKey").description("data group key"),
+                        fieldWithPath("tiling").description("smart"),
+                        fieldWithPath("dataKey").description("data 고유 식별번호"),
+                        fieldWithPath("oldDataKey").description("data 고유 식별번호"),
+                        fieldWithPath("dataName").description("data 이름"),
+                        fieldWithPath("dataType").description("데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc"),
+                        fieldWithPath("sharing").description("common : 공통, public : 공개, private : 개인, group : 그룹"),
+                        fieldWithPath("parent").description("부모 고유번호"),
+                        fieldWithPath("parentName").description("부모 이름(화면 표시용)"),
+                        fieldWithPath("mappingType").description("origin : latitude, longitude, height 를 origin에 맟춤. boundingboxcenter : latitude, longitude, height 를 boundingboxcenter에 맟춤."),
+                        fieldWithPath("location").description("POINT(위도, 경도). 공간 검색 속도 때문에 altitude는 분리"),
+                        fieldWithPath("altitude").description("높이"),
+                        fieldWithPath("heading").description("heading"),
+                        fieldWithPath("pitch").description("pitch"),
+                        fieldWithPath("roll").description("roll"),
+                        fieldWithPath("childrenAncestor").description("조상"),
+                        fieldWithPath("childrenParent").description("부모"),
+                        fieldWithPath("childrenDepth").description("깊이"),
+                        fieldWithPath("childrenViewOrder").description("순서"),
+                        fieldWithPath("metainfo").description("기본정보"),
+                        fieldWithPath("status").description("data 상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)"),
+                        fieldWithPath("attributeExist").description("속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)"),
+                        fieldWithPath("objectAttributeExist").description("object 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)"),
+                        fieldWithPath("description").description("설명"),
+                        fieldWithPath("updateDate").description("수정일"),
+                        fieldWithPath("insertDate").description("등록일")
+                )
+        ));
     }
 
-    private List<Layer> getLayerList() {
-        List<Layer> mockList = new ArrayList<>();
+    
+    private List<DataInfo> getDataList() {
+        List<DataInfo> mockList = new ArrayList<>();
         IntStream.range(1, 4).forEach(i -> {
-            mockList.add(Layer.builder()
-                    .layerId((Integer) i)
-                    .layerGroupId(1)
-                    .layerKey("test" + i)
-                    .layerName("testName" + i)
-                    .layerType("Vector")
-                    .userId("admin")
-                    .ogcWebServices("wms")
-                    .geometryType("polygon")
-                    .layerFillColor("#000000")
-                    .layerLineColor("#000000")
-                    .layerLineStyle(1F)
-                    .layerAlphaStyle(1F)
-                    .viewOrder(1)
-                    .zIndex(1)
-                    .available(true)
-                    .cacheAvailable(true)
-                    .coordinate("EPSG:4326")
-                    .description("test")
+            mockList.add(DataInfo.builder()
+            		.userId("admin")
+                    .updateUserId("admin")
+                    .dataId((Long) 1L)
+                    .dataGroupId((int) 1L)
+                    .converterJobId((Long) 1L)
+                    .dataGroupName("basic")
+                    .dataGroupTarget("admin")                
+                    .dataGroupKey("test")
+                    .tiling(true)
+                    .dataKey("test")
+                    .oldDataKey("test")
+                    .dataName("test-data")                
+                    .sharing("common")
+                    .parent((Long) 1L)
+                    .parentName("test-parent")
+                    .mappingType("origin")
+                    .location("POINT(위도, 경도)")
+                    .childrenAncestor((int) 1L)
+                    .childrenParent((int) 1L)
+                    .childrenDepth((int) 1L)                
+                    .childrenViewOrder((int) 1L)
+                    .metainfo("test-info")
+                    .status("processing")
+                    .attributeExist(true)
+                    .objectAttributeExist(true)
+                    .description("test-description")  
                     .build());
         });
         return mockList;
     }
-
-    private Layer getLayerById() {
-        return Layer.builder()
-                .layerId((int) 1L)
-                .layerGroupId(1)
-                .layerKey("test")
-                .layerName("testName")
-                .layerType("Vector")
+    
+	
+    private DataInfo getdataById() {
+        return DataInfo.builder()
                 .userId("admin")
-                .ogcWebServices("wms")
-                .geometryType("polygon")
-                .layerFillColor("#000000")
-                .layerLineColor("#000000")
-                .layerLineStyle(1F)
-                .layerAlphaStyle(1F)
-                .viewOrder(1)
-                .zIndex(1)
-                .available(true)
-                .cacheAvailable(true)
-                .coordinate("EPSG:4326")
-                .description("test")
+                .updateUserId("admin")
+                .dataId((Long) 1L)
+                .dataGroupId((int) 1L)
+                .converterJobId((Long) 1L)
+                .dataGroupName("basic")
+                .dataGroupTarget("admin")                
+                .dataGroupKey("test")
+                .tiling(true)
+                .dataKey("test")
+                .oldDataKey("test")
+                .dataName("test-data")                
+                .sharing("common")
+                .parent((Long) 1L)
+                .parentName("test-parent")
+                .mappingType("origin")
+                .location("POINT(위도, 경도)")
+                .childrenAncestor((int) 1L)
+                .childrenParent((int) 1L)
+                .childrenDepth((int) 1L)                
+                .childrenViewOrder((int) 1L)
+                .metainfo("test-info")
+                .status("processing")
+                .attributeExist(true)
+                .objectAttributeExist(true)
+                .description("test-description")  
                 .build();
     }
+    
 }

@@ -35,6 +35,9 @@ repositories {
     maven {
         url "https://repo.osgeo.org/repository/Geoserver-releases/"
     }
+    maven {
+        url  "https://dl.bintray.com/fraunhoferiosb/Maven"
+    }
 	mavenCentral()
 }
 
@@ -112,6 +115,9 @@ dependencies {
 
 	runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.postgresql:postgresql:42.2.14'
+
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.32'
 	
 	//providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
     providedCompile 'javax:javaee-api:8.0.1'

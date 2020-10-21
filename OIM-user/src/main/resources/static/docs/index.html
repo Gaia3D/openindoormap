@@ -446,11 +446,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#resources">리소스</a>
 <ul class="sectlevel1">
-<li><a href="#resources-geometry-intersection-data-list">데이터(DataInfo) intersection</a>
+<li><a href="#resources-data">데이터</a>
 <ul class="sectlevel2">
-<li><a href="#resources-geometry-intersection-data-point">point 입력에 대한 데이터 정보</a></li>
-<li><a href="#resources-geometry-intersection-data-linestring">lineString 입력에 대한 데이터 정보</a></li>
-<li><a href="#resources-geometry-intersection-data-polygon">polygon 입력에 대한 데이터 정보</a></li>
+<li><a href="#resources-data-list">데이터 목록 조회</a></li>
+<li><a href="#resources-data-get">데이터 조회</a></li>
+</ul>
+</li>
+<li><a href="#resources-data-group">데이터 그룹</a>
+<ul class="sectlevel2">
+<li><a href="#resources-data-group-list">데이터 그룹 목록 조회</a></li>
+<li><a href="#resources-data-group-list-by-parent">데이터 그룹 parent 로 조회</a></li>
+<li><a href="#resources-data-group-get">데이터 그룹 조회</a></li>
+</ul>
+</li>
+<li><a href="#resources-layer">레이어</a>
+<ul class="sectlevel2">
+<li><a href="#resources-layer-list">레이어 목록 조회</a></li>
+<li><a href="#resources-layer-get">레이어 조회</a></li>
 </ul>
 </li>
 <li><a href="#resources-layer-group">레이어 그룹</a>
@@ -458,12 +470,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#resources-layer-group-list">레이어 그룹 목록 조회</a></li>
 <li><a href="#resources-layer-group-list-by-parent">레이어 그룹 parent 로 조회</a></li>
 <li><a href="#resources-layer-group-get">레이어 그룹 조회</a></li>
-</ul>
-</li>
-<li><a href="#resources-layer">레이어</a>
-<ul class="sectlevel2">
-<li><a href="#resources-layer-list">레이어 목록 조회</a></li>
-<li><a href="#resources-layer-get">레이어 조회</a></li>
 </ul>
 </li>
 </ul>
@@ -569,161 +575,52 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <h1 id="resources" class="sect0"><a class="link" href="#resources">리소스</a></h1>
 <div class="sect1">
-<h2 id="resources-geometry-intersection-data-list"><a class="link" href="#resources-geometry-intersection-data-list">데이터(DataInfo) intersection</a></h2>
+<h2 id="resources-data"><a class="link" href="#resources-data">데이터</a></h2>
 <div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>입력 지오메트리와 데이터가 교차하는 영역에 대한 정보 리턴.</p>
-</li>
-<li>
-<p>geometry 길이가 길어질 수 있으므로 POST 요청을 사용한다.</p>
-</li>
-<li>
-<p>데이터는 point 정보만 가지고 있기 때문에 point, lineString 으로 검색 시 버퍼 설정이 필요하다.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>데이터 또는 목록을 조회 한다.</p>
 </div>
 <div class="sect2">
-<h3 id="resources-geometry-intersection-data-point"><a class="link" href="#resources-geometry-intersection-data-point">point 입력에 대한 데이터 정보</a></h3>
+<h3 id="resources-data-list"><a class="link" href="#resources-data-list">데이터 목록 조회</a></h3>
 <div class="paragraph">
-<p><code>POST</code> point 정보외에 추가적으로 buffer 를 설정하여 검색 반경을 설정할 수 있다.</p>
+<p><code>GET</code> 요청을 사용하여 서비스의 모든 데이터를 조회할 수 있다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
-    -H 'Content-Type: application/json;charset=UTF-8' \
-    -d '{
-  "wkt" : null,
-  "type" : null,
-  "buffer" : 0.002,
-  "maxFeatures" : 3,
-  "geometryInfo" : [ {
-    "longitude" : 127.2620382235517,
-    "latitude" : 36.49698802728868,
-    "altitude" : null
-  } ]
-}'</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/datas?dataGroupId=1' -i -X GET</code></pre>
 </div>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">데이터 그룹 고유번호</p></td>
+</tr>
+</tbody>
+</table>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 3300
+Content-Type: application/json;charset=UTF-8
+Content-Length: 185
 
 {
-  "_embedded" : {
-    "dataInfos" : [ {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 1,
-      "dataGroupId" : 1,
-      "converterJobId" : 1,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data1",
-      "oldDataKey" : null,
-      "dataName" : "data1",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.9469914",
-      "insertDate" : "2020-10-14T16:53:41.9469914"
-    }, {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 2,
-      "dataGroupId" : 2,
-      "converterJobId" : 2,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data2",
-      "oldDataKey" : null,
-      "dataName" : "data2",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.9469914",
-      "insertDate" : "2020-10-14T16:53:41.9469914"
-    }, {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 3,
-      "dataGroupId" : 3,
-      "converterJobId" : 3,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data3",
-      "oldDataKey" : null,
-      "dataName" : "data3",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.9469914",
-      "insertDate" : "2020-10-14T16:53:41.9469914"
-    } ]
-  },
   "_links" : {
     "self" : {
-      "href" : "http://localhost:8080/api/geometry"
+      "href" : "http://localhost:8080/api/datas"
     },
     "profile" : {
-      "href" : "/docs/index.html#resources-geometry-intersection-data-list"
+      "href" : "/docs/index.html#resources-data-info-list"
     }
   }
 }</code></pre>
@@ -731,200 +628,61 @@ Content-Length: 3300
 </div>
 </div>
 <div class="sect2">
-<h3 id="resources-geometry-intersection-data-linestring"><a class="link" href="#resources-geometry-intersection-data-linestring">lineString 입력에 대한 데이터 정보</a></h3>
+<h3 id="resources-data-get"><a class="link" href="#resources-data-get">데이터 조회</a></h3>
 <div class="paragraph">
-<p><code>POST</code> point 와 마찬가지로 추가적으로 buffer 설정이 가능하며, 시작 지점과 종료 지점이 같지 않을 경우 lineString 으로 판별한다.</p>
+<p><code>GET</code> 요청을 사용해서 기존 데이터 하나를 조회할 수 있다.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
-    -H 'Content-Type: application/json;charset=UTF-8' \
-    -d '{
-  "wkt" : null,
-  "type" : null,
-  "buffer" : 0.002,
-  "maxFeatures" : 3,
-  "geometryInfo" : [ {
-    "longitude" : 127.26213396204052,
-    "latitude" : 36.4971935168042,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26215493368343,
-    "latitude" : 36.49712092265567,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26217106571644,
-    "latitude" : 36.49700154561141,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26236465011253,
-    "latitude" : 36.49693056466618,
-    "altitude" : null
-  } ]
-}'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resources-geometry-intersection-data-polygon"><a class="link" href="#resources-geometry-intersection-data-polygon">polygon 입력에 대한 데이터 정보</a></h3>
-<div class="paragraph">
-<p><code>POST</code> 시작 지점과 종료 지점이 같을 경우 polygon 으로 판별한다.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/geometry/intersection/datas' -i -X POST \
-    -H 'Content-Type: application/json;charset=UTF-8' \
-    -d '{
-  "wkt" : null,
-  "type" : null,
-  "buffer" : null,
-  "maxFeatures" : 3,
-  "geometryInfo" : [ {
-    "longitude" : 127.26193957850737,
-    "latitude" : 36.49734846110451,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26199459208978,
-    "latitude" : 36.497006997489514,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26243090670894,
-    "latitude" : 36.49685523588285,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26255041897419,
-    "latitude" : 36.49717962631709,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26255041897419,
-    "latitude" : 36.49717962631709,
-    "altitude" : null
-  }, {
-    "longitude" : 127.26193957850737,
-    "latitude" : 36.49734846110451,
-    "altitude" : null
-  } ]
-}'</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/datas/1' -i -X GET</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/hal+json;charset=UTF-8
-Content-Length: 3300
+Content-Type: application/json;charset=UTF-8
+Content-Length: 1047
 
 {
-  "_embedded" : {
-    "dataInfos" : [ {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 1,
-      "dataGroupId" : 1,
-      "converterJobId" : 1,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data1",
-      "oldDataKey" : null,
-      "dataName" : "data1",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.7979907",
-      "insertDate" : "2020-10-14T16:53:41.7979907"
-    }, {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 2,
-      "dataGroupId" : 2,
-      "converterJobId" : 2,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data2",
-      "oldDataKey" : null,
-      "dataName" : "data2",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.7979907",
-      "insertDate" : "2020-10-14T16:53:41.7979907"
-    }, {
-      "userId" : "admin",
-      "updateUserId" : "test",
-      "dataId" : 3,
-      "dataGroupId" : 3,
-      "converterJobId" : 3,
-      "dataGroupName" : null,
-      "dataGroupTarget" : null,
-      "dataGroupKey" : null,
-      "tiling" : null,
-      "dataKey" : "data3",
-      "oldDataKey" : null,
-      "dataName" : "data3",
-      "dataType" : "ifc",
-      "sharing" : "public",
-      "parent" : null,
-      "parentName" : null,
-      "mappingType" : "origin",
-      "location" : "POINT(127.262219 36.497006)",
-      "altitude" : 1,
-      "heading" : 1,
-      "pitch" : 1,
-      "roll" : 1,
-      "childrenAncestor" : null,
-      "childrenParent" : null,
-      "childrenDepth" : null,
-      "childrenViewOrder" : null,
-      "metainfo" : "test",
-      "status" : "use",
-      "attributeExist" : false,
-      "objectAttributeExist" : true,
-      "description" : "test",
-      "updateDate" : "2020-10-14T16:53:41.7979907",
-      "insertDate" : "2020-10-14T16:53:41.7979907"
-    } ]
-  },
+  "userId" : "admin",
+  "updateUserId" : "admin",
+  "dataId" : 1,
+  "dataGroupId" : 1,
+  "converterJobId" : 1,
+  "dataGroupName" : "basic",
+  "dataGroupTarget" : "admin",
+  "dataGroupKey" : "test",
+  "tiling" : true,
+  "dataKey" : "test",
+  "oldDataKey" : "test",
+  "dataName" : "test-data",
+  "dataType" : null,
+  "sharing" : "common",
+  "parent" : 1,
+  "parentName" : "test-parent",
+  "mappingType" : "origin",
+  "location" : "POINT(위도, 경도)",
+  "altitude" : null,
+  "heading" : null,
+  "pitch" : null,
+  "roll" : null,
+  "childrenAncestor" : 1,
+  "childrenParent" : 1,
+  "childrenDepth" : 1,
+  "childrenViewOrder" : 1,
+  "metainfo" : "test-info",
+  "status" : "processing",
+  "attributeExist" : true,
+  "objectAttributeExist" : true,
+  "description" : "test-description",
+  "updateDate" : null,
+  "insertDate" : null,
   "_links" : {
     "self" : {
-      "href" : "http://localhost:8080/api/geometry"
+      "href" : "http://localhost:8080/api/datas/1"
     },
     "profile" : {
-      "href" : "/docs/index.html#resources-geometry-intersection-data-list"
+      "href" : "/docs/index.html#resources-data-info-get"
     }
   }
 }</code></pre>
@@ -945,113 +703,803 @@ Content-Length: 3300
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].dataId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용자 고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updateUserId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">수정자 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">고유번호</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].dataGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">data_group 고유번호</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data Group 고유번호</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].converterJobId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>converterJobId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">converter job 고유번호</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].dataKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Data Group 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupTarget</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">admin : 관리자용 데이터 그룹, user : 일반 사용자용 데이터 그룹</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">data group key</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tiling</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">smart</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataKey</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">data 고유 식별번호</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].dataName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oldDataKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">data 고유 식별번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataName</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">data 이름</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].dataType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">데이터 타입(중복). 3ds,obj,dae,collada,ifc,las,citygml,indoorgml,etc</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].sharing</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sharing</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">common : 공통, public : 공개, private : 비공개, group : 그룹</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">common : 공통, public : 공개, private : 개인, group : 그룹</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].userId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">사용자 아이디</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].updateUserId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">수정한 사용자 아이디</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].mappingType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">기본값 origin : latitude, longitude, height를 origin에 맞춤. boundingboxcenter : latitude, longitude, height를 boundingboxcenter 맞춤</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].location</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">POINT(위도, 경도)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].altitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>parent</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">부모 고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>parentName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">부모 이름(화면 표시용)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mappingType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">origin : latitude, longitude, height 를 origin에 맟춤. boundingboxcenter : latitude, longitude, height 를 boundingboxcenter에 맟춤.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">POINT(위도, 경도). 공간 검색 속도 때문에 altitude는 분리</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>altitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">높이</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].heading</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>heading</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">heading</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].pitch</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ptich</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pitch</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pitch</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].roll</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>roll</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">roll</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].metainfo</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">데이터 메타 정보. 데이터  control을 위해 인위적으로 만든 속성</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>childrenAncestor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조상</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].status</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>childrenParent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">부모</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].attributeExist</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>childrenDepth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">깊이</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>childrenViewOrder</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">순서</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>metainfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">기본정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">data 상태. processing : 변환중, use : 사용중, unused : 사용중지(관리자), delete : 삭제(비표시)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeExist</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].objectAttributeExist</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>objectAttributeExist</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Object 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">object 속성 존재 유무. true : 존재, false : 존재하지 않음(기본값)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].updateDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updateDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">수정일</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>_embedded.dataInfos[0].insertDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>insertDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="resources-data-group"><a class="link" href="#resources-data-group">데이터 그룹</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>데이터 그룹 또는 목록을 조회 한다.</p>
+</div>
+<div class="sect2">
+<h3 id="resources-data-group-list"><a class="link" href="#resources-data-group-list">데이터 그룹 목록 조회</a></h3>
+<div class="paragraph">
+<p><code>GET</code> 요청을 사용하여 서비스의 모든 데이터 그룹을 조회할 수 있다.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/data-groups' -i -X GET</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2760
+
+{
+  "_embedded" : {
+    "dataGroups" : [ {
+      "dataGroupId" : 1,
+      "dataGroupKey" : "groupKey",
+      "dataGroupName" : "basic",
+      "dataGroupPath" : "path",
+      "dataGroupTarget" : "admin",
+      "sharing" : "common",
+      "userId" : "admin",
+      "ancestor" : 1,
+      "parent" : 1,
+      "depth" : 1,
+      "viewOrder" : 1,
+      "children" : 1,
+      "basic" : true,
+      "available" : true,
+      "tiling" : true,
+      "dataCount" : 0,
+      "location" : "POINT(위도, 경도)",
+      "altitude" : null,
+      "duration" : null,
+      "locationUpdateType" : "auto",
+      "metainfo" : "데이터 그룹 메타 정보",
+      "description" : "설명",
+      "updateDate" : null,
+      "insertDate" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/data-groups/1"
+        }
+      }
+    }, {
+      "dataGroupId" : 1,
+      "dataGroupKey" : "groupKey",
+      "dataGroupName" : "basic",
+      "dataGroupPath" : "path",
+      "dataGroupTarget" : "admin",
+      "sharing" : "common",
+      "userId" : "admin",
+      "ancestor" : 1,
+      "parent" : 1,
+      "depth" : 1,
+      "viewOrder" : 1,
+      "children" : 1,
+      "basic" : true,
+      "available" : true,
+      "tiling" : true,
+      "dataCount" : 0,
+      "location" : "POINT(위도, 경도)",
+      "altitude" : null,
+      "duration" : null,
+      "locationUpdateType" : "auto",
+      "metainfo" : "데이터 그룹 메타 정보",
+      "description" : "설명",
+      "updateDate" : null,
+      "insertDate" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/data-groups/1"
+        }
+      }
+    }, {
+      "dataGroupId" : 1,
+      "dataGroupKey" : "groupKey",
+      "dataGroupName" : "basic",
+      "dataGroupPath" : "path",
+      "dataGroupTarget" : "admin",
+      "sharing" : "common",
+      "userId" : "admin",
+      "ancestor" : 1,
+      "parent" : 1,
+      "depth" : 1,
+      "viewOrder" : 1,
+      "children" : 1,
+      "basic" : true,
+      "available" : true,
+      "tiling" : true,
+      "dataCount" : 0,
+      "location" : "POINT(위도, 경도)",
+      "altitude" : null,
+      "duration" : null,
+      "locationUpdateType" : "auto",
+      "metainfo" : "데이터 그룹 메타 정보",
+      "description" : "설명",
+      "updateDate" : null,
+      "insertDate" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/data-groups/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/api/data-groups"
+    },
+    "profile" : {
+      "href" : "/docs/index.html#resources-data-group-list"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="resources-data-group-list-by-parent"><a class="link" href="#resources-data-group-list-by-parent">데이터 그룹 parent 로 조회</a></h3>
+<div class="paragraph">
+<p><code>GET</code> 요청을 사용하여 parent 에 해당하는 데이터 그룹을 조회할 수 있다.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/data-groups/parent/1' -i -X GET</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="resources-data-group-get"><a class="link" href="#resources-data-group-get">데이터 그룹 조회</a></h3>
+<div class="paragraph">
+<p><code>Get</code> 요청을 사용해서 기존 데이터 그룹 하나를 조회할 수 있다.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/data-groups/1' -i -X GET</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 805
+
+{
+  "dataGroupId" : 1,
+  "dataGroupKey" : "groupKey",
+  "dataGroupName" : "basic",
+  "dataGroupPath" : "path",
+  "dataGroupTarget" : "admin",
+  "sharing" : "common",
+  "userId" : "admin",
+  "ancestor" : 1,
+  "parent" : 1,
+  "depth" : 1,
+  "viewOrder" : 1,
+  "children" : 1,
+  "basic" : true,
+  "available" : true,
+  "tiling" : true,
+  "dataCount" : 0,
+  "location" : "POINT(위도, 경도)",
+  "altitude" : null,
+  "duration" : null,
+  "locationUpdateType" : "auto",
+  "metainfo" : "데이터 그룹 메타 정보",
+  "description" : "설명",
+  "updateDate" : null,
+  "insertDate" : null,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/api/data-groups/1"
+    },
+    "profile" : {
+      "href" : "/docs/index.html#resources-data-group-get"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupKey</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">링크 활용 등을 위한 확장 컬럼</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">그룹명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupPath</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">서비스 경로</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataGroupTarget</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">admin : 관리자용 데이터 그룹, user : 일반 사용자용 데이터 그룹</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sharing</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공유 타입. common : 공통, public : 공개, private : 개인, group : 그룹</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용자명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ancestor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">조상</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>parent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">부모</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>depth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">깊이</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewOrder</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">순서</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>children</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">자식 존재 유무</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>basic</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true : 기본, false : 선택</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>available</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true : 사용, false : 사용안함</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tiling</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">스마트 타일링 사용유무. true : 사용, false : 사용안함(기본)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dataCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">데이터 총 건수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">POINT(위도, 경도). 공간 검색 속도 때문에 altitude는 분리</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locationUpdateType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">location 업데이트 방법. auto : data 입력시 자동, user : 사용자가 직접 입력</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>metainfo</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">데이터 그룹 메타 정보. 그룹 control을 위해 인위적으로 만든 속성</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="resources-layer"><a class="link" href="#resources-layer">레이어</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>레이어 또는 목록을 조회 한다.</p>
+</div>
+<div class="sect2">
+<h3 id="resources-layer-list"><a class="link" href="#resources-layer-list">레이어 목록 조회</a></h3>
+<div class="paragraph">
+<p><code>GET</code> 요청을 사용하여 서비스의 모든 레이어를 조회할 수 있다.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/layers?layerGroupId=1' -i -X GET</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">레이어 그룹 고유번호</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 2941
+
+{
+  "_embedded" : {
+    "layers" : [ {
+      "layerId" : 1,
+      "layerGroupId" : 1,
+      "layerKey" : "test1",
+      "layerName" : "testName1",
+      "layerGroupName" : null,
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "layerType" : "Vector",
+      "layerInsertType" : null,
+      "geometryType" : "polygon",
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "defaultDisplay" : null,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "updateDate" : null,
+      "insertDate" : null,
+      "viewZIndex" : 1,
+      "zindex" : 1,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/layers/1"
+        }
+      }
+    }, {
+      "layerId" : 2,
+      "layerGroupId" : 1,
+      "layerKey" : "test2",
+      "layerName" : "testName2",
+      "layerGroupName" : null,
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "layerType" : "Vector",
+      "layerInsertType" : null,
+      "geometryType" : "polygon",
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "defaultDisplay" : null,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "updateDate" : null,
+      "insertDate" : null,
+      "viewZIndex" : 1,
+      "zindex" : 1,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/layers/2"
+        }
+      }
+    }, {
+      "layerId" : 3,
+      "layerGroupId" : 1,
+      "layerKey" : "test3",
+      "layerName" : "testName3",
+      "layerGroupName" : null,
+      "userId" : "admin",
+      "sharing" : null,
+      "ogcWebServices" : "wms",
+      "layerType" : "Vector",
+      "layerInsertType" : null,
+      "geometryType" : "polygon",
+      "layerFillColor" : "#000000",
+      "layerLineColor" : "#000000",
+      "layerLineStyle" : 1.0,
+      "layerAlphaStyle" : 1.0,
+      "viewOrder" : 1,
+      "defaultDisplay" : null,
+      "available" : true,
+      "labelDisplay" : null,
+      "cacheAvailable" : true,
+      "coordinate" : "EPSG:4326",
+      "description" : "test",
+      "updateDate" : null,
+      "insertDate" : null,
+      "viewZIndex" : 1,
+      "zindex" : 1,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/api/layers/3"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/api/layers"
+    },
+    "profile" : {
+      "href" : "/docs/index.html#resources-layer-list"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="resources-layer-get"><a class="link" href="#resources-layer-get">레이어 조회</a></h3>
+<div class="paragraph">
+<p><code>GET</code> 요청을 사용해서 기존 레이어 하나를 조회할 수 있다.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/layers/1' -i -X GET</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 855
+
+{
+  "layerId" : 1,
+  "layerGroupId" : 1,
+  "layerKey" : "test",
+  "layerName" : "testName",
+  "layerGroupName" : null,
+  "userId" : "admin",
+  "sharing" : null,
+  "ogcWebServices" : "wms",
+  "layerType" : "Vector",
+  "layerInsertType" : null,
+  "geometryType" : "polygon",
+  "layerFillColor" : "#000000",
+  "layerLineColor" : "#000000",
+  "layerLineStyle" : 1.0,
+  "layerAlphaStyle" : 1.0,
+  "viewOrder" : 1,
+  "defaultDisplay" : null,
+  "available" : true,
+  "labelDisplay" : null,
+  "cacheAvailable" : true,
+  "coordinate" : "EPSG:4326",
+  "description" : "test",
+  "updateDate" : null,
+  "insertDate" : null,
+  "viewZIndex" : 1,
+  "zindex" : 1,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/api/layers/1"
+    },
+    "profile" : {
+      "href" : "/docs/index.html#resources-layer-get"
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">layer 고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerGroupId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">layer 그룹 고유번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">layer 고유키(API용)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">layer 명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">layer 분류. Raster, Vector</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용자명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ogcWebServices</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OGC Web Services (wms, wfs, wcs, wps)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>geometryType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도형 타입</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerFillColor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">외곽선 색상</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerLineColor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">외곽선 두께</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerLineStyle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">채우기 색상</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerAlphaStyle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">투명도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewOrder</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">나열 순서</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zindex</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">지도위에 노출 순위(css z-index와 동일)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>available</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">사용유무</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cacheAvailable</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">캐시 사용 유무</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>coordinate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">좌표계 정보</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updateDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">수정일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>insertDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
 </tr>
 </tbody>
@@ -1299,200 +1747,10 @@ Content-Length: 527
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="resources-layer"><a class="link" href="#resources-layer">레이어</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>레이어 또는 목록을 조회 한다.</p>
-</div>
-<div class="sect2">
-<h3 id="resources-layer-list"><a class="link" href="#resources-layer-list">레이어 목록 조회</a></h3>
-<div class="paragraph">
-<p><code>GET</code> 요청을 사용하여 서비스의 모든 레이어를 조회할 수 있다.</p>
-</div>
-<div class="paragraph">
-<p>Unresolved directive in index.adoc - include::D:\repository\indoormap\OIM-user\build\generated-snippets/layer-list/curl-request.adoc[]
-Unresolved directive in index.adoc - include::D:\repository\indoormap\OIM-user\build\generated-snippets/layer-list/request-parameters.adoc[]
-Unresolved directive in index.adoc - include::D:\repository\indoormap\OIM-user\build\generated-snippets/layer-list/http-response.adoc[]</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="resources-layer-get"><a class="link" href="#resources-layer-get">레이어 조회</a></h3>
-<div class="paragraph">
-<p><code>GET</code> 요청을 사용해서 기존 레이어 하나를 조회할 수 있다.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/layers/1' -i -X GET</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json;charset=UTF-8
-Content-Length: 855
-
-{
-  "layerId" : 1,
-  "layerGroupId" : 1,
-  "layerKey" : "test",
-  "layerName" : "testName",
-  "layerGroupName" : null,
-  "userId" : "admin",
-  "sharing" : null,
-  "ogcWebServices" : "wms",
-  "layerType" : "Vector",
-  "layerInsertType" : null,
-  "geometryType" : "polygon",
-  "layerFillColor" : "#000000",
-  "layerLineColor" : "#000000",
-  "layerLineStyle" : 1.0,
-  "layerAlphaStyle" : 1.0,
-  "viewOrder" : 1,
-  "defaultDisplay" : null,
-  "available" : true,
-  "labelDisplay" : null,
-  "cacheAvailable" : true,
-  "coordinate" : "EPSG:4326",
-  "description" : "test",
-  "updateDate" : null,
-  "insertDate" : null,
-  "zindex" : 1,
-  "viewZIndex" : 1,
-  "_links" : {
-    "self" : {
-      "href" : "http://localhost:8080/api/layers/1"
-    },
-    "profile" : {
-      "href" : "/docs/index.html#resources-layer-get"
-    }
-  }
-}</code></pre>
-</div>
-</div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">layer 고유번호</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerGroupId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">layer 그룹 고유번호</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerKey</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">layer 고유키(API용)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">layer 명</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">layer 분류. Raster, Vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>userId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">사용자명</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ogcWebServices</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OGC Web Services (wms, wfs, wcs, wps)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>geometryType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">도형 타입</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerFillColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">외곽선 색상</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerLineColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">외곽선 두께</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerLineStyle</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">채우기 색상</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>layerAlphaStyle</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">투명도</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewOrder</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">나열 순서</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zindex</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">지도위에 노출 순위(css z-index와 동일)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>available</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">사용유무</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cacheAvailable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">캐시 사용 유무</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>coordinate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">좌표계 정보</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">설명</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updateDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">수정일</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>insertDate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">등록일</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-10-12 09:53:07 +0900
+Last updated 2020-10-15 15:57:00 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/github.min.css">

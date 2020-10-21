@@ -1,37 +1,42 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="buildingInfoSource" type="text/x-handlebars-template">
 <div id="buildingInfoWrap" class="building-detail" style="display: none">
-    <div class="building-meta">
-        <div class="building-count" style="background-color: #0B7500">
-            <p class="occupancy">{{occupancyOfBuilding}}</p>
-            <p>명</p>
-        </div>
-        <div class="padL15">
-            <p>{{dataKey}}</p>
-            <p><span>재실자</span><span style="color: #0B7500">보통</span></p>
+    <button class="circle-small fas fa-times float-right" th:title="#{common.close}" onclick="sensorThingsController.closeFloorInformation()"></button>
+    <div>
+        <ul class="dustStation marR40 marB10">
+            <li class="scolor brLeft lv3">
+                <span>{{occupancyOfBuilding}}</span>
+                <span>인원</span>
+            </li>
+            <li class="sname">
+                <p style="width: 150px">{{dataKey}}</p>
+                <span class="subTit">재실자</span>
+                <span class="subResult txlv1">보통</span>
+            </li>
+        </ul>
+        <div class="scrollTable" style="height: 240px;">
+            <table>
+                <tr>
+                    <th>층</th>
+                    <th>인원(명)</th>
+                    <th>변동</th>
+                </tr>
+                {{#greaterThan listOfFloorOccupancy.length 0}}
+                {{#each listOfFloorOccupancy}}
+                <tr data-floor="{{floor}}">
+                    <td>{{floorName}}</td>
+                    <td>{{sum}}</td>
+                    <td class="dec">+1</td>
+                </tr>
+                {{/each}}
+                {{else}}
+                <tr>
+                    <td colspan="3" th:text="#{data.does.not.exist}"></td>
+                </tr>
+                {{/greaterThan}}
+            </table>
         </div>
     </div>
-    <div class="basicTable yScroll" style="height: 240px;">
-        <table>
-            <tr>
-                <th>층</th>
-                <th>인원(명)</th>
-            </tr>
-            {{#greaterThan listOfFloorOccupancy.length 0}}
-            {{#each listOfFloorOccupancy}}
-            <tr data-floor="{{floor}}">
-                <td class="center">{{floorName}}</td>
-                <td class="center">{{sum}}</td>
-            </tr>
-            {{/each}}
-            {{else}}
-            <tr>
-                <td colspan="2" th:text="#{data.does.not.exist}"></td>
-            </tr>
-            {{/greaterThan}}
-        </table>
-    </div>
-    <button class="basic" onclick="sensorThingsController.closeFloorInformation()">닫기</button>
 </div>
 </script>
 </html>

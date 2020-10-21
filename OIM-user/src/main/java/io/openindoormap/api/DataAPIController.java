@@ -1,174 +1,77 @@
 package io.openindoormap.api;
 
+
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import io.openindoormap.domain.data.DataAttribute;
 import io.openindoormap.domain.data.DataInfo;
-import io.openindoormap.domain.data.DataObjectAttribute;
-import io.openindoormap.service.DataAttributeService;
-import io.openindoormap.service.DataObjectAttributeService;
+import io.openindoormap.domain.data.DataInfoDto;
 import io.openindoormap.service.DataService;
-import io.openindoormap.support.LogMessageSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Data API
- * @author jeongdae
- *
- */
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 @Slf4j
+@Api(tags = {"DataAPI"})
 @RestController
-@RequestMapping("/api/datas")
-public class DataAPIController implements APIController {
-	
-	@Autowired
-	private DataService dataService;
-	
-	@Autowired
-	private DataAttributeService dataAttributeService;
-	
-	@Autowired
-	private DataObjectAttributeService dataObjectAttributeService;
-	
-	/**
-	 * 데이터 상세 정보
-	 * @param dataId
-	 * @return
-	 */
-	@GetMapping("/{dataId:[0-9]+}")
-	public Map<String, Object> detail(HttpServletRequest request, @PathVariable Long dataId) {
-		log.info("@@@ dataId = {}", dataId);
-		
-		Map<String, Object> result = new HashMap<>();
-		int statusCode = 0;
-		String errorCode = null;
-		String message = null;
-		try {
-			DataInfo dataInfo = new DataInfo();
-			//dataInfo.setUserId(userSession.getUserId());
-			dataInfo.setDataId(dataId);
-			dataInfo = dataService.getData(dataInfo);
-			statusCode = HttpStatus.OK.value();
-			
-			result.put("dataInfo", dataInfo);
-		} catch(DataAccessException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "db.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", message);
-		} catch(RuntimeException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "runtime.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ runtime.exception. message = {}", message);
-		} catch(Exception e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "unknown.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
-		}
-		
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		
-		return result;
-	}
-	
-	/**
-	 * 데이터 속성 정보
-	 * @param dataId
-	 * @return
-	 */
-	@GetMapping("/attributes/{dataId:[0-9]+}")
-	public Map<String, Object> detailAttribute(HttpServletRequest request, @PathVariable Long dataId) {
-		log.info("@@@@@ dataId = {}", dataId);
-		
-		Map<String, Object> result = new HashMap<>();
-		int statusCode = 0;
-		String errorCode = null;
-		String message = null;
-		
-		try {
-			DataAttribute dataAttribute = dataAttributeService.getDataAttribute(dataId);
-			statusCode = HttpStatus.OK.value();
-			
-			result.put("dataAttribute", dataAttribute);
-		} catch(DataAccessException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "db.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", message);
-		} catch(RuntimeException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "runtime.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ runtime.exception. message = {}", message);
-		} catch(Exception e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "unknown.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
-		}
-		
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		
-		return result;
-	}
-	
-	/**
-	 * 데이터 속성 정보
-	 * @param dataId
-	 * @return
-	 */
-	@GetMapping("/object/attributes/{dataId:[0-9]+}")
-	public Map<String, Object> detailObjectAttribute(HttpServletRequest request, @PathVariable Long dataId) {
-		log.info("@@@@@ dataId = {}", dataId);
-		
-		Map<String, Object> result = new HashMap<>();
-		int statusCode = 0;
-		String errorCode = null;
-		String message = null;
-		
-		try {
-			DataObjectAttribute dataObjectAttribute = dataObjectAttributeService.getDataObjectAttribute(dataId);
-			statusCode = HttpStatus.OK.value();
-			
-			result.put("dataObjectAttribute", dataObjectAttribute);
-		} catch(DataAccessException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "db.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ db.exception. message = {}", message);
-		} catch(RuntimeException e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "runtime.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ runtime.exception. message = {}", message);
-		} catch(Exception e) {
-			statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
-			errorCode = "unknown.exception";
-			message = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-			LogMessageSupport.printMessage(e, "@@ exception. message = {}", message);
-		}
-		
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		
-		return result;
-	}
+@AllArgsConstructor
+@RequestMapping(value = "/api/datas", produces = MediaTypes.HAL_JSON_VALUE)
+public class DataAPIController {
 
+    private final DataService dataService;
+    private final ModelMapper modelMapper;
+
+    /**
+     * 데이터 목록 조회
+     *
+     * @return
+     */
+    @ApiOperation(value = "데이터 목록 조회")
+    @GetMapping(produces = "application/json; charset=UTF-8")
+    public ResponseEntity<CollectionModel<EntityModel<DataInfoDto>>> getDatas(@RequestParam(defaultValue = "0") Integer dataGroupId) {
+        List<DataInfo> dataInfoList = dataService.getAllListData(DataInfo.builder().dataGroupId(dataGroupId).build());
+        List<EntityModel<DataInfoDto>> dataInfoDtoList = dataInfoList.stream()
+                .map(f -> EntityModel.of(modelMapper.map(f, DataInfoDto.class))
+                        .add(linkTo(DataAPIController.class).slash(f.getDataId()).withSelfRel()))
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<DataInfoDto>> model = CollectionModel.of(dataInfoDtoList);
+
+        model.add(linkTo(DataAPIController.class).withSelfRel());
+        model.add(Link.of("/docs/index.html#resources-data-info-list").withRel("profile"));
+
+        return ResponseEntity.ok(model);
+    }
+
+    /**
+     * 데이터 한건 조회
+     *
+     * @param id 데이터 아이디
+     * @return
+     */
+    @ApiOperation(value = "데이터 한건 조회")
+    @GetMapping(value = "/{id}", produces = "application/json; charset=UTF-8")
+    @ApiImplicitParam(name = "id", value = "아이디")
+    public ResponseEntity<EntityModel<DataInfoDto>> getDataById(@PathVariable("id") Long id) {
+    	DataInfo dInfo = new DataInfo();
+		dInfo.setDataId(id);
+        DataInfoDto dto = modelMapper.map(dataService.getData(dInfo), DataInfoDto.class);
+        EntityModel<DataInfoDto> dataInfo = EntityModel.of(dto);
+        dataInfo.add(linkTo(DataAPIController.class).slash(id).withSelfRel());
+        dataInfo.add(Link.of("/docs/index.html#resources-data-info-get").withRel("profile"));
+
+        return ResponseEntity.ok(dataInfo);
+    }
 }

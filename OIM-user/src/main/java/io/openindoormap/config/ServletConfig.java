@@ -173,7 +173,7 @@ public class ServletConfig implements WebMvcConfigurer {
     private ApiInfo getApiInfo() {
 
         return new ApiInfoBuilder()
-                .title("Swagger API Doc")
+                .title("OPENINDOORMAP API Doc")
                 .description("More description about the API")
                 .version("1.0.0")
                 .build();
