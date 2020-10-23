@@ -22,7 +22,7 @@
     </form>
     <div id="iotLegendDHTML"></div>
     <div id="iotSearchSummaryDHTML"></div>
-    <div id="iotInfoContent" class="yScroll" style="height: calc(100% - 340px)">
+    <div id="iotInfoContent" class="yScroll" style="height: calc(100% - 331px)">
         <div id="iotOccupancyListDHTML" style="display:block"></div>
         <div id="iotDustListDHTML" style="display:none"></div>
     </div>
@@ -31,7 +31,8 @@
     <div th:replace="~{/common/search-summary-template :: #searchSummarySource}"></div>
     <div th:replace="~{/iot/occupancy-template :: #occupancyListSource}"></div>
     <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
-    <div th:replace="~{/common/pagination-template :: #paginationSource}"></div>
+    <div th:replace="~{/iot/dust-more-template :: #dustMoreSource}"></div>
+    <div th:replace="~{/iot/pagination-template :: #iotPaginationSource}"></div>
     <script type="text/javascript" th:src="@{/js/{lang}/common/pagination.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/dust-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
@@ -42,7 +43,7 @@
             // 한 시간에 한번씩 자료 갱신
             setInterval(function () {
                 dustSensorThings.updateContentValue();
-            }, 1000 * 60 * 60);
+            }, 1000 * 3600);
 
             // 검색 버튼 클릭
             $('#iotSearch').click(function () {
@@ -62,6 +63,8 @@
             });
 
             $('#magoContainer').on('click', '.overlayWarp > ul', function () {
+                $('.dustStation').removeClass('on');
+                $(this).addClass('on');
                 const locationId = $(this).data('id');
                 dustSensorThings.getSensorInformation(locationId);
             });

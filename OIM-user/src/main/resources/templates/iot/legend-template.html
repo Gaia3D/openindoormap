@@ -2,8 +2,8 @@
 <script id="iotLegendSource" type="text/x-handlebars-template">
 <div class="legendWrap">
     <h3>
-        {{#ifMatch searchWord 'iot_occupancy'}}<th:block th:text="#{iot.occupancy.legend}"></th:block>{{/ifMatch}}
-        {{#ifMatch searchWord 'iot_dust'}}<th:block th:text="#{iot.dust.legend}"></th:block>{{/ifMatch}}
+        {{#ifMatch type 'iot_occupancy'}}<th:block th:text="#{iot.occupancy.legend}"></th:block>{{/ifMatch}}
+        {{#ifMatch type 'iot_dust'}}<th:block th:text="#{iot.dust.legend}"></th:block>{{/ifMatch}}
     </h3>
     <ul class="legend marT5">
         <li>

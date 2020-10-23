@@ -1,183 +1,38 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="dustListSource" type="text/x-handlebars-template">
     <!-- 측정소 정보 -->
-    <div class="sInfoWrap">
-        <div class="sInfo">
-            <ul class="lv1">
-                <li class="state">좋음</li>
-                <li class="result">26</li>
-                <li class="unit">㎍/m³</li>
-            </ul>
-            <ul>
-                <li>
-                    <label>측정소명</label>
-                    <span>한강대로</span>
-                </li>
-                <li>
-                    <label>위치</label>
-                    <a href="#" class="ellipsis">서울 용산구 한강대로 405 서울 용산구 한강대로 405 서울 용산구 한강대로 405</a>
-                </li>
-                <li>
-                    <label>농도</label>
-                    <span>26</span>㎍/m³
-                </li>
-                <li>
-                    <label>상태정보</label>
-                    <span>-</span>
-                </li>
-            </ul>
+    {{#greaterThan contents.length 0}}
+    {{#each contents}}
+        <div class="sInfoWrap">
+            <div class="sInfo">
+                <ul class="lv{{cai}}">
+                    <li class="state">{{caiText}}</li>
+                    <li class="result">{{value}}</li>
+                    <li class="unit">{{unit}}</li>
+                </ul>
+                <ul>
+                    <li>
+                        <label th:text="#{iot.dust.station.name}"></label>
+                        <span>{{stationName}}</span>
+                    </li>
+                    <li>
+                        <label th:text="#{iot.dust.station.addr}"></label>
+                        <a href="#" class="ellipsis" onclick="gotoFly('{{longitude}}', '{{latitude}}', 50);return false;">{{addr}}</a>
+                    </li>
+                    <li>
+                        <label th:text="#{iot.dust.value}"></label>
+                        <span>{{value}}</span>{{unit}}
+                    </li>
+                </ul>
+            </div>
+            <div class="iotDustMoreDHTML" style="display:none"></div>
+            <div class="btnCt">
+                <button type="button" class="more" th:title="#{common.more}" th:text="#{common.more}" onclick="dustSensorThings.getSensorMoreInformation(this, {{id}})"></button>
+            </div>
         </div>
-        <div class="btnCt">
-            <button type="button" class="more on">더보기</button><!--on추가시 상세보기 숨김 -->
-        </div>
-    </div>
-    <div class="sInfoWrap">
-        <div class="sInfo">
-            <ul class="lv2">
-                <li class="state">보통</li>
-                <li class="result">42</li>
-                <li class="unit">㎍/m³</li>
-            </ul>
-            <ul>
-                <li>
-                    <label>측정소명</label>
-                    <span>청계천로</span>
-                </li>
-                <li>
-                    <label>위치</label>
-                    <a href="#" class="ellipsis">서울 중구 청계천로 184</a>
-                </li>
-                <li>
-                    <label>농도</label>
-                    <span>42</span>㎍/m³
-                </li>
-                <li>
-                    <label>상태정보</label>
-                    <span>-</span>
-                </li>
-            </ul>
-        </div>
-        <div class="btnCt">
-            <button type="button" class="more">더보기</button>
-        </div>
-        <div>
-            <ul class="mResult">
-                <li>
-                    <span>미세먼지</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-                <li>
-                    <span>초미세먼지</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-                <li>
-                    <span>오존</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-                <li>
-                    <span>미세먼지</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-                <li>
-                    <span>초미세먼지</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-                <li>
-                    <span>오존</span>
-                    <span class="result">19㎍/m³</span>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="sInfoWrap">
-        <div class="sInfo">
-            <ul class="lv3">
-                <li class="state">나쁨</li>
-                <li class="result">107</li>
-                <li class="unit">㎍/m³</li>
-            </ul>
-            <ul>
-                <li>
-                    <label>측정소명</label>
-                    <span>한강대로</span>
-                </li>
-                <li>
-                    <label>위치</label>
-                    <a href="#" class="ellipsis">서울 용산구 한강대로 405</a>
-                </li>
-                <li>
-                    <label>농도</label>
-                    <span>26</span>㎍/m³
-                </li>
-                <li>
-                    <label>상태정보</label>
-                    <span>-</span>
-                </li>
-            </ul>
-        </div>
-        <div class="btnCt">
-            <button type="button" class="more on">더보기</button><!--on추가시 상세보기 숨김 -->
-        </div>
-    </div>
-    <div class="sInfoWrap">
-        <div class="sInfo">
-            <ul class="lv4">
-                <li class="state">매우나쁨</li>
-                <li class="result">157</li>
-                <li class="unit">㎍/m³</li>
-            </ul>
-            <ul>
-                <li>
-                    <label>측정소명</label>
-                    <span>한강대로</span>
-                </li>
-                <li>
-                    <label>위치</label>
-                    <a href="#" class="ellipsis">서울 용산구 한강대로 405</a>
-                </li>
-                <li>
-                    <label>농도</label>
-                    <span>26</span>㎍/m³
-                </li>
-                <li>
-                    <label>상태정보</label>
-                    <span>-</span>
-                </li>
-            </ul>
-        </div>
-        <div class="btnCt">
-            <button type="button" class="more on">더보기</button><!--on추가시 상세보기 숨김 -->
-        </div>
-    </div>
-    <div class="sInfoWrap">
-        <div class="sInfo">
-            <ul class="nodata">
-                <li class="state">데이터 없음</li>
-                <li class="result">-</li>
-                <li class="unit">㎍/m³</li>
-            </ul>
-            <ul>
-                <li>
-                    <label>측정소명</label>
-                    <span>한강대로</span>
-                </li>
-                <li>
-                    <label>위치</label>
-                    <a href="#" class="ellipsis">서울 용산구 한강대로 405 서울 용산구 한강대로 405 서울 용산구 한강대로 405</a>
-                </li>
-                <li>
-                    <label>농도</label>
-                    <span>26</span>㎍/m³
-                </li>
-                <li>
-                    <label>상태정보</label>
-                    <span>-</span>
-                </li>
-            </ul>
-        </div>
-        <div class="btnCt">
-            <button type="button" class="more on">더보기</button><!--on추가시 상세보기 숨김 -->
-        </div>
-    </div>
+    {{/each}}
+    {{else}}
+        <div class="sInfoWrap" th:text="#{iot.dust.station.does.not.exist}"></div>
+    {{/greaterThan}}
     <!-- // 측정소 정보  -->
 </script>
