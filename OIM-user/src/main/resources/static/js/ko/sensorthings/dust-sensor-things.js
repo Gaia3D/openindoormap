@@ -19,16 +19,26 @@ DustSensorThings.prototype = Object.create(SensorThings.prototype);
 DustSensorThings.prototype.constructor = DustSensorThings;
 
 DustSensorThings.prototype.dustList = function (pageNo, params) {
-    // http://localhost:8888/FROST-Server/v1.0/Locations?$select=@iot.id,location,name&$top=5&$skip=0&$count=true&$orderby=name asc&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)
+    const _this = this;
+
+    // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=startswith(name, '이') or endswith(name, '이')&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)
+
     pageNo = parseInt(pageNo);
     const skip = (pageNo - 1) * 5;
-    const _this = this;
+
+    let filter = '';
+    if (params.searchValue) {
+        filter = '&$filter=startswith(name, \'' + params.searchValue + '\') or endswith(name, \'' + params.searchValue + '\')';
+    }
+
+    const queryString = 'Things?$select=@iot.id,name,description' +
+        '&$top=5&$skip=' + skip + '&$count=true&$orderby=name asc' + filter +
+        '&$expand=Locations($select=@iot.id,location,name),' +
+        'Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
+        'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)';
+
     $.ajax({
-        url: _this.FROST_SERVER_URL +
-            'Locations?$select=@iot.id,location,name&$top=5&$skip=' + skip + '&$count=true&$orderby=name asc&$expand=' +
-            'Things($select=@iot.id,name,description),' +
-            'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
-            'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)',
+        url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
@@ -41,24 +51,28 @@ DustSensorThings.prototype.dustList = function (pageNo, params) {
             $("#iotLegendDHTML").html("").append(templateLegend(_this));
 
             msg.contents = [];
-            const locations = msg.value;
-            for (const location of locations) {
+            const things = msg.value;
+            for (const thing of things) {
 
+                // Locations
+                const location = thing.Locations[0];
                 const locationId = location['@iot.id'];
-                const thing = location.Things[0];
+                const addr = location.name;
+                const coordinates = location.location.coordinates;
+
+                // Datastreams
                 const dataStream = thing.Datastreams[0];
                 const unit = dataStream.unitOfMeasurement.symbol;
-                const observation = dataStream.Observations[0].result.value;
-                const addr = location.name;
-                //const cai = this.getComprehensiveAirQualityIndex(observation);
-                const cai = dataStream.Observations[0].result.grade;
-                const caiText = _this.getComprehensiveAirQualityIndexGrade(cai);
 
-                const coordinates = location.location.coordinates;
+                // Observations
+                const observation = dataStream.Observations[0];
+                const value = observation.result.value;
+                const cai = observation.result.grade;
+                const caiText = _this.getComprehensiveAirQualityIndexGrade(cai);
 
                 msg.contents.push({
                     id: locationId,
-                    value: observation,
+                    value: value,
                     unit: unit,
                     stationName: thing.name,
                     addr: addr,
