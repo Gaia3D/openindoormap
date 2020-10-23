@@ -42,8 +42,8 @@ class AirQualityServiceImplTests {
     }
 
     @Test
-    void 미세먼지_한달_더미_데이터() {
-        sensorService.initMonthMockData();
+    void 미세먼지_하루_24시간_더미_데이터_생성() {
+        sensorService.initDailyMockData();
     }
 
     @Test

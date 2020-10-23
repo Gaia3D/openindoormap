@@ -350,7 +350,7 @@ public class AirQualityServiceImpl implements AirQualityService {
     }
 
     @Override
-    public void initMonthMockData() {
+    public void initDailyMockData() {
         JSONObject stationJson = null;
         try {
             stationJson = getListStation();
@@ -476,7 +476,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             String no2Grade = getGrade(no2Value, AirQuality.NO2);
 
             json.put("pm10Value", pm10Value);
-            json.put("pm25Value", pm25Grade);
+            json.put("pm25Value", pm25Value);
             json.put("so2Value", so2Value);
             json.put("coValue", coValue);
             json.put("o3Value", o3Value);
@@ -545,6 +545,11 @@ public class AirQualityServiceImpl implements AirQualityService {
         return dataExistFlag;
     }
 
+    /**
+     * 처음 또는 마지막 Thing entity 조회
+     * @param orderBy 정렬순서
+     * @return
+     */
     private int getThingsId(String orderBy) {
         int idCount = 0;
         try {
@@ -563,17 +568,23 @@ public class AirQualityServiceImpl implements AirQualityService {
         return idCount;
     }
 
+    /**
+     * 에어코리아 기준에 해당하는 grade return
+     * @param value 측정데이터 값
+     * @param type 측정데이터 타입
+     * @return
+     */
     private String getGrade(String value, AirQuality type) {
         String grade = "";
         float floatNum = Float.parseFloat(value);
         if(AirQuality.SO2 == type ) {
-            if(0 >= floatNum && floatNum <= 0.02) {
+            if(floatNum >= 0 && floatNum <= 0.02) {
                 grade = "1";
-            } else if(0.021 >= floatNum && floatNum <= 0.05) {
+            } else if(floatNum >= 0.021 && floatNum <= 0.05) {
                 grade = "2";
-            } else if(0.051 >= floatNum && floatNum <= 0.15) {
+            } else if(floatNum >= 0.051 && floatNum <= 0.15) {
                 grade = "3";
-            } else if(0.151 >= floatNum && floatNum <= 1) {
+            } else if(floatNum >= 0.151 && floatNum <= 1) {
                 grade = "4";
             } else {
                 grade = "1";
@@ -581,11 +592,11 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else if(AirQuality.CO == type ) {
             if(0 >= floatNum && floatNum <= 2) {
                 grade = "1";
-            } else if(2.01 >= floatNum && floatNum <= 9) {
+            } else if(floatNum >= 2.01 && floatNum <= 9) {
                 grade = "2";
-            } else if(9.01 >= floatNum && floatNum <= 15) {
+            } else if(floatNum >= 9.01 && floatNum <= 15) {
                 grade = "3";
-            } else if(15.01 >= floatNum && floatNum <= 50) {
+            } else if(floatNum >= 15.01 && floatNum <= 50) {
                 grade = "4";
             } else {
                 grade = "1";
@@ -593,49 +604,49 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else if(AirQuality.O3 == type ) {
             if(0 >= floatNum && floatNum <= 0.03) {
                 grade = "1";
-            } else if(0.031 >= floatNum && floatNum <= 0.09) {
+            } else if(floatNum >= 0.031 && floatNum <= 0.09) {
                 grade = "2";
-            } else if(0.091 >= floatNum && floatNum <= 0.15) {
+            } else if(floatNum >= 0.091 && floatNum <= 0.15) {
                 grade = "3";
-            } else if(0.151 >= floatNum && floatNum <= 0.6) {
+            } else if(floatNum >= 0.151 && floatNum <= 0.6) {
                 grade = "4";
             } else {
                 grade = "1";
             }
         } else if(AirQuality.NO2 == type ) {
-            if(0 >= floatNum && floatNum <= 0.03) {
+            if(floatNum >= 0 && floatNum <= 0.03) {
                 grade = "1";
-            } else if(0.031 >= floatNum && floatNum <= 0.06) {
+            } else if(floatNum >= 0.031 && floatNum <= 0.06) {
                 grade = "2";
-            } else if(0.061 >= floatNum && floatNum <= 0.2) {
+            } else if(floatNum >= 0.061 && floatNum <= 0.2) {
                 grade = "3";
-            } else if(0.201 >= floatNum && floatNum <= 2) {
+            } else if(floatNum >= 0.201 && floatNum <= 2) {
                 grade = "4";
             } else {
                 grade = "1";
             }
         } else if(AirQuality.PM10 == type ) {
-            float intNum = Integer.parseInt(value);
-            if(0 >= intNum && intNum <= 30) {
+            int intNum = Integer.parseInt(value);
+            if(intNum >= 0 && intNum <= 30) {
                 grade = "1";
-            } else if(31 >= intNum && intNum <= 80) {
+            } else if(intNum >= 31 & intNum <= 80) {
                 grade = "2";
-            } else if(81 >= intNum && intNum <= 150) {
+            } else if(intNum >= 81 && intNum <= 150) {
                 grade = "3";
-            } else if(151 >= intNum && intNum <= 600) {
+            } else if(intNum >= 151 && intNum <= 600) {
                 grade = "4";
             } else {
                 grade = "1";
             }
         } else if(AirQuality.PM25 == type ) {
-            float intNum = Integer.parseInt(value);
-            if(0 >= intNum && intNum <= 15) {
+            int intNum = Integer.parseInt(value);
+            if(intNum >= 0 && intNum <= 15) {
                 grade = "1";
-            } else if(16 >= intNum && intNum <= 35) {
+            } else if(intNum >= 16 && intNum <= 35) {
                 grade = "2";
-            } else if(36 >= intNum && intNum <= 75) {
+            } else if(intNum >= 36 && intNum <= 75) {
                 grade = "3";
-            } else if(76 >= intNum && intNum <= 500) {
+            } else if(intNum >= 76 && intNum <= 500) {
                 grade = "4";
             } else {
                 grade = "1";

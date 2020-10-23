@@ -11,6 +11,9 @@ public interface AirQualityService extends SensorService {
     @Override
     void insertSensorData();
 
-    void initMonthMockData();
+    /**
+     * 하루(1시간 간격 24시간) mock 데이터 생성
+     */
+    void initDailyMockData();
 
 }
