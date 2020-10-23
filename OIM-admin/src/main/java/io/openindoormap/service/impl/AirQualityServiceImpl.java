@@ -15,6 +15,8 @@ import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.geojson.Feature;
+import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,10 +33,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * sensor 초기 데이터 생성 및 갱신
@@ -115,8 +114,11 @@ public class AirQualityServiceImpl implements AirQualityService {
                 var stationName = (String) json.get("stationName");
                 var dmX = json.get("dmX").toString().trim();
                 var dmY = json.get("dmY").toString().trim();
-                // 위치 정보가 없는 측정소의 경우 1,1 로 좌표 넣어줌
-                var point = "".equals(dmX) || "".equals(dmY) ? new Point(1, 1) : new Point(Double.parseDouble(dmY), Double.parseDouble(dmX));
+                // 위치 정보가 없는 측정소의 경우 null
+                Point point = null;
+                if (!"".equals(dmX) && !"".equals(dmY)) {
+                    point = new Point(Double.parseDouble(dmY), Double.parseDouble(dmX));
+                }
                 ++id;
 
                 // Thing
@@ -130,19 +132,25 @@ public class AirQualityServiceImpl implements AirQualityService {
                 thingProperties.put("mangName", json.get("mangName"));
                 thingProperties.put("item", json.get("item"));
 
-                sensorThingsService.create(ThingBuilder.builder()
+                List<Location> locationList = new ArrayList<>();
+                if (point != null) {
+                    // Location
+                    Location location = LocationBuilder.builder()
+                            .name((String) json.get("addr"))
+                            .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
+                            .description("대기질 측정소 위치")
+                            .location(point)
+                            .build();
+                    sensorThingsService.create(location);
+                    locationList.add(location);
+                }
+                Thing thing = ThingBuilder.builder()
                         .name(stationName)
                         .description("한국환경공단 측정소")
                         .properties(thingProperties)
-                        .build());
-
-                // Location
-                sensorThingsService.create(LocationBuilder.builder()
-                        .name((String) json.get("addr"))
-                        .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
-                        .description("대기질 측정소 위치")
-                        .location(point)
-                        .build());
+                        .build();
+                thing.setLocations(locationList);
+                sensorThingsService.create(thing);
 
                 // DataStream PM10
                 sensorThingsService.create(DatastreamBuilder.builder()
@@ -265,11 +273,14 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .build());
 
                 // FeatureOfInterest
+                Feature feature = new Feature();
+                GeoJsonObject geometry = point;
+                feature.setGeometry(geometry);
                 sensorThingsService.create(FeatureOfInterestBuilder.builder()
                         .name(stationName + " 측정소")
                         .description("한국환경공단 대기질 측정소")
                         .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
-                        .feature(point)
+                        .feature(feature)
                         .build());
             }
         } catch (ServiceFailureException e) {
