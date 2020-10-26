@@ -2041,7 +2041,8 @@ z-index:100;
 }
 .legend .nodata {
 	/*background-color: dimgray;*/
-	background-color: #555;
+	/*background-color: #555;*/
+	background: #555 url(/images/ico_x.png) no-repeat center center;
 }
 
 /*
@@ -3181,7 +3182,10 @@ user-select: none; /* Standard syntax */
 	width: 325px;
 	border: 1px solid #ccc;
 	border-radius: 7px;
-	margin: 0 auto 15px;
+	margin: 0 auto 10px;
+}
+.sInfoWrap:first-child {
+	margin-top: 10px;
 }
 .sInfo {
 	display: flex;
@@ -3211,13 +3215,14 @@ user-select: none; /* Standard syntax */
 }
 .sInfo > ul:first-child > li.unit {
 	font-size: 12px;
+	padding-bottom: 10px;
 }
 .sInfo > ul:last-child {
 	padding: 3px 0;
 }
 .sInfo > ul:last-child > li {
 	width: 225px;
-	padding: 2px 0 2px 10px;
+	padding: 5px 0 0 10px;
 }
 .sInfo > ul:last-child > li > * {
 	font-size: 12px;
@@ -3244,7 +3249,7 @@ user-select: none; /* Standard syntax */
 	border: none;
 	/*border: 2px solid #ccc;*/
 	background-color: transparent;
-	background-image: url(../images/btn_more.png);
+	background-image: url(/images/btn_more.png);
 	background-repeat: no-repeat;
 	background-position: 115px 6px;
 }
@@ -3252,18 +3257,22 @@ user-select: none; /* Standard syntax */
 	background-position: 115px -46px;
 }
 .mResult > li {
-	display: inline-block;
-	margin-right: 5px;
+	position: relative;
+	margin: 10px;
 	font-size: 11px;
+	background: url(/images/dotline.png) repeat-x 0 center;
 }
 .mResult > li > span {
 	display: inline-block;
+	padding: 0 7px;
+	background-color: #fff;
 }
 .mResult > li > span.result {
-	display: inline-block;
-	padding: 2px;
+	clear: right;
+	float: right;
+	display:block;
 	border-radius: 2px;
-	background-color: #eee;
+	background-color: #fff;
 }
 
 /* 측정항목 */
@@ -3321,8 +3330,8 @@ table.dustList td:nth-child(2) {
 .lv4 {
 	background-color: #ff5959;
 }
-.nodata {
-	background: #555 /*url(../images/ico_x.png) no-repeat center center*/;
+.lv0 {
+	background: #555 url(/images/ico_x.png) no-repeat center center;
 }
 .txlv1 {
 	color: #32a1ff;
@@ -3360,6 +3369,9 @@ table.dustList td:nth-child(2) {
 	box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
 	cursor: pointer;
 	background-color: #fff;
+}
+.dustStation.on {
+	border: 4px solid #000;
 }
 .dustStation > li {
 	flex: 1 1 auto;
@@ -3492,8 +3504,7 @@ span.subResult {
 	position: relative;
 	width: 337px;
 	background-color: #fff;
-	border-radius: 10%;
-	margin: 10px 0 0 10px;
+	margin: 10px 0 10px 10px;
 	flex: 0 0 auto;
 }
 .chart-title {

@@ -48,8 +48,8 @@ Pagination.prototype.init = function() {
         }
     }
 
-    this.startPage = ((this.pageNo - 1) / this.pageListCount) * this.pageListCount + 1;
-    this.endPage = ((this.pageNo - 1) / this.pageListCount) * this.pageListCount + this.pageListCount;
+    this.startPage = parseInt((this.pageNo - 1) / this.pageListCount) * this.pageListCount + 1;
+    this.endPage = parseInt((this.pageNo - 1) / this.pageListCount) * this.pageListCount + this.pageListCount;
     if(this.endPage > this.lastPage) {
         this.endPage = this.lastPage;
     }

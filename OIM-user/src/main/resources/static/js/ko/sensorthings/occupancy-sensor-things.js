@@ -3,7 +3,7 @@ const OccupancySensorThings = function (magoInstance) {
     this.magoInstance = magoInstance;
     this.queryString = 'Locations?$select=@iot.id,location,name&$expand=' +
         'Things($select=@iot.id,name,description),' +
-        'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'미세먼지(PM10) Particulates\'),' +
+        'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
         'Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime asc;$top=1)';
     this.locations = [];
 };
@@ -74,7 +74,7 @@ OccupancySensorThings.prototype.updateContentPosition = function() {
         const cai = this.getComprehensiveAirQualityIndex(observation);
         const caiText = this.getComprehensiveAirQualityIndexMessage(cai);
 
-        const coordinates = location.location.geometry.coordinates;
+        const coordinates = location.location.coordinates;
         const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
         const magoManager = this.magoInstance.getMagoManager();
         const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
