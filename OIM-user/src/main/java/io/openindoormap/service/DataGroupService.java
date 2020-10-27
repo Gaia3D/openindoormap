@@ -26,6 +26,12 @@ public interface DataGroupService {
     List<DataGroup> getListDataGroup(DataGroup dataGroup);
     
     /**
+     * 사용자 데이터 그룹 목록(부모)
+     * @return
+     */
+    List<DataGroup> getListDataGroupByPatent(DataGroup dataGroup);
+    
+    /**
      * 사용자 데이터 정보 조회
      * @param dataGroup
      * @return

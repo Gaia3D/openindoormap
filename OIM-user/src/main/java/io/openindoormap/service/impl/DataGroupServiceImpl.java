@@ -58,6 +58,15 @@ public class DataGroupServiceImpl implements DataGroupService {
 	}
 	
 	/**
+	 * 데이터 그룹 목록(부모)
+	 * @param dataGroup
+	 * @return
+	 */
+	public List<DataGroup> getListDataGroupByPatent(DataGroup dataGroup) {
+		return dataGroupMapper.getListDataGroupByPatent(dataGroup);
+	}
+	
+	/**
      * 데이터 그룹 정보 조회
      * @param dataGroup
 	 * @return

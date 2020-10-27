@@ -94,7 +94,7 @@ public class DataGroupAPIController {
     @ApiImplicitParam(name = "id", value = "아이디")
     @GetMapping(value = "/parent/{id}", produces = "application/json; charset=UTF-8")
     public ResponseEntity<CollectionModel<EntityModel<DataGroupDto>>> getDataGroupByParent(@PathVariable("id") Integer id) {
-        List<EntityModel<DataGroupDto>> dataGroupList = dataGroupService.getListDataGroup(
+        List<EntityModel<DataGroupDto>> dataGroupList = dataGroupService.getListDataGroupByPatent(
                 DataGroup.builder().dataGroupId(id).build())
                 .stream()
                 .map(f -> EntityModel.of(modelMapper.map(f, DataGroupDto.class))
