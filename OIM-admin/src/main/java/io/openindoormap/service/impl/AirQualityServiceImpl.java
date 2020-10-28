@@ -52,257 +52,254 @@ public class AirQualityServiceImpl implements AirQualityService {
 
     @Override
     public void initSensorData() {
+        JSONObject stationJson = null;
         try {
             // ObservedProperty init
             initObservedProperty();
             // 저장소 목록
-            JSONObject stationJson = getListStation();
-            List<?> stationList = (List<?>) stationJson.get("list");
-            // 마지막 things id 조회
-            long thingsLastId = getThingsId(OrderBy.DESC);
-            long locationsLastId = getLocationsId(OrderBy.DESC);
-            for (var station : stationList) {
-                Map<String, Object> thingProperties = new HashMap<>();
-                var json = (JSONObject) station;
-                var stationName = (String) json.get("stationName");
-                var dmX = json.get("dmX").toString().trim();
-                var dmY = json.get("dmY").toString().trim();
-                thingProperties.put("stationName", stationName);
-                thingProperties.put("year", json.get("year"));
-                thingProperties.put("oper", json.get("oper"));
-                thingProperties.put("photo", json.get("photo"));
-                thingProperties.put("vrml", json.get("vrml"));
-                thingProperties.put("map", json.get("map"));
-                thingProperties.put("mangName", json.get("mangName"));
-                thingProperties.put("item", json.get("item"));
-
-                var thing = getThingEntity(stationName);
-                var thingExist = thing != null;
-                Point point = null;
-                if (!"".equals(dmX) && !"".equals(dmY)) {
-                    point = new Point(Double.parseDouble(dmY), Double.parseDouble(dmX));
-                }
-                Feature feature = new Feature();
-                GeoJsonObject geometry = point;
-                feature.setGeometry(geometry);
-                List<Location> locationList = new ArrayList<>();
-
-                var thingId = !thingExist ? thingsLastId++ : Long.parseLong(thing.getId().toString());
-                var dataStreamId = (thingId-1) * 6;
-                var sensorId = (thingId-1) * 6;
-                var ObservedPropertyId = 1L;
-
-                // Location
-                Location location = LocationBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(thingId)))
-                        .name((String) json.get("addr"))
-                        .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
-                        .description("대기질 측정소 위치")
-                        .location(feature)
-                        .build();
-
-                if (point != null) locationList.add(location);
-
-                thing = ThingBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(thingId)))
-                        .name(stationName)
-                        .description("한국환경공단 측정소")
-                        .properties(thingProperties)
-                        .locations(locationList)
-                        .build();
-
-                Sensor sensorPm10 = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "미세먼지(PM10)")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream PM10
-                Datastream dataStreamPm10 = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.PM10.getDatastreamName())
-                        .description(AirQuality.PM10.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "microgram per cubic meter",
-                                "㎍/m³",
-                                "https://www.eea.europa.eu/themes/air/air-quality/resources/glossary/g-m3"
-                        ))
-                        .sensor(sensorPm10)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                Sensor sensorPm25 = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "미세먼지(PM2.5)")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream PM2.5
-                Datastream dataStreamPm25 = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.PM25.getDatastreamName())
-                        .description(AirQuality.PM25.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "microgram per cubic meter",
-                                "㎍/m³",
-                                "https://www.eea.europa.eu/themes/air/air-quality/resources/glossary/g-m3"
-                        ))
-                        .sensor(sensorPm25)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                Sensor sensorSo2 = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "아황산가스 농도")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream 아황산가스 농도
-                Datastream dataStreamSo2 = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.SO2.getDatastreamName())
-                        .description(AirQuality.SO2.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "parts per million",
-                                "ppm",
-                                "https://en.wikipedia.org/wiki/Parts-per_notation"
-                        ))
-                        .sensor(sensorSo2)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                Sensor sensorCo = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "일산화탄소 농도")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream 일산화탄소 농도
-                Datastream dataStreamCo = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.CO.getDatastreamName())
-                        .description(AirQuality.CO.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "parts per million",
-                                "ppm",
-                                "https://en.wikipedia.org/wiki/Parts-per_notation"
-                        ))
-                        .sensor(sensorCo)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                Sensor sensorO3 = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "오존 농도")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream 오존 농도
-                Datastream dataStreamO3 = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.O3.getDatastreamName())
-                        .description(AirQuality.O3.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "parts per million",
-                                "ppm",
-                                "https://en.wikipedia.org/wiki/Parts-per_notation"
-                        ))
-                        .sensor(sensorO3)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                Sensor sensorNo2 = SensorBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++sensorId)))
-                        .name(stationName + ":" + "이산화질소 농도")
-                        .description("미세먼지 측정소")
-                        .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                        .metadata(json.get("mangName"))
-                        .build();
-
-                // DataStream 이산화질소 농도
-                Datastream dataStreamNo2 = DatastreamBuilder.builder()
-                        .id(Id.tryToParse(String.valueOf(++dataStreamId)))
-                        .name(AirQuality.NO2.getDatastreamName())
-                        .description(AirQuality.NO2.getDatastreamName())
-                        .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                        .unitOfMeasurement(new UnitOfMeasurement(
-                                "parts per million",
-                                "ppm",
-                                "https://en.wikipedia.org/wiki/Parts-per_notation"
-                        ))
-                        .sensor(sensorNo2)
-                        .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
-                        .thing(thing)
-                        .build();
-
-                // FeatureOfInterest
-                FeatureOfInterest featureOfInterest = FeatureOfInterestBuilder.builder()
-                        .id(thing.getId())
-                        .name(stationName + " 측정소")
-                        .description("한국환경공단 대기질 측정소")
-                        .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
-                        .feature(feature)
-                        .build();
-
-                if (thingExist) {
-                    if(point !=null) sensorThingsService.update(location);
-                    sensorThingsService.update(thing);
-                    sensorThingsService.update(sensorPm10);
-                    sensorThingsService.update(sensorPm25);
-                    sensorThingsService.update(sensorSo2);
-                    sensorThingsService.update(sensorCo);
-                    sensorThingsService.update(sensorO3);
-                    sensorThingsService.update(sensorNo2);
-                    sensorThingsService.update(dataStreamPm10);
-                    sensorThingsService.update(dataStreamPm25);
-                    sensorThingsService.update(dataStreamSo2);
-                    sensorThingsService.update(dataStreamCo);
-                    sensorThingsService.update(dataStreamO3);
-                    sensorThingsService.update(dataStreamNo2);
-                    sensorThingsService.update(featureOfInterest);
-                } else {
-                    if(point !=null) {
-                        location.setId(Id.tryToParse(String.valueOf(++locationsLastId)));
-                        sensorThingsService.create(location);
-                    }
-                    sensorThingsService.create(thing);
-                    sensorThingsService.create(sensorPm10);
-                    sensorThingsService.create(sensorPm25);
-                    sensorThingsService.create(sensorSo2);
-                    sensorThingsService.create(sensorCo);
-                    sensorThingsService.create(sensorO3);
-                    sensorThingsService.create(sensorNo2);
-                    sensorThingsService.create(dataStreamPm10);
-                    sensorThingsService.create(dataStreamPm25);
-                    sensorThingsService.create(dataStreamSo2);
-                    sensorThingsService.create(dataStreamCo);
-                    sensorThingsService.create(dataStreamO3);
-                    sensorThingsService.create(dataStreamNo2);
-                    sensorThingsService.create(featureOfInterest);
-                }
-            }
+            stationJson = getListStation();
         } catch (Exception e) {
             LogMessageSupport.printMessage(e, "-------- AirQualityService Error = {}", e.getMessage());
+        }
+        List<?> stationList = (List<?>) stationJson.get("list");
+        // 마지막 things id 조회
+        long thingsLastId = getThingsId(OrderBy.DESC);
+        long locationsLastId = getLocationsId(OrderBy.DESC);
+        for (var station : stationList) {
+            Map<String, Object> thingProperties = new HashMap<>();
+            var json = (JSONObject) station;
+            var stationName = (String) json.get("stationName");
+            var dmX = json.get("dmX").toString().trim();
+            var dmY = json.get("dmY").toString().trim();
+            thingProperties.put("stationName", stationName);
+            thingProperties.put("year", json.get("year"));
+            thingProperties.put("oper", json.get("oper"));
+            thingProperties.put("photo", json.get("photo"));
+            thingProperties.put("vrml", json.get("vrml"));
+            thingProperties.put("map", json.get("map"));
+            thingProperties.put("mangName", json.get("mangName"));
+            thingProperties.put("item", json.get("item"));
+            thingProperties.put("available", true);
+
+            var thing = getThingEntity(stationName);
+            var thingExist = thing != null;
+            Point point = null;
+            if (!"".equals(dmX) && !"".equals(dmY)) {
+                point = new Point(Double.parseDouble(dmY), Double.parseDouble(dmX));
+            }
+            Feature feature = new Feature();
+            GeoJsonObject geometry = point;
+            feature.setGeometry(geometry);
+            List<Location> locationList = new ArrayList<>();
+            var thingId = !thingExist ? thingsLastId++ : Long.parseLong(thing.getId().toString());
+            var dataStreamId = (thingId - 1) * 6;
+            var sensorId = (thingId - 1) * 6;
+            var ObservedPropertyId = 1L;
+            List<Entity> entityList = new ArrayList<>();
+            // Location
+            Location location = LocationBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(thingId)))
+                    .name((String) json.get("addr"))
+                    .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
+                    .description("대기질 측정소 위치")
+                    .location(feature)
+                    .build();
+            entityList.add(location);
+
+            if (point != null) locationList.add(location);
+
+            thing = ThingBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(thingId)))
+                    .name(stationName)
+                    .description("한국환경공단 측정소")
+                    .properties(thingProperties)
+                    .locations(locationList)
+                    .build();
+            entityList.add(thing);
+
+            Sensor sensorPm10 = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "미세먼지(PM10)")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorPm10);
+
+            // DataStream PM10
+            Datastream dataStreamPm10 = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.PM10.getDatastreamName())
+                    .description(AirQuality.PM10.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "microgram per cubic meter",
+                            "㎍/m³",
+                            "https://www.eea.europa.eu/themes/air/air-quality/resources/glossary/g-m3"
+                    ))
+                    .sensor(sensorPm10)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamPm10);
+
+            Sensor sensorPm25 = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "미세먼지(PM2.5)")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorPm25);
+
+            // DataStream PM2.5
+            Datastream dataStreamPm25 = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.PM25.getDatastreamName())
+                    .description(AirQuality.PM25.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "microgram per cubic meter",
+                            "㎍/m³",
+                            "https://www.eea.europa.eu/themes/air/air-quality/resources/glossary/g-m3"
+                    ))
+                    .sensor(sensorPm25)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamPm25);
+
+            Sensor sensorSo2 = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "아황산가스 농도")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorSo2);
+
+            // DataStream 아황산가스 농도
+            Datastream dataStreamSo2 = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.SO2.getDatastreamName())
+                    .description(AirQuality.SO2.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "parts per million",
+                            "ppm",
+                            "https://en.wikipedia.org/wiki/Parts-per_notation"
+                    ))
+                    .sensor(sensorSo2)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamSo2);
+
+            Sensor sensorCo = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "일산화탄소 농도")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorCo);
+
+            // DataStream 일산화탄소 농도
+            Datastream dataStreamCo = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.CO.getDatastreamName())
+                    .description(AirQuality.CO.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "parts per million",
+                            "ppm",
+                            "https://en.wikipedia.org/wiki/Parts-per_notation"
+                    ))
+                    .sensor(sensorCo)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamCo);
+
+            Sensor sensorO3 = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "오존 농도")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorO3);
+
+            // DataStream 오존 농도
+            Datastream dataStreamO3 = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.O3.getDatastreamName())
+                    .description(AirQuality.O3.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "parts per million",
+                            "ppm",
+                            "https://en.wikipedia.org/wiki/Parts-per_notation"
+                    ))
+                    .sensor(sensorO3)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId++))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamO3);
+
+            Sensor sensorNo2 = SensorBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++sensorId)))
+                    .name(stationName + ":" + "이산화질소 농도")
+                    .description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .metadata(json.get("mangName"))
+                    .build();
+            entityList.add(sensorNo2);
+
+            // DataStream 이산화질소 농도
+            Datastream dataStreamNo2 = DatastreamBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(++dataStreamId)))
+                    .name(AirQuality.NO2.getDatastreamName())
+                    .description(AirQuality.NO2.getDatastreamName())
+                    .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
+                    .unitOfMeasurement(new UnitOfMeasurement(
+                            "parts per million",
+                            "ppm",
+                            "https://en.wikipedia.org/wiki/Parts-per_notation"
+                    ))
+                    .sensor(sensorNo2)
+                    .observedProperty(ObservedPropertyBuilder.builder().id(Id.tryToParse(String.valueOf(ObservedPropertyId))).build())
+                    .thing(thing)
+                    .build();
+            entityList.add(dataStreamNo2);
+
+            // FeatureOfInterest
+            FeatureOfInterest featureOfInterest = FeatureOfInterestBuilder.builder()
+                    .id(thing.getId())
+                    .name(stationName + " 측정소")
+                    .description("한국환경공단 대기질 측정소")
+                    .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
+                    .feature(feature)
+                    .build();
+            entityList.add(featureOfInterest);
+
+            try {
+                for (var entity : entityList) {
+                    if (EntityType.LOCATION.equals(entity.getType()) && point == null) {
+                        continue;
+                    }
+                    if (thingExist) {
+                        sensorThingsService.update(entity);
+                    } else {
+                        if (EntityType.LOCATION.equals(entity.getType())) {
+                            entity.setId(Id.tryToParse(String.valueOf(++locationsLastId)));
+                        }
+                        sensorThingsService.create(entity);
+                    }
+                }
+            } catch (Exception e) {
+                LogMessageSupport.printMessage(e, "-------- AirQualityService create & update Error = {}", e.getMessage());
+            }
         }
     }
 
@@ -473,14 +470,6 @@ public class AirQualityServiceImpl implements AirQualityService {
         log.info("================== ObservedProperty insert success ==================");
     }
 
-    private void initEntity(EntityList<?> entity, boolean thingExist) throws ServiceFailureException {
-//        if (thingExist) {
-//            sensorThingsService.update(entity);
-//        } else {
-//            sensorThingsService.create(entity);
-//        }
-    }
-
     /**
      * 측정소 목록 조회
      *
@@ -627,34 +616,44 @@ public class AirQualityServiceImpl implements AirQualityService {
         return idCount;
     }
 
-    private Thing getThingEntity(String stationName) throws ServiceFailureException {
-        EntityList<Thing> list = sensorThingsService.things()
-                .query()
-                .filter("name eq " + "'" + stationName + "'")
-                .list();
+    private Thing getThingEntity(String stationName) {
+        EntityList<Thing> list = null;
+        try {
+            list = sensorThingsService.things()
+                    .query()
+                    .filter("name eq " + "'" + stationName + "'")
+                    .list();
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
 
         return list.size() > 0 ? list.toList().get(0) : null;
     }
 
-    private List<Thing> getAirQualityThings() throws ServiceFailureException {
+    private List<Thing> getAirQualityThings() {
         List<Thing> list = new ArrayList<>();
         boolean nextLinkCheck = true;
         int skipCount = 0;
-        while(nextLinkCheck) {
-            EntityList<Thing> things = sensorThingsService.things()
-                    .query()
-                    .skip(skipCount)
-                    .filter("Datastreams/ObservedProperties/name eq "+"'"+ AirQuality.PM10.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
-                    )
-                    .list();
+        while (nextLinkCheck) {
+            EntityList<Thing> things = null;
+            try {
+                things = sensorThingsService.things()
+                        .query()
+                        .skip(skipCount)
+                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
+                                " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
+                                " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
+                                " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
+                                " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
+                                " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
+                        )
+                        .list();
+            } catch (ServiceFailureException e) {
+                e.printStackTrace();
+            }
             list.addAll(things.toList());
             nextLinkCheck = things.getNextLink() != null;
-            skipCount= skipCount + 100;
+            skipCount = skipCount + 100;
         }
 
         return list;
