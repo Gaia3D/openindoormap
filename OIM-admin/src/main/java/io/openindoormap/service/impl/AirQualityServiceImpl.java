@@ -328,12 +328,12 @@ public class AirQualityServiceImpl implements AirQualityService {
                 EntityList<Thing> things = sensorThingsService.things()
                         .query()
                         .filter("name eq " + "'" + stationName + "'")
-                        .expand("Datastreams($orderby=id asc)")
+                        .expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)")
                         .list();
                 Thing thing = things.toList().get(0);
                 EntityList<Datastream> datastreamList = thing.getDatastreams();
                 for (var datastream : datastreamList) {
-                    String name = datastream.getName();
+                    var name = datastream.getName();
                     if (name.equals(AirQuality.PM10.getDatastreamName())) {
                         json.put("value", result.get("pm10Value"));
                         json.put("grade", result.get("pm10Grade"));
@@ -353,13 +353,26 @@ public class AirQualityServiceImpl implements AirQualityService {
                         json.put("value", result.get("no2Value"));
                         json.put("grade", result.get("no2Grade"));
                     }
-                    sensorThingsService.create(ObservationBuilder.builder()
+
+                    Observation observation = ObservationBuilder.builder()
                             .phenomenonTime(new TimeObject(ZonedDateTime.now()))
                             .resultTime(zonedDateTime)
                             .result(json)
                             .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId()))).build())
                             .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
-                            .build());
+                            .build();
+
+                    var observationCount = datastream.getObservations().size();
+                    var lastObservation = observationCount > 0 ? datastream.getObservations().toList().get(0) : null;
+                    var lastTime = lastObservation != null ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")) : null;
+                    if (zonedDateTime.equals(lastTime)) {
+                        log.info("============== observation update ==============");
+                        observation.setId(lastObservation.getId());
+                        sensorThingsService.update(observation);
+                    } else {
+                        log.info("============== observation create ==============");
+                        sensorThingsService.create(observation);
+                    }
                 }
 //                }
             } catch (Exception e) {

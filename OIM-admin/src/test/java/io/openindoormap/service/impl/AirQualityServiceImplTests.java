@@ -2,6 +2,7 @@ package io.openindoormap.service.impl;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
+import de.fraunhofer.iosb.ilt.sta.model.Observation;
 import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
@@ -139,5 +140,26 @@ class AirQualityServiceImplTests {
         for (var thing : list) {
             log.info("thing info ==================id:{} name:{} ", thing.getId(), thing.getName());
         }
+    }
+
+    @Test
+    void 시간_비교() throws ServiceFailureException {
+        EntityList<Thing> things = sensorThingsService.things()
+                .query()
+                .filter("name eq " + "'" + "반송로" + "'")
+                .expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)")
+                .list();
+        EntityList<Datastream> datastreamList = things.toList().get(0).getDatastreams();
+        Datastream datastream = datastreamList.toList().get(0);
+        Observation observation = datastream.getObservations().toList().get(0);
+        log.info("datastream ================= {} ", datastream);
+        log.info("observation ================= {} ", observation);
+        LocalDateTime t = LocalDateTime.parse("2020-10-28 20:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+        ZonedDateTime resultTime = observation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+        log.info("time ===================== {} ", zonedDateTime);
+        log.info("resultTime ==============={}", resultTime);
+        log.info("equals ==================== {} ", zonedDateTime.equals(resultTime));
+
     }
 }
