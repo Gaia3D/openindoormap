@@ -1,27 +1,26 @@
 package io.openindoormap.domain.Sensor;
 
 public enum AirQuality {
-    PM10("미세먼지(PM10)"),
-    PM25("미세먼지(PM2.5)"),
-    SO2("아황산가스 농도"),
-    CO("일산화탄소 농도"),
-    O3("오존 농도"),
-    NO2("이산화질소 농도");
+    PM10("미세먼지(PM10)", "pm10Value"),
+    PM25("미세먼지(PM2.5)", "pm25Value"),
+    SO2("아황산가스 농도", "so2Value"),
+    CO("일산화탄소 농도", "coValue"),
+    O3("오존 농도", "o3Value"),
+    NO2("이산화질소 농도", "no2Value");
 
-    private final String value;
+    private final String datastreamName;
+    private final String observedPropertyName;
 
-    AirQuality(String value) {
-        this.value = value;
+    AirQuality(String datastreamName, String observedPropertyName) {
+        this.datastreamName = datastreamName;
+        this.observedPropertyName = observedPropertyName;
     }
 
-    public String getValue() {
-        return this.value;
+    public String getDatastreamName() {
+        return datastreamName;
     }
 
-    public static AirQuality findBy(String value) {
-        for(AirQuality type : values()) {
-            if(type.getValue().equals(value)) return type;
-        }
-        return null;
+    public String getObservedPropertyName() {
+        return observedPropertyName;
     }
 }
