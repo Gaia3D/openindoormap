@@ -43,7 +43,8 @@
             // 한 시간에 한번씩 자료 갱신
             setInterval(function () {
                 dustSensorThings.updateContentValue();
-            }, 1000 * 3600);
+                sensorThings.dataSearch(dustSensorThings.currentPageNo);
+            }, 1000 * sensorThings.interval);
 
             // 검색 버튼 클릭
             $('#iotSearch').click(function () {

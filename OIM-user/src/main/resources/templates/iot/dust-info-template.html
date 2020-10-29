@@ -2,24 +2,24 @@
 <script id="dustInfoSource" type="text/x-handlebars-template">
 <button id="closeDustInfo" class="circle-small fas fa-times float-right marT5 marR5" th:title="#{common.close}"></button>
 <div class="sensor-detail">
-    <!-- 대시보드 -->
+    <!-- 게이지차트 -->
     <div class="chart-container">
         <h3 class="chart-title">{{stationName}}</h3>
         <button class="chart-info far fa-question-circle"></button>
         <div class="half-doughnut-chart-container">
-            <canvas id="doughnutChart" width="300" height="200"></canvas>
-            <canvas id="doughnutChartBar" width="300" height="200"></canvas>
-            <p class="percent">{{pm10}}</p>
+            <canvas id="gaugeChart" width="300" height="200"></canvas>
+            <canvas id="gaugeChartNeedle" width="300" height="200"></canvas>
+            <p id="dustInfoValue" class="percent">{{pm10}}</p>
             <p class="label"><span>{{min}}</span><span>{{max}}</span></p>
         </div>
         <p class="chart-description">
-            <span class="dust lv{{cai}}"></span>
+            <span id="dustInfoGrade" class="dust lv{{grade}}"></span>
             <span class="dusttx"><span th:text="#{iot.dust}"></span> PM<sub>10</sub></span>
         </p>
     </div>
-    <!-- // 대시보드 -->
+    <!-- // 게이지차트 -->
     <!-- 측정항목 -->
-    <div class="chart-container">
+    <div id="dustInfoTableSource" class="chart-container">
         <table class="dustList">
             <thead>
             <th th:text="#{iot.dust.metric}"></th>
@@ -33,8 +33,8 @@
                         <td>{{name}}</td>
                         <td>{{value}}{{unit}}</td>
                         <td>
-                            <span class="dust lv{{cai}}"></span>
-                            <span class="dusttx">{{caiText}}</span>
+                            <span class="dust lv{{grade}}"></span>
+                            <span class="dusttx">{{gradeText}}</span>
                         </td>
                     </tr>
                 {{/each}}
@@ -47,12 +47,14 @@
         </table>
     </div>
     <!-- // 측정항목 -->
+    <!-- 라인차트 -->
     <div class="chart-container" style="width: 674px">
         <canvas id="hourlyAirQualityChart" width="600" height="200"></canvas>
     </div>
     <div class="chart-container" style="display: none">
         <canvas id="dailyAirQualityChart" width="300" height="200"></canvas>
     </div>
+    <!-- // 라인차트 -->
 </div>
 </script>
 </html>

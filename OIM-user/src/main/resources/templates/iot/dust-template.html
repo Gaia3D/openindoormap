@@ -5,8 +5,8 @@
     {{#each contents}}
         <div class="sInfoWrap">
             <div class="sInfo">
-                <ul class="lv{{cai}}">
-                    <li class="state">{{caiText}}</li>
+                <ul class="lv{{grade}}">
+                    <li class="state">{{gradeText}}</li>
                     <li class="result">{{value}}</li>
                     <li class="unit">{{unit}}</li>
                 </ul>
@@ -25,9 +25,9 @@
                     </li>
                 </ul>
             </div>
-            <div class="iotDustMoreDHTML" style="display:none"></div>
+            <div class="iotDustMoreDHTML" style="display: none"></div>
             <div class="btnCt">
-                <button type="button" class="more" th:title="#{common.more}" th:text="#{common.more}" onclick="dustSensorThings.getSensorMoreInformation(this, {{id}})"></button>
+                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="dustSensorThings.getSensorMoreInformation(this, {{id}})"></button>
             </div>
         </div>
     {{/each}}

@@ -300,6 +300,14 @@
 			AND user_id = #{userId}
 	</select>
 	
+	<!-- 데이터 삭제를 위해 부모 dataGroupId를 이용해서 모든 하위 dataGroupId를 취득 -->
+	<select id="getListDataGroupByPatent" parameterType="dataGroup" resultType="dataGroup">
+		/* getDataGroupListByParent */
+		SELECT *
+		FROM data_group
+		WHERE parent = #{dataGroupId}
+	</select>
+	
 	<!-- 사용자 데이터 그룹 등록 -->
 	<insert id="insertDataGroup" parameterType="dataGroup">
 		/* insertDataGroup */

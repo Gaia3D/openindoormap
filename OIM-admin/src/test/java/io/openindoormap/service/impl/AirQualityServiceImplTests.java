@@ -2,10 +2,14 @@ package io.openindoormap.service.impl;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
 import de.fraunhofer.iosb.ilt.sta.model.Datastream;
+import de.fraunhofer.iosb.ilt.sta.model.Observation;
+import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
 import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
+import io.openindoormap.domain.OrderBy;
+import io.openindoormap.domain.sensor.AirQuality;
 import io.openindoormap.service.AirQualityService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -32,49 +38,13 @@ class AirQualityServiceImplTests {
     private SensorThingsService sensorThingsService;
 
     @Test
-    void 초기_데이터_넣기() {
+    void 측정소_데이터_넣기() {
         sensorService.initSensorData();
     }
 
     @Test
     void 미세먼지_데이터_넣기() {
         sensorService.insertSensorData();
-    }
-
-    @Test
-    void 미세먼지_하루_24시간_더미_데이터_생성() {
-        sensorService.initDailyMockData();
-    }
-
-    @Test
-    void 미세먼지_데이터_유무_확인() throws ServiceFailureException {
-        //http://localhost:8888/FROST-Server/v1.0/Things?$count=true&$filter=description eq '한국환경공단 측정소'&$orderBy=id desc&$top=1
-        EntityList<Thing> things = sensorThingsService.things()
-                .query()
-                .filter("description eq '한국환경공단 측정소'")
-                .orderBy("id desc")
-                .top(1)
-                .list();
-
-        log.info("things ================== {} ", things.toList().get(0).getId());
-        //http://localhost:8888/FROST-Server/v1.0/ObservedProperties?$count=true&$filter=name eq 'pm10Value' or name eq 'pm25Value'
-//        String url = "http://localhost:8888/FROST-Server/v1.0/ObservedProperties";
-//        String filter = URLEncoder.encode("name eq 'pm10Value' or name eq 'pm25Value'", StandardCharsets.UTF_8);
-//        RestTemplate restTemplate = new RestTemplate();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-//        HttpEntity<String> entity = new HttpEntity<>(headers);
-//        UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-//                .queryParam("$count", true)
-//                .queryParam("$filter", filter)
-//                .build(false);    //자동으로 encode해주는 것을 막기 위해 false
-//        ResponseEntity<?> response = restTemplate.exchange(new URI(builder.toString()), HttpMethod.GET, entity, String.class);
-//        log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
-//
-//        JSONObject json = (JSONObject) parser.parse(response.getBody().toString());
-//        Long count = (Long)json.get("@iot.count");
-//
-//        log.info("count ================ {} ", count);
     }
 
     @Test
@@ -87,19 +57,30 @@ class AirQualityServiceImplTests {
                 .list();
 
         EntityList<Datastream> datastreams = things.toList().get(0).getDatastreams();
-        for(var datastream : datastreams) {
+        for (var datastream : datastreams) {
             log.info("datastream ================== {} ", datastream);
         }
     }
 
     @Test
-    void test() {
+    void getThingId() throws ServiceFailureException {
+        long idCount = 0;
+        EntityList<Thing> things = sensorThingsService.things()
+                .query()
+                .orderBy("id " + OrderBy.DESC.getValue())
+                .top(1)
+                .list();
+
+        List<Thing> thingList = things.toList();
+        idCount = thingList.size() > 0 ? Long.parseLong((thingList.get(0).getId().toString())) : 0;
+
+        log.info("id ========================== {} ", idCount);
+    }
+
+    @Test
+    void 시간_테스트() {
         String time = "2020-10-21 17:00";
-//        LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-//        t = t.plusHours(1);
-//        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
-//        log.info("test ================== {} ", zonedDateTime);
-        for(int i=0; i< 24;i++) {
+        for (int i = 0; i < 24; i++) {
             LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             t = t.minusDays(1);
             t = t.plusHours(i);
@@ -111,5 +92,74 @@ class AirQualityServiceImplTests {
             log.info("getDayOfMonth =========================== {} ", t.getDayOfMonth());
             log.info("getHour =========================== {} ", t.getHour());
         }
+    }
+
+    @Test
+    void ObservedProperty() throws ServiceFailureException {
+        EntityList<ObservedProperty> list = sensorThingsService.observedProperties()
+                .query()
+                .filter("name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'")
+                .list();
+
+        log.info("ObservedProperty ========================= {} ", list.size());
+    }
+
+    @Test
+    void Thing() throws ServiceFailureException {
+        EntityList<Thing> thing = sensorThingsService.things()
+                .query()
+                .filter("name eq " + "'" + "반송로" + "'")
+                .list();
+
+        log.info("thing ============================ {} ", thing.size());
+    }
+
+    @Test
+    void 미세먼지_things_필터() throws ServiceFailureException {
+        List<Thing> list = new ArrayList<>();
+        boolean nextLinkCheck = true;
+        int skipCount = 0;
+        while (nextLinkCheck) {
+            EntityList<Thing> things = sensorThingsService.things()
+                    .query()
+                    .skip(skipCount)
+                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
+                            " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
+                            " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
+                            " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
+                            " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
+                            " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
+                    )
+                    .list();
+            list.addAll(things.toList());
+            nextLinkCheck = things.getNextLink() != null;
+            skipCount = skipCount + 100;
+        }
+
+        log.info("things count =================== {}", list.size());
+        for (var thing : list) {
+            log.info("thing info ==================id:{} name:{} ", thing.getId(), thing.getName());
+        }
+    }
+
+    @Test
+    void 시간_비교() throws ServiceFailureException {
+        EntityList<Thing> things = sensorThingsService.things()
+                .query()
+                .filter("name eq " + "'" + "반송로" + "'")
+                .expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)")
+                .list();
+        EntityList<Datastream> datastreamList = things.toList().get(0).getDatastreams();
+        Datastream datastream = datastreamList.toList().get(0);
+        Observation observation = datastream.getObservations().toList().get(0);
+        log.info("datastream ================= {} ", datastream);
+        log.info("observation ================= {} ", observation);
+        LocalDateTime t = LocalDateTime.parse("2020-10-28 20:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+        ZonedDateTime resultTime = observation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+        log.info("time ===================== {} ", zonedDateTime);
+        log.info("resultTime ==============={}", resultTime);
+        log.info("equals ==================== {} ", zonedDateTime.equals(resultTime));
+
     }
 }
