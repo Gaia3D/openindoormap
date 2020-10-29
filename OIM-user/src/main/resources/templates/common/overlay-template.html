@@ -1,16 +1,16 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="overlaySource" type="text/x-handlebars-template">
-    <div id="overlay_{{id}}" class="overlayWarp" style="position: relative">
+    <div id="overlay_{{id}}" class="overlayWarp rel">
         <!-- 맵내 측정소 -->
-        <ul class="dustStation abs" style="position: absolute;top: {{top}}px;left: {{left}}px;z-index: 1000" data-id="{{id}}">
-            <li class="scolor lv{{cai}} brLeft">
+        <ul class="dustStation abs" style="top:{{top}}px;left:{{left}}px" data-id="{{id}}">
+            <li class="scolor lv{{grade}} brLeft">
                 <span class="overlay-value">{{value}}</span>
                 <span>{{unit}}</span>
             </li>
             <li class="sname">
                 <p>{{stationName}}</p>
-                <span class="subTit">미세</span>
-                <span class="subResult txlv{{cai}}">{{caiText}}</span>
+                <span class="subTit" th:text="#{iot.dust.fine}"></span>
+                <span class="overlay-caiText subResult txlv{{grade}}">{{gradeText}}</span>
             </li>
         </ul>
         <!-- // 맵내 측정소 -->

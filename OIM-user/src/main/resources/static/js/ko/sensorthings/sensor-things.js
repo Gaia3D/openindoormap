@@ -3,10 +3,26 @@ const SensorThings = function (magoInstance) {
     this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
     this.queryString = '';
     this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
+    this.interval = 3600;     // 10s
 };
 
 
 SensorThings.prototype.init = function () {
+};
+
+SensorThings.prototype.geographicCoordToScreenCoord = function (coordinates) {
+    const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
+    const magoManager = this.magoInstance.getMagoManager();
+    const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
+    return resultScreenCoord;
+};
+
+SensorThings.prototype.observationTimeToLocalTime = function (observationTime) {
+    return moment.parseZone(observationTime).local().format();
+};
+
+SensorThings.prototype.formatValueByDigits = function (value, digits) {
+    return parseFloat(parseFloat(value).toFixed(digits));
 };
 
 SensorThings.prototype.dataSearch = function (pageNo) {
@@ -17,7 +33,7 @@ SensorThings.prototype.dataSearch = function (pageNo) {
     if (this.type === 'iot_occupancy') {
         this.occupancyList(pageNo, params);
     } else if (this.type === 'iot_dust') {
-        dustSensorThings.dustList(pageNo, params);
+        dustSensorThings.getList(pageNo, params);
     }
 
 };

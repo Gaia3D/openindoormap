@@ -3357,8 +3357,12 @@ table.dustList td:nth-child(2) {
 }
 
 /* 측정태그 */
+.rel {
+	position: relative;
+}
 .abs {
 	position: absolute;
+	z-index: 1000;
 }
 .dustStation {
 	display: flex;
