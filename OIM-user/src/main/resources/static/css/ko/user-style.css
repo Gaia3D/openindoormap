@@ -3542,7 +3542,7 @@ span.subResult {
 .half-doughnut-chart-container > canvas {
 	position: absolute;
 }
-.percent {
+.half-doughnut-chart-container > .percent {
 	position: absolute;
 	left: 50%;
 	transform: translate(-50%, 0);
@@ -3550,14 +3550,14 @@ span.subResult {
 	font-weight: bold;
 	top: 45%;
 }
-.label {
+.half-doughnut-chart-container > .label {
 	position: absolute;
 	width: 100%;
 	bottom: 30%;
 }
-.label span:first-child {
+.half-doughnut-chart-container > .label span:first-child {
 	float: left;
 }
-.label span:last-child {
+.half-doughnut-chart-container > .label span:last-child {
 	float: right;
 }

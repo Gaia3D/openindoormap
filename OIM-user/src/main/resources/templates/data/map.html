@@ -152,6 +152,9 @@
 
 	<!-- S: MAP -->
 	<div id="magoContainer" class="mapWrap">
+
+		<div id="overlayWrap"></div>
+
 		<!-- S: GNB WRAP -->
 		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
 		<!-- E: GNB WRAP -->
@@ -323,8 +326,7 @@
 		occupancySensorThings = new OccupancySensorThings(magoInstance);
 		dustSensorThings = new DustSensorThings(magoInstance);
 
-		dustSensorThings.init();
-		occupancySensorThings.init();
+		dustSensorThings.addOverlay();
 
 		// 사물인터넷 초기화면
 		sensorThings.dataSearch(1);
@@ -402,9 +404,11 @@
 
 		// 지도상의 센서 위치 갱신
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
-			$('.overlayWarp').hide();
+			//dustSensorThings.hideOverlay();
+			$('#overlayWrap').html("");
 		});
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e) => {
+			//$('.overlayWrap').remove();
 			dustSensorThings.updateContentPosition();
 		});
 

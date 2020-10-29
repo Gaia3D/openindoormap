@@ -10,28 +10,30 @@ const DustSensorThings = function (magoInstance) {
         'pm25Value': '#9C27B0',
         'so2Value': '#FF9800',
         'coValue': '#2196F3',
-        'o3Value': '#607D8B',
+        'o3Value': '#607d8b',
         'no2Value': '#00BCD4'
     };
     this.gaugeChartNeedle = {};
     this.hourlyAirQualityChart = {};
+    this.overlayWrap = $('.overlayWrap');
 };
 DustSensorThings.prototype = Object.create(SensorThings.prototype);
 DustSensorThings.prototype.constructor = DustSensorThings;
 
 /**
- * 초기 데이터 표출
+ * 지도 Overlay 생성
  */
-DustSensorThings.prototype.init = function () {
+DustSensorThings.prototype.addOverlay = function () {
 
     const _this = this;
     const queryString = 'Locations?$select=@iot.id,location,name&$top=1000&$count=true' +
         '&$expand=Things($select=@iot.id,name,description),' +
             'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'' + _this.observedProperty + '\'),' +
-            'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)';
+            'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterStartTime() + ')';
+            //'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)';
 
     $.ajax({
-        // http://localhost:8888/FROST-Server/v1.0/Locations?$select=@iot.id,location,name&$top=1000&$count=true&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)
+        // http://localhost:8888/FROST-Server/v1.0/Locations?$select=@iot.id,location,name&$top=1000&$count=true&$expand=Things($select=@iot.id,name,description),Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le 2020-10-23T05:00:00.000Z and resultTime gt 2020-10-23T04:00:00.000Z)
         url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
@@ -39,7 +41,6 @@ DustSensorThings.prototype.init = function () {
         success: function (msg) {
             _this.locations = msg.value;
             _this.updateContentPosition();
-            //_this.updateContentValue();
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
@@ -47,202 +48,11 @@ DustSensorThings.prototype.init = function () {
     });
 
 };
-
-/**
- * 센서 컨텐츠 위치 갱신
- */
-DustSensorThings.prototype.updateContentPosition = function () {
-
-    for (const location of this.locations) {
-
-        // Locations
-        const locationId = location['@iot.id'];
-        const addr = location.name;
-        const coordinates = location.location.coordinates;
-        const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
-
-        // 지도화면 픽셀정보 구하기
-        const $containerSelector = $('#magoContainer');
-        const $overlaySelector = $('#overlay_' + locationId);
-        const top = 0, left = 0;
-        let bottom = top + $containerSelector.outerHeight() - 55;
-        let right = left + $containerSelector.outerWidth() - 160;
-
-        // 화면 밖에 있는 관측소는 스킵
-        if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
-            (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
-            continue;
-        }
-
-        // 없으면 만들기
-        if ($overlaySelector.length === 0) {
-
-            // Things
-            if (!location['Things'] || location['Things'].length <= 0) continue;
-            const thing = location['Things'][0];
-
-            // Datastreams
-            if (!thing['Datastreams'] || thing['Datastreams'].length <= 0) continue;
-            const dataStream = thing['Datastreams'][0];
-            const unit = dataStream['unitOfMeasurement'].symbol;
-
-            // Observations
-            if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
-            const observation = dataStream['Observations'][0];
-            const value = observation.result.value;
-            const grade = observation.result.grade;
-            const gradeText = this.getGradeMessage(grade);
-
-            location.contents = {
-                id: locationId,
-                value: value,
-                unit: unit,
-                stationName: thing.name,
-                addr: addr,
-                grade: grade,
-                gradeText: gradeText,
-                top: resultScreenCoord.y,
-                left: resultScreenCoord.x
-            };
-
-            const template = Handlebars.compile($("#overlaySource").html());
-            const html = template(location.contents);
-            $containerSelector.prepend(html);
-
-        } else {
-            // 있으면 위치만 이동
-            $overlaySelector.children().css({
-                top: resultScreenCoord.y,
-                left: resultScreenCoord.x
-            });
-        }
-        $overlaySelector.show();
-    }
+DustSensorThings.prototype.hideOverlay = function () {
+    this.overlayWrap.hide();
 };
-
-/**
- * 센서 컨텐츠 값 갱신
- */
-DustSensorThings.prototype.updateContentValue = function () {
-
-    const _this = this;
-    for (const location of _this.locations) {
-
-        // Locations
-        const locationId = location['@iot.id'];
-        const addr = location.name;
-        const queryString = 'Locations(' + locationId + ')?' +
-            '$select=@iot.id' +
-            '&$expand=Things/Datastreams($select=@iot.id,description,name,unitOfMeasurement),' +
-                'Things/Datastreams/ObservedProperty($select=name),' +
-                'Things/Datastreams/Observations($select=result,resultTime;$orderby=resultTime desc;$top=1)';
-                //'Things/Datastreams/Observations($select=result,resultTime;$orderby=resultTime desc)';
-
-        $.ajax({
-            // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/Datastreams($select=@iot.id,description,name,unitOfMeasurement),Things/Datastreams/ObservedProperty($select=name),Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)
-            url: _this.FROST_SERVER_URL + queryString,
-            type: "GET",
-            dataType: "json",
-            headers: {"X-Requested-With": "XMLHttpRequest"},
-            success: function (msg) {
-
-                const contents = {
-                    dataStreams: []
-                };
-
-                for (const datastream of msg.Things[0].Datastreams) {
-
-                    // Things
-                    if (!location['Things'] || location['Things'].length <= 0) continue;
-                    const thing = location['Things'][0];
-
-                    // Datastreams
-                    const observedPropertyName = datastream.ObservedProperty.name;
-                    const unit = datastream.unitOfMeasurement.symbol;
-                    //const observation = datastream.Observations[0];
-                    const observation = datastream.Observations[index];
-                    let value = observation.result.value;
-                        value = parseFloat(parseFloat(value).toFixed(3));
-                    const grade = observation.result.grade;
-                    const gradeText = _this.getGradeMessage(grade);
-
-                    const content = {
-                        id: locationId,
-                        value: value,
-                        unit: unit,
-                        stationName: thing.name,
-                        addr: addr,
-                        grade: grade,
-                        gradeText: gradeText
-                    };
-
-                    if (observedPropertyName === _this.observedProperty) {
-
-                        // 지도 측정소 정보 업데이트
-                        location.content = content;
-                        const template = Handlebars.compile($("#overlaySource").html());
-                        const innerHtml = $(template(content)).find('ul').html();
-                        $('#overlay_' + locationId + '> ul').html(innerHtml);
-
-                        // 도넛차트 업데이트
-                        const doughnutChartData = _this.gaugeChartNeedle.data;
-                        if (!doughnutChartData || _this.selectedLocationId == 0 || _this.selectedLocationId != locationId) continue;
-                        const pm10Percent = value / 600 * 100;
-                        console.info("value: " + value + ", pm10Percent: " + pm10Percent);
-                        doughnutChartData.datasets[0].data = [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)];
-                        _this.gaugeChartNeedle.update();
-
-                        // 도넛 차트 영역 값, 등급 업데이트
-                        $('#dustInfoValue').text(value);
-                        $('#dustInfoGrade').removeClass();
-                        $('#dustInfoGrade').addClass('dust lv' + grade);
-                    }
-
-                    // 라인차트 업데이트
-                    const hourlyAirQualityChartData = _this.hourlyAirQualityChart.data;
-                    if (!hourlyAirQualityChartData || _this.selectedLocationId == 0 || _this.selectedLocationId != locationId) continue;
-                    hourlyAirQualityChartData.datasets.forEach(function(dataset) {
-                        if (dataset.observedPropertyName === observedPropertyName) {
-                            console.info("observedPropertyName: " + observedPropertyName);
-                            console.info("value: " + value + ", pm10Percent: " + observation.resultTime);
-                            dataset.data.pop();
-                            dataset.data.unshift({
-                                x: _this.observationTimeToLocalTime(observation.resultTime),
-                                y: value
-                            });
-                        }
-                    });
-                    _this.hourlyAirQualityChart.update();
-
-                    const data = {
-                        id: datastream['@iot.id'],
-                        name: datastream.name,
-                        unit: unit,
-                        value: value,
-                        grade: grade,
-                        gradeText: gradeText,
-                        observations: datastream['Observations'],
-                        observedPropertyName: observedPropertyName
-                    };
-                    contents.dataStreams.push(data);
-
-                }
-
-                // 측정항목 테이블 업데이트
-                if (_this.selectedLocationId != 0 && _this.selectedLocationId == locationId) {
-                    const $dustInfoTableWrap = $('#dustInfoTableSource');
-                    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
-                    const innerHtml = $(dustInfoTemplate(contents)).find("#dustInfoTableSource").html();
-                    $dustInfoTableWrap.html(innerHtml);
-                }
-
-            },
-            error: function (request, status, error) {
-                alert(JS_MESSAGE["ajax.error.message"]);
-            }
-        });
-    }
-
+DustSensorThings.prototype.clearOverlay = function () {
+    this.overlayWrap.remove();
 };
 
 /**
@@ -274,15 +84,224 @@ DustSensorThings.prototype.getGradeMessage = function (grade) {
 };
 
 /**
+ * 센서 컨텐츠 위치 갱신
+ */
+DustSensorThings.prototype.updateContentPosition = function () {
+
+    const contents = {
+        locations: []
+    };
+
+    for (const location of this.locations) {
+
+        // Locations
+        const locationId = location['@iot.id'];
+        const addr = location.name;
+        const coordinates = location.location.coordinates;
+        const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
+
+        // 지도화면 픽셀정보 구하기
+        const $containerSelector = $('#magoContainer');
+        //const $overlaySelector = $('.overlayWrap').find('#overlay_' + locationId);
+        const top = 0, left = 0;
+        let bottom = top + $containerSelector.outerHeight() - 55;
+        let right = left + $containerSelector.outerWidth() - 160;
+
+        // 화면 밖에 있는 관측소는 스킵
+        if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
+            (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
+            continue;
+        }
+
+        // Things
+        if (!location['Things'] || location['Things'].length <= 0) continue;
+        const thing = location['Things'][0];
+
+        // Datastreams
+        if (!thing['Datastreams'] || thing['Datastreams'].length <= 0) continue;
+        const dataStream = thing['Datastreams'][0];
+        const unit = dataStream['unitOfMeasurement'].symbol;
+
+        // Observations
+        if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
+        const observation = dataStream['Observations'][0];
+        const value = observation.result.value;
+        const grade = observation.result.grade;
+        const gradeText = this.getGradeMessage(grade);
+
+        contents.locations.push({
+            id: locationId,
+            value: value,
+            unit: unit,
+            stationName: thing.name,
+            addr: addr,
+            grade: grade,
+            gradeText: gradeText,
+            top: resultScreenCoord.y,
+            left: resultScreenCoord.x
+        });
+
+        /*
+        if ($overlaySelector.length === 0) {
+            // 없으면 만들기
+        } else {
+            // 있으면 위치만 이동
+            $overlaySelector.children().css({
+                top: resultScreenCoord.y,
+                left: resultScreenCoord.x
+            });
+        }
+        $overlaySelector.show();
+         */
+    }
+
+    const template = Handlebars.compile($("#overlaySource").html());
+    $('#overlayWrap').html("").append(template(contents));
+
+};
+
+/**
+ * 센서 컨텐츠 값 갱신
+ */
+DustSensorThings.prototype.updateContentValue = function () {
+
+    const _this = this;
+    for (const location of _this.locations) {
+
+        // Locations
+        const locationId = location['@iot.id'];
+        const addr = location.name;
+        const queryString = 'Locations(' + locationId + ')?' +
+            '$select=@iot.id' +
+            '&$expand=Things/Datastreams($select=@iot.id,description,name,unitOfMeasurement),' +
+                'Things/Datastreams/ObservedProperty($select=name),' +
+                'Things/Datastreams/Observations($select=result,resultTime;$orderby=resultTime desc;$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterStartTime() + ')';
+                //'Things/Datastreams/Observations($select=result,resultTime;$orderby=resultTime desc;$top=1)';
+                //'Things/Datastreams/Observations($select=result,resultTime;$orderby=resultTime desc)';
+
+        $.ajax({
+            // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/Datastreams($select=@iot.id,description,name,unitOfMeasurement),Things/Datastreams/ObservedProperty($select=name),Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le 2020-10-23T05:00:00.000Z and resultTime gt 2020-10-23T04:00:00.000Z)
+            url: _this.FROST_SERVER_URL + queryString,
+            type: "GET",
+            dataType: "json",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            success: function (msg) {
+
+                const contents = {
+                    dataStreams: []
+                };
+
+                for (const datastream of msg.Things[0].Datastreams) {
+
+                    // Things
+                    if (!location['Things'] || location['Things'].length <= 0) continue;
+                    const thing = location['Things'][0];
+
+                    // Datastreams
+                    const observedPropertyName = datastream.ObservedProperty.name;
+                    const unit = datastream.unitOfMeasurement.symbol;
+
+                    for (const observation of datastream.Observations) {
+
+                        //const observation = datastream.Observations[0];
+                        //const observation = datastream.Observations[index];
+
+                        let value = observation.result.value;
+                        value = parseFloat(parseFloat(value).toFixed(3));
+                        const grade = observation.result.grade;
+                        const gradeText = _this.getGradeMessage(grade);
+
+                        const content = {
+                            id: locationId,
+                            value: value,
+                            unit: unit,
+                            stationName: thing.name,
+                            addr: addr,
+                            grade: grade,
+                            gradeText: gradeText
+                        };
+
+                        if (observedPropertyName === _this.observedProperty) {
+
+                            // 지도 측정소 정보 업데이트
+                            location.content = content;
+                            const template = Handlebars.compile($("#overlaySource").html());
+                            const innerHtml = $(template(content)).find('ul').html();
+                            $('#overlay_' + locationId + '> ul').html(innerHtml);
+
+                            // 도넛차트 업데이트
+                            const doughnutChartData = _this.gaugeChartNeedle.data;
+                            if (!doughnutChartData || _this.selectedLocationId == 0 || _this.selectedLocationId != locationId) continue;
+                            const pm10Percent = value / 600 * 100;
+                            console.info("value: " + value + ", pm10Percent: " + pm10Percent);
+                            doughnutChartData.datasets[0].data = [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)];
+                            _this.gaugeChartNeedle.update();
+
+                            // 도넛 차트 영역 값, 등급 업데이트
+                            $('#dustInfoValue').text(value);
+                            $('#dustInfoGrade').removeClass();
+                            $('#dustInfoGrade').addClass('dust lv' + grade);
+                        }
+
+                        // 라인차트 업데이트
+                        const hourlyAirQualityChartData = _this.hourlyAirQualityChart.data;
+                        if (!hourlyAirQualityChartData || _this.selectedLocationId == 0 || _this.selectedLocationId != locationId) continue;
+                        hourlyAirQualityChartData.datasets.forEach(function(dataset) {
+                            if (dataset.observedPropertyName === observedPropertyName) {
+                                console.info("observedPropertyName: " + observedPropertyName);
+                                console.info("value: " + value + ", currentTime: " + _this.getCurrentTime());
+                                dataset.data.pop();
+                                dataset.data.unshift({
+                                    x: _this.observationTimeToLocalTime(_this.getCurrentTime()),
+                                    y: value
+                                });
+                            }
+                        });
+                        _this.hourlyAirQualityChart.update();
+
+                        const data = {
+                            id: datastream['@iot.id'],
+                            name: datastream.name,
+                            unit: unit,
+                            value: value,
+                            grade: grade,
+                            gradeText: gradeText,
+                            observations: datastream['Observations'],
+                            observedPropertyName: observedPropertyName
+                        };
+                        contents.dataStreams.push(data);
+
+                    }
+
+                }
+
+                // 측정항목 테이블 업데이트
+                if (_this.selectedLocationId != 0 && _this.selectedLocationId == locationId) {
+                    const $dustInfoTableWrap = $('#dustInfoTableSource');
+                    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
+                    const innerHtml = $(dustInfoTemplate(contents)).find("#dustInfoTableSource").html();
+                    $dustInfoTableWrap.html(innerHtml);
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+    }
+
+};
+
+
+
+/**
  * 관측소 목록 조회
  * @param pageNo
  * @param params
  */
 DustSensorThings.prototype.getList = function (pageNo, params) {
+
     const _this = this;
-
-    // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=startswith(name, '이') or endswith(name, '이')&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)
-
     pageNo = parseInt(pageNo);
     _this.currentPageNo = pageNo;
     const skip = (pageNo - 1) * 5;
@@ -296,9 +315,11 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
         '&$top=5&$skip=' + skip + '&$count=true&$orderby=name asc' + filter +
         '&$expand=Locations($select=@iot.id,location,name),' +
             'Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'' + _this.observedProperty + '\'),' +
-            'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)';
+            'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterStartTime() + ')';
+            //'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)';
 
     $.ajax({
+        // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=startswith(name, '이') or endswith(name, '이')&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'pm10Value'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)
         url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
@@ -374,10 +395,11 @@ DustSensorThings.prototype.getSensorMoreInformation = function(obj, locationId) 
     let queryString = 'Locations(' + locationId + ')?' +
         '$select=@iot.id&' +
         '$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),' +
-            'Things/DataStreams/Observations($select=result,resultTime;$orderby=resultTime desc;$top=1)';
+            'Things/DataStreams/Observations($select=result,resultTime;$orderby=resultTime desc;$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterStartTime() + ')';
+            //'Things/DataStreams/Observations($select=result,resultTime;$orderby=resultTime desc;$top=1)';
 
     $.ajax({
-        // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),Things/DataStreams/ObservedProperty($select=name),Things/DataStreams/Observations($select=result,resultTime;$orderby=resultTime desc;$top=1)
+        // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),Things/DataStreams/ObservedProperty($select=name),Things/DataStreams/Observations($select=result,resultTime;$orderby=resultTime desc;$filter=resultTime le 2020-10-23T05:00:00.000Z and resultTime gt 2020-10-23T04:00:00.000Z)
         url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
@@ -430,10 +452,11 @@ DustSensorThings.prototype.getSensorInformation = function (locationId) {
         '$select=@iot.id&' +
         '$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),' +
             'Things/DataStreams/ObservedProperty($select=name),' +
-            'Things/DataStreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=24)';
+            'Things/DataStreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterDayStartTime() + ')';
+            //'Things/DataStreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=24)';
 
     $.ajax({
-        // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),Things/DataStreams/ObservedProperty($select=name),Things/DataStreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=24)
+        // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=@iot.id&$expand=Things/DataStreams($select=@iot.id,description,name,unitOfMeasurement;$orderby=ObservedProperty/@iot.id asc),Things/DataStreams/ObservedProperty($select=name),Things/DataStreams/Observations($count=true;$select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime le 2020-10-23T05:00:00.000Z and resultTime gt 2020-10-22T05:00:00.000Z)
         url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",

@@ -3,18 +3,26 @@ const SensorThings = function (magoInstance) {
     this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
     this.queryString = '';
     this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
-    this.interval = 3600;     // 10s
+    this.currentTime = "2020-10-23T04:59:40.000Z";
+    //this.currentTime = moment.utc().format();
+    this.callInterval = 3600;         // 10s
+    this.filterInterval = 3600;     // 1hour
 };
-
 
 SensorThings.prototype.init = function () {
+
 };
 
-SensorThings.prototype.geographicCoordToScreenCoord = function (coordinates) {
-    const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
-    const magoManager = this.magoInstance.getMagoManager();
-    const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
-    return resultScreenCoord;
+SensorThings.prototype.getCurrentTime = function () {
+    return this.currentTime;
+};
+
+SensorThings.prototype.getFilterStartTime = function () {
+    return moment(this.currentTime).utc().subtract(this.filterInterval, 's').format();
+};
+
+SensorThings.prototype.getFilterDayStartTime = function () {
+    return moment(this.currentTime).utc().subtract(this.filterInterval * 24, 's').format();
 };
 
 SensorThings.prototype.observationTimeToLocalTime = function (observationTime) {
@@ -25,52 +33,21 @@ SensorThings.prototype.formatValueByDigits = function (value, digits) {
     return parseFloat(parseFloat(value).toFixed(digits));
 };
 
+SensorThings.prototype.geographicCoordToScreenCoord = function (coordinates) {
+    const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
+    const magoManager = this.magoInstance.getMagoManager();
+    const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
+    return resultScreenCoord;
+};
+
 SensorThings.prototype.dataSearch = function (pageNo) {
     $('#iotInfoContent div').hide();
     const $form = $("#searchIotForm");
     const params = getFormData($form);
 
     if (this.type === 'iot_occupancy') {
-        this.occupancyList(pageNo, params);
+        occupancySensorThings.getList(pageNo, params);
     } else if (this.type === 'iot_dust') {
         dustSensorThings.getList(pageNo, params);
     }
-
-};
-
-SensorThings.prototype.occupancyList = function (pageNo, params) {
-    const _this = this;
-    $.ajax({
-        url: _this.FROST_SERVER_URL +
-            'Locations?$select=@iot.id,location,name&$top=5&$count=true&$orderby=name asc&$expand=' +
-            'Things($select=@iot.id,name,description),' +
-            'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
-            'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)',
-        type: "GET",
-        dataType: "json",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        success: function (msg) {
-            console.info(msg);
-
-            const pagination = new Pagination(pageNo, msg['@iot.count'], 5, msg['@iot.nextLink']);
-            msg.pagination = pagination;
-
-            const templateLegend = Handlebars.compile($("#iotLegendSource").html());
-            $("#iotLegendDHTML").html("").append(templateLegend(params));
-
-            const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
-            $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
-
-            const template = Handlebars.compile($("#occupancyListSource").html());
-            $("#iotOccupancyListDHTML").html("").append(template(msg));
-
-            const templatePagination = Handlebars.compile($("#paginationSource").html());
-            $("#iotPaginationDHTML").html("").append(templatePagination(msg));
-
-            $('#iotOccupancyListDHTML').show();
-        },
-        error: function (request, status, error) {
-            alert(JS_MESSAGE["ajax.error.message"]);
-        }
-    });
 };
