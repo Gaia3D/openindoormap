@@ -50,10 +50,15 @@ public class AirQualityServiceImpl implements AirQualityService {
     private final JSONParser parser;
     private boolean ObservedPropertyExist = false;
 
+    /**
+     * 초기 저장소 데이터 insert & update
+     */
     @Override
     public void initSensorData() {
         JSONObject stationJson = null;
         try {
+            // things 의 모든 available 값을 false 처리
+            updateAirQualityThingsStatus();
             // ObservedProperty init
             initObservedProperty();
             // 저장소 목록
@@ -64,7 +69,6 @@ public class AirQualityServiceImpl implements AirQualityService {
         List<?> stationList = (List<?>) stationJson.get("list");
         // 마지막 things id 조회
         long thingsLastId = getThingsId(OrderBy.DESC);
-        long locationsLastId = getLocationsId(OrderBy.DESC);
         for (var station : stationList) {
             Map<String, Object> thingProperties = new HashMap<>();
             var json = (JSONObject) station;
@@ -285,15 +289,13 @@ public class AirQualityServiceImpl implements AirQualityService {
 
             try {
                 for (var entity : entityList) {
+                    // 위치 정보가 없을경우 location 정보는 넣지 않는다.
                     if (EntityType.LOCATION.equals(entity.getType()) && point == null) {
                         continue;
                     }
                     if (thingExist) {
                         sensorThingsService.update(entity);
                     } else {
-                        if (EntityType.LOCATION.equals(entity.getType())) {
-                            entity.setId(Id.tryToParse(String.valueOf(++locationsLastId)));
-                        }
                         sensorThingsService.create(entity);
                     }
                 }
@@ -303,6 +305,9 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
+    /**
+     * 미세먼지 측정 데이터 insert
+     */
     @Override
     public void insertSensorData() {
         JSONObject stationJson = null;
@@ -318,7 +323,6 @@ public class AirQualityServiceImpl implements AirQualityService {
             var stationName = (String) jsonObject.get("stationName");
             JSONObject json = new JSONObject();
             try {
-                json.clear();
 //                for(int i=0; i< 24;i++) {
                 JSONObject result = getAirQualityData(stationName);
                 LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
@@ -381,6 +385,11 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
+    /**
+     * 측정대상 정보 insert
+     *
+     * @throws ServiceFailureException
+     */
     private void initObservedProperty() throws ServiceFailureException {
         // ObservedProperty 는 고정이므로 한번만 체크해서 넣고 그 다음부터는 skip
         if (ObservedPropertyExist) {
@@ -520,6 +529,13 @@ public class AirQualityServiceImpl implements AirQualityService {
         return stationJson;
     }
 
+    /**
+     * 측정소에 해당하는 미세먼지 데이터 조회
+     *
+     * @param stationName
+     * @return
+     * @throws Exception
+     */
     private JSONObject getAirQualityData(String stationName) throws Exception {
         boolean mockEnable = propertiesConfig.isMockEnable();
         JSONObject json = new JSONObject();
@@ -590,7 +606,7 @@ public class AirQualityServiceImpl implements AirQualityService {
     /**
      * 처음 또는 마지막 Thing entity 조회
      *
-     * @param orderBy 정렬순서
+     * @param orderBy 정렬순서 enum
      * @return
      */
     private long getThingsId(OrderBy orderBy) {
@@ -611,24 +627,12 @@ public class AirQualityServiceImpl implements AirQualityService {
         return idCount;
     }
 
-    private long getLocationsId(OrderBy orderBy) {
-        long idCount = 0;
-        try {
-            EntityList<Location> things = sensorThingsService.locations()
-                    .query()
-                    .orderBy("id " + orderBy.getValue())
-                    .top(1)
-                    .list();
-
-            List<Location> locationList = things.toList();
-            idCount = locationList.size() > 0 ? Long.parseLong((locationList.get(0).getId().toString())) : 0;
-        } catch (Exception e) {
-            LogMessageSupport.printMessage(e, "-------- AirQualityService ServiceFailureException = {}", e.getMessage());
-        }
-
-        return idCount;
-    }
-
+    /**
+     * 측정소에 해당하는 thing 정보 조회
+     *
+     * @param stationName 측정소 이름
+     * @return
+     */
     private Thing getThingEntity(String stationName) {
         EntityList<Thing> list = null;
         try {
@@ -643,8 +647,10 @@ public class AirQualityServiceImpl implements AirQualityService {
         return list.size() > 0 ? list.toList().get(0) : null;
     }
 
-    private List<Thing> getAirQualityThings() {
-        List<Thing> list = new ArrayList<>();
+    /**
+     * 미세먼지에 해당하는 모든 thing 의 정보들의 status false 로 업데이트
+     */
+    private void updateAirQualityThingsStatus() {
         boolean nextLinkCheck = true;
         int skipCount = 0;
         while (nextLinkCheck) {
@@ -661,16 +667,49 @@ public class AirQualityServiceImpl implements AirQualityService {
                                 " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
                         )
                         .list();
+
+                for (var thing : things) {
+                    var properties = thing.getProperties();
+                    properties.put("available", false);
+                    thing.setProperties(properties);
+                    sensorThingsService.update(thing);
+                }
             } catch (ServiceFailureException e) {
                 e.printStackTrace();
             }
-            list.addAll(things.toList());
             nextLinkCheck = things.getNextLink() != null;
             skipCount = skipCount + 100;
         }
-
-        return list;
     }
+
+//    private List<Thing> getAirQualityThings() {
+//        List<Thing> list = new ArrayList<>();
+//        boolean nextLinkCheck = true;
+//        int skipCount = 0;
+//        while (nextLinkCheck) {
+//            EntityList<Thing> things = null;
+//            try {
+//                things = sensorThingsService.things()
+//                        .query()
+//                        .skip(skipCount)
+//                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
+//                                " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
+//                                " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
+//                                " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
+//                                " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
+//                                " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
+//                        )
+//                        .list();
+//            } catch (ServiceFailureException e) {
+//                e.printStackTrace();
+//            }
+//            list.addAll(things.toList());
+//            nextLinkCheck = things.getNextLink() != null;
+//            skipCount = skipCount + 100;
+//        }
+//
+//        return list;
+//    }
 
     /**
      * 에어코리아 기준에 해당하는 grade return
