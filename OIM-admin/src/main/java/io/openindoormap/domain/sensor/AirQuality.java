@@ -1,4 +1,4 @@
-package io.openindoormap.domain.Sensor;
+package io.openindoormap.domain.sensor;
 
 public enum AirQuality {
     PM10("미세먼지(PM10)", "pm10Value"),

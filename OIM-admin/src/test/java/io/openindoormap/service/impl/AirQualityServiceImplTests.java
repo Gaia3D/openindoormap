@@ -9,7 +9,7 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
 import io.openindoormap.domain.OrderBy;
-import io.openindoormap.domain.Sensor.AirQuality;
+import io.openindoormap.domain.sensor.AirQuality;
 import io.openindoormap.service.AirQualityService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

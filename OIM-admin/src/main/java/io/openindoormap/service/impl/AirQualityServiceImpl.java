@@ -12,7 +12,7 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.OrderBy;
-import io.openindoormap.domain.Sensor.AirQuality;
+import io.openindoormap.domain.sensor.AirQuality;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
 import lombok.RequiredArgsConstructor;
@@ -314,7 +314,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         try {
             stationJson = getListStation();
         } catch (Exception e) {
-            e.printStackTrace();
+            LogMessageSupport.printMessage(e, "-------- AirQualityService Error = {}", e.getMessage());
         }
 
         List<?> stationList = (List<?>) stationJson.get("list");
@@ -370,17 +370,15 @@ public class AirQualityServiceImpl implements AirQualityService {
                     var lastObservation = observationCount > 0 ? datastream.getObservations().toList().get(0) : null;
                     var lastTime = lastObservation != null ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")) : null;
                     if (zonedDateTime.equals(lastTime)) {
-                        log.info("============== observation update ==============");
                         observation.setId(lastObservation.getId());
                         sensorThingsService.update(observation);
                     } else {
-                        log.info("============== observation create ==============");
                         sensorThingsService.create(observation);
                     }
                 }
 //                }
             } catch (Exception e) {
-                e.printStackTrace();
+                LogMessageSupport.printMessage(e, "-------- AirQualityService Error = {}", e.getMessage());
             }
         }
     }
@@ -641,7 +639,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .filter("name eq " + "'" + stationName + "'")
                     .list();
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            LogMessageSupport.printMessage(e, "-------- AirQualityService getThingEntity Error = {}", e.getMessage());
         }
 
         return list.size() > 0 ? list.toList().get(0) : null;
@@ -675,7 +673,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     sensorThingsService.update(thing);
                 }
             } catch (ServiceFailureException e) {
-                e.printStackTrace();
+                LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
             }
             nextLinkCheck = things.getNextLink() != null;
             skipCount = skipCount + 100;
