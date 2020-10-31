@@ -1,19 +1,24 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="overlaySource" type="text/x-handlebars-template">
-    <div id="overlay_{{id}}" class="overlayWarp rel">
-        <!-- 맵내 측정소 -->
-        <ul class="dustStation abs" style="top:{{top}}px;left:{{left}}px" data-id="{{id}}">
-            <li class="scolor lv{{grade}} brLeft">
-                <span class="overlay-value">{{value}}</span>
-                <span>{{unit}}</span>
-            </li>
-            <li class="sname">
-                <p>{{stationName}}</p>
-                <span class="subTit" th:text="#{iot.dust.fine}"></span>
-                <span class="overlay-caiText subResult txlv{{grade}}">{{gradeText}}</span>
-            </li>
-        </ul>
-        <!-- // 맵내 측정소 -->
-    </div>
+    {{#greaterThan locations.length 0}}
+        {{#each locations}}
+            <div id="overlay_{{id}}" class="overlayWrap rel">
+                <!-- 맵내 측정소 -->
+                <ul class="dustStation abs" style="top:{{top}}px;left:{{left}}px" data-id="{{id}}">
+                    <li class="scolor lv{{grade}} brLeft">
+                        <span class="overlay-value">{{value}}</span>
+                        <span>{{unit}}</span>
+                    </li>
+                    <li class="sname">
+                        <p>{{stationName}}</p>
+                        <span class="subTit" th:text="#{iot.dust.fine}"></span>
+                        <span class="overlay-caiText subResult txlv{{grade}}">{{gradeText}}</span>
+                    </li>
+                </ul>
+                <!-- // 맵내 측정소 -->
+            </div>
+        {{/each}}
+    {{else}}
+    {{/greaterThan}}
 </script>
 </html>

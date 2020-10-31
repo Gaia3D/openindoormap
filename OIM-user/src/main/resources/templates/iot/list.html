@@ -44,7 +44,8 @@
             setInterval(function () {
                 dustSensorThings.updateContentValue();
                 sensorThings.dataSearch(dustSensorThings.currentPageNo);
-            }, 1000 * sensorThings.interval);
+                dustSensorThings.currentTime = moment(dustSensorThings.currentTime).utc().add(dustSensorThings.callInterval, 's').format();
+            }, 1000 * sensorThings.callInterval);
 
             // 검색 버튼 클릭
             $('#iotSearch').click(function () {

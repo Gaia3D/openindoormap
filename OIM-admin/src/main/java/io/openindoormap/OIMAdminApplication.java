@@ -1,5 +1,7 @@
 package io.openindoormap;
 
+import io.openindoormap.filter.XSSFilter;
+import io.openindoormap.listener.OIMHttpSessionBindingListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,16 +9,15 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
-
-import io.openindoormap.filter.XSSFilter;
-import io.openindoormap.listener.OIMHttpSessionBindingListener;
 
 import javax.servlet.http.HttpSessionBindingListener;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@EnableScheduling
 @SpringBootApplication
 public class OIMAdminApplication extends SpringBootServletInitializer {
 

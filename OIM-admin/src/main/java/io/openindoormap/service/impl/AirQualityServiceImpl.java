@@ -512,7 +512,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
             HttpEntity<String> entity = new HttpEntity<>(headers);
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", "4EA8xQz4hBCUI0azTs4P6Xznia8j5fjbeA%2F33IADvvdxt2MkVGsjVzU4yjn2tjyrjkww73GoOncpjz5L4nKdvg%3D%3D")
+                    .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
                     .queryParam("numOfRows", 10000)
                     .queryParam("pageNo", 1)
                     .queryParam("_returnType", "json")
@@ -580,7 +580,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
             HttpEntity<String> entity = new HttpEntity<>(headers);
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", "4EA8xQz4hBCUI0azTs4P6Xznia8j5fjbeA%2F33IADvvdxt2MkVGsjVzU4yjn2tjyrjkww73GoOncpjz5L4nKdvg%3D%3D")
+                    .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
                     .queryParam("numOfRows", 10000)
                     .queryParam("pageNo", 1)
                     .queryParam("stationName", stationName)
