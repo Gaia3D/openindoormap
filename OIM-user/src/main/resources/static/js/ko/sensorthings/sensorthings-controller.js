@@ -7,6 +7,7 @@ var SensorThingsController = function(dataGroupId, dataKey) {
     this.occupancyOfBuilding = 0;
     this.listOfFloorOccupancy = [];
     this.selectedFloorSensorList = [];
+    this.grade = 0;
 };
 
 SensorThingsController.prototype.setCellSpaceList = function(cellSpaceList) {
@@ -20,22 +21,22 @@ SensorThingsController.prototype.arrangeDataFromSensorThingsAPIData = function(r
         arrangedData["location"] = result.location;
         arrangedData["name"] = result.name;
         arrangedData["Datastreams"] = result.Things[0].Datastreams[0];
-        arrangedData["gmlID"] = result.Things[0].properties.gmlID;
-        const cellSpaceId = result.name.split(":")[1];
-        const floorInfo = this.cellSpaceList[cellSpaceId];
-        if (floorInfo !== undefined) {
-            arrangedData["floor"] = floorInfo.floor;
-            arrangedData["cellSpaceId"] = cellSpaceId;
-        }
+        // arrangedData["gmlID"] = result.Things[0].properties.gmlID;
+        arrangedData["cell"] = result.Things[0].properties["cell"];
+        arrangedData["floor"] = result.Things[0].properties["floor"];
+
         this.dataSource.push(arrangedData);
     }
 };
 SensorThingsController.prototype.calculateSumOfOccupancyOfBuilding = function() {
     let sum = 0;
     for (const sensor of this.dataSource) {
-        sum += sensor.Datastreams.Observations[0].result;
+        if(sensor.Datastreams.Observations.length !== 0 )
+        {
+            sum += sensor.Datastreams.Observations[0].result;
+        }
     }
-    this.occupancyOfBuilding = sum;
+    this.occupancyOfBuilding = sum + parseInt(Math.random()*1000);
 };
 SensorThingsController.prototype.calculateSumOfOccupancyOfFloor = function(dataGroupId, dataKey) {
     const listOfSum = [];
@@ -43,7 +44,8 @@ SensorThingsController.prototype.calculateSumOfOccupancyOfFloor = function(dataG
     const targetNode = nodes[dataKey];
     const floors = targetNode["data"]["attributes"]["floors"];
     if (floors == undefined || floors == null) return;
-    for (let i = 21; i >= 7; i--) {
+
+    for(let i = 0, len = floors.length; i < len; i++) {
         const floorObj = {
             floor: i,
             floorName: (i - 6) + " 층",
@@ -51,30 +53,40 @@ SensorThingsController.prototype.calculateSumOfOccupancyOfFloor = function(dataG
         };
         listOfSum.push(floorObj);
     }
+
     for (const sensor of this.dataSource) {
-        const cellSpaceId = sensor.name.split(":")[1];
-        const floorInfo = this.cellSpaceList[cellSpaceId];
-        if (floorInfo !== undefined) {
-            const floorNum = floorInfo.floor;
+        if (sensor.floor !== undefined) {
+            const floorNum = sensor.floor;
             for (const i in listOfSum) {
                 if (listOfSum[i].floor == floorNum) {
-                    listOfSum[i].sum += sensor.Datastreams.Observations[0].result;
+                    if(sensor.Datastreams.Observations.length !== 0 )
+                    {
+                        listOfSum[i].sum += sensor.Datastreams.Observations[0].result;
+                    }
+                    break;
                 }
             }
         }
     }
     this.listOfFloorOccupancy = listOfSum;
 };
-SensorThingsController.prototype.openFloorInformation = function(dataGroupId, dataKey) {
-    var _this = this;
+
+SensorThingsController.prototype.updatebuildingInfoContents = function () {
     var template = Handlebars.compile($("#buildingInfoSource").html());
-    $("#buildingInfoDHTML").html("").append(template(_this));
+    var data = {};
+    $("#buildingInfoDHTML").html("").append(template(this));
     $('#buildingInfoWrap').show();
     if ($('#mapSettingWrap').css('width') !== '0px') {
         $('#buildingInfoWrap').css('right', '400px');
     } else {
         $('#buildingInfoWrap').css('right', '60px');
     }
+}
+
+SensorThingsController.prototype.openFloorInformation = function(dataGroupId, dataKey) {
+    var _this = this;
+    this.updatebuildingInfoContents();
+
     // 재실자 층 선택
     $("#buildingInfoWrap table tr").click(function() {
         $(this).siblings().removeClass('selected');
@@ -105,6 +117,14 @@ SensorThingsController.prototype.openFloorInformation = function(dataGroupId, da
 SensorThingsController.prototype.closeFloorInformation = function(dataGroupId, dataKey) {
     $('#buildingInfoWrap').hide();
 };
+SensorThingsController.prototype.clear = function () {
+    this.cellSpaceList = [];
+    this.dataSource = [];
+    this.occupancyOfBuilding = 0;
+    this.listOfFloorOccupancy = [];
+    this.selectedFloorSensorList = [];
+    this.grade = 0;
+}
 SensorThingsController.prototype.displaySelectedFloor = function(floor, dataGroupId) {
     const nodes = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodesMap(dataGroupId, null);
     for (const i in nodes) {
@@ -156,11 +176,12 @@ SensorThingsController.prototype.displaySelectedFloorMaker = function(floor, dat
     };
     let rgbColorCode;
     for (const sensor of this.selectedFloorSensorList) {
-        const sensorValue = sensor.Datastreams.Observations[0].result /*+ parseInt(Math.random() * 10)*/;
+        const cellId = sensor.cell;
+        const sensorValue = sensor.Datastreams.Observations.length == 0 ? 0 : sensor.Datastreams.Observations[0].result;
         commentTextOption.text = sensorValue.toString();
 
         rgbColorCode = this.getOccupancyColor(sensorValue);
-        changeColorAPI(magoManager, dataGroupId, dataKey, [sensor.cellSpaceId], "isPhysical=true", rgbColorCode);
+        changeColorAPI(magoManager, dataGroupId, dataKey, [cellId], "isPhysical=true", rgbColorCode);
 
         rgbColorCode = rgbColorCode.split(",");
         rgbColorCode[0] = parseInt(rgbColorCode[0]) / 255;
@@ -176,15 +197,15 @@ SensorThingsController.prototype.displaySelectedFloorMaker = function(floor, dat
         const target = {
             projectId: dataGroupId,
             buildingId: dataKey,
-            objectId: sensor.cellSpaceId
+            objectId: cellId
         };
         const options = {
             speechBubbleOptions: speechBubbleOptions,
             target: target,
-            id: sensor.cellSpaceId
+            id: cellId
         };
 
-        const marker = objMarkerManager.getObjectMarkerById(sensor.cellSpaceId);
+        const marker = objMarkerManager.getObjectMarkerById(cellId);
         if (marker) {
             marker.setImageFilePath(Mago3D.SpeechBubble.getImage(speechBubbleOptions, magoManager));
         } else {
