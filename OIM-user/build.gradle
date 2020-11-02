@@ -11,8 +11,8 @@ mainClassName = 'io.openindoormap.OIMUserApplication'
 
 apply plugin: 'project-report'
 
-group = 'com.io.openindoormap'
-version = '0.0.1-SNAPSHOT'
+group = 'io.openindoormap'
+version = '1.0.0'
 sourceCompatibility = '11'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 

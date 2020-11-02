@@ -2,8 +2,6 @@ package io.openindoormap.security;
 
 import org.junit.jupiter.api.Test;
 
-import io.openindoormap.security.Crypt;
-
 public class CryptTest {
 
 	/**
