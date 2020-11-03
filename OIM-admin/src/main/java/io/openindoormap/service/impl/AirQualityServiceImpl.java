@@ -334,6 +334,9 @@ public class AirQualityServiceImpl implements AirQualityService {
                         .filter("name eq " + "'" + stationName + "'")
                         .expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)")
                         .list();
+                // 일치하는 thing 이 없을경우 skip
+                if(things.size() == 0) continue;
+
                 Thing thing = things.toList().get(0);
                 EntityList<Datastream> datastreamList = thing.getDatastreams();
                 for (var datastream : datastreamList) {
