@@ -153,7 +153,7 @@
 	<!-- S: MAP -->
 	<div id="magoContainer" class="mapWrap">
 
-		<div id="overlayWrap"></div>
+		<div id="overlayDHTML"></div>
 
 		<!-- S: GNB WRAP -->
 		<div th:replace="~{/fragments/global-search :: #gnbWrap}"></div>
@@ -242,8 +242,6 @@
 	var sensorThingsController = new SensorThingsController(dataGroupId, dataKey);
 
 	let sensorThings;
-	let occupancySensorThings;
-	let dustSensorThings;
 
 	initPolicy(function(policy, baseLayers){
 		OIM.policy = policy;
@@ -323,13 +321,28 @@
 
 		// 사물 인터넷
 		sensorThings = new SensorThings(magoInstance);
-		occupancySensorThings = new OccupancySensorThings(magoInstance);
-		dustSensorThings = new DustSensorThings(magoInstance);
+		sensorThings = sensorThings.createSensorThings();
 
-		dustSensorThings.addOverlay();
-
-		// 사물인터넷 초기화면
 		sensorThings.dataSearch(1);
+		sensorThings.clearOverlay();
+		sensorThings.addOverlay();
+
+		// 한 시간에 한번씩 자료 갱신
+		setInterval(function () {
+
+			sensorThings.update();
+
+			// TODO 목록 갱신 추가
+			const $form = $("#searchIotForm");
+			const params = getFormData($form);
+			sensorThings.getList(sensorThings.currentPageNo, params);
+
+			let currentTime = sensorThings.getCurrentTime();
+			currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
+			sensorThings.setCurrentTime(currentTime);
+
+		}, 1000 * sensorThings.callInterval);
+
 
 		// 환경 설정.
 		UserPolicy(magoInstance);
@@ -388,28 +401,30 @@
 						});
 					}
 				});
+
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, (e)=> {
 			let dataGroupId = e.selected.data.projectId;
 			let dataKey = e.selected.data.nodeId;
 			sensorThingsController.openFloorInformation(dataGroupId, dataKey);
 		});
+
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDF4D, (e)=> {
 			let dataGroupId = e.deselected.data.projectId;
 			let dataKey = e.deselected.data.nodeId;
 			sensorThingsController.closeFloorInformation(dataGroupId, dataKey);
 		});
+
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
 			sensorThingsController.getSensorInformation(e.selected);
 		});
 
 		// 지도상의 센서 위치 갱신
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
-			//dustSensorThings.hideOverlay();
-			$('#overlayWrap').html("");
+			sensorThings.clearOverlay();
 		});
+
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e) => {
-			//$('.overlayWrap').remove();
-			dustSensorThings.updateContentPosition();
+			sensorThings.redrawOverlay();
 		});
 
 	}
@@ -588,10 +603,6 @@
 			$(_this).addClass("fa-eye");
 		}
 
-	}
-
-	function detailBuildingInfo(dataGroupId, dataKey) {
-		sensorThingsController.openFloorInformation(dataGroupId, dataKey);
 	}
 
 	// 데이터 정보 다이얼 로그

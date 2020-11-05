@@ -18,7 +18,7 @@ $('#districtSearchCloseButton').click(function() {
 });
 // 지도 클릭
 $('#magoContainer').click(function(e) {
-	e.preventDefault();
+	//e.preventDefault();
 	if ($("#districtSearchResultContent").is(':visible')) {
 		$("#districtSearchResultContent").hide();
 	}
