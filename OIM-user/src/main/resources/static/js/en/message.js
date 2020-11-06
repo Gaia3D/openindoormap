@@ -174,3 +174,9 @@ JS_MESSAGE["simulation.analysis.start"] = "Please select a location after starti
 JS_MESSAGE["simulation.select.location"] = "Please specify the location.";
 
 JS_MESSAGE["policy.camera.location"] = "Move the camera closer to the ground.";
+
+JS_MESSAGE["iot.occupancy.legend.good"]="Good";
+JS_MESSAGE["iot.occupancy.legend.normal"]="Normal";
+JS_MESSAGE["iot.occupancy.legend.bad"]="Bad";
+JS_MESSAGE["iot.occupancy.legend.very-bad"]="Very Bad";
+JS_MESSAGE["iot.occupancy.legend.nodata"]="Nodata";

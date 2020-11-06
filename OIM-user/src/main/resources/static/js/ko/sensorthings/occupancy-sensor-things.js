@@ -2,30 +2,53 @@ const OccupancySensorThings = function (magoInstance) {
     SensorThings.call(this, magoInstance);
 
     this.magoInstance = magoInstance;
+    this.type = 'iot_occupancy';
     this.observedProperty = 'occupancy';
     this.observedPropertyColor = {
         'occupancy': '#E91E63',
         'occupancyBuilding': '#FF9800',
         'occupancyFloor': '#2196F3'
     };
+    this.occupancyGradeMin = 0;
+    this.occupancyGradeMax = 10;
 
-    this.currentTime = "2020-11-03T04:00:00.000Z";
+    this.currentTime = "2020-11-06T11:30:59.999Z";
     //this.currentTime = moment.utc().format();
     this.callInterval = 10;         // 10s
     this.filterInterval = 60;     // 60s
+
+    this.gaugeChartNeedle = {};
+    this.hourlyAirQualityChart = {};
+    this.chartTitle = '재실자(Occupancy)';
+    this.chartXAxesTitle = '시간(분)';
+    this.chartYAxesTitle = '재실자(명)';
 
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
+OccupancySensorThings.prototype.getGrade = function (value) {
+    let grade = 0;
+    if (value < 3) {
+        grade = 1;
+    } else if (value >= 3 && value < 6) {
+        grade = 2;
+    } else if (value >= 6 && value < 11) {
+        grade = 3;
+    } else if (value >= 11){
+        grade = 4;
+    }
+    return grade;
+}
 OccupancySensorThings.prototype.getList = function (pageNo, params) {
 
     const _this = this;
     pageNo = parseInt(pageNo);
     _this.currentPageNo = pageNo;
     const skip = (pageNo - 1) * 5;
+    const observedProperty = 'occupancyBuild';
 
-    let filter = 'Datastreams/ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    let filter = 'Datastreams/ObservedProperty/name eq \'' + observedProperty + '\'';
     if (params.searchValue) {
         filter += 'and (startswith(name, \'' + params.searchValue + '\') or endswith(name, \'' + params.searchValue + '\'))';
     }
@@ -33,8 +56,15 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
     const queryString = 'Things?$select=@iot.id,name,description' +
         '&$top=5&$skip=' + skip + '&$count=true&$orderby=name asc&$filter=' + filter +
         '&$expand=Locations($select=@iot.id,location,name),' +
-        'Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'' + _this.observedProperty + '\'),' +
-        'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() + ')';
+            'Datastreams(' +
+                '$select=@iot.id,description,unitOfMeasurement;' +
+                '$filter=ObservedProperty/name eq \'' + observedProperty + '\'' +
+            '),' +
+            'Datastreams/Observations(' +
+                '$select=result,phenomenonTime,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
 
     $.ajax({
         // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=Datastreams/ObservedProperty/name eq 'occupancy' and (startswith(name, '1') or endswith(name, '1'))&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'occupancy'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime lt 2020-11-03T05:00:00.000Z and resultTime ge 2020-11-03T04:00:00.000Z)
@@ -54,36 +84,38 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             const things = msg.value;
             for (const thing of things) {
 
-                // Locations
-                //const location = thing.Locations[0];
-                //const locationId = location['@iot.id'];
-                //const addr = location.name;
-                //const coordinates = location.location.coordinates;
-
                 const thingId = thing['@iot.id'];
 
+                // TODO thingId와 dataGroupId, dataKey 맵핑테이블을 통한 데이터 조회
+                const dataGroupId = 'result';
+                const dataKey = 'Alphadom_IndoorGML_data';
+                const dataName = '알파돔';
+
                 // Datastreams
-                const dataStream = thing.Datastreams[0];
-                const unit = dataStream.unitOfMeasurement.symbol;
+                const dataStreams = thing['Datastreams'];
+                if (!dataStreams || dataStreams.length <= 0) continue;
+                const dataStream = dataStreams[0];
 
                 // Observations
-                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
-                const observation = dataStream.Observations[0];
-                const value = observation.result.value;
-                //const grade = observation.result.grade;
-                const grade = Math.floor(Math.random() * 5);
-                const gradeText = _this.getGradeMessage(grade);
+                const observations = dataStream['Observations'];
+                let value = '-', grade = 0;
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    //value = observationTop.result.value;
+                    //grade = observationTop.result.grade;
+                    value = _this.numberWithCommas(observationTop.result);
+                    grade = _this.getGrade(observationTop.result);
+                }
 
                 msg.contents.push({
                     id: thingId,
                     value: value,
-                    unit: unit,
-                    stationName: thing.name,
-                    //addr: addr,
+                    unit: _this.getUnit(dataStream),
+                    dataName: dataName,
                     grade: grade,
-                    gradeText: gradeText,
-                    //longitude: coordinates[0],
-                    //latitude: coordinates[1],
+                    gradeText: _this.getGradeMessage(grade),
+                    dataGroupId: dataGroupId,
+                    dataKey: dataKey,
                     moreTitle: '#{common.more}'
                 });
 
@@ -119,11 +151,11 @@ OccupancySensorThings.prototype.getDetail = function(obj, thingId) {
         '&$filter=Things/@iot.id eq ' + thingId +
         '&$orderby=ObservedProperty/@iot.id asc' +
         '&$expand=ObservedProperty($select=name),' +
-        'Observations(' +
-        '$select=result,resultTime;' +
-        '$orderby=resultTime desc;' +
-        '$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterDayStartTime() +
-        ')';
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+            ')';
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -132,28 +164,36 @@ OccupancySensorThings.prototype.getDetail = function(obj, thingId) {
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
 
+            const contents = {dataStreams: []};
+
             // Datastreams
             const dataStreams = msg.value;
-
-            const contents = {
-                dataStreams: []
-            };
-
+            if (!dataStreams || dataStreams.length <= 0) return;
             for (const dataStream of dataStreams) {
-                const observation = dataStream['Observations'];
-                if (!observation || observation.length <= 0) continue;
+
+                // Observations
+                const observations = dataStream['Observations'];
+                let value = '-';
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    //value = observationTop.result.value;
+                    value = _this.numberWithCommas(observationTop.result);
+                }
                 contents.dataStreams.push({
                     name: dataStream.name,
-                    value: _this.formatValueByDigits(observation[0].result.value, 3),
-                    unit: dataStream['unitOfMeasurement']['symbol']
+                    value: value,
+                    unit: _this.getUnit(dataStream)
                 });
+
             }
 
+            // 더보기 템플릿 생성
             const $iotDustMoreDHTML = $(obj).parent().siblings(".iotDustMoreDHTML");
             const template = Handlebars.compile($("#dustMoreSource").html());
             $iotDustMoreDHTML.html("").append(template(contents));
             $iotDustMoreDHTML.show();
 
+            // 더보기 보이기/숨기기 (순서를 바꾸지 마세요!)
             $(".show-more").not($(obj)).show();
             $(obj).hide();
             $('.iotDustMoreDHTML').not($iotDustMoreDHTML).hide();

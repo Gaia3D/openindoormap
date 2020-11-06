@@ -1,26 +1,38 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="occupancyListSource" type="text/x-handlebars-template">
-    <ul>
-        <li class="listElement" onclick="sensorThingsController.openFloorInformation('result', 'Alphadom_IndoorGML_data');">
-            <div class="titleWrap">
-                <p>
-                    <span class="bullet">A.</span>
-                    <span class="title ellipsis" style="max-width: 178px">알파돔</span>
-                    <span class="subTitle">관리자</span>
-                </p>
-            </div>
-            <div class="rightButtonWrap">
-                <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="flyTo('result', 'Alphadom_IndoorGML_data');">
-                    <p class="buttonLable" th:text="#{common.move}"></p>
-                </button>
-                <button class="fas fa-eye-slash box" th:title="#{common.show}" onclick="visibleData(this, 'result', 'Alphadom_IndoorGML_data', 'false');">
-                    <p class="buttonLable" th:text="#{common.show}"></p>
-                </button>
-            </div>
-            <div class="infoWrap">
-                <span class="infoTag ellipsis"><span th:text="'건물명:'"></span>알파돔</span>
-                <span class="infoTag"><span th:text="'전체인원:'"></span>2,430명</span>
-            </div>
-        </li>
-    </ul>
+    {{#greaterThan contents.length 0}}
+    {{#each contents}}
+    <div class="sInfoWrap" onclick="sensorThingsController.openFloorInformation('{{dataGroupId}}', '{{dataKey}}');">
+        <div class="rightButtonWrap">
+            <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');">
+                <p class="buttonLable" th:text="#{common.move}"></p>
+            </button>
+        </div>
+        <div class="sInfo">
+            <ul class="lv{{grade}}">
+                <li class="state">{{gradeText}}</li>
+                <li class="result">{{value}}</li>
+                <li class="unit">{{unit}}</li>
+            </ul>
+            <ul>
+                <li style="width: 170px;">
+                    <label th:text="#{iot.dust.station.name}"></label>
+                    <span>{{dataName}}</span>
+                </li>
+                <li style="width: 170px;">
+                    <label th:text="#{iot.occupancy.average.people}"></label>
+                    <span>{{value}}</span>{{unit}}
+                </li>
+            </ul>
+        </div>
+        <div class="iotDustMoreDHTML" style="display: none"></div>
+        <div class="btnCt">
+            <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="sensorThings.getDetail(this, {{id}})"></button>
+        </div>
+    </div>
+    {{/each}}
+    {{else}}
+    <div class="sInfoWrap" th:text="#{iot.dust.station.does.not.exist}"></div>
+    {{/greaterThan}}
+
 </script>

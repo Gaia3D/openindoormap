@@ -2,6 +2,7 @@ const DustSensorThings = function (magoInstance) {
     SensorThings.call(this, magoInstance);
 
     this.magoInstance = magoInstance;
+    this.type = 'iot_dust';
     this.observedProperty = 'pm10Value';
     this.observedPropertyColor = {
         'pm10Value': '#E91E63',
@@ -11,6 +12,8 @@ const DustSensorThings = function (magoInstance) {
         'o3Value': '#607d8b',
         'no2Value': '#00BCD4'
     };
+    this.pm10GradeMin = 0;
+    this.pm10GradeMax = 600;
 
     this.currentTime = "2020-10-26T04:50:00.000Z";
     //this.currentTime = moment.utc().format();
@@ -20,7 +23,7 @@ const DustSensorThings = function (magoInstance) {
     this.gaugeChartNeedle = {};
     this.hourlyAirQualityChart = {};
     this.chartTitle = '1시간 공기질(Hourly Air Quality)';
-    this.chartXAxesTitle = '시간(Hour)';
+    this.chartXAxesTitle = '시간(시)';
     this.chartYAxesTitle = '공기질(Value)';
     this.chartOptions = {
         responsive: true,
@@ -115,7 +118,6 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
 
-            console.info(msg);
             const pagination = new Pagination(pageNo, msg['@iot.count'], 5, msg['@iot.nextLink']);
             msg.pagination = pagination;
 
@@ -127,29 +129,34 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
             for (const thing of things) {
 
                 // Locations
-                const location = thing.Locations[0];
+                const locations = thing['Locations'];
+                if (!locations || locations.length <= 0) continue;
+                const location = locations[0];
                 const addr = location.name;
                 const coordinates = location.location.coordinates;
 
                 // Datastreams
-                const dataStream = thing.Datastreams[0];
-                const unit = dataStream.unitOfMeasurement.symbol;
+                const dataStreams = thing['Datastreams'];
+                if (!dataStreams || dataStreams.length <= 0) continue;
+                const dataStream = dataStreams[0];
 
                 // Observations
-                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
-                const observation = dataStream.Observations[0];
-                const value = observation.result.value;
-                const grade = observation.result.grade;
-                const gradeText = _this.getGradeMessage(grade);
+                const observations = dataStream['Observations'];
+                let value = '-', grade = 0;
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    grade = observationTop.result.grade;
+                }
 
                 msg.contents.push({
                     id: thing['@iot.id'],
                     value: value,
-                    unit: unit,
+                    unit: _this.getUnit(dataStream),
                     stationName: thing.name,
                     addr: addr,
                     grade: grade,
-                    gradeText: gradeText,
+                    gradeText: _this.getGradeMessage(grade),
                     longitude: coordinates[0],
                     latitude: coordinates[1],
                     moreTitle: '#{common.more}'
@@ -198,29 +205,36 @@ DustSensorThings.prototype.getDetail = function(obj, thingId) {
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
-            console.info(msg);
+
+            const contents = {dataStreams: []};
+
             // Datastreams
             const dataStreams = msg.value;
-
-            const contents = {
-                dataStreams: []
-            };
-
+            if (!dataStreams || dataStreams.length <= 0) return;
             for (const dataStream of dataStreams) {
-                const observation = dataStream['Observations'];
-                if (!observation || observation.length <= 0) continue;
+
+                // Observations
+                const observations = dataStream['Observations'];
+                let value = '-';
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                }
                 contents.dataStreams.push({
                     name: dataStream.name,
-                    value: _this.formatValueByDigits(observation[0].result.value, 3),
-                    unit: dataStream['unitOfMeasurement']['symbol']
+                    value: value,
+                    unit: _this.getUnit(dataStream)
                 });
+
             }
 
+            // 더보기 템플릿 생성
             const $iotDustMoreDHTML = $(obj).parent().siblings(".iotDustMoreDHTML");
             const template = Handlebars.compile($("#dustMoreSource").html());
             $iotDustMoreDHTML.html("").append(template(contents));
             $iotDustMoreDHTML.show();
 
+            // 더보기 보이기/숨기기 (순서를 바꾸지 마세요!)
             $(".show-more").not($(obj)).show();
             $(obj).hide();
             $('.iotDustMoreDHTML').not($iotDustMoreDHTML).hide();
@@ -270,7 +284,6 @@ DustSensorThings.prototype.addOverlay = function () {
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
-            console.info(msg);
             _this.things = msg.value;
             _this.redrawOverlay();
         },
@@ -292,11 +305,12 @@ DustSensorThings.prototype.redrawOverlay = function () {
 
     for (const thing of this.things) {
 
-        const thingId = thing['@iot.id'];
+        const thingId = parseInt(thing['@iot.id']);
 
         // Locations
-        if (!thing['Locations'] || thing['Locations'].length <= 0) continue;
-        const location = thing['Locations'][0];
+        const locations = thing['Locations'];
+        if (!locations || locations.length <= 0) continue;
+        const location = locations[0];
         //const addr = location.name;
         const coordinates = location.location.coordinates;
         const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
@@ -315,17 +329,19 @@ DustSensorThings.prototype.redrawOverlay = function () {
         }
 
         // Datastreams
-        if (!thing['Datastreams'] || thing['Datastreams'].length <= 0) continue;
-        const dataStream = thing['Datastreams'][0];
-        const unit = dataStream['unitOfMeasurement'].symbol;
+        const dataStreams = thing['Datastreams'];
+        if (!dataStreams || dataStreams.length <= 0) continue;
+        const dataStream = dataStreams[0];
 
         // Observations
-        if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
-        const observation = dataStream['Observations'][0];
-        const value = observation.result.value;
-        const grade = observation.result.grade;
+        const observations = dataStream['Observations'];
+        let value = '-', grade = 0, selected = '';
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = this.formatValueByDigits(observationTop.result.value, 3);
+            grade = observationTop.result.grade;
+        }
         const gradeText = this.getGradeMessage(grade);
-        let selected = '';
         if (this.selectedThingId == thingId) {
             selected = 'on';
         }
@@ -333,20 +349,20 @@ DustSensorThings.prototype.redrawOverlay = function () {
         contents.things.push({
             id: thing['@iot.id'],
             value: value,
-            unit: unit,
+            unit: this.getUnit(dataStream),
             stationName: thing.name,
             //addr: addr,
             grade: grade,
             gradeText: gradeText,
             top: resultScreenCoord.y,
             left: resultScreenCoord.x,
-            selected : selected
+            selected: selected
         });
 
     }   // end for
 
     if (contents.things.length > 30) {
-        alert('검색되는 센서가 너무 많습니다. 지도를 확대하하세요.');
+        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
         return;
     }
 
@@ -396,35 +412,35 @@ DustSensorThings.prototype.getInformation = function (thingId) {
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
-            console.info(msg);
-            const dataStreams = msg.value;
 
-            // Thing
-            const thing = dataStreams[0]['Thing'];
+            // Datastreams
+            const dataStreams = msg.value;
             const contents = {
-                min: 0,
-                max: 600,
-                stationName: thing.name,
+                min: _this.pm10GradeMin,
+                max: _this.pm10GradeMax,
+                stationName: dataStreams[0]['Thing'].name,
                 dataStreams: []
             };
 
-            // Datastream
             for (const dataStream of dataStreams) {
 
-                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
-                const observation = dataStream['Observations'][0];
-                const value = observation.result.value;
-                const grade = observation.result.grade;
-                const observedPropertyName = dataStream['ObservedProperty']['name'];
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+                const observations = dataStream['Observations'];
+                let value = '-', grade = 0;
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    grade = observationTop.result.grade;
+                }
 
                 const data = {
                     id: dataStream['@iot.id'],
                     name: dataStream.name,
-                    unit: dataStream['unitOfMeasurement']['symbol'],
+                    unit: _this.getUnit(dataStream),
                     value: _this.formatValueByDigits(value, 3),
                     grade: grade,
                     gradeText: _this.getGradeMessage(grade),
-                    observations: dataStream['Observations'],
+                    observations: observations,
                     observedPropertyName: observedPropertyName
                 };
                 _this.selectedDataStreams.push(data.id);
@@ -433,7 +449,7 @@ DustSensorThings.prototype.getInformation = function (thingId) {
                 if (observedPropertyName === _this.observedProperty) {
                     contents.grade = grade;
                     contents.pm10 = data.value;
-                    contents.pm10Percent = data.value / 600 * 100;
+                    contents.pm10Percent = Math.max(Math.min(data.value, _this.pm10GradeMax), _this.pm10GradeMin) / (_this.pm10GradeMax - _this.pm10GradeMin) * 100;
                 }
 
             }
@@ -442,7 +458,7 @@ DustSensorThings.prototype.getInformation = function (thingId) {
             const template = Handlebars.compile($("#dustInfoSource").html());
             const html = template(contents);
             if ($dustInfoDHTML.length === 0) {
-                const wrapper ='<div id="dustInfoDHTML" class="sensor-detail-wrap">' + html + '</div>';
+                const wrapper = '<div id="dustInfoDHTML" class="sensor-detail-wrap">' + html + '</div>';
                 $('.cesium-viewer').append(wrapper);
             }
 
@@ -486,14 +502,17 @@ DustSensorThings.prototype.drawGaugeChart = function (pm10Percent) {
         cutoutPercentage: 80
     };
 
+    const ratioFactor = (this.pm10GradeMax - this.pm10GradeMin) / 100;
+    const ratio = [30 / ratioFactor, 80 / ratioFactor, 150 / ratioFactor];
+
     const gaugeChart = new Chart(document.getElementById("gaugeChart"), {
         type: 'doughnut',
         data: {
-            labels: ["좋음", "보통", "나쁨", "아주나쁨"],
+            labels: [this.getGradeMessage(1), this.getGradeMessage(2), this.getGradeMessage(3), this.getGradeMessage(4)],
             datasets: [
                 {
                     label: '통합대기환경지수(CAI)',
-                    data: [30 / 6, 80 / 6, 150 / 6, 100 - (30 / 6 + 80 / 6 + 150 / 6)],
+                    data: [ratio[0], ratio[1], ratio[2], 100 - (ratio[0] + ratio[1] + ratio[2])],
                     backgroundColor: [
                         'rgba(30, 144, 255, 1)',
                         'rgba(0, 199, 60, 1)',
@@ -587,19 +606,16 @@ DustSensorThings.prototype.update = function () {
     const dataStreamIds = _this.selectedDataStreams;
     const length = dataStreamIds.length;
     if (!dataStreamIds || length <= 0 || _this.selectedThingId == 0) return;
-
-    if (length > 0) {
-        //filter += 'and (';
-        for (const i in dataStreamIds) {
-            const dataStreamId = dataStreamIds[i];
-            if (i == 0) {
-                filter += 'id eq ' + dataStreamId;
-            } else {
-                filter += ' or id eq ' + dataStreamId;
-            }
+    //filter += 'and (';
+    for (const i in dataStreamIds) {
+        const dataStreamId = dataStreamIds[i];
+        if (i == 0) {
+            filter += 'id eq ' + dataStreamId;
+        } else {
+            filter += ' or id eq ' + dataStreamId;
         }
-        //filter += ')';
     }
+    //filter += ')';
 
     const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
         '&$filter=' + filter +
@@ -611,6 +627,7 @@ DustSensorThings.prototype.update = function () {
                 '$orderby=resultTime desc;' +
                 '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
+    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -618,37 +635,41 @@ DustSensorThings.prototype.update = function () {
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
+
             const dataStreamContents = {
                 dataStreams: []
             };
+
             for (const dataStream of msg.value) {
+
                 // Datastreams
-                const observedPropertyName = dataStream['ObservedProperty']['name'];
-                const unit = dataStream['unitOfMeasurement']['symbol'];
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+
                 // Observations
-                let value = 0, grade = 0;
-
+                let value = "-", grade = 0;
                 if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
-                    if (observedPropertyName === _this.observedProperty && _this.gaugeChartNeedle.data) {
-                        // 게이지 차트 업데이트
-                        _this.updateGaugeChart(dataStream, randomValue);
-                    }
-                    // 라인 차트 업데이트
-                    _this.updateHourlyAirQualityChart(dataStream, randomValue);
 
+                    // ObservationTop
                     const observationTop = dataStream['Observations'][0];
-                    //let value = parseFloat(observation.result.value);
+                    //value = parseFloat(observation.result.value);
                     value = _this.formatValueByDigits(observationTop.result.value, 3);
                     value += randomValue;
                     value = _this.formatValueByDigits(value, 3);
                     grade = observationTop.result.grade;
 
-                }
+                    if (observedPropertyName === _this.observedProperty && _this.gaugeChartNeedle.data) {
+                        // 게이지 차트 업데이트
+                        _this.updateGaugeChart(value, grade);
+                    }
 
+                    // 라인 차트 업데이트
+                    _this.updateHourlyAirQualityChart(dataStream, randomValue);
+
+                }
                 const gradeText = _this.getGradeMessage(grade);
                 dataStreamContents.dataStreams.push({
                     name: dataStream.name,
-                    unit: unit,
+                    unit: _this.getUnit(dataStream),
                     value: value,
                     grade: grade,
                     gradeText: gradeText,
@@ -656,8 +677,10 @@ DustSensorThings.prototype.update = function () {
                 });
 
             }
+
             // 테이블 업데이트
             _this.updateInformationTable(dataStreamContents);
+
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
@@ -704,38 +727,33 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
 
+            // Datastreams
             for (const dataStream of msg.value) {
-
-                // Datastreams
-                //const observedPropertyName = dataStream['ObservedProperty']['name'];
-                const unit = dataStream['unitOfMeasurement']['symbol'];
 
                 // Thing
                 const thing = dataStream['Thing'];
                 const thingId = thing['@iot.id'];
 
                 // Observations
-                let value = 0, grade = 0;
+                let value = "-", grade = 0, selected = '';
                 if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
                     // ObservationTop
                     const observationTop = dataStream['Observations'][0];
-                    for (const thing of _this.things) {
-                        const originalId = thing['@iot.id'];
-                        if (originalId == thingId) {
-                            thing['Datastreams'][0]['Observations'][0] = observationTop;
-                        }
-                    }
-
                     //let value = parseFloat(observation.result.value);
                     value = _this.formatValueByDigits(observationTop.result.value, 3);
                     value += randomValue;
                     value = _this.formatValueByDigits(value, 3);
                     grade = observationTop.result.grade;
-                }
-                const gradeText = _this.getGradeMessage(grade);
 
-                // 지도 측정소 정보 업데이트
-                let selected = '';
+                    for (const thing of _this.things) {
+                        const originalId = thing['@iot.id'];
+                        if (originalId == thingId) {
+                            thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
+                            thing['Datastreams'][0]['Observations'][0]['result'].value = value;
+                            thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
+                        }
+                    }
+                }
                 if (_this.selectedThingId == thingId) {
                     selected = 'on';
                 }
@@ -743,14 +761,15 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
                     things: [{
                         id: thingId,
                         value: value,
-                        unit: unit,
+                        unit: _this.getUnit(dataStream),
                         stationName: thing.name,
                         grade: grade,
-                        gradeText: gradeText,
+                        gradeText: _this.getGradeMessage(grade),
                         selected: selected
                     }]
                 };
 
+                // 지도 측정소 정보 업데이트
                 const template = Handlebars.compile($("#overlaySource").html());
                 const innerHtml = $(template(contents)).find('ul').html();
                 $('#overlay_' + thingId + '> ul').html(innerHtml);
@@ -765,17 +784,10 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
 
 };
 
-DustSensorThings.prototype.updateGaugeChart = function (dataStream, randomValue) {
+DustSensorThings.prototype.updateGaugeChart = function (value, grade) {
 
     const _this = this;
-    const observationTop = dataStream['Observations'][0];
-    //let value = parseFloat(observation.result.value);
-    let value = _this.formatValueByDigits(observationTop.result.value, 3);
-    value += randomValue;
-    value = _this.formatValueByDigits(value, 3);
-    const grade = observationTop.result.grade;
-
-    const pm10Percent = value / 600 * 100;
+    const pm10Percent = Math.max(Math.min(value, this.pm10GradeMax), this.pm10GradeMin) / (this.pm10GradeMax - this.pm10GradeMin) * 100;
     _this.gaugeChartNeedle.data.datasets[0].data = [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)];
     _this.gaugeChartNeedle.update();
 
@@ -790,26 +802,34 @@ DustSensorThings.prototype.updateGaugeChart = function (dataStream, randomValue)
 
 DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, randomValue) {
     const _this = this;
-    for (const observation of dataStream['Observations']) {
-        const observedPropertyName = dataStream['ObservedProperty']['name'];
-        let value = _this.formatValueByDigits(observation.result.value, 3);
-        value += randomValue;
-        value = _this.formatValueByDigits(value, 3);
-        const hourlyAirQualityChartData = _this.hourlyAirQualityChart.data;
-        if (!hourlyAirQualityChartData) continue;
+    let value = undefined;
+    const time = _this.observationTimeToLocalTime(_this.getCurrentTime());
+
+    const hourlyAirQualityChartData = _this.hourlyAirQualityChart.data;
+    if (!hourlyAirQualityChartData) return;
+
+    if (dataStream['Observations'].length > 0) {
+        for (const observation of dataStream['Observations']) {
+            const observedPropertyName = _this.getObservedPropertyName(dataStream);
+            let value = _this.formatValueByDigits(observation.result.value, 3);
+            value += randomValue;
+            value = _this.formatValueByDigits(value, 3);
+            hourlyAirQualityChartData.datasets.forEach(function (dataset) {
+                if (dataset.observedPropertyName === observedPropertyName) {
+                    console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
+                    dataset.data.pop();
+                    dataset.data.unshift({x: time, y: value});
+                }
+            });
+        }
+    } else {
         hourlyAirQualityChartData.datasets.forEach(function (dataset) {
-            if (dataset.observedPropertyName === observedPropertyName) {
-                console.debug("observedPropertyName: " + observedPropertyName);
-                console.debug("value: " + value + ", currentTime: " + _this.getCurrentTime());
-                dataset.data.pop();
-                dataset.data.unshift({
-                    x: _this.observationTimeToLocalTime(_this.getCurrentTime()),
-                    y: value
-                });
-            }
+            dataset.data.pop();
+            dataset.data.unshift({x: time, y: value});
         });
-        _this.hourlyAirQualityChart.update();
     }
+    _this.hourlyAirQualityChart.update();
+
 };
 
 DustSensorThings.prototype.updateInformationTable = function (dataStreamContents) {

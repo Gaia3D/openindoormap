@@ -333,9 +333,9 @@
 			sensorThings.update();
 
 			// TODO 목록 갱신 추가
-			const $form = $("#searchIotForm");
-			const params = getFormData($form);
-			sensorThings.getList(sensorThings.currentPageNo, params);
+			//const $form = $("#searchIotForm");
+			//const params = getFormData($form);
+			//sensorThings.getList(sensorThings.currentPageNo, params);
 
 			let currentTime = sensorThings.getCurrentTime();
 			currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();

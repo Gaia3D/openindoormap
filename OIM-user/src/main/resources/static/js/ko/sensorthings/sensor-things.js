@@ -110,3 +110,17 @@ SensorThings.prototype.dataSearch = function (pageNo) {
     }
     sensorThings.getList(pageNo, params);
 };
+
+SensorThings.prototype.getUnit = function(dataStream) {
+    return dataStream['unitOfMeasurement']['symbol'];
+}
+
+SensorThings.prototype.getObservedPropertyName = function(dataStream) {
+    return dataStream['ObservedProperty']['name'];
+}
+
+SensorThings.prototype.numberWithCommas = function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
