@@ -8,7 +8,6 @@ import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractFeatureOfInterestBui
 import de.fraunhofer.iosb.ilt.sta.model.builder.ext.UnitOfMeasurementBuilder;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
-import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.service.OccupancyService;
@@ -38,8 +37,6 @@ public class OccupancyServiceTests {
     private OccupancyService sensorService;
     @Autowired
     private PropertiesConfig propertiesConfig;
-    @Autowired
-    private SensorThingsService service;
 
     @Test
     public void testInitSensorData() {

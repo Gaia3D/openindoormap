@@ -1,12 +1,10 @@
 package io.openindoormap.schedule;
 
-import io.openindoormap.service.AirQualityService;
 import io.openindoormap.service.OccupancyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,7 +17,7 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 @Slf4j
 @Component
-//@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "false")
+@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "false")
 public class OccupancyScheduler {
 
     @Qualifier("occupancyService")
