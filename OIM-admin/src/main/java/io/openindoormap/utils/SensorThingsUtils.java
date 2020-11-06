@@ -1,31 +1,23 @@
 package io.openindoormap.utils;
 
+import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
+import de.fraunhofer.iosb.ilt.sta.model.*;
+import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
+import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
+import de.fraunhofer.iosb.ilt.sta.query.Query;
+import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.geojson.Feature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.threeten.extra.Interval;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.geojson.Feature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.threeten.extra.Interval;
-
-import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
-import de.fraunhofer.iosb.ilt.sta.model.Datastream;
-import de.fraunhofer.iosb.ilt.sta.model.Entity;
-import de.fraunhofer.iosb.ilt.sta.model.FeatureOfInterest;
-import de.fraunhofer.iosb.ilt.sta.model.Location;
-import de.fraunhofer.iosb.ilt.sta.model.Observation;
-import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
-import de.fraunhofer.iosb.ilt.sta.model.Sensor;
-import de.fraunhofer.iosb.ilt.sta.model.Thing;
-import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
-import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
-import de.fraunhofer.iosb.ilt.sta.query.Query;
-import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SensorThingsUtils {
@@ -132,6 +124,25 @@ public class SensorThingsUtils {
         }
 
         return thing;
+    }
+
+    /**
+     * 필터를 통해 특정 조건으로 단일의 STA Entity(Thing) 를 검색
+     * @param filter 필터 구문
+     * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
+     * @return
+     */
+    public EntityList<Thing> hasThingWithObservation(String filter, String name) {
+        EntityList<Thing> thingList = null;
+        Query<Thing> query = service.things().query();
+
+        try {
+            thingList = createFilter(query, filter, name).expand("Datastreams/Observations($orderby=id desc)").list();
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+
+        return thingList;
     }
 
     /**
