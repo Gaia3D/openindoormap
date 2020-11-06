@@ -1,51 +1,93 @@
 const OccupancySensorThings = function (magoInstance) {
     SensorThings.call(this, magoInstance);
+
     this.magoInstance = magoInstance;
-    this.queryString = 'Locations?$select=@iot.id,location,name&$expand=' +
-        'Things($select=@iot.id,name,description),' +
-        'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
-        'Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime asc;$top=1)';
-    this.locations = [];
+    this.observedProperty = 'occupancy';
+    this.observedPropertyColor = {
+        'occupancy': '#E91E63',
+        'occupancyBuilding': '#FF9800',
+        'occupancyFloor': '#2196F3'
+    };
+
+    this.currentTime = "2020-11-03T04:00:00.000Z";
+    //this.currentTime = moment.utc().format();
+    this.callInterval = 10;         // 10s
+    this.filterInterval = 60;     // 60s
+
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
-OccupancySensorThings.prototype.addOverlay = function () {
-    const _this = this;
-    $.ajax({
-        url: _this.FROST_SERVER_URL + _this.queryString,
-        type: "GET",
-        dataType: "json",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        success: function (msg) {
-            _this.locations = msg.value;
-            _this.updateContentPosition();
-        },
-        error: function (request, status, error) {
-            alert(JS_MESSAGE["ajax.error.message"]);
-        }
-    });
-};
-
 OccupancySensorThings.prototype.getList = function (pageNo, params) {
+
     const _this = this;
+    pageNo = parseInt(pageNo);
+    _this.currentPageNo = pageNo;
+    const skip = (pageNo - 1) * 5;
+
+    let filter = 'Datastreams/ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    if (params.searchValue) {
+        filter += 'and (startswith(name, \'' + params.searchValue + '\') or endswith(name, \'' + params.searchValue + '\'))';
+    }
+
+    const queryString = 'Things?$select=@iot.id,name,description' +
+        '&$top=5&$skip=' + skip + '&$count=true&$orderby=name asc&$filter=' + filter +
+        '&$expand=Locations($select=@iot.id,location,name),' +
+        'Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'' + _this.observedProperty + '\'),' +
+        'Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() + ')';
+
     $.ajax({
-        url: _this.FROST_SERVER_URL +
-            'Locations?$select=@iot.id,location,name&$top=5&$count=true&$orderby=name asc&$expand=' +
-            'Things($select=@iot.id,name,description),' +
-            'Things/Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq \'pm10Value\'),' +
-            'Things/Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$top=1)',
+        // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=Datastreams/ObservedProperty/name eq 'occupancy' and (startswith(name, '1') or endswith(name, '1'))&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'occupancy'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime lt 2020-11-03T05:00:00.000Z and resultTime ge 2020-11-03T04:00:00.000Z)
+        url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
-            console.info(msg);
 
             const pagination = new Pagination(pageNo, msg['@iot.count'], 5, msg['@iot.nextLink']);
             msg.pagination = pagination;
 
             const templateLegend = Handlebars.compile($("#iotLegendSource").html());
-            $("#iotLegendDHTML").html("").append(templateLegend(params));
+            $("#iotLegendDHTML").html("").append(templateLegend(_this));
+
+            msg.contents = [];
+            const things = msg.value;
+            for (const thing of things) {
+
+                // Locations
+                //const location = thing.Locations[0];
+                //const locationId = location['@iot.id'];
+                //const addr = location.name;
+                //const coordinates = location.location.coordinates;
+
+                const thingId = thing['@iot.id'];
+
+                // Datastreams
+                const dataStream = thing.Datastreams[0];
+                const unit = dataStream.unitOfMeasurement.symbol;
+
+                // Observations
+                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) continue;
+                const observation = dataStream.Observations[0];
+                const value = observation.result.value;
+                //const grade = observation.result.grade;
+                const grade = Math.floor(Math.random() * 5);
+                const gradeText = _this.getGradeMessage(grade);
+
+                msg.contents.push({
+                    id: thingId,
+                    value: value,
+                    unit: unit,
+                    stationName: thing.name,
+                    //addr: addr,
+                    grade: grade,
+                    gradeText: gradeText,
+                    //longitude: coordinates[0],
+                    //latitude: coordinates[1],
+                    moreTitle: '#{common.more}'
+                });
+
+            }
 
             const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
             $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
@@ -62,120 +104,96 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             alert(JS_MESSAGE["ajax.error.message"]);
         }
     });
+
 };
 
-OccupancySensorThings.prototype.getComprehensiveAirQualityIndex = function (value) {
-    let cai = 0;
-    if (value >= 0 && value < 31) {
-        cai = 1;
-    } else if (value >= 31 && value < 81) {
-        cai = 2;
-    } else if (value >= 81 && value < 151) {
-        cai = 3;
-    } else if (value >= 151 && value < 601) {
-        cai = 4;
-    }
-    return cai;
-};
-OccupancySensorThings.prototype.getComprehensiveAirQualityIndexMessage = function (cai) {
-    let message;
-    switch (cai) {
-        case 1:
-            message = JS_MESSAGE["iot.occupancy.legend.good"];
-            break;
-        case 2:
-            message = JS_MESSAGE["iot.occupancy.legend.normal"];
-            break;
-        case 3:
-            message = JS_MESSAGE["iot.occupancy.legend.bad"];
-            break;
-        case 4:
-            message = JS_MESSAGE["iot.occupancy.legend.very-bad"];
-            break;
-        default:
-            message = JS_MESSAGE["iot.occupancy.legend.nodata"];
-            break;
-    }
-    return message;
-};
-OccupancySensorThings.prototype.updateContentPosition = function() {
+/**
+ * 재실자 건물 더보기 조회
+ * @param obj
+ * @param thingId
+ */
+OccupancySensorThings.prototype.getDetail = function(obj, thingId) {
 
-    for (const location of this.locations) {
+    const _this = this;
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=Things/@iot.id eq ' + thingId +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=ObservedProperty($select=name),' +
+        'Observations(' +
+        '$select=result,resultTime;' +
+        '$orderby=resultTime desc;' +
+        '$filter=resultTime le ' + _this.getCurrentTime() + ' and resultTime gt ' + _this.getFilterDayStartTime() +
+        ')';
 
-        const locationId = location['@iot.id'];
-        const thing = location.Things[0];
-        const dataStream = thing.Datastreams[0];
-        const unit = dataStream.unitOfMeasurement.symbol;
-        const observation = dataStream.Observations[0].result;
-        const addr = location.name;
-        const cai = this.getComprehensiveAirQualityIndex(observation);
-        const caiText = this.getComprehensiveAirQualityIndexMessage(cai);
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
 
-        const coordinates = location.location.coordinates;
-        const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
-        const magoManager = this.magoInstance.getMagoManager();
-        const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
+            // Datastreams
+            const dataStreams = msg.value;
 
-        const $containerSelector = $('#magoContainer');
-        const $overlaySelector = $('#overlay_' + locationId);
-        const top = 0, left = 0;
-        let bottom = top + $containerSelector.outerHeight() - 76, right = left + $containerSelector.outerWidth() - 60;
-        // bottom -= $('#overlay_' + locationId).outerHeight(); right -= $('#overlay_' + locationId).outerWidth();
+            const contents = {
+                dataStreams: []
+            };
 
-        if (resultScreenCoord.x >= left && resultScreenCoord.x <= right &&
-            resultScreenCoord.y >= top && resultScreenCoord.y <= bottom) {
-
-            if ($overlaySelector.length === 0) {
-                location.contents = {
-                    id : locationId,
-                    value: observation,
-                    unit: unit,
-                    stationName: thing.name,
-                    addr: addr,
-                    cai: cai,
-                    caiText: caiText,
-                    top: resultScreenCoord.y,
-                    left: resultScreenCoord.x
-                };
-                const template = Handlebars.compile($("#overlaySource").html());
-                const html = template(location.contents);
-                $containerSelector.prepend(html);
-            } else {
-                $overlaySelector.children().css({
-                    position: 'absolute',
-                    top: resultScreenCoord.y,
-                    left: resultScreenCoord.x,
-                    backgroundColor: 'rgb(0, 255, 255)',
-                    zIndex: 1000
+            for (const dataStream of dataStreams) {
+                const observation = dataStream['Observations'];
+                if (!observation || observation.length <= 0) continue;
+                contents.dataStreams.push({
+                    name: dataStream.name,
+                    value: _this.formatValueByDigits(observation[0].result.value, 3),
+                    unit: dataStream['unitOfMeasurement']['symbol']
                 });
             }
-            $overlaySelector.show();
 
+            const $iotDustMoreDHTML = $(obj).parent().siblings(".iotDustMoreDHTML");
+            const template = Handlebars.compile($("#dustMoreSource").html());
+            $iotDustMoreDHTML.html("").append(template(contents));
+            $iotDustMoreDHTML.show();
+
+            $(".show-more").not($(obj)).show();
+            $(obj).hide();
+            $('.iotDustMoreDHTML').not($iotDustMoreDHTML).hide();
+
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
         }
-    }
+    });
+};
 
+/**
+ * 재실자 건물 더보기 닫기
+ * @param obj
+ */
+DustSensorThings.prototype.closeDetail = function (obj) {
+    const $iotDustMoreDHTML = $(obj).parents(".iotDustMoreDHTML");
+    $iotDustMoreDHTML.hide();
+    $(".show-more").show();
 }
-OccupancySensorThings.prototype.updateContentValue = function() {
-    const _this = this;
-    // http://localhost:8888/FROST-Server/v1.0/Locations(1)?$select=location&$expand=Things/Datastreams($select=@iot.id,description;$filter=ObservedProperty/name eq '미세먼지(PM10) Particulates'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)
 
-    for (const location of this.locations) {
-        const locationId = location['@iot.id'];
-        const queryString = 'Locations('+locationId+')?$select=location&$expand=Things/Datastreams($select=@iot.id,description;$filter=ObservedProperty/name eq \'미세먼지(PM10) Particulates\'),Things/Datastreams/Observations($select=result,phenomenonTime;$orderby=phenomenonTime desc;$top=1)';
-        $.ajax({
-            url: _this.FROST_SERVER_URL + queryString,
-            type: "GET",
-            dataType: "json",
-            headers: {"X-Requested-With": "XMLHttpRequest"},
-            success: function (msg) {
-                location.contents.value = msg.Things[0].Datastreams[0].Observations[0].result;
-                const $overlaySelector = $('#overlay_' + locationId);
-                $overlaySelector.find('.overlay-value').text(location.contents.value);
-                $overlaySelector.show();
-            },
-            error: function (request, status, error) {
-                alert(JS_MESSAGE["ajax.error.message"]);
-            }
-        });
-    }
+/**
+ * 지도 Overlay 생성
+ */
+OccupancySensorThings.prototype.addOverlay = function () {
+
+};
+
+OccupancySensorThings.prototype.redrawOverlay = function () {
+
+};
+
+OccupancySensorThings.prototype.getInformation = function (thingId) {
+
+};
+
+OccupancySensorThings.prototype.closeInformation = function () {
+
+};
+
+OccupancySensorThings.prototype.update = function () {
+
 };

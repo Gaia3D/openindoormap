@@ -27,7 +27,7 @@
             </div>
             <div class="iotDustMoreDHTML" style="display: none"></div>
             <div class="btnCt">
-                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="dustSensorThings.getSensorMoreInformation(this, {{id}})"></button>
+                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="sensorThings.getDetail(this, {{id}})"></button>
             </div>
         </div>
     {{/each}}
