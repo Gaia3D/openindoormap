@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static java.util.Map.entry;
+
 @Slf4j
 @Service("occupancyService")
 public class OccupancyServiceImpl implements OccupancyService {
@@ -282,11 +284,16 @@ public class OccupancyServiceImpl implements OccupancyService {
      */
     public void generatePeopleObservation(Datastream dataStream, FeatureOfInterest featureOfInterest, ZonedDateTime resultTime, int min, int max) {
         int result = ThreadLocalRandom.current().nextInt(min, max + 1);
+        int grade = getGrade(result);
+        Map<String, Object> resultMap = Map.ofEntries(
+                entry("grade", grade),
+                entry("value", result)
+        );
         // Id dataStreamId = dataStream.getId();
         // Id foiId = featureOfInterest.getId();
         // generateObservation(dataStreamId, foiId, resultTime, new BigDecimal(result));
 
-        sta.createObservation(result, resultTime, resultTime, 0, dataStream, featureOfInterest);
+        sta.createObservation(resultMap, resultTime, resultTime, 0, dataStream, featureOfInterest);
     }
 
     private void generateStatisticsObservation(String buildId) {
@@ -301,10 +308,13 @@ public class OccupancyServiceImpl implements OccupancyService {
             Datastream datastream = sta.hasDatastream(null, datastreamName);
             FeatureOfInterest featureOfInterest = sta.hasFeatureOfInterest(null, featureOfInterestName);
 
-            if(things.size() > 0 ){
+            if (things.size() > 0) {
                 resultTime = things.toList().get(0).getDatastreams().toList().get(0).getObservations().toList().get(0).getResultTime();
                 floorSum = things.stream()
-                        .mapToInt(f-> Integer.parseInt(f.getDatastreams().toList().get(0).getObservations().toList().get(0).getResult().toString()))
+                        .mapToInt(f -> {
+                            Map<String, Object> map  = (Map<String, Object>) f.getDatastreams().toList().get(0).getObservations().toList().get(0).getResult();
+                            return Integer.parseInt(map.get("value").toString());
+                        })
                         .sum();
                 buildSum += floorSum;
             }
@@ -326,12 +336,20 @@ public class OccupancyServiceImpl implements OccupancyService {
 //                    e.printStackTrace();
 //                }
 //            }
-            sta.createObservation(floorSum, resultTime, resultTime, 0, datastream, featureOfInterest);
+            Map<String, Object> resultMap = Map.ofEntries(
+                    entry("grade", getGrade(floorSum)),
+                    entry("value", floorSum)
+            );
+            sta.createObservation(resultMap, resultTime, resultTime, 0, datastream, featureOfInterest);
         }
-        String datastreamFilter = "startswith(name, '"+buildId+"')";
+        String datastreamFilter = "startswith(name, '" + buildId + "')";
         Datastream datastream = sta.hasDatastream(datastreamFilter, null);
         FeatureOfInterest featureOfInterest = sta.hasFeatureOfInterest(null, buildId);
-        sta.createObservation(buildSum, resultTime, resultTime, 0, datastream, featureOfInterest);
+        Map<String, Object> resultMap = Map.ofEntries(
+                entry("grade", getGrade(buildSum)),
+                entry("value", buildSum)
+        );
+        sta.createObservation(resultMap, resultTime, resultTime, 0, datastream, featureOfInterest);
 
     }
 
@@ -363,5 +381,23 @@ public class OccupancyServiceImpl implements OccupancyService {
 
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+
+    private int getGrade(int value) {
+        int grade = 0;
+        if (value >= 0 && value <= 2) {
+            grade = 1;
+        } else if (value >= 3 && value <= 5) {
+            grade = 2;
+        } else if (value >= 6 && value <= 8) {
+            grade = 3;
+        } else if (value >= 9) {
+            grade = 4;
+        } else {
+            // cell 이 아닌 각층과 빌딩은 임시로 랜덤한 등급
+            grade = ThreadLocalRandom.current().nextInt(1, 5);
+        }
+
+        return grade;
     }
 }
