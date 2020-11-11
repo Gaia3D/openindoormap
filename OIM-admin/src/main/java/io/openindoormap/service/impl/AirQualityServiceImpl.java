@@ -11,14 +11,13 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.OrderBy;
 import io.openindoormap.domain.sensor.AirQuality;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
+import io.openindoormap.utils.SensorThingsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
-import org.geojson.GeoJsonObject;
 import org.geojson.Point;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -28,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
 import java.io.FileReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -45,10 +45,18 @@ import java.util.*;
 @Slf4j
 public class AirQualityServiceImpl implements AirQualityService {
 
-    private final SensorThingsService sensorThingsService;
     private final PropertiesConfig propertiesConfig;
-    private final JSONParser parser;
+
+    private SensorThingsUtils sta;
+    private SensorThingsService service;
     private boolean ObservedPropertyExist = false;
+
+    @PostConstruct
+    public void postConstruct() {
+        sta = new SensorThingsUtils();
+        sta.init(propertiesConfig.getSensorThingsApiServer());
+        service = sta.getService();
+    }
 
     /**
      * 초기 저장소 데이터 insert & update
@@ -67,50 +75,55 @@ public class AirQualityServiceImpl implements AirQualityService {
             LogMessageSupport.printMessage(e, "-------- AirQualityService Error = {}", e.getMessage());
         }
         List<?> stationList = (List<?>) stationJson.get("list");
-        // 마지막 things id 조회
-        long thingsLastId = getThingsId(OrderBy.DESC);
         for (var station : stationList) {
             Map<String, Object> thingProperties = new HashMap<>();
             var json = (JSONObject) station;
-            var stationName = (String) json.get("stationName");
+            var stationName = json.get("stationName").toString();
             var dmX = json.get("dmX").toString().trim();
             var dmY = json.get("dmY").toString().trim();
+            var mangName = json.get("mangName").toString();
+            var addr = json.get("addr").toString();
+
             thingProperties.put("stationName", stationName);
             thingProperties.put("year", json.get("year"));
             thingProperties.put("oper", json.get("oper"));
             thingProperties.put("photo", json.get("photo"));
             thingProperties.put("vrml", json.get("vrml"));
             thingProperties.put("map", json.get("map"));
-            thingProperties.put("mangName", json.get("mangName"));
+            thingProperties.put("mangName", mangName);
             thingProperties.put("item", json.get("item"));
             thingProperties.put("available", true);
 
-            var thing = getThingEntity(stationName);
+            var thing = sta.hasThing(null, stationName);
+            var location = sta.hasLocation(null, addr);
             var thingExist = thing != null;
             Point point = null;
             if (!"".equals(dmX) && !"".equals(dmY)) {
                 point = new Point(Double.parseDouble(dmY), Double.parseDouble(dmX));
             }
             Feature feature = new Feature();
-            GeoJsonObject geometry = point;
-            feature.setGeometry(geometry);
+            feature.setGeometry(point);
             List<Location> locationList = new ArrayList<>();
-            var thingId = !thingExist ? thingsLastId++ : Long.parseLong(thing.getId().toString());
+            // 마지막 things id 조회
+            var thingId = thing == null ? 0 : Long.parseLong(thing.getId().toString());
+            var locationId = location == null ? 0 : Long.parseLong(location.getId().toString());
             var dataStreamId = (thingId - 1) * 6;
             var sensorId = (thingId - 1) * 6;
             var ObservedPropertyId = 1L;
             List<Entity> entityList = new ArrayList<>();
             // Location
-            Location location = LocationBuilder.builder()
-                    .id(Id.tryToParse(String.valueOf(thingId)))
-                    .name((String) json.get("addr"))
+            location = LocationBuilder.builder()
+                    .id(Id.tryToParse(String.valueOf(locationId)))
+                    .name(addr)
                     .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
                     .description("대기질 측정소 위치")
                     .location(feature)
                     .build();
-            entityList.add(location);
 
-            if (point != null) locationList.add(location);
+            if (point != null) {
+                entityList.add(location);
+                locationList.add(location);
+            }
 
             thing = ThingBuilder.builder()
                     .id(Id.tryToParse(String.valueOf(thingId)))
@@ -126,7 +139,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "미세먼지(PM10)")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorPm10);
 
@@ -152,7 +165,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "미세먼지(PM2.5)")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorPm25);
 
@@ -178,7 +191,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "아황산가스 농도")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorSo2);
 
@@ -204,7 +217,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "일산화탄소 농도")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorCo);
 
@@ -230,7 +243,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "오존 농도")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorO3);
 
@@ -256,7 +269,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(stationName + ":" + "이산화질소 농도")
                     .description("미세먼지 측정소")
                     .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(json.get("mangName"))
+                    .metadata(mangName)
                     .build();
             entityList.add(sensorNo2);
 
@@ -289,14 +302,10 @@ public class AirQualityServiceImpl implements AirQualityService {
 
             try {
                 for (var entity : entityList) {
-                    // 위치 정보가 없을경우 location 정보는 넣지 않는다.
-                    if (EntityType.LOCATION.equals(entity.getType()) && point == null) {
-                        continue;
-                    }
                     if (thingExist) {
-                        sensorThingsService.update(entity);
+                        service.update(entity);
                     } else {
-                        sensorThingsService.create(entity);
+                        service.create(entity);
                     }
                 }
             } catch (Exception e) {
@@ -329,13 +338,13 @@ public class AirQualityServiceImpl implements AirQualityService {
 //                    t = t.minusDays(1);
 //                    t = t.plusHours(i);
                 ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
-                EntityList<Thing> things = sensorThingsService.things()
+                EntityList<Thing> things = service.things()
                         .query()
                         .filter("name eq " + "'" + stationName + "'")
                         .expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)")
                         .list();
                 // 일치하는 thing 이 없을경우 skip
-                if(things.size() == 0) continue;
+                if (things.size() == 0) continue;
 
                 Thing thing = things.toList().get(0);
                 EntityList<Datastream> datastreamList = thing.getDatastreams();
@@ -374,9 +383,9 @@ public class AirQualityServiceImpl implements AirQualityService {
                     var lastTime = lastObservation != null ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")) : null;
                     if (zonedDateTime.equals(lastTime)) {
                         observation.setId(lastObservation.getId());
-                        sensorThingsService.update(observation);
+                        service.update(observation);
                     } else {
-                        sensorThingsService.create(observation);
+                        service.create(observation);
                     }
                 }
 //                }
@@ -398,90 +407,60 @@ public class AirQualityServiceImpl implements AirQualityService {
             return;
         }
 
-        int pm10Count = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (pm10Count == 0) {
+        ObservedProperty pm10 = sta.hasObservedProperty(null, AirQuality.PM10.getObservedPropertyName());
+        if (pm10 == null) {
             // ObservedProperty PM10
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.PM10.getObservedPropertyName())
                     .description("미세먼지(PM10) Particulates")
                     .definition("https://en.wikipedia.org/wiki/Particulates")
                     .build());
         }
 
-        int pm25Count = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (pm25Count == 0) {
+        ObservedProperty pm25 = sta.hasObservedProperty(null, AirQuality.PM25.getObservedPropertyName());
+        if (pm25 == null) {
             // ObservedProperty PM2.5
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.PM25.getObservedPropertyName())
                     .description("미세먼지(PM2.5) Particulates")
                     .definition("https://en.wikipedia.org/wiki/Particulates")
                     .build());
         }
 
-        int so2Count = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (so2Count == 0) {
+        ObservedProperty so2 = sta.hasObservedProperty(null, AirQuality.SO2.getObservedPropertyName());
+        if (so2 == null) {
             // ObservedProperty 아황산가스 농도
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.SO2.getObservedPropertyName())
                     .description("아황산가스 농도 Sulfur_dioxide")
                     .definition("https://en.wikipedia.org/wiki/Sulfur_dioxide")
                     .build());
         }
 
-        int coCount = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (coCount == 0) {
+        ObservedProperty co = sta.hasObservedProperty(null, AirQuality.CO.getObservedPropertyName());
+        if (co == null) {
             // ObservedProperty 일산화탄소 농도
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.CO.getObservedPropertyName())
                     .description("일산화탄소 농도 Carbon_monoxide")
                     .definition("https://en.wikipedia.org/wiki/Carbon_monoxide")
                     .build());
         }
 
-        int o3Count = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (o3Count == 0) {
+        ObservedProperty o3 = sta.hasObservedProperty(null, AirQuality.O3.getObservedPropertyName());
+        if (o3 == null) {
             // ObservedProperty 오존 농도
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.O3.getObservedPropertyName())
                     .description("오존 농도 Ozone")
                     .definition("https://en.wikipedia.org/wiki/Ozone")
                     .build());
         }
 
-        int no2Count = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'")
-                .list()
-                .size();
-
-        if (no2Count == 0) {
+        ObservedProperty no2 = sta.hasObservedProperty(null, AirQuality.NO2.getObservedPropertyName());
+        if (no2 == null) {
             // ObservedProperty 이산화질소 농도
-            sensorThingsService.create(ObservedPropertyBuilder.builder()
+            service.create(ObservedPropertyBuilder.builder()
                     .name(AirQuality.NO2.getObservedPropertyName())
                     .description("이산화질소 Nitrogen_dioxide")
                     .definition("https://en.wikipedia.org/wiki/Nitrogen_dioxide")
@@ -501,6 +480,7 @@ public class AirQualityServiceImpl implements AirQualityService {
      */
     private JSONObject getListStation() throws Exception {
         boolean mockEnable = propertiesConfig.isMockEnable();
+        JSONParser parser = new JSONParser();
         JSONObject stationJson;
         // 테스트
         if (mockEnable) {
@@ -578,6 +558,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else {
             // 운영시 api 연동
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
+            JSONParser parser = new JSONParser();
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
@@ -605,50 +586,6 @@ public class AirQualityServiceImpl implements AirQualityService {
     }
 
     /**
-     * 처음 또는 마지막 Thing entity 조회
-     *
-     * @param orderBy 정렬순서 enum
-     * @return
-     */
-    private long getThingsId(OrderBy orderBy) {
-        long idCount = 0;
-        try {
-            EntityList<Thing> things = sensorThingsService.things()
-                    .query()
-                    .orderBy("id " + orderBy.getValue())
-                    .top(1)
-                    .list();
-
-            List<Thing> thingList = things.toList();
-            idCount = thingList.size() > 0 ? Long.parseLong((thingList.get(0).getId().toString())) : 0;
-        } catch (Exception e) {
-            LogMessageSupport.printMessage(e, "-------- AirQualityService ServiceFailureException = {}", e.getMessage());
-        }
-
-        return idCount;
-    }
-
-    /**
-     * 측정소에 해당하는 thing 정보 조회
-     *
-     * @param stationName 측정소 이름
-     * @return
-     */
-    private Thing getThingEntity(String stationName) {
-        EntityList<Thing> list = null;
-        try {
-            list = sensorThingsService.things()
-                    .query()
-                    .filter("name eq " + "'" + stationName + "'")
-                    .list();
-        } catch (ServiceFailureException e) {
-            LogMessageSupport.printMessage(e, "-------- AirQualityService getThingEntity Error = {}", e.getMessage());
-        }
-
-        return list.size() > 0 ? list.toList().get(0) : null;
-    }
-
-    /**
      * 미세먼지에 해당하는 모든 thing 의 정보들의 status false 로 업데이트
      */
     private void updateAirQualityThingsStatus() {
@@ -657,7 +594,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         while (nextLinkCheck) {
             EntityList<Thing> things = null;
             try {
-                things = sensorThingsService.things()
+                things = service.things()
                         .query()
                         .skip(skipCount)
                         .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
@@ -673,7 +610,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     var properties = thing.getProperties();
                     properties.put("available", false);
                     thing.setProperties(properties);
-                    sensorThingsService.update(thing);
+                    service.update(thing);
                 }
             } catch (ServiceFailureException e) {
                 LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
@@ -682,35 +619,6 @@ public class AirQualityServiceImpl implements AirQualityService {
             skipCount = skipCount + 100;
         }
     }
-
-//    private List<Thing> getAirQualityThings() {
-//        List<Thing> list = new ArrayList<>();
-//        boolean nextLinkCheck = true;
-//        int skipCount = 0;
-//        while (nextLinkCheck) {
-//            EntityList<Thing> things = null;
-//            try {
-//                things = sensorThingsService.things()
-//                        .query()
-//                        .skip(skipCount)
-//                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
-//                                " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
-//                                " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
-//                                " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
-//                                " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
-//                                " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
-//                        )
-//                        .list();
-//            } catch (ServiceFailureException e) {
-//                e.printStackTrace();
-//            }
-//            list.addAll(things.toList());
-//            nextLinkCheck = things.getNextLink() != null;
-//            skipCount = skipCount + 100;
-//        }
-//
-//        return list;
-//    }
 
     /**
      * 에어코리아 기준에 해당하는 grade return

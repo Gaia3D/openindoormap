@@ -8,17 +8,22 @@ import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
+import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.OrderBy;
 import io.openindoormap.domain.sensor.AirQuality;
 import io.openindoormap.service.AirQualityService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -27,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OIMAdminApplication.class)
 class AirQualityServiceImplTests {
@@ -35,7 +41,14 @@ class AirQualityServiceImplTests {
     @Autowired
     private AirQualityService sensorService;
     @Autowired
+    private PropertiesConfig propertiesConfig;
+
     private SensorThingsService sensorThingsService;
+
+    @BeforeAll
+    void setup() throws MalformedURLException {
+        sensorThingsService = new SensorThingsService(new URL(propertiesConfig.getSensorThingsApiServer()));
+    }
 
     @Test
     void 측정소_데이터_넣기() {
