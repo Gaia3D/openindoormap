@@ -123,4 +123,8 @@ SensorThings.prototype.numberWithCommas = function (x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-
+SensorThings.prototype.closeDetail = function (obj) {
+    const $iotDustMoreDHTML = $(obj).parents(".iotDustMoreDHTML");
+    $iotDustMoreDHTML.hide();
+    $(".show-more").show();
+}

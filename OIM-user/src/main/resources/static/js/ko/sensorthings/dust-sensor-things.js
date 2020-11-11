@@ -133,7 +133,7 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
                 if (!locations || locations.length <= 0) continue;
                 const location = locations[0];
                 const addr = location.name;
-                const coordinates = location.location.coordinates;
+                const coordinates = location.location.geometry.coordinates;
 
                 // Datastreams
                 const dataStreams = thing['Datastreams'];
@@ -158,8 +158,7 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
                     grade: grade,
                     gradeText: _this.getGradeMessage(grade),
                     longitude: coordinates[0],
-                    latitude: coordinates[1],
-                    moreTitle: '#{common.more}'
+                    latitude: coordinates[1]
                 });
 
             }
@@ -247,16 +246,6 @@ DustSensorThings.prototype.getDetail = function(obj, thingId) {
 };
 
 /**
- * 관측소 더보기 닫기
- * @param obj
- */
-DustSensorThings.prototype.closeDetail = function (obj) {
-    const $iotDustMoreDHTML = $(obj).parents(".iotDustMoreDHTML");
-    $iotDustMoreDHTML.hide();
-    $(".show-more").show();
-}
-
-/**
  * 지도 Overlay 생성
  */
 DustSensorThings.prototype.addOverlay = function () {
@@ -312,7 +301,7 @@ DustSensorThings.prototype.redrawOverlay = function () {
         if (!locations || locations.length <= 0) continue;
         const location = locations[0];
         //const addr = location.name;
-        const coordinates = location.location.coordinates;
+        const coordinates = location.location.geometry.coordinates;
         const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
 
         // 지도화면 픽셀정보 구하기
@@ -356,7 +345,8 @@ DustSensorThings.prototype.redrawOverlay = function () {
             gradeText: gradeText,
             top: resultScreenCoord.y,
             left: resultScreenCoord.x,
-            selected: selected
+            selected: selected,
+            subTitle: JS_MESSAGE["iot.dust.fine"]
         });
 
     }   // end for

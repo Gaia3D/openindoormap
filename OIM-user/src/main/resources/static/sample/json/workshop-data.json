@@ -5,8 +5,155 @@
     "projectType": "result",
     "specularLighting": true
   },
-  "children": [ 
-  {
+  "children": [
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_0",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.35,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_1",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.45,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_2",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.55,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_3",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.65,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_4",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.75,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_5",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.85,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
+      "attributes": {
+        "isPhysical": true,
+        "nodeType": "result",
+        "flipYTexCoords": false,
+        "isVisible" : false
+      },
+      "children": [],
+      "data_group_id": 2,
+      "data_group_name": "result",
+      "mapping_type": "origin",
+      "data_key": "Alphadom_IndoorGML_data_6",
+      "data_name": "정사각형",
+
+      "longitude": 127.11209614609372,
+      "latitude": 37.394169200581445,
+      "height": 8.95,
+      "heading": 0,
+      "pitch": 0,
+      "roll": 0
+    },
+    {
       "attributes": {
         "isPhysical": true,
         "nodeType": "result",
@@ -320,33 +467,11 @@
       "heading": 0,
       "pitch": 0,
       "roll": 0
-    },
-	{
-      "attributes": {
-        "isPhysical": true,
-        "nodeType": "result",
-        "flipYTexCoords": false,
-		"floors" : [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]
-      },
-      "children": [],
-      "data_group_id": 2,
-      "data_group_name": "result",
-      "mapping_type": "origin",
-      "data_key": "Alphadom_IndoorGML_data",
-      "data_name": "정사각형",
-
-      "longitude": 127.11209614609372,
-      "latitude": 37.394169200581445,
-      "height": 10.45,
-      "heading": 0,
-      "pitch": 0,
-	  "roll": 0
-  }
-	
+    }
   ],
   "parent": 0,
   "depth": 1,
   "view_order": 2,
-  "data_key": "result",
+  "data_key": "infra/data/result/",
   "data_name": "result"
 }

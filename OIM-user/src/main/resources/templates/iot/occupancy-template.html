@@ -2,26 +2,29 @@
 <script id="occupancyListSource" type="text/x-handlebars-template">
     {{#greaterThan contents.length 0}}
     {{#each contents}}
-    <div class="sInfoWrap" onclick="sensorThingsController.openFloorInformation('{{dataGroupId}}', '{{dataKey}}');">
+    <div class="sInfoWrap">
         <div class="rightButtonWrap">
             <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');">
                 <p class="buttonLable" th:text="#{common.move}"></p>
             </button>
+            <button class="fas fa-info box marR5" th:title="#{common.information}" onclick="sensorThings.getBuildingInformation({{id}}, '{{name}}')">
+                <p class="buttonLable" th:text="#{common.information}"></p>
+            </button>
         </div>
         <div class="sInfo">
-            <ul class="lv{{grade}}">
+            <ul class="lv{{grade}}" style="background-image: none">
                 <li class="state">{{gradeText}}</li>
-                <li class="result">{{value}}</li>
+                <li class="result">{{valueWithCommas}}</li>
                 <li class="unit">{{unit}}</li>
             </ul>
             <ul>
-                <li style="width: 170px;">
+                <li style="width: 140px;">
                     <label th:text="#{iot.dust.station.name}"></label>
                     <span>{{dataName}}</span>
                 </li>
-                <li style="width: 170px;">
+                <li style="width: 140px;">
                     <label th:text="#{iot.occupancy.average.people}"></label>
-                    <span>{{value}}</span>{{unit}}
+                    <span>{{valueWithCommas}}</span>{{unit}}
                 </li>
             </ul>
         </div>

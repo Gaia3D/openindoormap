@@ -42,14 +42,14 @@ Pagination.prototype.init = function() {
     this.lastPage = 0;
     if(this.totalCount != 0) {
         if(this.totalCount % this.pageRows == 0) {
-            this.lastPage = (this.totalCount / this.pageRows);
+            this.lastPage = Math.floor(this.totalCount / this.pageRows);
         } else {
-            this.lastPage = (this.totalCount / this.pageRows) + 1;
+            this.lastPage = Math.floor(this.totalCount / this.pageRows) + 1;
         }
     }
 
-    this.startPage = parseInt((this.pageNo - 1) / this.pageListCount) * this.pageListCount + 1;
-    this.endPage = parseInt((this.pageNo - 1) / this.pageListCount) * this.pageListCount + this.pageListCount;
+    this.startPage = Math.floor((this.pageNo - 1) / this.pageListCount) * this.pageListCount + 1;
+    this.endPage = Math.floor((this.pageNo - 1) / this.pageListCount) * this.pageListCount + this.pageListCount;
     if(this.endPage > this.lastPage) {
         this.endPage = this.lastPage;
     }

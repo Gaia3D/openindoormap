@@ -1,32 +1,35 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="buildingInfoSource" type="text/x-handlebars-template">
 <div id="buildingInfoWrap" class="building-detail" style="display: none">
-    <button class="circle-small fas fa-times float-right" th:title="#{common.close}" onclick="sensorThingsController.closeFloorInformation()"></button>
+    <button class="circle-small fas fa-times float-right" th:title="#{common.close}" onclick="sensorThings.closeBuildingInformation()"></button>
     <div>
         <ul class="dustStation marR40 marB10">
-            <li class="scolor brLeft lv3">
-                <span>{{occupancyOfBuilding}}</span>
-                <span>인원</span>
+            <li class="scolor brLeft lv{{grade}}">
+                <span>{{valueWithCommas}}</span>
+                <span>{{unit}}</span>
             </li>
             <li class="sname">
-                <p style="width: 150px">{{dataKey}}</p>
-                <span class="subTit">재실자</span>
-                <span class="subResult txlv1">보통</span>
+                <p style="width: 150px">{{dataName}}</p>
+                <span class="subTit" th:text="#{iot.occupancy}"></span>
+                <span class="subResult txlv{{grade}}">{{gradeText}}</span>
             </li>
         </ul>
         <div class="scrollTable" style="height: 240px;">
             <table>
                 <tr>
-                    <th>층</th>
-                    <th>인원(명)</th>
-                    <th>변동</th>
+                    <th th:text="#{iot.occupancy.floor}"></th>
+                    <th th:text="#{iot.occupancy.person}"></th>
+                    <th th:text="#{iot.occupancy.grade}"></th>
                 </tr>
                 {{#greaterThan listOfFloorOccupancy.length 0}}
                 {{#each listOfFloorOccupancy}}
                 <tr data-floor="{{floor}}">
-                    <td>{{floorName}}</td>
-                    <td>{{sum}}</td>
-                    <td class="dec">+1</td>
+                    <td>{{floorText}}층</td>
+                    <td>{{valueWithCommas}}{{unit}}</td>
+                    <td>
+                        <span class="dust lv{{grade}}"></span>
+                        <span class="dusttx">{{gradeText}}</span>
+                    </td>
                 </tr>
                 {{/each}}
                 {{else}}

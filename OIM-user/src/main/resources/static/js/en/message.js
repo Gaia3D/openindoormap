@@ -180,3 +180,6 @@ JS_MESSAGE["iot.occupancy.legend.normal"]="Normal";
 JS_MESSAGE["iot.occupancy.legend.bad"]="Bad";
 JS_MESSAGE["iot.occupancy.legend.very-bad"]="Very Bad";
 JS_MESSAGE["iot.occupancy.legend.nodata"]="Nodata";
+
+JS_MESSAGE["iot.occupancy"]="Occupancy";
+JS_MESSAGE["iot.dust.fine"]="Fine";

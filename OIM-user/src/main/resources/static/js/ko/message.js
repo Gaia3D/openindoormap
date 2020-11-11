@@ -157,3 +157,6 @@ JS_MESSAGE["iot.occupancy.legend.normal"]="보통";
 JS_MESSAGE["iot.occupancy.legend.bad"]="나쁨";
 JS_MESSAGE["iot.occupancy.legend.very-bad"]="매우나쁨";
 JS_MESSAGE["iot.occupancy.legend.nodata"]="없음";
+
+JS_MESSAGE["iot.occupancy"]="재실자";
+JS_MESSAGE["iot.dust.fine"]="미세";

@@ -300,7 +300,7 @@
 				}
 			}
 		});
-
+/*
 		var vLayer = new Cesium.ImageryLayer(new Cesium.UrlTemplateImageryProvider({
 			url : 'https://map.pstatic.net/nrb/styles/basic/1602137999/{z}/{x}/{y}@2x.png?mt=bg.ol.ts.lko',
 			enablePickFeatures : false
@@ -308,7 +308,7 @@
 			show : true
 		});
 		viewer.imageryLayers.add(vLayer);
-
+*/
 
 		// 행정 구역 이동
 		// DistrictControll(magoInstance);
@@ -318,31 +318,6 @@
 		mapDataInfoList(1, dataInfoParams);
 		//mapDataGroupList(1, null);
 		//mapDataInfoList(1, null, null, null);
-
-		// 사물 인터넷
-		sensorThings = new SensorThings(magoInstance);
-		sensorThings = sensorThings.createSensorThings();
-
-		sensorThings.dataSearch(1);
-		sensorThings.clearOverlay();
-		sensorThings.addOverlay();
-
-		// 한 시간에 한번씩 자료 갱신
-		setInterval(function () {
-
-			sensorThings.update();
-
-			// TODO 목록 갱신 추가
-			//const $form = $("#searchIotForm");
-			//const params = getFormData($form);
-			//sensorThings.getList(sensorThings.currentPageNo, params);
-
-			let currentTime = sensorThings.getCurrentTime();
-			currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
-			sensorThings.setCurrentTime(currentTime);
-
-		}, 1000 * sensorThings.callInterval);
-
 
 		// 환경 설정.
 		UserPolicy(magoInstance);
@@ -366,41 +341,46 @@
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
 		mapControllEvent(e);
 
+		// 사물 인터넷
+		sensorThings = new SensorThings(magoInstance);
+		sensorThings = sensorThings.createSensorThings();
+
 		var sampleJsonURL = '/sample/json';
-		$.ajax({
+		setTimeout(function(){$.ajax({
 			url: sampleJsonURL + '/workshop-data.json',
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
 			dataType: "json",
 			success: function(json){
-				f4dController.addF4dGroup(json);
+				f4dController.addF4dMember('10000', json.children);
+
+				sensorThings.dataSearch(1);
+				sensorThings.clearOverlay();
+				sensorThings.addOverlay();
+
+				// 한 시간에 한번씩 자료 갱신
+				/*
+				setInterval(function () {
+
+					sensorThings.update();
+
+					// TODO 목록 갱신 추가
+					//const $form = $("#searchIotForm");
+					//const params = getFormData($form);
+					//sensorThings.getList(sensorThings.currentPageNo, params);
+
+					let currentTime = sensorThings.getCurrentTime();
+					currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
+					sensorThings.setCurrentTime(currentTime);
+
+				}, 1000 * sensorThings.callInterval);
+				*/
 			},
 			error:function(request,status,error){
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
-		});
-		/*
-        magoManager.on(Mago3D.MagoManager.EVENT_TYPE.F4DLOADEND, (e)=> {
-            var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-            searchDataAPI(magoInstance, dataGroupId, dataKey);
-        });
-         */
-		Promise.resolve($.getJSON(sampleJsonURL + '/data/cellspacelist.json'))
-				.then(function(result){
-					sensorThingsController.setCellSpaceList(result);
-					const dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-					for (let index = 1; index < 8; index++) {
-						$.ajax({
-							url : sampleJsonURL + '/data/alphadom_sensor_' + index + '.json',
-							type : 'get',
-							success : function(response){
-								sensorThingsController.arrangeDataFromSensorThingsAPIData(response);
-								sensorThingsController.calculateSumOfOccupancyOfBuilding();
-								sensorThingsController.calculateSumOfOccupancyOfFloor(dataGroupId, dataKey);
-							}
-						});
-					}
-				});
+		})}, 5000);
+
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, (e)=> {
 			let dataGroupId = e.selected.data.projectId;
