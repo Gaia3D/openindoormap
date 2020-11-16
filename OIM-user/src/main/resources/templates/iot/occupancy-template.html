@@ -3,28 +3,28 @@
     {{#greaterThan contents.length 0}}
     {{#each contents}}
     <div class="sInfoWrap">
-        <div class="rightButtonWrap">
-            <button class="fas fa-expand box marR5" th:title="#{common.move}" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');">
-                <p class="buttonLable" th:text="#{common.move}"></p>
-            </button>
-            <button class="fas fa-info box marR5" th:title="#{common.information}" onclick="sensorThings.getBuildingInformation({{id}}, '{{name}}')">
-                <p class="buttonLable" th:text="#{common.information}"></p>
-            </button>
-        </div>
         <div class="sInfo">
-            <ul class="lv{{grade}}" style="background-image: none">
+            <ul class="lv{{grade}}">
                 <li class="state">{{gradeText}}</li>
                 <li class="result">{{valueWithCommas}}</li>
                 <li class="unit">{{unit}}</li>
             </ul>
             <ul>
-                <li style="width: 140px;">
-                    <label th:text="#{iot.dust.station.name}"></label>
+                <li>
+                    <label th:text="#{common.data.name}"></label>
                     <span>{{dataName}}</span>
                 </li>
-                <li style="width: 140px;">
+                <li>
                     <label th:text="#{iot.occupancy.average.people}"></label>
                     <span>{{valueWithCommas}}</span>{{unit}}
+                </li>
+                <li>
+                    <label th:text="#{iot.dust.station.addr}"></label>
+                    <a href="#" class="ellipsis" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">({{longitude}}, {{latitude}}, {{altitude}})</a>
+                </li>
+                <li>
+                    <label th:text="#{iot.occupancy.floor.info}"></label>
+                    <a href="#" class="ellipsis" onclick="sensorThings.getBuildingInformation({{id}}, '{{name}}');return false;">{{dataKey}}</a>
                 </li>
             </ul>
         </div>

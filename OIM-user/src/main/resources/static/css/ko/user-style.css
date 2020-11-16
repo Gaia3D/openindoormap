@@ -3331,7 +3331,8 @@ table.dustList td:nth-child(2) {
 	background-color: #ff5959;
 }
 .lv0 {
-	background: #555 url(/images/ico_x.png) no-repeat center center;
+	/*background: #555 url(/images/ico_x.png) no-repeat center center;*/
+	background: #555;
 }
 .txlv1 {
 	color: #32a1ff;

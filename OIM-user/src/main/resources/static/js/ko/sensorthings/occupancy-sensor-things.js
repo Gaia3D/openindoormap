@@ -46,6 +46,25 @@ OccupancySensorThings.prototype.getFloorText = function(floor, baseFloor) {
     return floorText;
 }
 
+OccupancySensorThings.prototype.getDataInfoResultProcess = function (promises, callback) {
+    $.when.apply($, promises)
+        .done(callback)
+        .fail(function (e) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        })
+        .always(function (e) {
+        });
+}
+
+OccupancySensorThings.prototype.getDataInfo = function(dataId) {
+    return $.ajax({
+        url: '/datas/' + dataId,
+        type: "GET",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        dataType: "json"
+    });
+};
+
 OccupancySensorThings.prototype.getList = function (pageNo, params) {
 
     const _this = this;
@@ -86,16 +105,18 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             const templateLegend = Handlebars.compile($("#iotLegendSource").html());
             $("#iotLegendDHTML").html("").append(templateLegend(_this));
 
-            msg.contents = [];
+            const data = {
+                promises: [],
+                thingsContent: {}
+            };
+
             const things = msg.value;
-            for (const thing of things) {
+            //for (const thing of things) {
+            for (let i = 0; i < 2; i++) {
 
+                //const thingId = thing['@iot.id'];
+                const thing = things[0];
                 const thingId = thing['@iot.id'];
-
-                // TODO thingId와 dataGroupId, dataKey 맵핑테이블을 통한 데이터 조회
-                const dataGroupId = '10000';
-                const dataKey = 'Alphadom_IndoorGML_data';
-                const dataName = '알파돔';
 
                 // Datastreams
                 const dataStreams = thing['Datastreams'];
@@ -111,31 +132,45 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                     grade = observationTop.result.grade;
                 }
 
-                msg.contents.push({
+                // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
+                let dataId = 200003 - i;
+                data.promises.push(_this.getDataInfo(dataId));
+                data.thingsContent[dataId] = {
                     id: thingId,
                     name: thing.name,
                     value: value,
                     valueWithCommas: _this.numberWithCommas(value),
                     unit: _this.getUnit(dataStream),
-                    dataName: dataName,
                     grade: grade,
-                    gradeText: _this.getGradeMessage(grade),
-                    dataGroupId: dataGroupId,
-                    dataKey: dataKey
-                });
+                    gradeText: _this.getGradeMessage(grade)
+                };
 
             }
 
-            const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
-            $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
+            _this.getDataInfoResultProcess(data.promises, function() {
 
-            const template = Handlebars.compile($("#occupancyListSource").html());
-            $("#iotOccupancyListDHTML").html("").append(template(msg));
+                msg.contents = [];
 
-            const templatePagination = Handlebars.compile($("#paginationSource").html());
-            $("#iotPaginationDHTML").html("").append(templatePagination(msg));
+                for (const argument of arguments) {
+                    const dataInfo = argument[0]['dataInfo'];
+                    const dataId = dataInfo.dataId;
+                    const thingsContent = data.thingsContent[dataId];
+                    msg.contents.push(Object.assign(thingsContent, dataInfo));
+                }
 
-            $('#iotOccupancyListDHTML').show();
+                const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
+                $("#iotSearchSummaryDHTML").html("").append(templateSearchSummary(msg));
+
+                const template = Handlebars.compile($("#occupancyListSource").html());
+                $("#iotOccupancyListDHTML").html("").append(template(msg));
+
+                const templatePagination = Handlebars.compile($("#paginationSource").html());
+                $("#iotPaginationDHTML").html("").append(templatePagination(msg));
+
+                $('#iotOccupancyListDHTML').show();
+
+            });
+
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
