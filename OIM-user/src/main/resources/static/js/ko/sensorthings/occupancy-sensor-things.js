@@ -12,10 +12,10 @@ const OccupancySensorThings = function (magoInstance) {
     this.occupancyGradeMin = 0;
     this.occupancyGradeMax = 10;
 
-    this.currentTime = "2020-11-11T04:00:00.000Z";
+    this.currentTime = "2020-11-17T12:15:00.000Z";
     //this.currentTime = moment.utc().format();
     this.callInterval = 10;         // 10s
-    this.filterInterval = 60;     // 60s
+    this.filterInterval = 120;      // 120s
 
     this.gaugeChartNeedle = {};
     this.hourlyAirQualityChart = {};
@@ -25,6 +25,11 @@ const OccupancySensorThings = function (magoInstance) {
 
     this.cellSpaceList = [];
     this.selectedDataKey;
+
+    this.mappingTable = {
+        2683 : 200003,
+        2834 : 200002
+    };
 
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
@@ -111,11 +116,8 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             };
 
             const things = msg.value;
-            //for (const thing of things) {
-            for (let i = 0; i < 2; i++) {
+            for (const thing of things) {
 
-                //const thingId = thing['@iot.id'];
-                const thing = things[0];
                 const thingId = thing['@iot.id'];
 
                 // Datastreams
@@ -133,7 +135,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 }
 
                 // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
-                let dataId = 200003 - i;
+                const dataId = _this.mappingTable[thingId];
                 data.promises.push(_this.getDataInfo(dataId));
                 data.thingsContent[dataId] = {
                     id: thingId,

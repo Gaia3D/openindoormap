@@ -35,6 +35,26 @@ public class OccupancyScheduler {
         occupancyService.insertSensorData();
     }
 
+    //@Async
+    @Scheduled(fixedDelay = 30000)
+    //@Scheduled(cron = "${openindoormap.schedule.every-mins}")
+    public void everyHoursSchedulerByDataId() {
+
+        Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
+        occupancyService.setDryRun(false);
+        occupancyService.insertSensorData(dataId);
+
+        /*
+        Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
+        Long dataId = 200003L;  // Alphadom(알파돔)
+        Long[] dataIds = {200002L, 200003L};
+        for (Long dataId : dataIds) {
+            occupancyService.setDryRun(false);
+            occupancyService.insertSensorData(dataId);
+        }
+        */
+    }
+
     /**
      * 하루 1번 Cell 정보 갱신
      */

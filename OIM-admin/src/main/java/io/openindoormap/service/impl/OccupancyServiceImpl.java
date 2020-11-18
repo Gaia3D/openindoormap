@@ -11,7 +11,12 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
+import io.openindoormap.domain.data.DataGroup;
+import io.openindoormap.domain.data.DataInfo;
+import io.openindoormap.service.DataGroupService;
+import io.openindoormap.service.DataService;
 import io.openindoormap.service.OccupancyService;
+import io.openindoormap.utils.FileUtils;
 import io.openindoormap.utils.SensorThingsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
@@ -24,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -43,6 +49,12 @@ public class OccupancyServiceImpl implements OccupancyService {
     @Autowired
     private PropertiesConfig propertiesConfig;
 
+    @Autowired
+    private DataService dataService;
+
+    @Autowired
+    private DataGroupService dataGroupService;
+
     private long interval = 60;
     private long minFloor = 0;
     private long maxFloor = 0;
@@ -56,11 +68,11 @@ public class OccupancyServiceImpl implements OccupancyService {
         service = sta.getService();
     }
 
-    /**
-     * STA 초기 데이터 생성
-     */
-    @Override
-    public void initSensorData() {
+    private void init(String buildId, JSONObject cells) {
+
+        this.minFloor = 0;
+        this.maxFloor = 0;
+
         // ObservedProperty(재실자) 생성
         ObservedProperty observedProperty = sta.createObservedProperty(null, "occupancy", "https://en.wikipedia.org/wiki/Occupancy", "The occupancy of each cell based on the number of people");
 
@@ -71,8 +83,6 @@ public class OccupancyServiceImpl implements OccupancyService {
                 .definition("https://en.wikipedia.org/wiki/Counting")
                 .build();
 
-        String buildId = "Alphadom";
-        JSONObject cells = getListCell();
         Iterator<?> cellIds = cells.keySet().iterator();
 
         while (cellIds.hasNext()) {
@@ -131,15 +141,39 @@ public class OccupancyServiceImpl implements OccupancyService {
         initStatisticsEntity(buildId);
     }
 
+    @Override
+    public void initSensorData(Long dataId) {
+
+        DataInfo dataInfo = new DataInfo();
+        dataInfo.setDataId(dataId);
+        DataInfo selectedDataInfo = dataService.getData(dataInfo);
+
+        log.info("@@@@@@@ dataInfo = {}", selectedDataInfo);
+
+        String buildId = selectedDataInfo.getDataKey();
+        JSONObject cells = getListCell(selectedDataInfo);
+        init(buildId, cells);
+
+    }
+
     /**
-     * STA 관측 데이터 생성
+     * STA 초기 데이터 생성
      */
-    public void insertSensorData() {
+    @Override
+    public void initSensorData() {
+        String buildId = "Alphadom";
+        JSONObject cells = getListCell();
+        init(buildId, cells);
+    }
+
+    private void insert(String buildId, JSONObject cells) {
+
+        this.minFloor = 0;
+        this.maxFloor = 0;
+
         ZonedDateTime nowTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         ZonedDateTime resultTime = correctTime(nowTime, interval);
 
-        String buildId = "Alphadom";
-        JSONObject cells = getListCell();
         Iterator<?> cellIds = cells.keySet().iterator();
 
         while (cellIds.hasNext()) {
@@ -166,6 +200,27 @@ public class OccupancyServiceImpl implements OccupancyService {
         generateStatisticsObservation(buildId);
     }
 
+    public void insertSensorData(Long dataId) {
+        DataInfo dataInfo = new DataInfo();
+        dataInfo.setDataId(dataId);
+        DataInfo selectedDataInfo = dataService.getData(dataInfo);
+
+        log.info("@@@@@@@ dataInfo = {}", selectedDataInfo);
+
+        String buildId = selectedDataInfo.getDataKey();
+        JSONObject cells = getListCell(selectedDataInfo);
+        insert(buildId, cells);
+    }
+
+    /**
+     * STA 관측 데이터 생성
+     */
+    public void insertSensorData() {
+        String buildId = "Alphadom";
+        JSONObject cells = getListCell();
+        insert(buildId, cells);
+    }
+
     /**
      * 재실자용 CELL 목록 조회
      *
@@ -188,6 +243,41 @@ public class OccupancyServiceImpl implements OccupancyService {
         }
 
         return cellJson;
+    }
+
+    /**
+     * F4D 재실자용 CELL 목록 조회
+     *
+     * @return JSONObject cell 목록
+     */
+    private JSONObject getListCell(DataInfo dataInfo) {
+
+        String dataGroupRootPath = propertiesConfig.getDataServiceDir();
+
+        DataGroup dataGroup = new DataGroup();
+        //dataGroup.setUserId(userId);
+        dataGroup.setDataGroupId(dataInfo.getDataGroupId());
+        dataGroup = dataGroupService.getDataGroup(dataGroup);
+
+        String dataGroupFilePath = FileUtils.getFilePath(dataGroup.getDataGroupPath());
+        String fileName = dataInfo.getDataKey() + "_cellspacelist.json";
+        log.info("----------- output = {}", dataGroupRootPath + dataGroupFilePath + fileName);
+
+        File cellSpaceListJsonFile = new File(dataGroupRootPath + dataGroupFilePath + fileName);
+
+        JSONParser parser = new JSONParser();
+        JSONObject cellJson = null;
+        try {
+            cellJson = (JSONObject) parser.parse(new FileReader(cellSpaceListJsonFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return cellJson;
+
     }
 
     /**

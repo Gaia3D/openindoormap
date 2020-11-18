@@ -14,4 +14,8 @@ public interface OccupancyService extends SensorService {
     public Boolean getDryRun();
 
     public void setDryRun(Boolean dryRun);
+
+    void initSensorData(Long dataId);
+
+    void insertSensorData(Long dataId);
 }

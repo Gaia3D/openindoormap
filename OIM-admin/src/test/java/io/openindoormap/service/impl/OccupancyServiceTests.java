@@ -22,17 +22,18 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+
 
 import java.io.FileReader;
 import java.util.Iterator;
 import java.util.Map;
 
 @Slf4j
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = OIMAdminApplication.class)
 public class OccupancyServiceTests {
+
     @Qualifier("occupancyService")
+
     @Autowired
     private OccupancyService sensorService;
     @Autowired
@@ -48,6 +49,22 @@ public class OccupancyServiceTests {
     public void testInsertSensorData() {
         sensorService.setDryRun(false);
         sensorService.insertSensorData();
+    }
+
+    @Test
+    public void testInitSensorDataByDataId() {
+        Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
+        //Long dataId = 200003L;  // Alphadom(알파돔)
+        sensorService.setDryRun(false);
+        sensorService.initSensorData(dataId);
+    }
+
+    @Test
+    public void testInsertSensorDataByDataId() {
+        Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
+        //Long dataId = 200003L;  // Alphadom(알파돔)
+        sensorService.setDryRun(false);
+        sensorService.insertSensorData(dataId);
     }
 
     @Ignore
@@ -134,4 +151,5 @@ public class OccupancyServiceTests {
 
         log.info("thing==================== {} ", count);
     }
+
 }
