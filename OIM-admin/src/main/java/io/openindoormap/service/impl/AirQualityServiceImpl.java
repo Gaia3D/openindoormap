@@ -68,7 +68,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         // 저장소 목록
         JSONObject stationJson = getListStation();
         // things 의 모든 available 값을 false 처리
-        updateAirQualityThingsStatus();
+        updateThingsStatus();
         List<?> stationList = (List<?>) stationJson.get("list");
         // ObservedProperty init
         Map<String, ObservedProperty> observedPropertyMap = initObservedProperty();
@@ -137,7 +137,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             var stationName = (String) jsonObject.get("stationName");
             JSONObject json = new JSONObject();
 //                for(int i=0; i< 24;i++) {
-            JSONObject result = getAirQualityData(stationName);
+            JSONObject result = getHourValue(stationName);
             LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 //                    t = t.minusDays(1);
 //                    t = t.plusHours(i);
@@ -200,7 +200,9 @@ public class AirQualityServiceImpl implements AirQualityService {
     }
 
     /**
-     * 측정대상 정보 insert
+     * observedProperty insert 후 map 에 담아서 리턴
+     *
+     * @return Map
      */
     private Map<String, ObservedProperty> initObservedProperty() {
         Map<String, ObservedProperty> map = new HashMap<>();
@@ -225,21 +227,38 @@ public class AirQualityServiceImpl implements AirQualityService {
         return map;
     }
 
+    /**
+     * location insert & update
+     *
+     * @param feature 위치정보
+     * @param address 주소
+     * @return Location
+     */
     private Location initLocation(Feature feature, String address) {
         Location location = sta.hasLocation(null, address);
-        Location locationEntity = LocationBuilder.builder()
+
+        return LocationBuilder.builder()
                 .id(location != null ? location.getId() : null)
                 .name(address)
                 .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
                 .description("대기질 측정소 위치")
                 .location(feature)
                 .build();
-
-        return locationEntity;
     }
 
+    /**
+     * datastream, sensor insert & update
+     *
+     * @param thing               thing entity
+     * @param datastreams         datastream entity
+     * @param observedPropertyMap observedProperty into map
+     * @param stationName         측정소 명
+     * @param mangName            관리타입
+     * @return List
+     */
     private List<Entity> initDatastreamAndSensor(Thing thing, List<Datastream> datastreams, Map<String, ObservedProperty> observedPropertyMap, String stationName, String mangName) {
         List<Entity> entityList = new ArrayList<>();
+        int i = 0;
         if (datastreams != null) {
             // datastreams sort
             datastreams.sort((o1, o2) -> {
@@ -249,7 +268,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                 return o1Value - o2Value;
             });
         }
-        int i = 0;
+
         for (AirQualityObservedProperty entity : AirQualityObservedProperty.values()) {
             AirQualityDatastream datastreamType = AirQualityDatastream.values()[i];
             Datastream datastream = datastreams != null ? datastreams.get(i) : null;
@@ -285,6 +304,32 @@ public class AirQualityServiceImpl implements AirQualityService {
         return entityList;
     }
 
+    /**
+     * featureOfInteres insert & update
+     *
+     * @param feature     위치정보
+     * @param stationName 측정소명
+     * @return FeatureOfInterest
+     */
+    private FeatureOfInterest initFeatureOfInterest(Feature feature, String stationName) {
+        String foiName = stationName + " 측정소";
+        FeatureOfInterest foi = sta.hasFeatureOfInterest(null, foiName);
+
+        return FeatureOfInterestBuilder.builder()
+                .id(foi != null ? foi.getId() : null)
+                .name(foiName)
+                .description("한국환경공단 대기질 측정소")
+                .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
+                .feature(feature)
+                .build();
+    }
+
+    /**
+     * sta entity insert & update
+     *
+     * @param entityList  entityList
+     * @param entityExist insert & update flag
+     */
     private void initEntity(List<Entity> entityList, boolean entityExist) {
         try {
             for (var entity : entityList) {
@@ -299,19 +344,39 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
-    private FeatureOfInterest initFeatureOfInterest(Feature feature, String stationName) {
-        // FeatureOfInterest
-        String foiName = stationName + " 측정소";
-        FeatureOfInterest foi = sta.hasFeatureOfInterest(null, foiName);
-        FeatureOfInterest featureOfInterest = FeatureOfInterestBuilder.builder()
-                .id(foi != null ? foi.getId() : null)
-                .name(foiName)
-                .description("한국환경공단 대기질 측정소")
-                .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
-                .feature(feature)
-                .build();
+    /**
+     * 미세먼지에 해당하는 모든 thing 의 정보들의 status false 로 업데이트
+     */
+    private void updateThingsStatus() {
+        boolean nextLinkCheck = true;
+        int skipCount = 0;
+        while (nextLinkCheck) {
+            EntityList<Thing> things = null;
+            try {
+                things = service.things()
+                        .query()
+                        .skip(skipCount)
+                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
+                                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
+                                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
+                                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
+                                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
+                                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
+                        )
+                        .list();
 
-        return featureOfInterest;
+                for (var thing : things) {
+                    var properties = thing.getProperties();
+                    properties.put("available", false);
+                    thing.setProperties(properties);
+                    service.update(thing);
+                }
+            } catch (ServiceFailureException e) {
+                LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
+            }
+            nextLinkCheck = things.getNextLink() != null;
+            skipCount = skipCount + 100;
+        }
     }
 
     /**
@@ -345,15 +410,8 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .queryParam("pageNo", 1)
                     .queryParam("_returnType", "json")
                     .build(false);    //자동으로 encode해주는 것을 막기 위해 false
-            // TODO ServiceKey 는 발급받은 키로 해야함. 개발용 api key 는 하루 request 500건으로 제한
-            ResponseEntity<?> response = null;
-            try {
-                response = restTemplate.exchange(new URI(builder.toString()), HttpMethod.GET, entity, String.class);
-                stationJson = (JSONObject) parser.parse(response.getBody().toString());
-            } catch (URISyntaxException | ParseException e) {
-                LogMessageSupport.printMessage(e, "-------- AirQualityService getListStation = {}", e.getMessage());
-            }
-            log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
+
+            stationJson = getAPIResult(builder.toString());
         }
 
         return stationJson;
@@ -363,9 +421,9 @@ public class AirQualityServiceImpl implements AirQualityService {
      * 측정소에 해당하는 미세먼지 데이터 조회
      *
      * @param stationName 측정소 이름
-     * @return
+     * @return JSONObejct
      */
-    private JSONObject getAirQualityData(String stationName) {
+    private JSONObject getHourValue(String stationName) {
         boolean mockEnable = propertiesConfig.isMockEnable();
         JSONObject json = new JSONObject();
         // 테스트
@@ -406,11 +464,6 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else {
             // 운영시 api 연동
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
-            JSONParser parser = new JSONParser();
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
                     .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
                     .queryParam("numOfRows", 10000)
@@ -420,55 +473,11 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .queryParam("ver", 1.3)
                     .queryParam("_returnType", "json")
                     .build(false);    //자동으로 encode해주는 것을 막기 위해 false
-            // TODO ServiceKey 는 발급받은 키로 해야함. 개발용 api key 는 하루 request 500건으로 제한
-            ResponseEntity<?> response = null;
-            try {
-                response = restTemplate.exchange(new URI(builder.toString()), HttpMethod.GET, entity, String.class);
-                JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
-                List<?> resultList = (List<?>) apiResultJson.get("list");
-                json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
-            } catch (URISyntaxException | ParseException e) {
-                LogMessageSupport.printMessage(e, "-------- AirQualityService getAirQualityData = {}", e.getMessage());
-            }
-            log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
+
+            json = getAPIResult(builder.toString());
         }
 
         return json;
-    }
-
-    /**
-     * 미세먼지에 해당하는 모든 thing 의 정보들의 status false 로 업데이트
-     */
-    private void updateAirQualityThingsStatus() {
-        boolean nextLinkCheck = true;
-        int skipCount = 0;
-        while (nextLinkCheck) {
-            EntityList<Thing> things = null;
-            try {
-                things = service.things()
-                        .query()
-                        .skip(skipCount)
-                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
-                        )
-                        .list();
-
-                for (var thing : things) {
-                    var properties = thing.getProperties();
-                    properties.put("available", false);
-                    thing.setProperties(properties);
-                    service.update(thing);
-                }
-            } catch (ServiceFailureException e) {
-                LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
-            }
-            nextLinkCheck = things.getNextLink() != null;
-            skipCount = skipCount + 100;
-        }
     }
 
     /**
@@ -476,7 +485,7 @@ public class AirQualityServiceImpl implements AirQualityService {
      *
      * @param value 측정데이터 값
      * @param type  측정데이터 타입
-     * @return
+     * @return String
      */
     private String getGrade(String value, AirQualityObservedProperty type) {
         String grade = "";
@@ -558,5 +567,32 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
 
         return grade;
+    }
+
+    /**
+     * requestURI 에 해당하는 api result return
+     *
+     * @param requestURI api 요청 requestURI
+     * @return JSONObject
+     */
+    private JSONObject getAPIResult(String requestURI) {
+        // TODO ServiceKey 는 발급받은 키로 해야함. 개발용 api key 는 하루 request 500건으로 제한
+        RestTemplate restTemplate = new RestTemplate();
+        JSONObject json = new JSONObject();
+        JSONParser parser = new JSONParser();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI.toString()), HttpMethod.GET, entity, String.class);
+            JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
+            List<?> resultList = (List<?>) apiResultJson.get("list");
+            json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
+            log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
+        } catch (URISyntaxException | ParseException e) {
+            LogMessageSupport.printMessage(e, "-------- AirQualityService getAirQualityData = {}", e.getMessage());
+        }
+
+        return json;
     }
 }
