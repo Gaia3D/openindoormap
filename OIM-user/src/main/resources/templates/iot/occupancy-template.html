@@ -20,11 +20,7 @@
                 </li>
                 <li>
                     <label th:text="#{iot.dust.station.addr}"></label>
-                    <a href="#" class="ellipsis" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">({{longitude}}, {{latitude}}, {{altitude}})</a>
-                </li>
-                <li>
-                    <label th:text="#{iot.occupancy.floor.info}"></label>
-                    <a href="#" class="ellipsis" onclick="sensorThings.getBuildingInformation({{id}}, '{{name}}');return false;">{{dataKey}}</a>
+                    <a href="#" class="ellipsis" onclick="flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">{{dataKey}}</a>
                 </li>
             </ul>
         </div>
