@@ -66,7 +66,7 @@ SensorThings.prototype.formatValueByDigits = function (value, digits) {
 };
 
 SensorThings.prototype.geographicCoordToScreenCoord = function (coordinates) {
-    const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], 0);
+    const resultWorldPoint = Mago3D.ManagerUtils.geographicCoordToWorldPoint(coordinates[0], coordinates[1], coordinates[2]);
     const magoManager = this.magoInstance.getMagoManager();
     const resultScreenCoord = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(magoManager.getGl(), resultWorldPoint.x, resultWorldPoint.y, resultWorldPoint.z, undefined, magoManager);
     return resultScreenCoord;

@@ -3,11 +3,21 @@ const OccupancySensorThings = function (magoInstance) {
 
     this.magoInstance = magoInstance;
     this.type = 'iot_occupancy';
-    this.observedProperty = 'occupancy';
+    this.observedProperty = 'occupancyBuild';
     this.observedPropertyColor = {
         'occupancy': '#E91E63',
         'occupancyBuild': '#FF9800',
         'occupancyFloor': '#2196F3'
+    };
+    this.mappingTable = {
+        2683 : {
+            dataId : 200003,
+            baseFloor: 7
+        },
+        2834 : {
+            dataId : 200002,
+            baseFloor: 0
+        }
     };
     this.occupancyGradeMin = 0;
     this.occupancyGradeMax = 10;
@@ -23,13 +33,9 @@ const OccupancySensorThings = function (magoInstance) {
     this.chartXAxesTitle = '시간(분)';
     this.chartYAxesTitle = '재실자(명)';
 
-    this.cellSpaceList = [];
-    this.selectedDataKey;
-
-    this.mappingTable = {
-        2683 : 200003,
-        2834 : 200002
-    };
+    this.selectedDataKey = '';
+    this.cellSpaceList = {};
+    this.selectedFloorSensorList = [];
 
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
@@ -38,6 +44,18 @@ OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 OccupancySensorThings.prototype.getGrade = function (value) {
     const max = 5, min = 0;
     return Math.floor(Math.random() * (max - min)) + min;
+};
+
+OccupancySensorThings.prototype.getOccupancyColor = function (value) {
+    if (value === 0) {
+        return "30,144,255,200";
+    } else if (value < 3 && value >= 1) {
+        return "0,199,60,200";
+    } else if (value >= 3 && value < 6) {
+        return "255,215,0,200";
+    } else if (value >= 6) {
+        return "255,89,89,200";
+    }
 };
 
 OccupancySensorThings.prototype.getFloorText = function(floor, baseFloor) {
@@ -61,7 +79,7 @@ OccupancySensorThings.prototype.getDataInfoResultProcess = function (promises, c
         });
 }
 
-OccupancySensorThings.prototype.getDataInfo = function(dataId) {
+OccupancySensorThings.prototype.ajaxDataInfo = function(dataId) {
     return $.ajax({
         url: '/datas/' + dataId,
         type: "GET",
@@ -135,8 +153,8 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 }
 
                 // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
-                const dataId = _this.mappingTable[thingId];
-                data.promises.push(_this.getDataInfo(dataId));
+                const dataId = _this.mappingTable[thingId]['dataId'];
+                data.promises.push(_this.ajaxDataInfo(dataId));
                 data.thingsContent[dataId] = {
                     id: thingId,
                     name: thing.name,
@@ -246,19 +264,13 @@ OccupancySensorThings.prototype.getDetail = function(obj, thingId) {
     });
 };
 
-OccupancySensorThings.prototype.addOverlay = function (name, floor) {
+OccupancySensorThings.prototype.addOverlay = function () {
 
     const _this = this;
 
     // 모든 건물
     let observedProperty = 'occupancyBuild';
     let filter = 'Datastreams/ObservedProperty/name eq \'' + observedProperty + '\'';
-
-    if (name && floor) {
-        // 건물 + 층
-        observedProperty = 'occupancy';
-        filter = 'startswith(name, \'' + name + '\') and properties/floor eq ' + floor + ' and Datastreams/ObservedProperty/name eq \'' + observedProperty + '\'';
-    }
 
     // TODO 화면 영역에 해당하는 Location을 필터링하여 호출하도록 수정
     const queryString = 'Things?$select=@iot.id,name,description&$top=1000' +
@@ -281,9 +293,7 @@ OccupancySensorThings.prototype.addOverlay = function (name, floor) {
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
             _this.things = msg.value;
-            if (observedProperty === 'occupancyBuild') {
-                _this.setCellSpaceList();
-            }
+            _this.setCellSpaceList();
             _this.redrawOverlay();
         },
         error: function (request, status, error) {
@@ -295,57 +305,59 @@ OccupancySensorThings.prototype.addOverlay = function (name, floor) {
 OccupancySensorThings.prototype.setCellSpaceList = function() {
 
     const _this = this;
+    const data = {
+        promises: []
+    };
+
     for (const thing of _this.things) {
 
         const thingId = parseInt(thing['@iot.id']);
 
-        // TODO thingId와 dataGroupId, dataKey 맵핑테이블을 통한 데이터 조회
-        const dataGroupId = '10000';
-        const dataKey = 'Alphadom_IndoorGML_data';
-        const node = _this.magoInstance.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
-        const projectFolderName = node.data.projectFolderName;
-        const cellSpaceListFileName = dataKey + '_cellspacelist.json';
+        // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
+        const dataId = _this.mappingTable[thingId]['dataId'];
+        data.promises.push(_this.ajaxDataInfo(dataId));
 
-        Promise.resolve($.getJSON('/f4d/' + projectFolderName + '/' + cellSpaceListFileName))
-            .then(function(result){
-                _this.cellSpaceList = result;
-            });
     }
+
+    _this.getDataInfoResultProcess(data.promises, function() {
+
+        for (const argument of arguments) {
+            const dataInfo = argument[0]['dataInfo'];
+
+            const dataId = dataInfo.dataId;
+            const dataGroupId = dataInfo.dataGroupId;
+            const dataKey = dataInfo.dataKey;
+
+            const nodeData = _this.magoInstance.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
+            const projectFolderName = nodeData.projectFolderName;
+            const cellSpaceListFileName = dataKey + '_cellspacelist.json';
+
+            $.ajax({
+                url: '/f4d/' + projectFolderName + '/' + cellSpaceListFileName,
+                type: "GET",
+                dataType: "json",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                success: function (msg) {
+                    _this.cellSpaceList[dataId] = msg;
+                },
+                error: function (request, status, error) {
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+        }
+
+    });
 
 };
 
-OccupancySensorThings.prototype.redrawOverlay = function () {
-
-    const contents = {
-        things: []
+OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
+    const _this = this;
+    const data = {
+        promises: [],
+        thingsContent: {}
     };
-
-    for (const thing of this.things) {
-
+    for (const thing of _this.things) {
         const thingId = parseInt(thing['@iot.id']);
-
-        // TODO thingId와 dataGroupId, dataKey 맵핑테이블을 통한 데이터 조회
-        const dataGroupId = '10000';
-        const dataKey = 'Alphadom_IndoorGML_data';
-        const nodeData = this.magoInstance.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
-        const dataName = nodeData.data_name;
-        const longitude = nodeData.geographicCoord.longitude;
-        const latitude = nodeData.geographicCoord.latitude;
-        const coordinates = [longitude, latitude];
-        const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
-
-        // 지도화면 픽셀정보 구하기
-        const $containerSelector = $('#magoContainer');
-        //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
-        const top = 0, left = 0;
-        let bottom = top + $containerSelector.outerHeight() - 55;
-        let right = left + $containerSelector.outerWidth() - 160;
-
-        // 화면 밖에 있는 관측소는 스킵
-        if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
-            (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
-            continue;
-        }
 
         // Datastreams
         const dataStreams = thing['Datastreams'];
@@ -357,47 +369,195 @@ OccupancySensorThings.prototype.redrawOverlay = function () {
         let value = '-', grade = 0, selected = '';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = this.formatValueByDigits(observationTop.result.value, 3);
+            value = _this.formatValueByDigits(observationTop.result.value, 3);
             grade = observationTop.result.grade;
         }
-        const gradeText = this.getGradeMessage(grade);
-        if (this.selectedThingId == thingId) {
+        const gradeText = _this.getGradeMessage(grade);
+        if (_this.selectedThingId == thingId) {
             selected = 'on';
         }
 
-        contents.things.push({
-            id: thing['@iot.id'],
-            value: this.numberWithCommas(value),
-            unit: this.getUnit(dataStream),
-            stationName: dataName,
+        const dataId = _this.mappingTable[thingId]['dataId'];
+        data.promises.push(_this.ajaxDataInfo(dataId));
+        data.thingsContent[dataId] = {
+            id: thingId,
+            value: value,
+            valueWithCommas: _this.numberWithCommas(value),
+            unit: _this.getUnit(dataStream),
             //addr: addr,
             grade: grade,
             gradeText: gradeText,
-            top: resultScreenCoord.y,
-            left: resultScreenCoord.x,
             selected: selected,
             subTitle: JS_MESSAGE["iot.occupancy"]
-        });
-
-    }   // end for
-
-    /*
-    if (contents.things.length > 30) {
-        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
-        return;
+        };
     }
-     */
 
-    const template = Handlebars.compile($("#overlaySource").html());
-    $('#overlayDHTML').html("").append(template(contents));
+    _this.getDataInfoResultProcess(data.promises, function() {
+        const contents = {
+            things : []
+        };
+        for (const argument of arguments) {
+            const dataInfo = argument[0]['dataInfo'];
+            const dataId = dataInfo.dataId;
+            const dataName = dataInfo.dataName;
+            const longitude = dataInfo.longitude;
+            const latitude = dataInfo.latitude;
+            const altitude = 0;
+
+            const coordinates = [longitude, latitude, altitude];
+            const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
+
+            // 지도화면 픽셀정보 구하기
+            const $containerSelector = $('#magoContainer');
+            //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
+            const top = 0, left = 0;
+            let bottom = top + $containerSelector.outerHeight() - 55;
+            let right = left + $containerSelector.outerWidth() - 160;
+
+            // 화면 밖에 있는 관측소는 스킵
+            if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
+                (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
+                continue;
+            }
+
+            const positionInfo = {
+                stationName: dataName,
+                top: resultScreenCoord.y,
+                left: resultScreenCoord.x
+            };
+
+            const thingsContent = data.thingsContent[dataId];
+            contents.things.push(Object.assign(thingsContent, positionInfo));
+        }
+        const template = Handlebars.compile($("#overlaySource").html());
+        $('#overlayDHTML').html("").append(template(contents));
+    });
 
 };
 
-OccupancySensorThings.prototype.getBuildingInformation = function(id, name) {
+OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
     const _this = this;
+    _this.selectedFloorSensorList = [];
+    const dataId = _this.mappingTable[_this.selectedThingId]['dataId'];
+    const data = {
+        promises: [ _this.ajaxDataInfo(dataId) ],
+        thingsContents: []
+    };
+
+    for (const thing of _this.things) {
+        const thingId = parseInt(thing['@iot.id']);
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        if (!dataStreams || dataStreams.length <= 0) continue;
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-', grade = 0, selected = '';
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = _this.formatValueByDigits(observationTop.result.value, 3);
+            grade = observationTop.result.grade;
+        }
+        const gradeText = _this.getGradeMessage(grade);
+        if (_this.selectedThingId == thingId) {
+            selected = 'on';
+        }
+
+        const cellId = thing['properties']['cell'];
+        _this.selectedFloorSensorList.push(cellId);
+        const cellSpace = _this.cellSpaceList[dataId][cellId];
+        const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
+
+        data.thingsContents.push({
+            id: thingId,
+            value: value,
+            valueWithCommas: _this.numberWithCommas(value),
+            unit: _this.getUnit(dataStream),
+            //addr: addr,
+            grade: grade,
+            gradeText: gradeText,
+            selected: selected,
+            subTitle: JS_MESSAGE["iot.occupancy"],
+            localCoordinate: localCoordinate,
+            stationName: cellId
+        });
+
+    }
+
+    _this.getDataInfoResultProcess(data.promises, function(msg) {
+        const contents = {
+            things : []
+        };
+
+        const dataInfo = msg['dataInfo'];
+        //const dataId = dataInfo.dataId;
+        const dataName = dataInfo.dataName;
+        const dataGroupId = dataInfo.dataGroupId;
+
+        for (const thingsContent of data.thingsContents) {
+
+            const localCoordinate = thingsContent['localCoordinate'];
+            const magoManager = _this.magoInstance.getMagoManager();
+            const targetNode = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, _this.selectedDataKey);
+            const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
+            const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
+            const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
+            const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
+
+            const longitude = Number(wgs84CoordinateObject.longitude);
+            const latitude = Number(wgs84CoordinateObject.latitude);
+            const altitude = Number(wgs84CoordinateObject.altitude);
+
+            const coordinates = [longitude, latitude, altitude];
+            const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
+
+            // 지도화면 픽셀정보 구하기
+            const $containerSelector = $('#magoContainer');
+            //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
+            const top = 0, left = 0;
+            let bottom = top + $containerSelector.outerHeight() - 55;
+            let right = left + $containerSelector.outerWidth() - 160;
+
+            // 화면 밖에 있는 관측소는 스킵
+            if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
+                (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
+                continue;
+            }
+
+            const positionInfo = {
+                top: resultScreenCoord.y,
+                left: resultScreenCoord.x
+            };
+
+            contents.things.push(Object.assign(thingsContent, positionInfo));
+
+            const rgbColorCode = _this.getOccupancyColor(thingsContent.value);
+            changeColorAPI(_this.magoInstance.getMagoManager(), dataGroupId, _this.selectedDataKey, [thingsContent.stationName], "isPhysical=true", rgbColorCode);
+
+        }
+        const template = Handlebars.compile($("#overlaySource").html());
+        $('#overlayDHTML').html("").append(template(contents));
+    });
+};
+
+OccupancySensorThings.prototype.redrawOverlay = function () {
+    const _this = this;
+    if (_this.observedProperty === 'occupancyBuild') {
+        // 건물별 오버레이
+        _this.redrawOverlayBuilding();
+    } else if (_this.observedProperty === 'occupancyFloor'){
+        // 층별 오버레이
+        _this.redrawOverlayFloor();
+    }
+};
+
+OccupancySensorThings.prototype.ajaxThingInfo = function(thingId) {
+    const _this = this;
     const observedProperty = 'occupancyBuild';
-    const queryString = 'Things(' + id + ')?$select=@iot.id,name,description' +
+    const queryString = 'Things(' + thingId + ')?$select=@iot.id,name,description' +
         '&$expand=Locations($select=@iot.id,location,name),' +
             'Datastreams(' +
                 '$select=@iot.id,description,unitOfMeasurement;' +
@@ -409,67 +569,76 @@ OccupancySensorThings.prototype.getBuildingInformation = function(id, name) {
                 '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
-    // TODO thingId와 dataGroupId, dataKey 맵핑테이블을 통한 데이터 조회
-    const dataGroupId = '10000';
-    const dataKey = 'Alphadom_IndoorGML_data';
-    const nodeData = _this.magoInstance.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
-    const dataName = nodeData.data_name;
-    const baseFloor = 7;
-
-    $.ajax({
+    return $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
         type: "GET",
         dataType: "json",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        success: function (msg) {
-
-            // Thing
-            const thing = msg;
-
-            // Datastreams
-            const dataStreams = thing['Datastreams'];
-            const dataStream = dataStreams[0];
-
-            // Observations
-            const observations = dataStream['Observations'];
-            let value = '-', grade = 0;
-            if (observations && observations.length > 0) {
-                const observationTop = observations[0];
-                value = observationTop.result.value;
-                grade = observationTop.result.grade;
-            }
-
-            const buildingInfo = {
-                id: id,
-                name: thing.name,
-                value: value,
-                valueWithCommas: _this.numberWithCommas(value),
-                unit: _this.getUnit(dataStream),
-                dataName: dataName,
-                grade: grade,
-                gradeText: _this.getGradeMessage(grade),
-                dataGroupId: dataGroupId,
-                dataKey: dataKey,
-                baseFloor: baseFloor,
-                listOfFloorOccupancy: []
-            };
-
-            _this.getFloorInformation(buildingInfo, name);
-
-        },
-        error: function (request, status, error) {
-            alert(JS_MESSAGE["ajax.error.message"]);
-        }
+        headers: {"X-Requested-With": "XMLHttpRequest"}
     });
+};
 
-}
-
-OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo, name) {
+OccupancySensorThings.prototype.getInformation = function(thingId) {
 
     const _this = this;
+    _this.selectedThingId = thingId;
+
+    // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
+    const dataId = _this.mappingTable[thingId]['dataId'];
+    const baseFloor = _this.mappingTable[thingId]['baseFloor'];
+    const promises = [];
+    promises.push(_this.ajaxDataInfo(dataId));
+    promises.push(_this.ajaxThingInfo(thingId));
+
+    _this.getDataInfoResultProcess(promises, function(msg1, msg2) {
+
+        // DataInfo
+        const dataInfo = msg1[0]['dataInfo'];
+
+        // Thing
+        const thing = msg2[0];
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-', grade = 0;
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = observationTop.result.value;
+            grade = observationTop.result.grade;
+        }
+
+        const buildingInfo = {
+            id: thingId,
+            name: thing.name,
+            value: value,
+            valueWithCommas: _this.numberWithCommas(value),
+            unit: _this.getUnit(dataStream),
+            grade: grade,
+            gradeText: _this.getGradeMessage(grade),
+            dataName: dataInfo.dataName,
+            dataGroupId: dataInfo.dataGroupId,
+            dataKey: dataInfo.dataKey,
+            baseFloor: baseFloor,
+            listOfFloorOccupancy: []
+        };
+
+        _this.getFloorInformation(buildingInfo);
+
+    });
+
+};
+
+OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
+
+    const _this = this;
+    _this.observedProperty = 'occupancyFloor';
+
     const observedProperty = 'occupancyFloor';
     const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
-        '$filter=Thing/name eq \'' + name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
+        '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
         '$expand=Thing,Observations(' +
             '$select=result,resultTime;' +
             '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
@@ -523,10 +692,19 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo, na
                 $(this).siblings().removeClass('on');
                 $(this).toggleClass('on');
                 const floor = $(this).data('floor');
-                _this.displaySelectedFloor(floor, buildingInfo.dataGroupId);
+
+                if (_this.selectedFloorSensorList.length > 0) {
+                    const rgbColorCode = "255,255,255,255";
+                    for (const cellId of _this.selectedFloorSensorList) {
+                        changeColorAPI(_this.magoInstance.getMagoManager(), buildingInfo.dataGroupId, _this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                    }
+                }
+
+                _this.displaySelectedFloor(floor, buildingInfo.dataGroupId, buildingInfo.dataKey);
                 searchDataAPI(_this.magoInstance, buildingInfo.dataGroupId, _this.selectedDataKey);
+
                 _this.clearOverlay();
-                _this.addOverlay(name, floor);
+                _this.addSelectedFloorOverlay(buildingInfo.name, floor);
             });
 
         },
@@ -537,7 +715,11 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo, na
 
 };
 
-OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroupId) {
+OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroupId, dataKey) {
+    if (dataKey === 'admin_20201013064147_346094873669678') {
+        this.selectedDataKey = dataKey;
+        return;
+    }
     const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(dataGroupId, null);
     for (const i in nodes) {
         const node = nodes[i];
@@ -567,19 +749,76 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroup
     }
 };
 
-OccupancySensorThings.prototype.displaySelectedFloorMaker = function(floor) {
+OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) {
 
+    const _this = this;
+
+    const observedProperty = 'occupancy';
+    const filter = 'startswith(name, \'' + name + '\') and properties/floor eq ' + floor + ' and Datastreams/ObservedProperty/name eq \'' + observedProperty + '\'';
+
+    // TODO 화면 영역에 해당하는 Location을 필터링하여 호출하도록 수정
+    const queryString = 'Things?$select=@iot.id,name,description,properties&$top=1000' +
+        '&$filter=' + filter +
+        '&$expand=Locations($select=@iot.id,location,name),' +
+            'Datastreams(' +
+                '$select=@iot.id,description,unitOfMeasurement;' +
+                '$filter=ObservedProperty/name eq \'' + observedProperty + '\'' +
+            '),' +
+            'Datastreams/Observations(' +
+                '$select=result,phenomenonTime,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+            _this.things = msg.value;
+            _this.redrawOverlay();
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+
+    /*
+    const observedProperty = 'occupancy';
+    const filter = 'startswith(Thing/name, \'' + name + '\') and Thing/properties/floor eq ' + floor + ' and ObservedProperty/name eq \'' + observedProperty + '\'';
+    const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
+        '$filter=' + filter + '&' +
+        '$expand=Thing,Observations(' +
+            '$select=result,resultTime;' +
+            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+        ')';
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+            console.info(msg);
+            //_this.selectedDataStreams = msg.value;
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+    */
 }
 
 OccupancySensorThings.prototype.closeBuildingInformation = function () {
     $('#buildingInfoWrap').hide();
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
+    this.observedProperty = 'occupancyBuild';
+    this.addOverlay();
 };
 
-OccupancySensorThings.prototype.getInformation = function (thingId) {
-
-};
 
 OccupancySensorThings.prototype.closeInformation = function () {
 

@@ -2026,14 +2026,14 @@ z-index:100;
 	margin: 0 auto 5px;
 }
 .legend .good {
-	background-color: dodgerblue;
+	background-color: #1e90ff;
 }
 .legend .normal {
 	/*background-color: green;*/
 	background-color: #00c73c;
 }
 .legend .bad {
-	background-color: gold;
+	background-color: #ffd700;
 }
 .legend .very-bad {
 	/*background-color: orangered;*/

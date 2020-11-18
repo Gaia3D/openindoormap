@@ -302,6 +302,7 @@ DustSensorThings.prototype.redrawOverlay = function () {
         const location = locations[0];
         //const addr = location.name;
         const coordinates = location.location.geometry.coordinates;
+        coordinates[2] = 0;
         const resultScreenCoord = this.geographicCoordToScreenCoord(coordinates);
 
         // 지도화면 픽셀정보 구하기
@@ -338,6 +339,7 @@ DustSensorThings.prototype.redrawOverlay = function () {
         contents.things.push({
             id: thing['@iot.id'],
             value: value,
+            valueWithCommas: this.numberWithCommas(value),
             unit: this.getUnit(dataStream),
             stationName: thing.name,
             //addr: addr,
