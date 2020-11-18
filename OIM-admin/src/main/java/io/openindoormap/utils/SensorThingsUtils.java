@@ -126,6 +126,27 @@ public class SensorThingsUtils {
         return thing;
     }
 
+    public Thing hasThingWithAllEntity(String filter, String name) {
+        Thing thing = null;
+        Query<Thing> query = service.things().query();
+
+        try {
+            EntityList<Thing> list;
+            list = createFilter(query, filter, name)
+                    .select("id")
+                    .expand("Locations($select=id),Datastreams($expand=Sensor($select=id),ObservedProperty($select=id))").list();
+            if (list.size() == 1) {
+                thing = list.iterator().next();
+            } else {
+                log.debug("More than one entity(Thing) with name " + name);
+            }
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+
+        return thing;
+    }
+
     /**
      * 필터를 통해 특정 조건으로 단일의 STA Entity(Thing) 를 검색
      * @param filter 필터 구문
@@ -137,13 +158,14 @@ public class SensorThingsUtils {
         Query<Thing> query = service.things().query();
 
         try {
-            thingList = createFilter(query, filter, name).expand("Datastreams/Observations($orderby=id desc)").list();
+            thingList = createFilter(query, filter, name).expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)").list();
         } catch (ServiceFailureException e) {
             e.printStackTrace();
         }
 
         return thingList;
     }
+
 
     /**
      * 필터를 통해 특정 조건으로 단일의 STA Entity(Location) 를 검색

@@ -1,17 +1,15 @@
 package io.openindoormap.service.impl;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
-import de.fraunhofer.iosb.ilt.sta.model.Datastream;
-import de.fraunhofer.iosb.ilt.sta.model.Observation;
-import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
-import de.fraunhofer.iosb.ilt.sta.model.Thing;
+import de.fraunhofer.iosb.ilt.sta.model.*;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.OrderBy;
-import io.openindoormap.domain.sensor.AirQuality;
+import io.openindoormap.domain.sensor.AirQualityObservedProperty;
 import io.openindoormap.service.AirQualityService;
+import io.openindoormap.utils.SensorThingsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,11 +29,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Slf4j
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = OIMAdminApplication.class)
-class AirQualityServiceImplTests {
+class AirQualityServiceImplTest {
 
     @Qualifier("airQualityService")
     @Autowired
@@ -111,7 +111,7 @@ class AirQualityServiceImplTests {
     void ObservedProperty() throws ServiceFailureException {
         EntityList<ObservedProperty> list = sensorThingsService.observedProperties()
                 .query()
-                .filter("name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'")
+                .filter("name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'")
                 .list();
 
         log.info("ObservedProperty ========================= {} ", list.size());
@@ -136,12 +136,12 @@ class AirQualityServiceImplTests {
             EntityList<Thing> things = sensorThingsService.things()
                     .query()
                     .skip(skipCount)
-                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQuality.PM10.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.PM25.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.SO2.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.CO.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.O3.getObservedPropertyName() + "'" +
-                            " or name eq " + "'" + AirQuality.NO2.getObservedPropertyName() + "'"
+                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
                     )
                     .list();
             list.addAll(things.toList());
@@ -174,5 +174,27 @@ class AirQualityServiceImplTests {
         log.info("resultTime ==============={}", resultTime);
         log.info("equals ==================== {} ", zonedDateTime.equals(resultTime));
 
+    }
+
+    @Test
+    void datastreamSort() throws ServiceFailureException {
+        SensorThingsUtils sta = new SensorThingsUtils();
+        sta.init(propertiesConfig.getSensorThingsApiServer());
+
+        var thing = sta.hasThingWithAllEntity(null, "금천구");
+        thing.getDatastreams().toList().sort((o1, o2) -> {
+            var o1Value = Integer.parseInt(String.valueOf(o1.getId()));
+            var o2Value = Integer.parseInt(String.valueOf(o2.getId()));
+
+            return o1Value - o2Value;
+        });
+        var datastream = thing.getDatastreams().toList().get(0);
+        var location = thing.getLocations().toList().get(0);
+        var sensor = datastream.getSensor();
+
+        assertThat(thing.getType()).isEqualTo(EntityType.THING);
+        assertThat(datastream.getType()).isEqualTo(EntityType.DATASTREAM);
+        assertThat(location.getType()).isEqualTo(EntityType.LOCATION);
+        assertThat(sensor.getType()).isEqualTo(EntityType.SENSOR);
     }
 }
