@@ -3299,6 +3299,7 @@ table.dustList td {
 	padding: 3px 10px;
 	border-bottom: 1px solid #ccc;
 	text-align: left;
+	word-break: break-all;
 }
 table.dustList td * {
 	vertical-align: middle;
@@ -3512,33 +3513,35 @@ span.subResult {
 	margin: 10px 0 10px 10px;
 	flex: 0 0 auto;
 }
+.chart-title-wrap {
+	display: flex;
+	justify-content: space-between;
+	margin: 10px;
+}
 .chart-title {
-	position: absolute;
-	top: 5%;
-	left: 5%;
 	color: #797979;
 	line-height: 25px;
 }
 .chart-info {
-	position: absolute;
-	top: 5%;
-	right: 5%;
 	border: none;
 	font-size: 25px;
 	background-color: #ffffff00;
 	color: #ccc;
 }
 .chart-description {
+	position: absolute;
+	width: 100%;
+	bottom: 10px;
 	text-align: center;
 }
 /* half doughnut */
 .half-doughnut-chart-container {
 	position: relative;
-	width: 180px;
-	height: 180px;
+	width: 170px;
+	height: 170px;
 	margin: 0 auto;
-	top: 58%;
-	transform: translate(0, -50%);
+	/*top: 30%;*/
+	/*transform: translate(0, -50%);*/
 }
 .half-doughnut-chart-container > canvas {
 	position: absolute;

@@ -13,6 +13,8 @@ const SensorThings = function (magoInstance) {
     this.things = [];
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
+
+    this.gaugeChartNeedle = {};
 };
 
 SensorThings.prototype.createSensorThings = function () {
@@ -128,3 +130,76 @@ SensorThings.prototype.closeDetail = function (obj) {
     $iotDustMoreDHTML.hide();
     $(".show-more").show();
 }
+
+/**
+ * 게이지 차트 그리기
+ * @param percent
+ */
+SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
+
+    const gaugeChartOptions = {
+        rotation: 1 * Math.PI,
+        circumference: 1 * Math.PI,
+        legend: {
+            display: false
+        },
+        tooltips: {
+            enabled: false
+        },
+        cutoutPercentage: 80
+    };
+
+    const gaugeChart = new Chart(document.getElementById("gaugeChart"), {
+        type: 'doughnut',
+        data: {
+            labels: [this.getGradeMessage(1), this.getGradeMessage(2), this.getGradeMessage(3), this.getGradeMessage(4)],
+            datasets: [
+                {
+                    data: [
+                        (range[1] - range[0]) / total * 100,
+                        (range[2] - range[1]) / total * 100,
+                        (range[3] - range[2]) / total * 100,
+                        (range[4] - range[3]) / total * 100
+                    ],
+                    backgroundColor: [
+                        'rgba(30, 144, 255, 1)',
+                        'rgba(0, 199, 60, 1)',
+                        'rgba(255, 215, 0, 1)',
+                        'rgba(255, 89, 89, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 255, 255 ,1)',
+                        'rgba(255, 255, 255 ,1)',
+                        'rgba(255, 255, 255 ,1)'
+                    ],
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: gaugeChartOptions
+    });
+
+    this.gaugeChartNeedle = new Chart(document.getElementById("gaugeChartNeedle"), {
+        type: 'doughnut',
+        data: {
+            datasets: [
+                {
+                    data: [percent - 0.5, 1, 100 - (percent + 0.5)],
+                    backgroundColor: [
+                        'rgba(0, 0, 0 ,0)',
+                        'rgba(255,255,255,1)',
+                        'rgba(0, 0, 0 ,0)',
+                    ],
+                    borderColor: [
+                        'rgba(0, 0, 0 ,0)',
+                        'rgba(0, 0, 0 ,1)',
+                        'rgba(0, 0, 0 ,0)'
+                    ],
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: gaugeChartOptions
+    });
+
+};
