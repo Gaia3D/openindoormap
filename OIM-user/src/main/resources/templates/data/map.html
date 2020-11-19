@@ -359,7 +359,6 @@
 				sensorThings.addOverlay();
 
 				// 한 시간에 한번씩 자료 갱신
-				/*
 				setInterval(function () {
 
 					sensorThings.update();
@@ -374,7 +373,7 @@
 					sensorThings.setCurrentTime(currentTime);
 
 				}, 1000 * sensorThings.callInterval);
-				*/
+
 			},
 			error:function(request,status,error){
 				alert(JS_MESSAGE["ajax.error.message"]);

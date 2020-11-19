@@ -43,6 +43,20 @@ SensorThings.prototype.clearOverlay = function () {
     //this.selectedDataStreams = [];
 };
 
+/**
+ * 화면에 보이는 지도 오버레이 thingId 가져오기
+ */
+SensorThings.prototype.getOverlay = function() {
+    const result = [];
+    for (const thing of this.things) {
+        const thingId = thing['@iot.id'];
+        if ($('#overlay_' + thingId).length > 0) {
+            result.push(thingId);
+        }
+    }
+    return result;
+}
+
 SensorThings.prototype.setCurrentTime = function (currentTime) {
     this.currentTime = currentTime;
 };
@@ -133,6 +147,8 @@ SensorThings.prototype.closeDetail = function (obj) {
 
 /**
  * 게이지 차트 그리기
+ * @param range
+ * @param total
  * @param percent
  */
 SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
@@ -202,4 +218,34 @@ SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
         options: gaugeChartOptions
     });
 
+};
+
+/**
+ * 게이지 차트 없데이트
+ * @param min
+ * @param max
+ * @param value
+ * @param grade
+ */
+SensorThings.prototype.updateGaugeChart = function (min, max, value, grade) {
+
+    const _this = this;
+    const percent = Math.max(Math.min(value, max), min) / (max - min) * 100;
+    _this.gaugeChartNeedle.data.datasets[0].data = [percent - 0.5, 1, 100 - (percent + 0.5)];
+    _this.gaugeChartNeedle.update();
+
+    console.debug("value: " + value + ", percent: " + percent);
+
+    // 게이지 차트 영역 값, 등급 업데이트
+    $('#dustInfoValue').text(value);
+    $('#dustInfoGrade').removeClass();
+    $('#dustInfoGrade').addClass('dust lv' + grade);
+
+};
+
+SensorThings.prototype.updateInformationTable = function (dataStreamContents) {
+    const $dustInfoTableWrap = $('#dustInfoTableSource');
+    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
+    const innerHtml = $(dustInfoTemplate(dataStreamContents)).find("#dustInfoTableSource").html();
+    $dustInfoTableWrap.html(innerHtml);
 };

@@ -95,6 +95,25 @@
                 sensorThings.closeInformation();
             });
 
+            // 재실자 층 선택
+            $('#buildingInfoDHTML').on('click', '#buildingInfoWrap table tr', function () {
+                const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
+                sensorThings.observedProperty = 'occupancyFloor';
+                $(this).siblings().removeClass('on');
+                $(this).toggleClass('on');
+                const floor = $(this).data('floor');
+                if (sensorThings.selectedFloorSensorList.length > 0) {
+                    const rgbColorCode = "255,255,255,255";
+                    for (const cellId of sensorThings.selectedFloorSensorList) {
+                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), buildingInfo.dataGroupId, sensorThings.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                    }
+                }
+                sensorThings.displaySelectedFloor(floor, buildingInfo.dataGroupId, buildingInfo.dataKey);
+                searchDataAPI(sensorThings.magoInstance, buildingInfo.dataGroupId, sensorThings.selectedDataKey);
+                sensorThings.clearOverlay();
+                sensorThings.addSelectedFloorOverlay(buildingInfo.name, floor);
+            });
+
         });
     </script>
 </div>

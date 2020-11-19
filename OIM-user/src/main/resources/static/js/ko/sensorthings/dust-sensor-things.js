@@ -362,19 +362,7 @@ DustSensorThings.prototype.redrawOverlay = function () {
 
 };
 
-/**
- * 화면에 보이는 지도 오버레이 thingId 가져오기
- */
-DustSensorThings.prototype.getOverlay = function() {
-    const result = [];
-    for (const thing of this.things) {
-        const thingId = thing['@iot.id'];
-        if ($('#overlay_' + thingId).length > 0) {
-            result.push(thingId);
-        }
-    }
-    return result;
-}
+
 
 
 /**
@@ -583,7 +571,7 @@ DustSensorThings.prototype.update = function () {
 
                     if (observedPropertyName === _this.observedProperty && _this.gaugeChartNeedle.data) {
                         // 게이지 차트 업데이트
-                        _this.updateGaugeChart(value, grade);
+                        _this.updateGaugeChart(_this.pm10GradeMin, _this.pm10GradeMax, value, grade);
                     }
 
                     // 라인 차트 업데이트
@@ -685,11 +673,13 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
                     things: [{
                         id: thingId,
                         value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),
                         stationName: thing.name,
                         grade: grade,
                         gradeText: _this.getGradeMessage(grade),
-                        selected: selected
+                        selected: selected,
+                        subTitle: JS_MESSAGE["iot.dust.fine"]
                     }]
                 };
 
@@ -705,22 +695,6 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
             alert(JS_MESSAGE["ajax.error.message"]);
         }
     });
-
-};
-
-DustSensorThings.prototype.updateGaugeChart = function (value, grade) {
-
-    const _this = this;
-    const pm10Percent = Math.max(Math.min(value, this.pm10GradeMax), this.pm10GradeMin) / (this.pm10GradeMax - this.pm10GradeMin) * 100;
-    _this.gaugeChartNeedle.data.datasets[0].data = [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)];
-    _this.gaugeChartNeedle.update();
-
-    console.debug("value: " + value + ", pm10Percent: " + pm10Percent);
-
-    // 게이지 차트 영역 값, 등급 업데이트
-    $('#dustInfoValue').text(value);
-    $('#dustInfoGrade').removeClass();
-    $('#dustInfoGrade').addClass('dust lv' + grade);
 
 };
 
@@ -754,11 +728,4 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
     }
     _this.hourlyAirQualityChart.update();
 
-};
-
-DustSensorThings.prototype.updateInformationTable = function (dataStreamContents) {
-    const $dustInfoTableWrap = $('#dustInfoTableSource');
-    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
-    const innerHtml = $(dustInfoTemplate(dataStreamContents)).find("#dustInfoTableSource").html();
-    $dustInfoTableWrap.html(innerHtml);
 };

@@ -755,34 +755,13 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
             }
 
             const template = Handlebars.compile($("#buildingInfoSource").html());
-            $("#buildingInfoDHTML").html("").append(template(buildingInfo));
+            $("#buildingInfoDHTML").html("").append(template(buildingInfo)).data('buildingInfo', buildingInfo);
             $('#buildingInfoWrap').show();
             if ($('#mapSettingWrap').css('width') !== '0px') {
                 $('#buildingInfoWrap').css('right', '400px');
             } else {
                 $('#buildingInfoWrap').css('right', '60px');
             }
-
-            // 재실자 층 선택
-            $("#buildingInfoWrap table tr").click(function() {
-                _this.observedProperty = 'occupancyFloor';
-                $(this).siblings().removeClass('on');
-                $(this).toggleClass('on');
-                const floor = $(this).data('floor');
-
-                if (_this.selectedFloorSensorList.length > 0) {
-                    const rgbColorCode = "255,255,255,255";
-                    for (const cellId of _this.selectedFloorSensorList) {
-                        changeColorAPI(_this.magoInstance.getMagoManager(), buildingInfo.dataGroupId, _this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
-                    }
-                }
-
-                _this.displaySelectedFloor(floor, buildingInfo.dataGroupId, buildingInfo.dataKey);
-                searchDataAPI(_this.magoInstance, buildingInfo.dataGroupId, _this.selectedDataKey);
-
-                _this.clearOverlay();
-                _this.addSelectedFloorOverlay(buildingInfo.name, floor);
-            });
 
         },
         error: function (request, status, error) {
@@ -862,36 +841,12 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) 
         }
     });
 
-    /*
-    const observedProperty = 'occupancy';
-    const filter = 'startswith(Thing/name, \'' + name + '\') and Thing/properties/floor eq ' + floor + ' and ObservedProperty/name eq \'' + observedProperty + '\'';
-    const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
-        '$filter=' + filter + '&' +
-        '$expand=Thing,Observations(' +
-            '$select=result,resultTime;' +
-            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
-        ')';
-
-    $.ajax({
-        url: _this.FROST_SERVER_URL + queryString,
-        type: "GET",
-        dataType: "json",
-        headers: {"X-Requested-With": "XMLHttpRequest"},
-        success: function (msg) {
-            console.info(msg);
-            //_this.selectedDataStreams = msg.value;
-        },
-        error: function (request, status, error) {
-            alert(JS_MESSAGE["ajax.error.message"]);
-        }
-    });
-    */
 };
 
 OccupancySensorThings.prototype.closeBuildingInformation = function () {
     $('#buildingInfoWrap').hide();
     this.selectedThingId = 0;
-    this.selectedDataStreams = [];
+    this.selectedBuildingId = 0;
     this.observedProperty = 'occupancyBuild';
     this.addOverlay();
 };
@@ -987,7 +942,9 @@ OccupancySensorThings.prototype.getSensorInformation = function(content) {
 };
 
 OccupancySensorThings.prototype.closeInformation = function () {
-
+    $('#dustInfoDHTML').hide();
+    this.selectedThingId = 0;
+    this.selectedDataStreams = [];
 };
 
 /**
@@ -1026,4 +983,350 @@ OccupancySensorThings.prototype.drawOccupancyChart = function (dataStreams) {
 
 OccupancySensorThings.prototype.update = function () {
 
+    // TODO 램덤 값 삭제
+    const randomValue = Math.floor(Math.random() * (this.occupancyGradeMax - this.occupancyGradeMin)) + this.occupancyGradeMin;
+
+    this.updateOverlay(randomValue);
+
+    if (this.selectedBuildingId !== 0) {
+        this.updateFloorInformation(randomValue);
+    }
+
+    if (this.selectedDataStreams.length > 0) {
+        this.updateSensorInformation(randomValue);
+    }
+
+};
+
+OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
+
+    const _this = this;
+
+    const overlayIds = _this.getOverlay();
+    const length = overlayIds.length;
+    if (!overlayIds || length <= 0) return;
+
+    let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    filter += 'and (';
+    for (const i in overlayIds) {
+        const thingId = overlayIds[i];
+        if (i == 0) {
+            filter += 'Things/id eq ' + thingId;
+        } else {
+            filter += ' or Things/id eq ' + thingId;
+        }
+    }
+    filter += ')';
+
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=' + filter +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=Thing($select=@iot.id,name),' +
+            'ObservedProperty($select=name),' +
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+
+            // Datastreams
+            for (const dataStream of msg.value) {
+
+                // Thing
+                const thing = dataStream['Thing'];
+                const thingId = thing['@iot.id'];
+
+                // Observations
+                let value = "-", grade = 0, selected = '';
+                if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
+                    // ObservationTop
+                    const observationTop = dataStream['Observations'][0];
+                    //let value = parseFloat(observation.result.value);
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    value += randomValue;
+                    value = _this.formatValueByDigits(value, 3);
+                    grade = observationTop.result.grade;
+
+                    for (const thing of _this.things) {
+                        const originalId = thing['@iot.id'];
+                        if (originalId == thingId) {
+                            thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
+                            thing['Datastreams'][0]['Observations'][0]['result'].value = value;
+                            thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
+                        }
+                    }
+                }
+                if (_this.selectedThingId == thingId) {
+                    selected = 'on';
+                }
+                const contents = {
+                    things: [{
+                        id: thingId,
+                        value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
+                        unit: _this.getUnit(dataStream),
+                        stationName: thing.name,
+                        grade: grade,
+                        gradeText: _this.getGradeMessage(grade),
+                        selected: selected,
+                        subTitle: JS_MESSAGE["iot.occupancy"]
+                    }]
+                };
+
+                // 지도 측정소 정보 업데이트
+                const template = Handlebars.compile($("#overlaySource").html());
+                const innerHtml = $(template(contents)).find('ul').html();
+                $('#overlay_' + thingId + '> ul').html(innerHtml);
+
+                console.debug("updated thingId: " + thingId);
+            }
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+
+};
+
+OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) {
+
+    const _this = this;
+
+    // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
+    let dataId = '', baseFloor = 0;
+    dataId = _this.mappingTable[_this.selectedBuildingId]['dataId'];
+    baseFloor = _this.mappingTable[_this.selectedBuildingId]['baseFloor'];
+
+    const promises = [];
+    promises.push(_this.ajaxDataInfo(dataId));
+    promises.push(_this.ajaxThingInfo(_this.selectedBuildingId));
+
+    _this.getDataInfoResultProcess(promises, function(msg1, msg2) {
+
+        const dataInfo = msg1[0]['dataInfo'];   // DataInfo
+        const thing = msg2[0];                  // Thing
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-', grade = 0;
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = observationTop.result.value;
+            if (randomValue) {
+                value += randomValue;
+            }
+            grade = observationTop.result.grade;
+        }
+
+        const buildingInfo = {
+            id: thing['@iot.id'],
+            name: thing.name,
+            value: value,
+            valueWithCommas: _this.numberWithCommas(value),
+            unit: _this.getUnit(dataStream),
+            grade: grade,
+            gradeText: _this.getGradeMessage(grade),
+            dataName: dataInfo.dataName,
+            dataGroupId: dataInfo.dataGroupId,
+            dataKey: dataInfo.dataKey,
+            baseFloor: baseFloor,
+            listOfFloorOccupancy: []
+        };
+
+        const observedProperty = 'occupancyFloor';
+        const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
+            '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
+            '$expand=Thing,Observations(' +
+                '$select=result,resultTime;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+
+        $.ajax({
+            url: _this.FROST_SERVER_URL + queryString,
+            type: "GET",
+            dataType: "json",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            success: function (msg) {
+
+                for (const dataStream of msg.value) {
+
+                    // Thing
+                    const thing = dataStream['Thing'];
+
+                    // Observations
+                    const observations = dataStream['Observations'];
+                    let value = '-', grade = 0;
+                    if (observations && observations.length > 0) {
+                        const observationTop = observations[0];
+                        value = observationTop.result.value;
+                        if (randomValue) {
+                            value += randomValue;
+                        }
+                        grade = observationTop.result.grade;
+                    }
+
+                    buildingInfo.listOfFloorOccupancy.push({
+                        floor: thing.properties.floor,
+                        floorText: _this.getFloorText(thing.properties.floor, baseFloor),
+                        value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
+                        //grade: grade,
+                        grade : _this.getGrade(value),
+                        gradeText: _this.getGradeMessage(_this.getGrade(value)),
+                        unit: _this.getUnit(dataStream)
+                    });
+
+                }
+
+                const template = Handlebars.compile($("#buildingInfoSource").html());
+                $("#buildingInfoDHTML").html("").append(template(buildingInfo));
+                $('#buildingInfoWrap').show();
+                if ($('#mapSettingWrap').css('width') !== '0px') {
+                    $('#buildingInfoWrap').css('right', '400px');
+                } else {
+                    $('#buildingInfoWrap').css('right', '60px');
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+
+    });
+
+};
+
+OccupancySensorThings.prototype.updateSensorInformation = function (randomValue) {
+
+    const _this = this;
+
+    //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    let filter = '';
+    const dataStreamIds = _this.selectedDataStreams;
+    const length = dataStreamIds.length;
+    if (!dataStreamIds || length <= 0 || _this.selectedThingId == 0) return;
+    //filter += 'and (';
+    for (const i in dataStreamIds) {
+        const dataStreamId = dataStreamIds[i];
+        if (i == 0) {
+            filter += 'id eq ' + dataStreamId;
+        } else {
+            filter += ' or id eq ' + dataStreamId;
+        }
+    }
+    //filter += ')';
+
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=' + filter +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=Thing($select=name),' +
+            'ObservedProperty($select=name),' +
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+            console.info(msg);
+
+            const dataStreamContents = {
+                dataStreams: []
+            };
+
+            for (const dataStream of msg.value) {
+
+                // Datastreams
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+
+                // Observations
+                let value = "-", grade = 0;
+                if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
+
+                    // ObservationTop
+                    const observationTop = dataStream['Observations'][0];
+                    //value = parseFloat(observation.result.value);
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    value += randomValue;
+                    value = _this.formatValueByDigits(value, 3);
+                    grade = observationTop.result.grade;
+
+                    if (_this.gaugeChartNeedle.data) {
+                        // 게이지 차트 업데이트
+                        _this.updateGaugeChart(_this.occupancyGradeMin, _this.occupancyGradeMax, value, grade);
+                    }
+
+                    // 라인 차트 업데이트
+                    _this.updateOccupancyChart(dataStream, randomValue);
+
+                }
+                const gradeText = _this.getGradeMessage(grade);
+                dataStreamContents.dataStreams.push({
+                    name: dataStream.name,
+                    unit: _this.getUnit(dataStream),
+                    value: value,
+                    grade: grade,
+                    gradeText: gradeText,
+                    observedPropertyName: observedPropertyName
+                });
+
+            }
+
+            // 테이블 업데이트
+            _this.updateInformationTable(dataStreamContents);
+
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+};
+
+OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, randomValue) {
+    const _this = this;
+    let value = undefined;
+    const time = _this.observationTimeToLocalTime(_this.getCurrentTime());
+
+    const occupancyChartData = _this.occupancyChart.data;
+    if (!occupancyChartData) return;
+
+    if (dataStream['Observations'].length > 0) {
+        for (const observation of dataStream['Observations']) {
+            const observedPropertyName = _this.getObservedPropertyName(dataStream);
+            let value = _this.formatValueByDigits(observation.result.value, 3);
+            value += randomValue;
+            value = _this.formatValueByDigits(value, 3);
+            occupancyChartData.datasets.forEach(function (dataset) {
+                if (dataset.observedPropertyName === observedPropertyName) {
+                    console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
+                    dataset.data.pop();
+                    dataset.data.unshift({x: time, y: value});
+                }
+            });
+        }
+    } else {
+        occupancyChartData.datasets.forEach(function (dataset) {
+            dataset.data.pop();
+            dataset.data.unshift({x: time, y: value});
+        });
+    }
+    _this.occupancyChart.update();
 };
