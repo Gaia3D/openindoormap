@@ -1,13 +1,16 @@
 package io.openindoormap.service.impl;
 
 import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
-import de.fraunhofer.iosb.ilt.sta.model.*;
+import de.fraunhofer.iosb.ilt.sta.model.Datastream;
+import de.fraunhofer.iosb.ilt.sta.model.EntityType;
+import de.fraunhofer.iosb.ilt.sta.model.Observation;
+import de.fraunhofer.iosb.ilt.sta.model.Thing;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMAdminApplication;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.OrderBy;
 import io.openindoormap.domain.sensor.AirQualityObservedProperty;
+import io.openindoormap.domain.sensor.TimeType;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.utils.SensorThingsUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -44,10 +47,13 @@ class AirQualityServiceImplTest {
     private PropertiesConfig propertiesConfig;
 
     private SensorThingsService sensorThingsService;
+    private SensorThingsUtils sta;
 
     @BeforeAll
     void setup() throws MalformedURLException {
         sensorThingsService = new SensorThingsService(new URL(propertiesConfig.getSensorThingsApiServer()));
+        sta = new SensorThingsUtils();
+        sta.init(propertiesConfig.getSensorThingsApiServer());
     }
 
     @Test
@@ -76,21 +82,6 @@ class AirQualityServiceImplTest {
     }
 
     @Test
-    void getThingId() throws ServiceFailureException {
-        long idCount = 0;
-        EntityList<Thing> things = sensorThingsService.things()
-                .query()
-                .orderBy("id " + OrderBy.DESC.getValue())
-                .top(1)
-                .list();
-
-        List<Thing> thingList = things.toList();
-        idCount = thingList.size() > 0 ? Long.parseLong((thingList.get(0).getId().toString())) : 0;
-
-        log.info("id ========================== {} ", idCount);
-    }
-
-    @Test
     void 시간_테스트() {
         String time = "2020-10-21 17:00";
         for (int i = 0; i < 24; i++) {
@@ -105,26 +96,6 @@ class AirQualityServiceImplTest {
             log.info("getDayOfMonth =========================== {} ", t.getDayOfMonth());
             log.info("getHour =========================== {} ", t.getHour());
         }
-    }
-
-    @Test
-    void ObservedProperty() throws ServiceFailureException {
-        EntityList<ObservedProperty> list = sensorThingsService.observedProperties()
-                .query()
-                .filter("name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'")
-                .list();
-
-        log.info("ObservedProperty ========================= {} ", list.size());
-    }
-
-    @Test
-    void Thing() throws ServiceFailureException {
-        EntityList<Thing> thing = sensorThingsService.things()
-                .query()
-                .filter("name eq " + "'" + "반송로" + "'")
-                .list();
-
-        log.info("thing ============================ {} ", thing.size());
     }
 
     @Test
@@ -177,11 +148,9 @@ class AirQualityServiceImplTest {
     }
 
     @Test
-    void datastreamSort() throws ServiceFailureException {
-        SensorThingsUtils sta = new SensorThingsUtils();
-        sta.init(propertiesConfig.getSensorThingsApiServer());
+    void 데이터스트림_정렬() throws ServiceFailureException {
 
-        var thing = sta.hasThingWithAllEntity(null, "금천구");
+        var thing = sta.hasThingWithRelationEntities(null, "금천구");
         thing.getDatastreams().toList().sort((o1, o2) -> {
             var o1Value = Integer.parseInt(String.valueOf(o1.getId()));
             var o2Value = Integer.parseInt(String.valueOf(o2.getId()));
@@ -196,5 +165,64 @@ class AirQualityServiceImplTest {
         assertThat(datastream.getType()).isEqualTo(EntityType.DATASTREAM);
         assertThat(location.getType()).isEqualTo(EntityType.LOCATION);
         assertThat(sensor.getType()).isEqualTo(EntityType.SENSOR);
+    }
+
+    @Test
+    void 시간_범위_검색() throws ServiceFailureException {
+        //http://localhost:8888/FROST-Server/v1.0/Observations?$filter=resultTime ge 2020-11-16T15:00:00.000Z and
+        // resultTime le 2020-11-17T14:00:00.000Z and Datastreams/Things/name eq '금천구' and Datastreams/ObservedProperties/name eq 'pm10Value'
+        ZoneId zoneId = ZoneId.of("Asia/Seoul");
+        ZonedDateTime now = ZonedDateTime.now().minusDays(2L);
+        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, zoneId);
+        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, zoneId);
+        log.info("start ============ {} ", start.toInstant());
+        log.info("end ================ {} ", end.toInstant());
+
+        String stationName = "금천구";
+        String filter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
+                " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" +
+                AirQualityObservedProperty.PM10.getName() + "'";
+
+        log.info("filter ===================== {} ", filter);
+
+        EntityList<Observation> observations = sta.hasObservations(filter, null);
+
+        log.info("Observations size =========== {} ", observations.size());
+
+        observations.forEach(f -> log.info(f.getResultTime().toString()));
+    }
+
+    @Test
+    void 데이터스트림_24시간() {
+        //http://localhost:8888/FROST-Server/v1.0/Datastreams?$filter=Thing/name eq '금천구' and Datastream/ObservedProperty/name eq 'pm10ValueDaily'
+        String stationName = "금천구";
+        for (AirQualityObservedProperty type : AirQualityObservedProperty.values()) {
+            if(type.getTimeType().equals(TimeType.DAILY)){
+                String filter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '" + type.getName() + "'";
+                Datastream datastream = sta.hasDatastream(filter, null);
+                log.info(datastream.getName());
+            }
+        }
+    }
+
+    @Test
+    void 미세먼지_전체_thing_조회() {
+        String filter = "Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'";
+
+        EntityList<Thing> things = sta.hasThingsFindAll(filter);
+
+        log.info("things size ================= {} ", things.size());
+
+        things.forEach(f -> log.info(String.valueOf(f.getId())));
+    }
+
+    @Test
+    void test() {
+        log.info("test =============== {} ", sta.hasThingsWithObservation(null, "금천구"));
     }
 }

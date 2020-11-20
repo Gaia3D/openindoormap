@@ -394,7 +394,7 @@ public class OccupancyServiceImpl implements OccupancyService {
             String thingFilter = "startswith(name, '" + buildId + "') and properties/floor eq " + i + " and Datastreams/ObservedProperties/name eq 'occupancy'";
             String datastreamName = "Floor " + buildId + ":" + i + " Occupancy";
             String featureOfInterestName = buildId + ":" + i;
-            EntityList<Thing> things = sta.hasThingWithObservation(thingFilter, null);
+            EntityList<Thing> things = sta.hasThingsWithObservation(thingFilter, null);
             Datastream datastream = sta.hasDatastream(null, datastreamName);
             FeatureOfInterest featureOfInterest = sta.hasFeatureOfInterest(null, featureOfInterestName);
 

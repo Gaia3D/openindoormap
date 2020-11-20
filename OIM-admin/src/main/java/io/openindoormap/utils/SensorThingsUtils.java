@@ -126,7 +126,13 @@ public class SensorThingsUtils {
         return thing;
     }
 
-    public Thing hasThingWithAllEntity(String filter, String name) {
+    /**
+     * 필터를 통해 특정 조건으로 단일의 STA Thing 에 대한 Location,Datastream,Sensor,ObservedProperty 를 검색
+     * @param filter 필터 구문
+     * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
+     * @return
+     */
+    public Thing hasThingWithRelationEntities(String filter, String name) {
         Thing thing = null;
         Query<Thing> query = service.things().query();
 
@@ -148,12 +154,12 @@ public class SensorThingsUtils {
     }
 
     /**
-     * 필터를 통해 특정 조건으로 단일의 STA Entity(Thing) 를 검색
+     * 필터를 통해 특정 조건으로 STA Entity(Thing) 를 검색
      * @param filter 필터 구문
      * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
      * @return
      */
-    public EntityList<Thing> hasThingWithObservation(String filter, String name) {
+    public EntityList<Thing> hasThingsWithObservation(String filter, String name) {
         EntityList<Thing> thingList = null;
         Query<Thing> query = service.things().query();
 
@@ -161,6 +167,44 @@ public class SensorThingsUtils {
             thingList = createFilter(query, filter, name).expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)").list();
         } catch (ServiceFailureException e) {
             e.printStackTrace();
+        }
+
+        return thingList;
+    }
+
+    /**
+     * skip count 부터 thing 조회
+     * @param filter 필터 구문
+     * @param skipCount 조회 시작 row
+     * @return EntityList
+     */
+    public EntityList<Thing> hasThingsSkip(String filter, int skipCount) {
+        EntityList<Thing> thingList = null;
+        Query<Thing> query = service.things().query();
+
+        try {
+            thingList = createFilter(query, filter, null).skip(skipCount).list();
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+
+        return thingList;
+    }
+
+    /**
+     * 모든 thing 정보 조회
+     * @param filter 필터 구문
+     * @return List
+     */
+    public EntityList<Thing> hasThingsFindAll(String filter) {
+        EntityList<Thing> thingList = new EntityList<>(EntityType.THING);
+        boolean nextLinkCheck = true;
+        int skipCount = 0;
+        while (nextLinkCheck) {
+            EntityList<Thing> things = this.hasThingsSkip(filter, skipCount);
+            thingList.addAll(things);
+            nextLinkCheck = things.getNextLink() != null;
+            skipCount = skipCount + 100;
         }
 
         return thingList;
@@ -295,6 +339,26 @@ public class SensorThingsUtils {
         }
 
         return featureOfInterest;
+    }
+
+
+    /**
+     * 필터를 통해 특정 조건으로 복수의 STA Entity(Observation) 를 검색
+     * @param filter 필터 구문
+     * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
+     * @return EntityList
+     */
+    public EntityList<Observation> hasObservations(String filter, String name) {
+        EntityList<Observation> observations = null;
+        Query<Observation> query = service.observations().query();
+
+        try {
+            observations = createFilter(query, filter, name).list();
+        } catch (ServiceFailureException e) {
+            e.printStackTrace();
+        }
+
+        return observations;
     }
 
     /**

@@ -18,11 +18,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-
 
 import java.io.FileReader;
 import java.util.Iterator;
@@ -142,7 +140,7 @@ public class OccupancyServiceTests {
 
         String filter = "startswith(name, 'Alphadom') and properties/floor eq 0 and Datastreams/ObservedProperties/name eq 'occupancy'";
         String expand = "Datastreams/Observations($orderby=id desc)";
-        EntityList<Thing> things = sta.hasThingWithObservation(filter, null);
+        EntityList<Thing> things = sta.hasThingsWithObservation(filter, null);
 
         long count = things.stream()
                 .mapToLong(f-> Long.parseLong(f.getDatastreams().toList().get(0).getObservations().toList().get(0).getResult().toString()))

@@ -91,7 +91,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             thingProperties.put("item", json.get("item"));
             thingProperties.put("available", true);
 
-            var thing = sta.hasThingWithAllEntity(null, stationName);
+            var thing = sta.hasThingWithRelationEntities(null, stationName);
             var datastreams = thing != null ? thing.getDatastreams().toList() : null;
             Point point = null;
             if (!"".equals(dmX) && !"".equals(dmY)) {
@@ -142,7 +142,7 @@ public class AirQualityServiceImpl implements AirQualityService {
 //                    t = t.minusDays(1);
 //                    t = t.plusHours(i);
             ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
-            EntityList<Thing> things = sta.hasThingWithObservation(null, stationName);
+            EntityList<Thing> things = sta.hasThingsWithObservation(null, stationName);
             // 일치하는 thing 이 없을경우 skip
             if (things.size() == 0) continue;
 
@@ -196,6 +196,15 @@ public class AirQualityServiceImpl implements AirQualityService {
                 }
             }
 //                }
+        }
+    }
+
+    @Override
+    public void insertStatisticsDaily() {
+        JSONObject stationJson = getListStation();
+        List<?> stationList = (List<?>) stationJson.get("list");
+        for (var station : stationList) {
+
         }
     }
 
@@ -353,18 +362,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         while (nextLinkCheck) {
             EntityList<Thing> things = null;
             try {
-                things = service.things()
-                        .query()
-                        .skip(skipCount)
-                        .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
-                                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
-                        )
-                        .list();
-
+                things = getThingsFindSkip(skipCount);
                 for (var thing : things) {
                     var properties = thing.getProperties();
                     properties.put("available", false);
@@ -377,6 +375,50 @@ public class AirQualityServiceImpl implements AirQualityService {
             nextLinkCheck = things.getNextLink() != null;
             skipCount = skipCount + 100;
         }
+    }
+
+    /**
+     * 미세먼지에 해당하는 모든 thing 목록 조회
+     * @return List
+     */
+    private List<Thing> getThingsFindAll() {
+        List<Thing> thingList = new ArrayList<>();
+        boolean nextLinkCheck = true;
+        int skipCount = 0;
+        while (nextLinkCheck) {
+            EntityList<Thing> things = getThingsFindSkip(skipCount);
+            thingList.addAll(things);
+            nextLinkCheck = things.getNextLink() != null;
+            skipCount = skipCount + 100;
+        }
+
+        return thingList;
+    }
+
+    /**
+     * skip count 부터 thing 조회
+     * @param count skip count
+     * @return Entitylist
+     */
+    private EntityList<Thing> getThingsFindSkip(int count) {
+        EntityList<Thing> entityList = null;
+        try {
+            entityList = service.things()
+                    .query()
+                    .skip(count)
+                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
+                            " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
+                    )
+                    .list();
+        } catch (ServiceFailureException e) {
+            LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
+        }
+
+        return entityList;
     }
 
     /**
