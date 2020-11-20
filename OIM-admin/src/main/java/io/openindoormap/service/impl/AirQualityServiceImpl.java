@@ -216,23 +216,11 @@ public class AirQualityServiceImpl implements AirQualityService {
     private Map<String, ObservedProperty> initObservedProperty() {
         Map<String, ObservedProperty> map = new HashMap<>();
         for (AirQualityObservedProperty entity : AirQualityObservedProperty.values()) {
-            var observedProperty = sta.hasObservedProperty(null, entity.getName());
-            if (observedProperty == null) {
-                try {
-                    observedProperty = ObservedPropertyBuilder.builder()
-                            .name(entity.getName())
-                            .description(entity.getDescription())
-                            .definition(entity.getDefinition())
-                            .build();
-                    service.create(observedProperty);
-                } catch (ServiceFailureException e) {
-                    LogMessageSupport.printMessage(e, "-------- AirQualityService insert ObservedProperty error = {}", e.getMessage());
-                }
-            }
+            var observedProperty = sta.createObservedProperty(null, entity.getName(), entity.getDescription(), entity.getDefinition());
             map.put(entity.getName(), observedProperty);
         }
-
         log.info("================== ObservedProperty insert success ==================");
+
         return map;
     }
 
@@ -357,68 +345,18 @@ public class AirQualityServiceImpl implements AirQualityService {
      * 미세먼지에 해당하는 모든 thing 의 정보들의 status false 로 업데이트
      */
     private void updateThingsStatus() {
-        boolean nextLinkCheck = true;
-        int skipCount = 0;
-        while (nextLinkCheck) {
-            EntityList<Thing> things = null;
+        EntityList<Thing> thingList = sta.hasThingsFindAll(getFilter());
+        log.info("updateThingsStatus size ====================== {} ", thingList.size());
+        for (var thing : thingList) {
+            var properties = thing.getProperties();
+            properties.put("available", false);
+            thing.setProperties(properties);
             try {
-                things = getThingsFindSkip(skipCount);
-                for (var thing : things) {
-                    var properties = thing.getProperties();
-                    properties.put("available", false);
-                    thing.setProperties(properties);
-                    service.update(thing);
-                }
+                service.update(thing);
             } catch (ServiceFailureException e) {
                 LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
             }
-            nextLinkCheck = things.getNextLink() != null;
-            skipCount = skipCount + 100;
         }
-    }
-
-    /**
-     * 미세먼지에 해당하는 모든 thing 목록 조회
-     * @return List
-     */
-    private List<Thing> getThingsFindAll() {
-        List<Thing> thingList = new ArrayList<>();
-        boolean nextLinkCheck = true;
-        int skipCount = 0;
-        while (nextLinkCheck) {
-            EntityList<Thing> things = getThingsFindSkip(skipCount);
-            thingList.addAll(things);
-            nextLinkCheck = things.getNextLink() != null;
-            skipCount = skipCount + 100;
-        }
-
-        return thingList;
-    }
-
-    /**
-     * skip count 부터 thing 조회
-     * @param count skip count
-     * @return Entitylist
-     */
-    private EntityList<Thing> getThingsFindSkip(int count) {
-        EntityList<Thing> entityList = null;
-        try {
-            entityList = service.things()
-                    .query()
-                    .skip(count)
-                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
-                    )
-                    .list();
-        } catch (ServiceFailureException e) {
-            LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
-        }
-
-        return entityList;
     }
 
     /**
@@ -523,95 +461,6 @@ public class AirQualityServiceImpl implements AirQualityService {
     }
 
     /**
-     * 에어코리아 기준에 해당하는 grade return
-     *
-     * @param value 측정데이터 값
-     * @param type  측정데이터 타입
-     * @return String
-     */
-    private String getGrade(String value, AirQualityObservedProperty type) {
-        String grade = "";
-        float floatNum = Float.parseFloat(value);
-        if (AirQualityObservedProperty.SO2 == type) {
-            if (floatNum >= 0 && floatNum <= 0.02) {
-                grade = "1";
-            } else if (floatNum >= 0.021 && floatNum <= 0.05) {
-                grade = "2";
-            } else if (floatNum >= 0.051 && floatNum <= 0.15) {
-                grade = "3";
-            } else if (floatNum >= 0.151 && floatNum <= 1) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        } else if (AirQualityObservedProperty.CO == type) {
-            if (0 >= floatNum && floatNum <= 2) {
-                grade = "1";
-            } else if (floatNum >= 2.01 && floatNum <= 9) {
-                grade = "2";
-            } else if (floatNum >= 9.01 && floatNum <= 15) {
-                grade = "3";
-            } else if (floatNum >= 15.01 && floatNum <= 50) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        } else if (AirQualityObservedProperty.O3 == type) {
-            if (0 >= floatNum && floatNum <= 0.03) {
-                grade = "1";
-            } else if (floatNum >= 0.031 && floatNum <= 0.09) {
-                grade = "2";
-            } else if (floatNum >= 0.091 && floatNum <= 0.15) {
-                grade = "3";
-            } else if (floatNum >= 0.151 && floatNum <= 0.6) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        } else if (AirQualityObservedProperty.NO2 == type) {
-            if (floatNum >= 0 && floatNum <= 0.03) {
-                grade = "1";
-            } else if (floatNum >= 0.031 && floatNum <= 0.06) {
-                grade = "2";
-            } else if (floatNum >= 0.061 && floatNum <= 0.2) {
-                grade = "3";
-            } else if (floatNum >= 0.201 && floatNum <= 2) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        } else if (AirQualityObservedProperty.PM10 == type) {
-            int intNum = Integer.parseInt(value);
-            if (intNum >= 0 && intNum <= 30) {
-                grade = "1";
-            } else if (intNum >= 31 & intNum <= 80) {
-                grade = "2";
-            } else if (intNum >= 81 && intNum <= 150) {
-                grade = "3";
-            } else if (intNum >= 151 && intNum <= 600) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        } else if (AirQualityObservedProperty.PM25 == type) {
-            int intNum = Integer.parseInt(value);
-            if (intNum >= 0 && intNum <= 15) {
-                grade = "1";
-            } else if (intNum >= 16 && intNum <= 35) {
-                grade = "2";
-            } else if (intNum >= 36 && intNum <= 75) {
-                grade = "3";
-            } else if (intNum >= 76 && intNum <= 500) {
-                grade = "4";
-            } else {
-                grade = "1";
-            }
-        }
-
-        return grade;
-    }
-
-    /**
      * requestURI 에 해당하는 api result return
      *
      * @param requestURI api 요청 requestURI
@@ -636,5 +485,108 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
 
         return json;
+    }
+
+    /**
+     * 에어코리아 기준에 해당하는 grade return
+     *
+     * @param value 측정데이터 값
+     * @param type  측정데이터 타입
+     * @return String
+     */
+    private String getGrade(String value, AirQualityObservedProperty type) {
+        String grade = "";
+        float floatNum = Float.parseFloat(value);
+        if (AirQualityObservedProperty.SO2 == type) {
+            if (floatNum >= 0 && floatNum <= 0.02) {
+                grade = "1";
+            } else if (floatNum >= 0.021 && floatNum <= 0.05) {
+                grade = "2";
+            } else if (floatNum >= 0.051 && floatNum <= 0.15) {
+                grade = "3";
+            } else if (floatNum >= 0.151 && floatNum <= 1) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        } else if (AirQualityObservedProperty.CO == type) {
+            if (0 >= floatNum && floatNum <= 2) {
+                grade = "1";
+            } else if (floatNum >= 2.01 && floatNum <= 9) {
+                grade = "2";
+            } else if (floatNum >= 9.01 && floatNum <= 15) {
+                grade = "3";
+            } else if (floatNum >= 15.01 && floatNum <= 50) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        } else if (AirQualityObservedProperty.O3 == type) {
+            if (0 >= floatNum && floatNum <= 0.03) {
+                grade = "1";
+            } else if (floatNum >= 0.031 && floatNum <= 0.09) {
+                grade = "2";
+            } else if (floatNum >= 0.091 && floatNum <= 0.15) {
+                grade = "3";
+            } else if (floatNum >= 0.151 && floatNum <= 0.6) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        } else if (AirQualityObservedProperty.NO2 == type) {
+            if (floatNum >= 0 && floatNum <= 0.03) {
+                grade = "1";
+            } else if (floatNum >= 0.031 && floatNum <= 0.06) {
+                grade = "2";
+            } else if (floatNum >= 0.061 && floatNum <= 0.2) {
+                grade = "3";
+            } else if (floatNum >= 0.201 && floatNum <= 2) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        } else if (AirQualityObservedProperty.PM10 == type) {
+            int intNum = Integer.parseInt(value);
+            if (intNum >= 0 && intNum <= 30) {
+                grade = "1";
+            } else if (intNum >= 31 & intNum <= 80) {
+                grade = "2";
+            } else if (intNum >= 81 && intNum <= 150) {
+                grade = "3";
+            } else if (intNum >= 151 && intNum <= 600) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        } else if (AirQualityObservedProperty.PM25 == type) {
+            int intNum = Integer.parseInt(value);
+            if (intNum >= 0 && intNum <= 15) {
+                grade = "1";
+            } else if (intNum >= 16 && intNum <= 35) {
+                grade = "2";
+            } else if (intNum >= 36 && intNum <= 75) {
+                grade = "3";
+            } else if (intNum >= 76 && intNum <= 500) {
+                grade = "4";
+            } else {
+                grade = "0";
+            }
+        }
+
+        return grade;
+    }
+
+    /**
+     * 미세먼지 관련 thing 만을 조회하기 위한 필터
+     *
+     * @return
+     */
+    private String getFilter() {
+        return "Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
+                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'";
     }
 }

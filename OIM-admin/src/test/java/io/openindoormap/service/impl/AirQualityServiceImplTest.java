@@ -29,8 +29,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,51 +80,6 @@ class AirQualityServiceImplTest {
     }
 
     @Test
-    void 시간_테스트() {
-        String time = "2020-10-21 17:00";
-        for (int i = 0; i < 24; i++) {
-            LocalDateTime t = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            t = t.minusDays(1);
-            t = t.plusHours(i);
-            ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
-
-            log.info("zonedDateTime =========================== {} ", zonedDateTime);
-            log.info("getYear =========================== {} ", t.getYear());
-            log.info("getMonthValue =========================== {} ", t.getMonthValue());
-            log.info("getDayOfMonth =========================== {} ", t.getDayOfMonth());
-            log.info("getHour =========================== {} ", t.getHour());
-        }
-    }
-
-    @Test
-    void 미세먼지_things_필터() throws ServiceFailureException {
-        List<Thing> list = new ArrayList<>();
-        boolean nextLinkCheck = true;
-        int skipCount = 0;
-        while (nextLinkCheck) {
-            EntityList<Thing> things = sensorThingsService.things()
-                    .query()
-                    .skip(skipCount)
-                    .filter("Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
-                            " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'"
-                    )
-                    .list();
-            list.addAll(things.toList());
-            nextLinkCheck = things.getNextLink() != null;
-            skipCount = skipCount + 100;
-        }
-
-        log.info("things count =================== {}", list.size());
-        for (var thing : list) {
-            log.info("thing info ==================id:{} name:{} ", thing.getId(), thing.getName());
-        }
-    }
-
-    @Test
     void 시간_비교() throws ServiceFailureException {
         EntityList<Thing> things = sensorThingsService.things()
                 .query()
@@ -168,11 +121,11 @@ class AirQualityServiceImplTest {
     }
 
     @Test
-    void 시간_범위_검색() throws ServiceFailureException {
+    void 시간_범위_검색() {
         //http://localhost:8888/FROST-Server/v1.0/Observations?$filter=resultTime ge 2020-11-16T15:00:00.000Z and
         // resultTime le 2020-11-17T14:00:00.000Z and Datastreams/Things/name eq '금천구' and Datastreams/ObservedProperties/name eq 'pm10Value'
         ZoneId zoneId = ZoneId.of("Asia/Seoul");
-        ZonedDateTime now = ZonedDateTime.now().minusDays(2L);
+        ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
         ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, zoneId);
         ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, zoneId);
         log.info("start ============ {} ", start.toInstant());
