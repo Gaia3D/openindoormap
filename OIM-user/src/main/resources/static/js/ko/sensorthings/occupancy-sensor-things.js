@@ -21,6 +21,7 @@ const OccupancySensorThings = function (magoInstance) {
     };
     this.occupancyGradeMin = 0;
     this.occupancyGradeMax = 10;
+    this.maxCapacity = 10;
 
     this.currentTime = "2020-11-17T12:15:00.000Z";
     //this.currentTime = moment.utc().format();
@@ -34,6 +35,7 @@ const OccupancySensorThings = function (magoInstance) {
     this.chartYAxesTitle = '재실자(명)';
 
     this.selectedBuildingId = 0;
+    this.selectedGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
     this.selectedFloorSensorList = [];
@@ -93,10 +95,7 @@ const OccupancySensorThings = function (magoInstance) {
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
-OccupancySensorThings.prototype.getGrade = function (value) {
-    // Math.floor(Math.random() * (max - min)) + min
-    const max = 519, min = 250;
-    const percent = (value - min) / (max - min) * 100;
+OccupancySensorThings.prototype.getGradeByPercent = function(percent) {
     let grade = 0;
     if (percent >= 0 && percent <= 20) {
         grade = 1;
@@ -110,15 +109,29 @@ OccupancySensorThings.prototype.getGrade = function (value) {
     return grade;
 };
 
+OccupancySensorThings.prototype.getGradeFloor = function (value) {
+    // Math.floor(Math.random() * (max - min)) + min
+    const max = 519, min = 250;
+    const percent = (value - min) / (max - min) * 100;
+    return this.getGradeByPercent(percent);
+};
+
+OccupancySensorThings.prototype.getGrade = function(value) {
+    const percent = value / this.maxCapacity * 100;
+    return this.getGradeByPercent(percent);
+};
+
 OccupancySensorThings.prototype.getOccupancyColor = function (value) {
-    if (value === 0) {
-        return "30,144,255,200";
-    } else if (value < 3 && value >= 1) {
-        return "0,199,60,200";
-    } else if (value >= 3 && value < 6) {
-        return "255,215,0,200";
-    } else if (value >= 6) {
-        return "255,89,89,200";
+    const grade = this.getGrade(value);
+    switch (grade) {
+        case 1:
+            return "50,161,255,200";
+        case 2:
+            return "0,199,60,200";
+        case 3:
+            return "255,215,0,200";
+        case 4:
+            return "255,89,89,200";
     }
 };
 
@@ -526,11 +539,10 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
 OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
     const _this = this;
-    _this.selectedFloorSensorList = [];
     const dataId = _this.mappingTable[_this.selectedBuildingId]['dataId'];
-    const data = {
-        promises: [ _this.ajaxDataInfo(dataId) ],
-        thingsContents: []
+
+    const contents = {
+        things : []
     };
 
     for (const thing of _this.things) {
@@ -555,11 +567,37 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
         }
 
         const cellId = thing['properties']['cell'];
-        _this.selectedFloorSensorList.push(cellId);
         const cellSpace = _this.cellSpaceList[dataId][cellId];
         const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
 
-        data.thingsContents.push({
+        const magoManager = _this.magoInstance.getMagoManager();
+        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedGroupId, _this.selectedDataKey);
+        const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
+        const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
+        const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
+        const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
+
+        const longitude = Number(wgs84CoordinateObject.longitude);
+        const latitude = Number(wgs84CoordinateObject.latitude);
+        const altitude = Number(wgs84CoordinateObject.altitude + 5.0);
+
+        const coordinates = [longitude, latitude, altitude];
+        const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
+
+        // 지도화면 픽셀정보 구하기
+        const $containerSelector = $('#magoContainer');
+        //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
+        const top = 0, left = 0;
+        let bottom = top + $containerSelector.outerHeight() - 55;
+        let right = left + $containerSelector.outerWidth() - 160;
+
+        // 화면 밖에 있는 관측소는 스킵
+        if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
+            (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
+            continue;
+        }
+
+        contents.things.push({
             id: thingId,
             value: value,
             valueWithCommas: _this.numberWithCommas(value),
@@ -569,64 +607,16 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
             gradeText: gradeText,
             selected: selected,
             subTitle: JS_MESSAGE["iot.occupancy"],
-            localCoordinate: localCoordinate,
-            stationName: cellId
+            stationName: cellId,
+            top: resultScreenCoord.y,
+            left: resultScreenCoord.x
         });
+
+        const template = Handlebars.compile($("#overlaySource").html());
+        $('#overlayDHTML').html("").append(template(contents));
 
     }
 
-    _this.getDataInfoResultProcess(data.promises, function(msg) {
-        const contents = {
-            things : []
-        };
-
-        const dataInfo = msg['dataInfo'];
-        const dataGroupId = dataInfo.dataGroupId;
-
-        for (const thingsContent of data.thingsContents) {
-
-            const localCoordinate = thingsContent['localCoordinate'];
-            const magoManager = _this.magoInstance.getMagoManager();
-            const targetNode = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, _this.selectedDataKey);
-            const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
-            const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
-            const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
-            const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
-
-            const longitude = Number(wgs84CoordinateObject.longitude);
-            const latitude = Number(wgs84CoordinateObject.latitude);
-            const altitude = Number(wgs84CoordinateObject.altitude);
-
-            const coordinates = [longitude, latitude, altitude];
-            const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
-
-            // 지도화면 픽셀정보 구하기
-            const $containerSelector = $('#magoContainer');
-            //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
-            const top = 0, left = 0;
-            let bottom = top + $containerSelector.outerHeight() - 55;
-            let right = left + $containerSelector.outerWidth() - 160;
-
-            // 화면 밖에 있는 관측소는 스킵
-            if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
-                (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
-                continue;
-            }
-
-            const positionInfo = {
-                top: resultScreenCoord.y,
-                left: resultScreenCoord.x
-            };
-
-            contents.things.push(Object.assign(thingsContent, positionInfo));
-
-            const rgbColorCode = _this.getOccupancyColor(thingsContent.value);
-            changeColorAPI(_this.magoInstance.getMagoManager(), dataGroupId, _this.selectedDataKey, [thingsContent.stationName], "isPhysical=true", rgbColorCode);
-
-        }
-        const template = Handlebars.compile($("#overlaySource").html());
-        $('#overlayDHTML').html("").append(template(contents));
-    });
 };
 
 OccupancySensorThings.prototype.redrawOverlay = function () {
@@ -639,8 +629,6 @@ OccupancySensorThings.prototype.redrawOverlay = function () {
         _this.redrawOverlayFloor();
     }
 };
-
-
 
 OccupancySensorThings.prototype.getInformation = function(thingId) {
 
@@ -747,8 +735,8 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
                     value: value,
                     valueWithCommas: _this.numberWithCommas(value),
                     //grade: grade,
-                    grade : _this.getGrade(value),
-                    gradeText: _this.getGradeMessage(_this.getGrade(value)),
+                    grade : _this.getGradeFloor(value),
+                    gradeText: _this.getGradeMessage(_this.getGradeFloor(value)),
                     unit: _this.getUnit(dataStream)
                 });
 
@@ -771,12 +759,15 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
 
 };
 
-OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroupId, dataKey) {
-    if (dataKey === 'admin_20201013064147_346094873669678') {
-        this.selectedDataKey = dataKey;
+OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
+
+    // TODO 시립대 데이터인 경우 하드코딩 삭제
+    if (this.selectedDataKey === 'admin_20201013064147_346094873669678') {
+        searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
         return;
     }
-    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(dataGroupId, null);
+
+    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedGroupId, null);
     for (const i in nodes) {
         const node = nodes[i];
         const nodeData = node.data;
@@ -784,7 +775,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroup
         const nodeId = nodeData.nodeId;
         const nodeAttribute = nodeData.attributes;
         if (!nodeId || !nodeAttribute) continue;
-        if (nodeId === dataGroupId) {
+        if (nodeId === this.selectedGroupId) {
             nodeAttribute.isVisible = false;
             continue;
         }
@@ -803,9 +794,10 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroup
             nodeAttribute.isVisible = true;
         }
     }
+    searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
 };
 
-OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) {
+OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) {
 
     const _this = this;
 
@@ -834,7 +826,8 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) 
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
             _this.things = msg.value;
-            _this.redrawOverlay();
+            _this.redrawOverlayFloor();
+            _this.changeRoomColor();
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
@@ -847,6 +840,7 @@ OccupancySensorThings.prototype.closeBuildingInformation = function () {
     $('#buildingInfoWrap').hide();
     this.selectedThingId = 0;
     this.selectedBuildingId = 0;
+    this.selectedDataKey = '';
     this.observedProperty = 'occupancyBuild';
     this.addOverlay();
 };
@@ -1001,13 +995,18 @@ OccupancySensorThings.prototype.update = function () {
 OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
 
     const _this = this;
-
     const overlayIds = _this.getOverlay();
     const length = overlayIds.length;
-    if (!overlayIds || length <= 0) return;
+    if (!overlayIds || length <= 0) {
+        return;
+    } else if (length > 30) {
+        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
+        return;
+    }
 
-    let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
-    filter += 'and (';
+    //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    //filter += 'and (';
+    let filter = '';
     for (const i in overlayIds) {
         const thingId = overlayIds[i];
         if (i == 0) {
@@ -1016,7 +1015,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
             filter += ' or Things/id eq ' + thingId;
         }
     }
-    filter += ')';
+    //filter += ')';
 
     const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
         '&$filter=' + filter +
@@ -1038,45 +1037,44 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
 
             // Datastreams
             for (const dataStream of msg.value) {
-
                 // Thing
                 const thing = dataStream['Thing'];
                 const thingId = thing['@iot.id'];
-
                 // Observations
                 let value = "-", grade = 0, selected = '';
-                if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
-                    // ObservationTop
-                    const observationTop = dataStream['Observations'][0];
-                    //let value = parseFloat(observation.result.value);
-                    value = _this.formatValueByDigits(observationTop.result.value, 3);
-                    value += randomValue;
-                    value = _this.formatValueByDigits(value, 3);
-                    grade = observationTop.result.grade;
 
-                    for (const thing of _this.things) {
-                        const originalId = thing['@iot.id'];
-                        if (originalId == thingId) {
-                            thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
-                            thing['Datastreams'][0]['Observations'][0]['result'].value = value;
-                            thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
-                        }
+                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) {
+                    continue;
+                }
+
+                // ObservationTop
+                const observationTop = dataStream['Observations'][0];
+                //let value = parseFloat(observation.result.value);
+                value = _this.formatValueByDigits(observationTop.result.value, 3);
+                value += randomValue;
+                value = _this.formatValueByDigits(value, 3);
+                grade = observationTop.result.grade;
+
+                for (const thing of _this.things) {
+                    const originalId = thing['@iot.id'];
+                    if (originalId == thingId) {
+                        thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
+                        thing['Datastreams'][0]['Observations'][0]['result'].value = value;
+                        thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
                     }
                 }
-                if (_this.selectedThingId == thingId) {
-                    selected = 'on';
-                }
+
                 const contents = {
                     things: [{
                         id: thingId,
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),
-                        stationName: thing.name,
-                        grade: grade,
-                        gradeText: _this.getGradeMessage(grade),
+                        stationName: $('#overlay_' + thingId + ' .stationName').text(),
+                        grade: _this.getGrade(value),
+                        gradeText: _this.getGradeMessage(_this.getGrade(value)),
                         selected: selected,
-                        subTitle: JS_MESSAGE["iot.occupancy"]
+                        subTitle: JS_MESSAGE["iot.dust.fine"]
                     }]
                 };
 
@@ -1086,7 +1084,13 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                 $('#overlay_' + thingId + '> ul').html(innerHtml);
 
                 console.debug("updated thingId: " + thingId);
+
             }
+
+            if (_this.observedProperty === 'occupancyFloor') {
+                _this.changeRoomColor();
+            }
+
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
@@ -1182,8 +1186,8 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
                         //grade: grade,
-                        grade : _this.getGrade(value),
-                        gradeText: _this.getGradeMessage(_this.getGrade(value)),
+                        grade : _this.getGradeFloor(value),
+                        gradeText: _this.getGradeMessage(_this.getGradeFloor(value)),
                         unit: _this.getUnit(dataStream)
                     });
 
@@ -1329,4 +1333,34 @@ OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, ran
         });
     }
     _this.occupancyChart.update();
+};
+
+OccupancySensorThings.prototype.changeRoomColor = function() {
+
+    this.selectedFloorSensorList = [];
+    const magoManager = this.magoInstance.getMagoManager();
+
+    for (const thing of this.things) {
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        if (!dataStreams || dataStreams.length <= 0) continue;
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-';
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = this.formatValueByDigits(observationTop.result.value, 3);
+        }
+
+        const cellId = thing['properties']['cell'];
+        this.selectedFloorSensorList.push(cellId);
+
+        const rgbColorCode = this.getOccupancyColor(value);
+        changeColorAPI(magoManager, this.selectedGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+
+    }
+
 };

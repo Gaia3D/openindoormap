@@ -97,21 +97,30 @@
 
             // 재실자 층 선택
             $('#buildingInfoDHTML').on('click', '#buildingInfoWrap table tr', function () {
-                const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
-                sensorThings.observedProperty = 'occupancyFloor';
+
                 $(this).siblings().removeClass('on');
                 $(this).toggleClass('on');
                 const floor = $(this).data('floor');
+
+                sensorThings.observedProperty = 'occupancyFloor';
+                const selectedGroupId = sensorThings.selectedGroupId;
+                const selectedDataKey = sensorThings.selectedDataKey;
+
                 if (sensorThings.selectedFloorSensorList.length > 0) {
                     const rgbColorCode = "255,255,255,255";
                     for (const cellId of sensorThings.selectedFloorSensorList) {
-                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), buildingInfo.dataGroupId, sensorThings.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
                     }
                 }
-                sensorThings.displaySelectedFloor(floor, buildingInfo.dataGroupId, buildingInfo.dataKey);
-                searchDataAPI(sensorThings.magoInstance, buildingInfo.dataGroupId, sensorThings.selectedDataKey);
+
+                const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
+                sensorThings.selectedGroupId = buildingInfo.dataGroupId;
+                sensorThings.selectedDataKey = buildingInfo.dataKey;
+
                 sensorThings.clearOverlay();
-                sensorThings.addSelectedFloorOverlay(buildingInfo.name, floor);
+                sensorThings.addSelectedFloorOverlay(floor, buildingInfo.name);
+                sensorThings.displaySelectedFloor(floor);
+
             });
 
         });
