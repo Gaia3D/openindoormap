@@ -884,6 +884,24 @@ Compass.prototype.setSvgRotate = function() {
 }
 
 var mapControllEvent = function(magoInstance) {
+	var magoManager = magoInstance.getMagoManager();
+	var configInformation = magoManager.configInformation;
+	$('#geoLod0').val(configInformation.lod0);
+	$('#geoLod1').val(configInformation.lod1);
+	$('#geoLod2').val(configInformation.lod2);
+	$('#geoLod3').val(configInformation.lod3);
+	$('#geoLod4').val(configInformation.lod4);
+	$('#geoLod5').val(configInformation.lod5);
+	
+	var translateInteraction = magoManager.defaultTranslateInteraction;
+	var selectInteraction = magoManager.defaultSelectInteraction;
+	
+	selectInteraction.on(Mago3D.PointSelectInteraction.EVENT_TYPE.DEACTIVE, function(){
+		$('div.buttonModeWrap button').removeClass('on');
+		translateInteraction.setActive(false);
+		LHDT.selectedDataController.toggleWrap(false);
+	});
+	
 	// 처음
 	$('#mapCtrlHome').click(function() {
 		var magoManager = magoInstance.getMagoManager();
@@ -1015,7 +1033,7 @@ var mapControllEvent = function(magoInstance) {
 			
 			$('#magoContainer .totalSearch').hide();
 			
-			var clonePolicy = basicObjectClone(OIM.policy);
+			var clonePolicy = basicObjectClone(LHDT.policy);
 			
 			var option = {};
 			option.defaultControl = {};
@@ -1101,11 +1119,15 @@ var mapControllEvent = function(magoInstance) {
 	$('#mapCtrlSetting').click(function() {
 		$(this).toggleClass('on');
 		if ($(this).hasClass('on')) {
-			$('#mapSettingWrap').css('width', '340px');
+			if(OIM.selectedDataController.isActive()) {
+				$('#dataControlWrap').css('width', '340px');
+			} else {
+				$('#mapSettingWrap').css('width', '340px');
+			}
+			
 			$('#mapCtrlWrap').css('right', '340px');
 			$('#mapCtrlCompassOut').css('right', '340px');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '340px');
-			$('#buildingInfoWrap').css('right', '400px');
 			$('#baseMapToggle').css({
 				right : '392px'
 			});
@@ -1114,10 +1136,10 @@ var mapControllEvent = function(magoInstance) {
 			});
 		} else {
 			$('#mapSettingWrap').css('width', '0');
+			$('#dataControlWrap').css('width', '0');
 			$('#mapCtrlWrap').css('right', '0');
 			$('#mapCtrlCompassOut').css('right', '0');
 			$('.mago3d-overlayContainer-defaultControl').css('right', '0');
-			$('#buildingInfoWrap').css('right', '60px');
 			$('#baseMapToggle').css({
 				right : '50px'
 			});
@@ -1156,52 +1178,63 @@ var mapControllEvent = function(magoInstance) {
 		magoManager.sceneState.setApplySunShadows($(this).hasClass('on'));
 	});
 	
+	
 	var defaultSelectInteraction = magoInstance.getMagoManager().defaultSelectInteraction;
-	defaultSelectInteraction.on('active', function(e) {
-		var targetType = defaultSelectInteraction.getTargetType();
-		console.log('active : ' + targetType);
-	});
-	defaultSelectInteraction.on('deactive', function(e) {
-		var targetType = defaultSelectInteraction.getTargetType();
-		console.log('deactive : ' + targetType);
-	});
+	var defaultTranslateInteraction = magoInstance.getMagoManager().defaultTranslateInteraction;
 
 	// SELECT, MOVE MODE
 	$('#selectModeF4d').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$('.selectMode').not(this).removeClass('on');
-		defaultSelectInteraction.setTargetType('f4d');
-		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'f4d');
 	});
 	$('#moveModeF4d').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'f4d');
+		setTranslateInteraction($(this).hasClass('on'), 'f4d');
 	});
 
 	$('#selectModeObject').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$('.selectMode').not(this).removeClass('on');
-		defaultSelectInteraction.setTargetType('object');
-		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'object');
 	});
 	$('#moveModeObject').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'object');
+		setTranslateInteraction($(this).hasClass('on'), 'object');
 	});
 
 	$('#selectModeNative').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$('.selectMode').not(this).removeClass('on');
-		defaultSelectInteraction.setTargetType('native');
-		defaultSelectInteraction.setActive(!$(this).hasClass('on'));
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'native');
 	});
 	$('#moveModeNative').click(function() {
-		$(this).siblings('button').removeClass('on');
-		$(this).toggleClass('on');
+		setClassSiblingsInteractionBtn($(this));
+		setSelectInteraction($(this).hasClass('on'), 'native');
+		setTranslateInteraction($(this).hasClass('on'), 'native');
 	});
+	
+	function setClassSiblingsInteractionBtn($obj) {
+		var buttonModeWrap = $obj.parents('div.buttonModeWrap');
+		var wrapSiblings = buttonModeWrap.siblings();
+		wrapSiblings.each(function(idx, e){
+			var buttons = $(this).find('div.rightButtonWrap').children();
+			buttons.each(function(){
+				$(this).removeClass('on');
+			});
+		});
+		
+		$obj.siblings('button').removeClass('on');
+		$obj.toggleClass('on');
+	}
+	
+	function setSelectInteraction(active, type) {
+		defaultSelectInteraction.setActive(active);
+		defaultSelectInteraction.setTargetType(type);
+	}
+	function setTranslateInteraction(active, type) {
+		defaultTranslateInteraction.setActive(active);
+		defaultTranslateInteraction.setTargetType(type);
+	}
 	
 	var handler = new Cesium.ScreenSpaceEventHandler(magoInstance.getViewer().scene.canvas);
 	$('#mapRenderPosition').click(function() {
@@ -1264,4 +1297,170 @@ var mapControllEvent = function(magoInstance) {
 			scene.camera.zoomOut(alt * 0.1);
 		}
 	});
+	
+	function testhandler() {
+		var handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+		var points = [];
+		
+		var lineEndPoint;
+		var line;
+		//클릭
+		handler.setInputAction(function(event){
+			var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(event.position.x, event.position.y, MAGO3D_INSTANCE.getMagoManager()); 
+			var geographic = Mago3D.ManagerUtils.pointToGeographicCoord(point3d);
+			
+			let worldPosition = Cesium.Cartesian3.fromDegrees(geographic.longitude, geographic.latitude, geographic.altitude);
+			var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+		        position: worldPosition,
+		        point: {
+		            color: Cesium.Color.RED,
+		            pixelSize: 10,
+		            outlineColor: Cesium.Color.YELLOW,
+		            outlineWidth: 2,
+		            disableDepthTestDistance: Number.POSITIVE_INFINITY
+		        }
+		    });
+		    points.push(entity);
+			
+		    if(points.length > 1) {
+		    	handler = handler.destroy();
+		    	console.info(some());
+			} 
+				
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		
+		handler.setInputAction(function(event){
+			if(points.length > 0) {
+				var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(event.endPosition.x, event.endPosition.y, MAGO3D_INSTANCE.getMagoManager()); 
+				lineEndPoint = new Cesium.Cartesian3(point3d.x, point3d.y, point3d.z);
+				if(!line) {
+					line = MAGO3D_INSTANCE.getViewer().entities.add({
+						polyline: {
+							// This callback updates positions each frame.
+			                positions: new Cesium.CallbackProperty(function() {
+			                	var p1 = points[0].position.getValue(new Date());
+			                	
+								return [p1, lineEndPoint];                    
+			                }, false),
+			                width: 10,
+			                depthFailMaterial : Cesium.Color.RED,
+			                material: new Cesium.PolylineOutlineMaterialProperty({
+								color: Cesium.Color.YELLOW,
+			                })
+			            },
+					});
+				}
+			}
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		
+		function some() {
+			return {
+				startPosition : points[0].position.getValue(new Date()),
+				endPosition : points[1].position.getValue(new Date()),
+				collisionPosition : undefined
+			}
+		}
+	}
+	
+	function testheight() {
+		var magoManager = MAGO3D_INSTANCE.getMagoManager();
+		var handler = new Cesium.ScreenSpaceEventHandler(MAGO3D_INSTANCE.getViewer().scene.canvas);
+		var points = [];
+		
+		var lineEndPoint;
+		var line;
+		var depthDetected = false;
+		//클릭
+		handler.setInputAction(function(event){
+			depthDetected = Mago3D.ManagerUtils.detectedDepth(event.position.x, event.position.y, magoManager);
+			if(points.length === 0) {
+				var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(event.position.x, event.position.y, magoManager); 
+				var geographic = Mago3D.ManagerUtils.pointToGeographicCoord(point3d);
+				
+				let worldPosition = Cesium.Cartesian3.fromDegrees(geographic.longitude, geographic.latitude, geographic.altitude);
+				var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+			        position: worldPosition,
+			        point: {
+			            color: Cesium.Color.RED,
+			            pixelSize: 10,
+			            outlineColor: Cesium.Color.YELLOW,
+			            outlineWidth: 2,
+			            disableDepthTestDistance: Number.POSITIVE_INFINITY
+			        }
+			    });
+				points.push(entity);
+			} else {
+				var height;
+				var orgPoint3d = lineEndPoint;
+				var orggeographic = Mago3D.ManagerUtils.pointToGeographicCoord(orgPoint3d);
+				var entity = MAGO3D_INSTANCE.getViewer().entities.add({
+			        position: lineEndPoint,
+			        point: {
+			            color: Cesium.Color.RED,
+			            pixelSize: 10,
+			            outlineColor: Cesium.Color.YELLOW,
+			            outlineWidth: 2,
+			            disableDepthTestDistance: Number.POSITIVE_INFINITY
+			        }
+			    });
+				points.push(entity);
+				handler = handler.destroy();
+		    	console.info(getHeight());
+			}
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+		
+		handler.setInputAction(function(event){
+			if(points.length > 0) {
+				var orgPoint3d = points[0].position.getValue(new Date());
+				var height;
+				if(depthDetected) {
+					var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(event.endPosition.x, event.endPosition.y, magoManager);
+					var geographic = Mago3D.ManagerUtils.pointToGeographicCoord(point3d);
+					
+					height = geographic.altitude;
+				} else {
+					var viewer = MAGO3D_INSTANCE.getViewer();
+					var scene = viewer.scene;
+					
+					var orgCartesian = new Cesium.Cartesian3(orgPoint3d.x, orgPoint3d.y, orgPoint3d.z);
+					
+                    var surfaceNormal = scene.globe.ellipsoid.geodeticSurfaceNormal(orgCartesian);
+                    var planeNormal = Cesium.Cartesian3.subtract(scene.camera.position, orgCartesian, new Cesium.Cartesian3());
+                    planeNormal = Cesium.Cartesian3.normalize(planeNormal, planeNormal);
+                    var ray =  viewer.scene.camera.getPickRay(event.endPosition);
+                    var plane = Cesium.Plane.fromPointNormal(orgCartesian, planeNormal);
+                    var newCartesian =  Cesium.IntersectionTests.rayPlane(ray, plane);
+                    
+                    var newCartographic = viewer.scene.globe.ellipsoid.cartesianToCartographic(newCartesian);
+                    height = newCartographic.height;
+                    if(height < 0) height *= -1;
+				}
+				var orggeographic = Mago3D.ManagerUtils.pointToGeographicCoord(orgPoint3d);
+				lineEndPoint = Cesium.Cartesian3.fromDegrees(orggeographic.longitude, orggeographic.latitude, height);
+
+				if(!line) {
+					line = MAGO3D_INSTANCE.getViewer().entities.add({
+						polyline: {
+							// This callback updates positions each frame.
+			                positions: new Cesium.CallbackProperty(function() {
+								return [points[0].position.getValue(new Date()), lineEndPoint];                    
+			                }, false),
+			                width: 10,
+			                depthFailMaterial : Cesium.Color.RED,
+			                material: new Cesium.PolylineOutlineMaterialProperty({
+								color: Cesium.Color.YELLOW,
+			                })
+			            },
+					});
+				}
+			}
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		
+		function getHeight() {
+			
+			var startgeographic = Mago3D.ManagerUtils.pointToGeographicCoord(points[0].position.getValue(new Date()));
+			var endgeographic = Mago3D.ManagerUtils.pointToGeographicCoord(points[1].position.getValue(new Date()));
+			return endgeographic.altitude - startgeographic.altitude;
+		}
+	}
 }
