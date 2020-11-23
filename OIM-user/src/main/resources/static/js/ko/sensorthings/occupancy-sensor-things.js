@@ -21,6 +21,7 @@ const OccupancySensorThings = function (magoInstance) {
     };
     this.occupancyGradeMin = 0;
     this.occupancyGradeMax = 10;
+    this.maxCapacity = 10;
 
     this.currentTime = "2020-11-17T12:15:00.000Z";
     //this.currentTime = moment.utc().format();
@@ -28,33 +29,109 @@ const OccupancySensorThings = function (magoInstance) {
     this.filterInterval = 120;      // 120s
 
     this.gaugeChartNeedle = {};
-    this.hourlyAirQualityChart = {};
+    this.occupancyChart = {};
     this.chartTitle = '재실자(Occupancy)';
     this.chartXAxesTitle = '시간(분)';
     this.chartYAxesTitle = '재실자(명)';
 
+    this.selectedBuildingId = 0;
+    this.selectedGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
     this.selectedFloorSensorList = [];
 
+    this.chartOptions = {
+        responsive: true,
+        legend: {
+            position: 'bottom',
+            labels: {
+                fontSize: 10,
+                usePointStyle: true
+            }
+        },
+        title: {
+            display: true,
+            text: this.chartTitle
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: true
+        },
+        scales: {
+            xAxes: [{
+                type: 'time',
+                time: {
+                    parser: "YYYY-MM-DD HH:mm:ss",
+                    second: 'mm:ss',
+                    minute: 'HH:mm',
+                    hour: 'HH:mm',
+                    day: 'MMM DD',
+                    month: 'YYYY MMM',
+                    tooltipFormat: 'YYYY-MM-DD HH:mm',
+                    displayFormats: {
+                        second: 'HH:mm:ss a'
+                    }
+                },
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: this.chartXAxesTitle
+                }
+            }],
+            yAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: this.chartYAxesTitle
+                }
+            }]
+        }
+    };
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
-OccupancySensorThings.prototype.getGrade = function (value) {
-    const max = 5, min = 0;
-    return Math.floor(Math.random() * (max - min)) + min;
+OccupancySensorThings.prototype.getGradeByPercent = function(percent) {
+    let grade = 0;
+    if (percent >= 0 && percent <= 20) {
+        grade = 1;
+    } else if (percent > 20 && percent <= 50) {
+        grade = 2;
+    } else if (percent > 50 && percent <= 80) {
+        grade = 3;
+    } else if (percent > 80) {
+        grade = 4;
+    }
+    return grade;
+};
+
+OccupancySensorThings.prototype.getGradeFloor = function (value) {
+    // Math.floor(Math.random() * (max - min)) + min
+    const max = 519, min = 250;
+    const percent = (value - min) / (max - min) * 100;
+    return this.getGradeByPercent(percent);
+};
+
+OccupancySensorThings.prototype.getGrade = function(value) {
+    const percent = value / this.maxCapacity * 100;
+    return this.getGradeByPercent(percent);
 };
 
 OccupancySensorThings.prototype.getOccupancyColor = function (value) {
-    if (value === 0) {
-        return "30,144,255,200";
-    } else if (value < 3 && value >= 1) {
-        return "0,199,60,200";
-    } else if (value >= 3 && value < 6) {
-        return "255,215,0,200";
-    } else if (value >= 6) {
-        return "255,89,89,200";
+    const grade = this.getGrade(value);
+    switch (grade) {
+        case 1:
+            return "50,161,255,200";
+        case 2:
+            return "0,199,60,200";
+        case 3:
+            return "255,215,0,200";
+        case 4:
+            return "255,89,89,200";
     }
 };
 
@@ -85,6 +162,29 @@ OccupancySensorThings.prototype.ajaxDataInfo = function(dataId) {
         type: "GET",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         dataType: "json"
+    });
+};
+
+OccupancySensorThings.prototype.ajaxThingInfo = function(thingId) {
+    const _this = this;
+    //const observedProperty = 'occupancyBuild';
+    const queryString = 'Things(' + thingId + ')?$select=@iot.id,name,description' +
+        '&$expand=Locations($select=@iot.id,location,name),' +
+        'Datastreams(' +
+            '$select=@iot.id,description,unitOfMeasurement' +
+            //'$filter=ObservedProperty/name eq \'' + observedProperty + '\'' +
+        '),' +
+        'Datastreams/Observations(' +
+            '$select=result,phenomenonTime,resultTime;' +
+            '$orderby=resultTime desc;' +
+            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+        ')';
+
+    return $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"}
     });
 };
 
@@ -149,7 +249,8 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 if (observations && observations.length > 0) {
                     const observationTop = observations[0];
                     value = observationTop.result.value;
-                    grade = observationTop.result.grade;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
                 }
 
                 // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
@@ -328,7 +429,8 @@ OccupancySensorThings.prototype.setCellSpaceList = function() {
             const dataGroupId = dataInfo.dataGroupId;
             const dataKey = dataInfo.dataKey;
 
-            const nodeData = _this.magoInstance.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
+            const magoManager = _this.magoInstance.getMagoManager();
+            const nodeData = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
             const projectFolderName = nodeData.projectFolderName;
             const cellSpaceListFileName = dataKey + '_cellspacelist.json';
 
@@ -369,8 +471,9 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
         let value = '-', grade = 0, selected = '';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = _this.formatValueByDigits(observationTop.result.value, 3);
-            grade = observationTop.result.grade;
+            value = observationTop.result.value;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
         const gradeText = _this.getGradeMessage(grade);
         if (_this.selectedThingId == thingId) {
@@ -438,11 +541,10 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
 OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
     const _this = this;
-    _this.selectedFloorSensorList = [];
-    const dataId = _this.mappingTable[_this.selectedThingId]['dataId'];
-    const data = {
-        promises: [ _this.ajaxDataInfo(dataId) ],
-        thingsContents: []
+    const dataId = _this.mappingTable[_this.selectedBuildingId]['dataId'];
+
+    const contents = {
+        things : []
     };
 
     for (const thing of _this.things) {
@@ -458,8 +560,9 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
         let value = '-', grade = 0, selected = '';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = _this.formatValueByDigits(observationTop.result.value, 3);
-            grade = observationTop.result.grade;
+            value = observationTop.result.value;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
         const gradeText = _this.getGradeMessage(grade);
         if (_this.selectedThingId == thingId) {
@@ -467,11 +570,37 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
         }
 
         const cellId = thing['properties']['cell'];
-        _this.selectedFloorSensorList.push(cellId);
         const cellSpace = _this.cellSpaceList[dataId][cellId];
         const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
 
-        data.thingsContents.push({
+        const magoManager = _this.magoInstance.getMagoManager();
+        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedGroupId, _this.selectedDataKey);
+        const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
+        const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
+        const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
+        const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
+
+        const longitude = Number(wgs84CoordinateObject.longitude);
+        const latitude = Number(wgs84CoordinateObject.latitude);
+        const altitude = Number(wgs84CoordinateObject.altitude + 5.0);
+
+        const coordinates = [longitude, latitude, altitude];
+        const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
+
+        // 지도화면 픽셀정보 구하기
+        const $containerSelector = $('#magoContainer');
+        //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
+        const top = 0, left = 0;
+        let bottom = top + $containerSelector.outerHeight() - 55;
+        let right = left + $containerSelector.outerWidth() - 160;
+
+        // 화면 밖에 있는 관측소는 스킵
+        if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
+            (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
+            continue;
+        }
+
+        contents.things.push({
             id: thingId,
             value: value,
             valueWithCommas: _this.numberWithCommas(value),
@@ -481,66 +610,16 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
             gradeText: gradeText,
             selected: selected,
             subTitle: JS_MESSAGE["iot.occupancy"],
-            localCoordinate: localCoordinate,
-            stationName: cellId
+            stationName: cellId,
+            top: resultScreenCoord.y,
+            left: resultScreenCoord.x
         });
+
+        const template = Handlebars.compile($("#overlaySource").html());
+        $('#overlayDHTML').html("").append(template(contents));
 
     }
 
-    _this.getDataInfoResultProcess(data.promises, function(msg) {
-        const contents = {
-            things : []
-        };
-
-        const dataInfo = msg['dataInfo'];
-        //const dataId = dataInfo.dataId;
-        const dataName = dataInfo.dataName;
-        const dataGroupId = dataInfo.dataGroupId;
-
-        for (const thingsContent of data.thingsContents) {
-
-            const localCoordinate = thingsContent['localCoordinate'];
-            const magoManager = _this.magoInstance.getMagoManager();
-            const targetNode = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, _this.selectedDataKey);
-            const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
-            const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
-            const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
-            const wgs84CoordinateObject = Mago3D.Globe.CartesianToGeographicWgs84(tempGlobalCoordinateObject.x, tempGlobalCoordinateObject.y, tempGlobalCoordinateObject.z);
-
-            const longitude = Number(wgs84CoordinateObject.longitude);
-            const latitude = Number(wgs84CoordinateObject.latitude);
-            const altitude = Number(wgs84CoordinateObject.altitude);
-
-            const coordinates = [longitude, latitude, altitude];
-            const resultScreenCoord = _this.geographicCoordToScreenCoord(coordinates);
-
-            // 지도화면 픽셀정보 구하기
-            const $containerSelector = $('#magoContainer');
-            //const $overlaySelector = $('.overlayDHTML').find('#overlay_' + locationId);
-            const top = 0, left = 0;
-            let bottom = top + $containerSelector.outerHeight() - 55;
-            let right = left + $containerSelector.outerWidth() - 160;
-
-            // 화면 밖에 있는 관측소는 스킵
-            if ((resultScreenCoord.x < left || resultScreenCoord.x > right) ||
-                (resultScreenCoord.y < top || resultScreenCoord.y > bottom)) {
-                continue;
-            }
-
-            const positionInfo = {
-                top: resultScreenCoord.y,
-                left: resultScreenCoord.x
-            };
-
-            contents.things.push(Object.assign(thingsContent, positionInfo));
-
-            const rgbColorCode = _this.getOccupancyColor(thingsContent.value);
-            changeColorAPI(_this.magoInstance.getMagoManager(), dataGroupId, _this.selectedDataKey, [thingsContent.stationName], "isPhysical=true", rgbColorCode);
-
-        }
-        const template = Handlebars.compile($("#overlaySource").html());
-        $('#overlayDHTML').html("").append(template(contents));
-    });
 };
 
 OccupancySensorThings.prototype.redrawOverlay = function () {
@@ -554,48 +633,28 @@ OccupancySensorThings.prototype.redrawOverlay = function () {
     }
 };
 
-OccupancySensorThings.prototype.ajaxThingInfo = function(thingId) {
-    const _this = this;
-    const observedProperty = 'occupancyBuild';
-    const queryString = 'Things(' + thingId + ')?$select=@iot.id,name,description' +
-        '&$expand=Locations($select=@iot.id,location,name),' +
-            'Datastreams(' +
-                '$select=@iot.id,description,unitOfMeasurement;' +
-                '$filter=ObservedProperty/name eq \'' + observedProperty + '\'' +
-            '),' +
-            'Datastreams/Observations(' +
-                '$select=result,phenomenonTime,resultTime;' +
-                '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
-            ')';
-
-    return $.ajax({
-        url: _this.FROST_SERVER_URL + queryString,
-        type: "GET",
-        dataType: "json",
-        headers: {"X-Requested-With": "XMLHttpRequest"}
-    });
-};
-
 OccupancySensorThings.prototype.getInformation = function(thingId) {
 
     const _this = this;
-    _this.selectedThingId = thingId;
 
     // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
-    const dataId = _this.mappingTable[thingId]['dataId'];
-    const baseFloor = _this.mappingTable[thingId]['baseFloor'];
+    let dataId = '', baseFloor = 0;
+    if (_this.observedProperty === 'occupancyBuild') {
+        dataId = _this.mappingTable[thingId]['dataId'];
+        baseFloor = _this.mappingTable[thingId]['baseFloor'];
+    } else if (_this.observedProperty === 'occupancyFloor') {
+        dataId = _this.mappingTable[_this.selectedBuildingId]['dataId'];
+        baseFloor = _this.mappingTable[_this.selectedBuildingId]['baseFloor'];
+    }
+
     const promises = [];
     promises.push(_this.ajaxDataInfo(dataId));
     promises.push(_this.ajaxThingInfo(thingId));
 
     _this.getDataInfoResultProcess(promises, function(msg1, msg2) {
 
-        // DataInfo
-        const dataInfo = msg1[0]['dataInfo'];
-
-        // Thing
-        const thing = msg2[0];
+        const dataInfo = msg1[0]['dataInfo'];   // DataInfo
+        const thing = msg2[0];                  // Thing
 
         // Datastreams
         const dataStreams = thing['Datastreams'];
@@ -607,10 +666,11 @@ OccupancySensorThings.prototype.getInformation = function(thingId) {
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
             value = observationTop.result.value;
-            grade = observationTop.result.grade;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
 
-        const buildingInfo = {
+        const content = {
             id: thingId,
             name: thing.name,
             value: value,
@@ -625,7 +685,14 @@ OccupancySensorThings.prototype.getInformation = function(thingId) {
             listOfFloorOccupancy: []
         };
 
-        _this.getFloorInformation(buildingInfo);
+        _this.selectedThingId = thingId;
+        if (_this.observedProperty === 'occupancyBuild') {
+            // 층별 정보 조회
+            _this.getFloorInformation(content);
+        } else if (_this.observedProperty === 'occupancyFloor') {
+            // 센서 정보 조회
+            _this.getSensorInformation(content);
+        }
 
     });
 
@@ -634,7 +701,7 @@ OccupancySensorThings.prototype.getInformation = function(thingId) {
 OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
 
     const _this = this;
-    _this.observedProperty = 'occupancyFloor';
+    _this.selectedBuildingId = buildingInfo.id;
 
     const observedProperty = 'occupancyFloor';
     const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
@@ -663,7 +730,8 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
                 if (observations && observations.length > 0) {
                     const observationTop = observations[0];
                     value = observationTop.result.value;
-                    grade = observationTop.result.grade;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGradeFloor(value);
                 }
 
                 buildingInfo.listOfFloorOccupancy.push({
@@ -679,33 +747,13 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
             }
 
             const template = Handlebars.compile($("#buildingInfoSource").html());
-            $("#buildingInfoDHTML").html("").append(template(buildingInfo));
+            $("#buildingInfoDHTML").html("").append(template(buildingInfo)).data('buildingInfo', buildingInfo);
             $('#buildingInfoWrap').show();
             if ($('#mapSettingWrap').css('width') !== '0px') {
                 $('#buildingInfoWrap').css('right', '400px');
             } else {
                 $('#buildingInfoWrap').css('right', '60px');
             }
-
-            // 재실자 층 선택
-            $("#buildingInfoWrap table tr").click(function() {
-                $(this).siblings().removeClass('on');
-                $(this).toggleClass('on');
-                const floor = $(this).data('floor');
-
-                if (_this.selectedFloorSensorList.length > 0) {
-                    const rgbColorCode = "255,255,255,255";
-                    for (const cellId of _this.selectedFloorSensorList) {
-                        changeColorAPI(_this.magoInstance.getMagoManager(), buildingInfo.dataGroupId, _this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
-                    }
-                }
-
-                _this.displaySelectedFloor(floor, buildingInfo.dataGroupId, buildingInfo.dataKey);
-                searchDataAPI(_this.magoInstance, buildingInfo.dataGroupId, _this.selectedDataKey);
-
-                _this.clearOverlay();
-                _this.addSelectedFloorOverlay(buildingInfo.name, floor);
-            });
 
         },
         error: function (request, status, error) {
@@ -715,12 +763,15 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
 
 };
 
-OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroupId, dataKey) {
-    if (dataKey === 'admin_20201013064147_346094873669678') {
-        this.selectedDataKey = dataKey;
+OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
+
+    // TODO 시립대 데이터인 경우 하드코딩 삭제
+    if (this.selectedDataKey === 'admin_20201013064147_346094873669678') {
+        searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
         return;
     }
-    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(dataGroupId, null);
+
+    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedGroupId, null);
     for (const i in nodes) {
         const node = nodes[i];
         const nodeData = node.data;
@@ -728,7 +779,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroup
         const nodeId = nodeData.nodeId;
         const nodeAttribute = nodeData.attributes;
         if (!nodeId || !nodeAttribute) continue;
-        if (nodeId === dataGroupId) {
+        if (nodeId === this.selectedGroupId) {
             nodeAttribute.isVisible = false;
             continue;
         }
@@ -747,9 +798,10 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor, dataGroup
             nodeAttribute.isVisible = true;
         }
     }
+    searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
 };
 
-OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) {
+OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) {
 
     const _this = this;
 
@@ -778,22 +830,427 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) 
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
             _this.things = msg.value;
-            _this.redrawOverlay();
+            _this.redrawOverlayFloor();
+            _this.changeRoomColor();
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
         }
     });
 
-    /*
-    const observedProperty = 'occupancy';
-    const filter = 'startswith(Thing/name, \'' + name + '\') and Thing/properties/floor eq ' + floor + ' and ObservedProperty/name eq \'' + observedProperty + '\'';
-    const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
-        '$filter=' + filter + '&' +
-        '$expand=Thing,Observations(' +
-            '$select=result,resultTime;' +
-            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
-        ')';
+};
+
+OccupancySensorThings.prototype.closeBuildingInformation = function () {
+    $('#buildingInfoWrap').hide();
+    this.selectedThingId = 0;
+    this.selectedBuildingId = 0;
+    this.selectedDataKey = '';
+    this.observedProperty = 'occupancyBuild';
+    this.addOverlay();
+};
+
+OccupancySensorThings.prototype.getSensorInformation = function(content) {
+
+    const _this = this;
+    _this.selectedDataStreams = [];
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=Things/@iot.id eq ' + content.id +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=Thing($select=name,properties),' +
+            'ObservedProperty($select=name),' +
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+            ')';
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+
+            // Datastreams
+            const dataStreams = msg.value;
+            const properties = dataStreams[0]['Thing']['properties'];
+
+            const cell = properties.cell;
+            const floor = _this.getFloorText(properties.floor, content.baseFloor);
+
+            const contents = {
+                observedProperty: 'occupancy',
+                min: _this.occupancyGradeMin,
+                max: _this.occupancyGradeMax,
+                stationName: content.dataName + ', ' + floor + '층: ' + cell,
+                dataStreams: []
+            };
+
+            for (const dataStream of dataStreams) {
+
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+                const observations = dataStream['Observations'];
+                let value = '-', grade = 0;
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    value = observationTop.result.value;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
+                }
+
+                const data = {
+                    id: dataStream['@iot.id'],
+                    name: content.dataName + ', ' + floor + '층: ' + cell,
+                    unit: _this.getUnit(dataStream),
+                    value: _this.formatValueByDigits(value, 3),
+                    grade: grade,
+                    gradeText: _this.getGradeMessage(grade),
+                    observations: observations,
+                    observedPropertyName: observedPropertyName
+                };
+                _this.selectedDataStreams.push(data.id);
+                contents.dataStreams.push(data);
+                contents.grade = grade;
+                contents.pm10 = data.value;
+                contents.occupancyPercent = Math.max(Math.min(data.value, _this.occupancyGradeMax), _this.occupancyGradeMin) / (_this.occupancyGradeMax - _this.occupancyGradeMin) * 100;
+                contents.chartTitle = JS_MESSAGE["iot.occupancy"];
+            }
+
+            const $dustInfoDHTML = $('#dustInfoDHTML');
+            const template = Handlebars.compile($("#dustInfoSource").html());
+            const html = template(contents);
+            if ($dustInfoDHTML.length === 0) {
+                const wrapper = '<div id="dustInfoDHTML" class="sensor-detail-wrap">' + html + '</div>';
+                $('.cesium-viewer').append(wrapper);
+            }
+
+            $dustInfoDHTML.html(html);
+            $dustInfoDHTML.show();
+
+            const total = _this.occupancyGradeMax - _this.occupancyGradeMin;
+            const range = [0, 2, 5, 8, 10];
+            _this.drawGaugeChart(range, total, contents.occupancyPercent);
+            _this.drawOccupancyChart(contents.dataStreams);
+
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+
+};
+
+OccupancySensorThings.prototype.closeInformation = function () {
+    $('#dustInfoDHTML').hide();
+    this.selectedThingId = 0;
+    this.selectedDataStreams = [];
+};
+
+/**
+ * 재실자 차트 그리기
+ * @param dataStreams
+ */
+OccupancySensorThings.prototype.drawOccupancyChart = function (dataStreams) {
+
+    const datasets = [];
+    for (const dataStream of dataStreams) {
+        const points = [];
+        for (const observation of dataStream.observations) {
+            points.push({
+                x: this.observationTimeToLocalTime(observation.resultTime),
+                y: observation.result.value
+            });
+        }
+        const observedPropertyName = dataStream.observedPropertyName;
+        const propertyColor = this.observedPropertyColor[observedPropertyName];
+        datasets.push({
+            label: dataStream.name,
+            data: points,
+            borderColor: propertyColor,
+            backgroundColor: new Color(propertyColor).alpha(0.2).rgbString(),
+            observedPropertyName: observedPropertyName
+        });
+    }
+
+    this.occupancyChart = new Chart(document.getElementById("hourlyAirQualityChart"), {
+        type: 'line',
+        data: {datasets: datasets},
+        options: this.chartOptions
+    });
+
+};
+
+OccupancySensorThings.prototype.update = function () {
+
+    // TODO 램덤 값 삭제
+    const randomValue = Math.floor(Math.random() * (this.occupancyGradeMax - this.occupancyGradeMin)) + this.occupancyGradeMin;
+
+    this.updateOverlay(randomValue);
+
+    if (this.selectedBuildingId !== 0) {
+        this.updateFloorInformation(randomValue);
+    }
+
+    if (this.selectedDataStreams.length > 0) {
+        this.updateSensorInformation(randomValue);
+    }
+
+};
+
+OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
+
+    const _this = this;
+    const overlayIds = _this.getOverlay();
+    const length = overlayIds.length;
+    if (!overlayIds || length <= 0) {
+        return;
+    } else if (length > 30) {
+        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
+        return;
+    }
+
+    //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    //filter += 'and (';
+    let filter = '';
+    for (const i in overlayIds) {
+        const thingId = overlayIds[i];
+        if (i == 0) {
+            filter += 'Things/id eq ' + thingId;
+        } else {
+            filter += ' or Things/id eq ' + thingId;
+        }
+    }
+    //filter += ')';
+
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=' + filter +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=Thing($select=@iot.id,name),' +
+            'ObservedProperty($select=name),' +
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+
+    $.ajax({
+        url: _this.FROST_SERVER_URL + queryString,
+        type: "GET",
+        dataType: "json",
+        headers: {"X-Requested-With": "XMLHttpRequest"},
+        success: function (msg) {
+
+            // Datastreams
+            for (const dataStream of msg.value) {
+                // Thing
+                const thing = dataStream['Thing'];
+                const thingId = thing['@iot.id'];
+                // Observations
+                let value = "-", grade = 0, selected = '';
+
+                if (!dataStream['Observations'] || dataStream['Observations'].length <= 0) {
+                    continue;
+                }
+
+                // ObservationTop
+                const observationTop = dataStream['Observations'][0];
+                //let value = parseFloat(observation.result.value);
+                value = parseInt(observationTop.result.value);
+                value += randomValue;
+                value = _this.formatValueByDigits(value, 3);
+                //grade = observationTop.result.grade;
+                grade = _this.getGrade(value);
+
+                for (const thing of _this.things) {
+                    const originalId = thing['@iot.id'];
+                    if (originalId == thingId) {
+                        thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
+                        thing['Datastreams'][0]['Observations'][0]['result'].value = value;
+                        thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
+                    }
+                }
+
+                const contents = {
+                    things: [{
+                        id: thingId,
+                        value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
+                        unit: _this.getUnit(dataStream),
+                        stationName: $('#overlay_' + thingId + ' .stationName').text(),
+                        grade: grade,
+                        gradeText: _this.getGradeMessage(grade),
+                        selected: selected,
+                        subTitle: JS_MESSAGE["iot.occupancy"]
+                    }]
+                };
+
+                // 지도 측정소 정보 업데이트
+                const template = Handlebars.compile($("#overlaySource").html());
+                const innerHtml = $(template(contents)).find('ul').html();
+                $('#overlay_' + thingId + '> ul').html(innerHtml);
+
+                console.debug("updated thingId: " + thingId);
+
+            }
+
+            if (_this.observedProperty === 'occupancyFloor') {
+                _this.changeRoomColor();
+            }
+
+        },
+        error: function (request, status, error) {
+            alert(JS_MESSAGE["ajax.error.message"]);
+        }
+    });
+
+};
+
+OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) {
+
+    const _this = this;
+
+    // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
+    let dataId = '', baseFloor = 0;
+    dataId = _this.mappingTable[_this.selectedBuildingId]['dataId'];
+    baseFloor = _this.mappingTable[_this.selectedBuildingId]['baseFloor'];
+
+    const promises = [];
+    promises.push(_this.ajaxDataInfo(dataId));
+    promises.push(_this.ajaxThingInfo(_this.selectedBuildingId));
+
+    _this.getDataInfoResultProcess(promises, function(msg1, msg2) {
+
+        const dataInfo = msg1[0]['dataInfo'];   // DataInfo
+        const thing = msg2[0];                  // Thing
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-', grade = 0;
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = parseInt(observationTop.result.value);
+            if (randomValue) {
+                value += randomValue;
+            }
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
+        }
+
+        const buildingInfo = {
+            id: thing['@iot.id'],
+            name: thing.name,
+            value: value,
+            valueWithCommas: _this.numberWithCommas(value),
+            unit: _this.getUnit(dataStream),
+            grade: grade,
+            gradeText: _this.getGradeMessage(grade),
+            dataName: dataInfo.dataName,
+            dataGroupId: dataInfo.dataGroupId,
+            dataKey: dataInfo.dataKey,
+            baseFloor: baseFloor,
+            listOfFloorOccupancy: []
+        };
+
+        const observedProperty = 'occupancyFloor';
+        const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
+            '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
+            '$expand=Thing,Observations(' +
+                '$select=result,resultTime;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+
+        $.ajax({
+            url: _this.FROST_SERVER_URL + queryString,
+            type: "GET",
+            dataType: "json",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            success: function (msg) {
+
+                for (const dataStream of msg.value) {
+
+                    // Thing
+                    const thing = dataStream['Thing'];
+
+                    // Observations
+                    const observations = dataStream['Observations'];
+                    let value = '-', grade = 0;
+                    if (observations && observations.length > 0) {
+                        const observationTop = observations[0];
+                        value = parseInt(observationTop.result.value);
+                        if (randomValue) {
+                            value += randomValue;
+                        }
+                        //grade = observationTop.result.grade;
+                        grade = _this.getGradeFloor(value);
+                    }
+
+                    buildingInfo.listOfFloorOccupancy.push({
+                        floor: thing.properties.floor,
+                        floorText: _this.getFloorText(thing.properties.floor, baseFloor),
+                        value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
+                        grade: grade,
+                        gradeText: _this.getGradeMessage(grade),
+                        unit: _this.getUnit(dataStream)
+                    });
+
+                }
+
+                const template = Handlebars.compile($("#buildingInfoSource").html());
+                $("#buildingInfoDHTML").html("").append(template(buildingInfo));
+                $('#buildingInfoWrap').show();
+                if ($('#mapSettingWrap').css('width') !== '0px') {
+                    $('#buildingInfoWrap').css('right', '400px');
+                } else {
+                    $('#buildingInfoWrap').css('right', '60px');
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+
+    });
+
+};
+
+OccupancySensorThings.prototype.updateSensorInformation = function (randomValue) {
+
+    const _this = this;
+
+    //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
+    let filter = '';
+    const dataStreamIds = _this.selectedDataStreams;
+    const length = dataStreamIds.length;
+    if (!dataStreamIds || length <= 0 || _this.selectedThingId == 0) return;
+    //filter += 'and (';
+    for (const i in dataStreamIds) {
+        const dataStreamId = dataStreamIds[i];
+        if (i == 0) {
+            filter += 'id eq ' + dataStreamId;
+        } else {
+            filter += ' or id eq ' + dataStreamId;
+        }
+    }
+    //filter += ')';
+
+    const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
+        '&$filter=' + filter +
+        '&$orderby=ObservedProperty/@iot.id asc' +
+        '&$expand=Thing($select=name),' +
+            'ObservedProperty($select=name),' +
+            'Observations(' +
+                '$select=result,resultTime;' +
+                '$orderby=resultTime desc;' +
+                '$top=1;' +
+                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            ')';
+    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -802,28 +1259,116 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(name, floor) 
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
             console.info(msg);
-            //_this.selectedDataStreams = msg.value;
+
+            const dataStreamContents = {
+                dataStreams: []
+            };
+
+            for (const dataStream of msg.value) {
+
+                // Datastreams
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+
+                // Observations
+                let value = "-", grade = 0;
+                if (dataStream['Observations'] && dataStream['Observations'].length > 0) {
+
+                    // ObservationTop
+                    const observationTop = dataStream['Observations'][0];
+                    //value = parseFloat(observation.result.value);
+                    value = parseInt(observationTop.result.value);
+                    value += randomValue;
+                    value = _this.formatValueByDigits(value, 3);
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
+
+                    if (_this.gaugeChartNeedle.data) {
+                        // 게이지 차트 업데이트
+                        _this.updateGaugeChart(_this.occupancyGradeMin, _this.occupancyGradeMax, value, grade);
+                    }
+
+                    // 라인 차트 업데이트
+                    _this.updateOccupancyChart(dataStream, randomValue);
+
+                }
+
+                dataStreamContents.dataStreams.push({
+                    name: dataStream.name,
+                    unit: _this.getUnit(dataStream),
+                    value: value,
+                    grade: grade,
+                    gradeText: _this.getGradeMessage(grade),
+                    observedPropertyName: observedPropertyName
+                });
+
+            }
+
+            // 테이블 업데이트
+            _this.updateInformationTable(dataStreamContents);
+
         },
         error: function (request, status, error) {
             alert(JS_MESSAGE["ajax.error.message"]);
         }
     });
-    */
-}
-
-OccupancySensorThings.prototype.closeBuildingInformation = function () {
-    $('#buildingInfoWrap').hide();
-    this.selectedThingId = 0;
-    this.selectedDataStreams = [];
-    this.observedProperty = 'occupancyBuild';
-    this.addOverlay();
 };
 
+OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, randomValue) {
+    const _this = this;
+    let value = undefined;
+    const time = _this.observationTimeToLocalTime(_this.getCurrentTime());
 
-OccupancySensorThings.prototype.closeInformation = function () {
+    const occupancyChartData = _this.occupancyChart.data;
+    if (!occupancyChartData) return;
 
+    if (dataStream['Observations'].length > 0) {
+        for (const observation of dataStream['Observations']) {
+            const observedPropertyName = _this.getObservedPropertyName(dataStream);
+            let value = parseInt(observation.result.value);
+            value += randomValue;
+            occupancyChartData.datasets.forEach(function (dataset) {
+                if (dataset.observedPropertyName === observedPropertyName) {
+                    console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
+                    dataset.data.pop();
+                    dataset.data.unshift({x: time, y: value});
+                }
+            });
+        }
+    } else {
+        occupancyChartData.datasets.forEach(function (dataset) {
+            dataset.data.pop();
+            dataset.data.unshift({x: time, y: value});
+        });
+    }
+    _this.occupancyChart.update();
 };
 
-OccupancySensorThings.prototype.update = function () {
+OccupancySensorThings.prototype.changeRoomColor = function() {
+
+    this.selectedFloorSensorList = [];
+    const magoManager = this.magoInstance.getMagoManager();
+
+    for (const thing of this.things) {
+
+        // Datastreams
+        const dataStreams = thing['Datastreams'];
+        if (!dataStreams || dataStreams.length <= 0) continue;
+        const dataStream = dataStreams[0];
+
+        // Observations
+        const observations = dataStream['Observations'];
+        let value = '-';
+        if (observations && observations.length > 0) {
+            const observationTop = observations[0];
+            value = observationTop.result.value;
+        }
+
+        const cellId = thing['properties']['cell'];
+        this.selectedFloorSensorList.push(cellId);
+
+        const rgbColorCode = this.getOccupancyColor(value);
+        changeColorAPI(magoManager, this.selectedGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+
+    }
 
 };

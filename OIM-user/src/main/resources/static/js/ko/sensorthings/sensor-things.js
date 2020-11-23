@@ -13,6 +13,8 @@ const SensorThings = function (magoInstance) {
     this.things = [];
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
+
+    this.gaugeChartNeedle = {};
 };
 
 SensorThings.prototype.createSensorThings = function () {
@@ -40,6 +42,20 @@ SensorThings.prototype.clearOverlay = function () {
     //this.selectedThingId = 0;
     //this.selectedDataStreams = [];
 };
+
+/**
+ * 화면에 보이는 지도 오버레이 thingId 가져오기
+ */
+SensorThings.prototype.getOverlay = function() {
+    const result = [];
+    for (const thing of this.things) {
+        const thingId = thing['@iot.id'];
+        if ($('#overlay_' + thingId).length > 0) {
+            result.push(thingId);
+        }
+    }
+    return result;
+}
 
 SensorThings.prototype.setCurrentTime = function (currentTime) {
     this.currentTime = currentTime;
@@ -128,3 +144,108 @@ SensorThings.prototype.closeDetail = function (obj) {
     $iotDustMoreDHTML.hide();
     $(".show-more").show();
 }
+
+/**
+ * 게이지 차트 그리기
+ * @param range
+ * @param total
+ * @param percent
+ */
+SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
+
+    const gaugeChartOptions = {
+        rotation: 1 * Math.PI,
+        circumference: 1 * Math.PI,
+        legend: {
+            display: false
+        },
+        tooltips: {
+            enabled: false
+        },
+        cutoutPercentage: 80
+    };
+
+    const gaugeChart = new Chart(document.getElementById("gaugeChart"), {
+        type: 'doughnut',
+        data: {
+            labels: [this.getGradeMessage(1), this.getGradeMessage(2), this.getGradeMessage(3), this.getGradeMessage(4)],
+            datasets: [
+                {
+                    data: [
+                        (range[1] - range[0]) / total * 100,
+                        (range[2] - range[1]) / total * 100,
+                        (range[3] - range[2]) / total * 100,
+                        (range[4] - range[3]) / total * 100
+                    ],
+                    backgroundColor: [
+                        'rgba(30, 144, 255, 1)',
+                        'rgba(0, 199, 60, 1)',
+                        'rgba(255, 215, 0, 1)',
+                        'rgba(255, 89, 89, 1)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 255, 255 ,1)',
+                        'rgba(255, 255, 255 ,1)',
+                        'rgba(255, 255, 255 ,1)'
+                    ],
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: gaugeChartOptions
+    });
+
+    this.gaugeChartNeedle = new Chart(document.getElementById("gaugeChartNeedle"), {
+        type: 'doughnut',
+        data: {
+            datasets: [
+                {
+                    data: [percent - 0.5, 1, 100 - (percent + 0.5)],
+                    backgroundColor: [
+                        'rgba(0, 0, 0 ,0)',
+                        'rgba(255,255,255,1)',
+                        'rgba(0, 0, 0 ,0)',
+                    ],
+                    borderColor: [
+                        'rgba(0, 0, 0 ,0)',
+                        'rgba(0, 0, 0 ,1)',
+                        'rgba(0, 0, 0 ,0)'
+                    ],
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: gaugeChartOptions
+    });
+
+};
+
+/**
+ * 게이지 차트 없데이트
+ * @param min
+ * @param max
+ * @param value
+ * @param grade
+ */
+SensorThings.prototype.updateGaugeChart = function (min, max, value, grade) {
+
+    const _this = this;
+    const percent = Math.max(Math.min(value, max), min) / (max - min) * 100;
+    _this.gaugeChartNeedle.data.datasets[0].data = [percent - 0.5, 1, 100 - (percent + 0.5)];
+    _this.gaugeChartNeedle.update();
+
+    console.debug("value: " + value + ", percent: " + percent);
+
+    // 게이지 차트 영역 값, 등급 업데이트
+    $('#dustInfoValue').text(value);
+    $('#dustInfoGrade').removeClass();
+    $('#dustInfoGrade').addClass('dust lv' + grade);
+
+};
+
+SensorThings.prototype.updateInformationTable = function (dataStreamContents) {
+    const $dustInfoTableWrap = $('#dustInfoTableSource');
+    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
+    const innerHtml = $(dustInfoTemplate(dataStreamContents)).find("#dustInfoTableSource").html();
+    $dustInfoTableWrap.html(innerHtml);
+};

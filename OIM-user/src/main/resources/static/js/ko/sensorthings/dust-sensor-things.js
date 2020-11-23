@@ -20,7 +20,6 @@ const DustSensorThings = function (magoInstance) {
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
 
-    this.gaugeChartNeedle = {};
     this.hourlyAirQualityChart = {};
     this.chartTitle = '1시간 공기질(Hourly Air Quality)';
     this.chartXAxesTitle = '시간(시)';
@@ -363,19 +362,7 @@ DustSensorThings.prototype.redrawOverlay = function () {
 
 };
 
-/**
- * 화면에 보이는 지도 오버레이 thingId 가져오기
- */
-DustSensorThings.prototype.getOverlay = function() {
-    const result = [];
-    for (const thing of this.things) {
-        const thingId = thing['@iot.id'];
-        if ($('#overlay_' + thingId).length > 0) {
-            result.push(thingId);
-        }
-    }
-    return result;
-}
+
 
 
 /**
@@ -408,6 +395,7 @@ DustSensorThings.prototype.getInformation = function (thingId) {
             // Datastreams
             const dataStreams = msg.value;
             const contents = {
+                observedProperty: 'dust',
                 min: _this.pm10GradeMin,
                 max: _this.pm10GradeMax,
                 stationName: dataStreams[0]['Thing'].name,
@@ -442,6 +430,7 @@ DustSensorThings.prototype.getInformation = function (thingId) {
                     contents.grade = grade;
                     contents.pm10 = data.value;
                     contents.pm10Percent = Math.max(Math.min(data.value, _this.pm10GradeMax), _this.pm10GradeMin) / (_this.pm10GradeMax - _this.pm10GradeMin) * 100;
+                    contents.chartTitle = JS_MESSAGE["iot.dust"] + 'PM10';
                 }
 
             }
@@ -457,7 +446,10 @@ DustSensorThings.prototype.getInformation = function (thingId) {
             $dustInfoDHTML.html(html);
             $dustInfoDHTML.show();
 
-            _this.drawGaugeChart(contents.pm10Percent);
+            const total = _this.pm10GradeMax - _this.pm10GradeMin;
+            const range = [0, 30, 80, 150, 600];
+
+            _this.drawGaugeChart(range, total, contents.pm10Percent);
             _this.drawHourlyAirQualityChart(contents.dataStreams);
 
         },
@@ -475,78 +467,6 @@ DustSensorThings.prototype.closeInformation = function () {
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
 };
-
-/**
- * 게이지 차트 그리기
- * @param pm10Percent
- */
-DustSensorThings.prototype.drawGaugeChart = function (pm10Percent) {
-
-    const gaugeChartOptions = {
-        rotation: 1 * Math.PI,
-        circumference: 1 * Math.PI,
-        legend: {
-            display: false
-        },
-        tooltips: {
-            enabled: false
-        },
-        cutoutPercentage: 80
-    };
-
-    const ratioFactor = (this.pm10GradeMax - this.pm10GradeMin) / 100;
-    const ratio = [30 / ratioFactor, 80 / ratioFactor, 150 / ratioFactor];
-
-    const gaugeChart = new Chart(document.getElementById("gaugeChart"), {
-        type: 'doughnut',
-        data: {
-            labels: [this.getGradeMessage(1), this.getGradeMessage(2), this.getGradeMessage(3), this.getGradeMessage(4)],
-            datasets: [
-                {
-                    label: '통합대기환경지수(CAI)',
-                    data: [ratio[0], ratio[1], ratio[2], 100 - (ratio[0] + ratio[1] + ratio[2])],
-                    backgroundColor: [
-                        'rgba(30, 144, 255, 1)',
-                        'rgba(0, 199, 60, 1)',
-                        'rgba(255, 215, 0, 1)',
-                        'rgba(255, 89, 89, 1)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 255, 255 ,1)',
-                        'rgba(255, 255, 255 ,1)',
-                        'rgba(255, 255, 255 ,1)'
-                    ],
-                    borderWidth: 0
-                }
-            ]
-        },
-        options: gaugeChartOptions
-    });
-
-    this.gaugeChartNeedle = new Chart(document.getElementById("gaugeChartNeedle"), {
-        type: 'doughnut',
-        data: {
-            datasets: [
-                {
-                    data: [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)],
-                    backgroundColor: [
-                        'rgba(0, 0, 0 ,0)',
-                        'rgba(255,255,255,1)',
-                        'rgba(0, 0, 0 ,0)',
-                    ],
-                    borderColor: [
-                        'rgba(0, 0, 0 ,0)',
-                        'rgba(0, 0, 0 ,1)',
-                        'rgba(0, 0, 0 ,0)'
-                    ],
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: gaugeChartOptions
-    });
-
-}
 
 /**
  * 시간별 공기질 차트 그리기
@@ -651,7 +571,7 @@ DustSensorThings.prototype.update = function () {
 
                     if (observedPropertyName === _this.observedProperty && _this.gaugeChartNeedle.data) {
                         // 게이지 차트 업데이트
-                        _this.updateGaugeChart(value, grade);
+                        _this.updateGaugeChart(_this.pm10GradeMin, _this.pm10GradeMax, value, grade);
                     }
 
                     // 라인 차트 업데이트
@@ -753,11 +673,13 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
                     things: [{
                         id: thingId,
                         value: value,
+                        valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),
                         stationName: thing.name,
                         grade: grade,
                         gradeText: _this.getGradeMessage(grade),
-                        selected: selected
+                        selected: selected,
+                        subTitle: JS_MESSAGE["iot.dust.fine"]
                     }]
                 };
 
@@ -776,22 +698,6 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
 
 };
 
-DustSensorThings.prototype.updateGaugeChart = function (value, grade) {
-
-    const _this = this;
-    const pm10Percent = Math.max(Math.min(value, this.pm10GradeMax), this.pm10GradeMin) / (this.pm10GradeMax - this.pm10GradeMin) * 100;
-    _this.gaugeChartNeedle.data.datasets[0].data = [pm10Percent - 0.5, 1, 100 - (pm10Percent + 0.5)];
-    _this.gaugeChartNeedle.update();
-
-    console.debug("value: " + value + ", pm10Percent: " + pm10Percent);
-
-    // 게이지 차트 영역 값, 등급 업데이트
-    $('#dustInfoValue').text(value);
-    $('#dustInfoGrade').removeClass();
-    $('#dustInfoGrade').addClass('dust lv' + grade);
-
-};
-
 DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, randomValue) {
     const _this = this;
     let value = undefined;
@@ -805,7 +711,6 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
             const observedPropertyName = _this.getObservedPropertyName(dataStream);
             let value = _this.formatValueByDigits(observation.result.value, 3);
             value += randomValue;
-            value = _this.formatValueByDigits(value, 3);
             hourlyAirQualityChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
                     console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
@@ -822,11 +727,4 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
     }
     _this.hourlyAirQualityChart.update();
 
-};
-
-DustSensorThings.prototype.updateInformationTable = function (dataStreamContents) {
-    const $dustInfoTableWrap = $('#dustInfoTableSource');
-    const dustInfoTemplate = Handlebars.compile($("#dustInfoSource").html());
-    const innerHtml = $(dustInfoTemplate(dataStreamContents)).find("#dustInfoTableSource").html();
-    $dustInfoTableWrap.html(innerHtml);
 };

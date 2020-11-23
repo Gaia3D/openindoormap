@@ -160,3 +160,4 @@ JS_MESSAGE["iot.occupancy.legend.nodata"]="없음";
 
 JS_MESSAGE["iot.occupancy"]="재실자";
 JS_MESSAGE["iot.dust.fine"]="미세";
+JS_MESSAGE["iot.dust"]="미세먼지";

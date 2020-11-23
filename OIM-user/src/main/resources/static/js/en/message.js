@@ -183,3 +183,4 @@ JS_MESSAGE["iot.occupancy.legend.nodata"]="Nodata";
 
 JS_MESSAGE["iot.occupancy"]="Occupancy";
 JS_MESSAGE["iot.dust.fine"]="Fine";
+JS_MESSAGE["iot.dust"]="Fine Dust";

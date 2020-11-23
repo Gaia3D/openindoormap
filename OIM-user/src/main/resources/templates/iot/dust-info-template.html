@@ -4,27 +4,41 @@
 <div class="sensor-detail">
     <!-- 게이지차트 -->
     <div class="chart-container">
-        <h3 class="chart-title">{{stationName}}</h3>
-        <button class="chart-info far fa-question-circle"></button>
+        <div class="chart-title-wrap">
+            <h3 class="chart-title">{{stationName}}</h3>
+            <button class="chart-info far fa-question-circle"></button>
+        </div>
         <div class="half-doughnut-chart-container">
             <canvas id="gaugeChart" width="300" height="200"></canvas>
             <canvas id="gaugeChartNeedle" width="300" height="200"></canvas>
             <p id="dustInfoValue" class="percent">{{pm10}}</p>
             <p class="label"><span>{{min}}</span><span>{{max}}</span></p>
         </div>
-        <p class="chart-description">
+        <div class="chart-description">
             <span id="dustInfoGrade" class="dust lv{{grade}}"></span>
-            <span class="dusttx"><span th:text="#{iot.dust}"></span> PM<sub>10</sub></span>
-        </p>
+            <span class="dusttx">{{chartTitle}}</span>
+        </div>
     </div>
     <!-- // 게이지차트 -->
     <!-- 측정항목 -->
     <div id="dustInfoTableSource" class="chart-container">
         <table class="dustList">
             <thead>
-            <th th:text="#{iot.dust.metric}"></th>
-            <th th:text="#{iot.dust.metric.value}"></th>
-            <th th:text="#{iot.dust.grade}"></th>
+            <th><th:block th:text="#{iot.dust.metric}"></th:block></th>
+            <th>
+                {{#ifMatch observedProperty 'dust'}}
+                    <th:block th:text="#{iot.dust.metric.value}"></th:block>
+                {{else}}
+                    <th:block th:text="#{iot.occupancy.person}"></th:block>
+                {{/ifMatch}}
+            </th>
+            <th>
+                {{#ifMatch observedProperty 'dust'}}
+                    <th:block th:text="#{iot.dust.grade}"></th:block>
+                {{else}}
+                    <th:block th:text="#{iot.occupancy.grade}"></th:block>
+                {{/ifMatch}}
+            </th>
             </thead>
             <tbody>
             {{#greaterThan dataStreams.length 0}}
