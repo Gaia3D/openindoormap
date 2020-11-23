@@ -196,7 +196,7 @@ class AirQualityServiceImplTest {
             String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
                     " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" + hour.getName() + "'";
             EntityList<Observation> observations = sta.hasObservations(observationFilter, null);
-
+            if(observations.size() == 0) continue;
             JSONObject json = getObservationSum(observations, hour);
             log.info("json value ================= {}", json.get("value"));
             String timeName = TimeType.DAILY.getValue();

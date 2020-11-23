@@ -227,6 +227,9 @@ public class AirQualityServiceImpl implements AirQualityService {
             String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
                     " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" + type.getName() + "'";
             EntityList<Observation> observations = sta.hasObservations(observationFilter, null);
+            if (observations.size() == 0) {
+                continue;
+            }
             JSONObject json = getObservationAverage(observations, type);
             String timeName = TimeType.DAILY.getValue();
             String dailyName = type.getName() + timeName.charAt(0) + timeName.toLowerCase().substring(1);
@@ -460,10 +463,6 @@ public class AirQualityServiceImpl implements AirQualityService {
             // 운영시 api 연동
             log.info("api 연동 미세먼지 저장소 목록");
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getMsrstnList";
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
                     .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
                     .queryParam("numOfRows", 10000)
@@ -555,7 +554,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI.toString()), HttpMethod.GET, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity, String.class);
             JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
             List<?> resultList = (List<?>) apiResultJson.get("list");
             json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
