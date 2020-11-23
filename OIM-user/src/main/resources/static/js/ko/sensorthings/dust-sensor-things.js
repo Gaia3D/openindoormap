@@ -711,7 +711,6 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
             const observedPropertyName = _this.getObservedPropertyName(dataStream);
             let value = _this.formatValueByDigits(observation.result.value, 3);
             value += randomValue;
-            value = _this.formatValueByDigits(value, 3);
             hourlyAirQualityChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
                     console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);

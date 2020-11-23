@@ -249,7 +249,8 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 if (observations && observations.length > 0) {
                     const observationTop = observations[0];
                     value = observationTop.result.value;
-                    grade = observationTop.result.grade;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
                 }
 
                 // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
@@ -470,8 +471,9 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
         let value = '-', grade = 0, selected = '';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = _this.formatValueByDigits(observationTop.result.value, 3);
-            grade = observationTop.result.grade;
+            value = observationTop.result.value;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
         const gradeText = _this.getGradeMessage(grade);
         if (_this.selectedThingId == thingId) {
@@ -558,8 +560,9 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
         let value = '-', grade = 0, selected = '';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = _this.formatValueByDigits(observationTop.result.value, 3);
-            grade = observationTop.result.grade;
+            value = observationTop.result.value;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
         const gradeText = _this.getGradeMessage(grade);
         if (_this.selectedThingId == thingId) {
@@ -663,7 +666,8 @@ OccupancySensorThings.prototype.getInformation = function(thingId) {
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
             value = observationTop.result.value;
-            grade = observationTop.result.grade;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
 
         const content = {
@@ -726,7 +730,8 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
                 if (observations && observations.length > 0) {
                     const observationTop = observations[0];
                     value = observationTop.result.value;
-                    grade = observationTop.result.grade;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGradeFloor(value);
                 }
 
                 buildingInfo.listOfFloorOccupancy.push({
@@ -734,9 +739,8 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
                     floorText: _this.getFloorText(thing.properties.floor, baseFloor),
                     value: value,
                     valueWithCommas: _this.numberWithCommas(value),
-                    //grade: grade,
-                    grade : _this.getGradeFloor(value),
-                    gradeText: _this.getGradeMessage(_this.getGradeFloor(value)),
+                    grade: grade,
+                    gradeText: _this.getGradeMessage(grade),
                     unit: _this.getUnit(dataStream)
                 });
 
@@ -889,8 +893,9 @@ OccupancySensorThings.prototype.getSensorInformation = function(content) {
                 let value = '-', grade = 0;
                 if (observations && observations.length > 0) {
                     const observationTop = observations[0];
-                    value = _this.formatValueByDigits(observationTop.result.value, 3);
-                    grade = observationTop.result.grade;
+                    value = observationTop.result.value;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
                 }
 
                 const data = {
@@ -953,7 +958,7 @@ OccupancySensorThings.prototype.drawOccupancyChart = function (dataStreams) {
         for (const observation of dataStream.observations) {
             points.push({
                 x: this.observationTimeToLocalTime(observation.resultTime),
-                y: this.formatValueByDigits(observation.result.value, 3)
+                y: observation.result.value
             });
         }
         const observedPropertyName = dataStream.observedPropertyName;
@@ -1050,10 +1055,11 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                 // ObservationTop
                 const observationTop = dataStream['Observations'][0];
                 //let value = parseFloat(observation.result.value);
-                value = _this.formatValueByDigits(observationTop.result.value, 3);
+                value = parseInt(observationTop.result.value);
                 value += randomValue;
                 value = _this.formatValueByDigits(value, 3);
-                grade = observationTop.result.grade;
+                //grade = observationTop.result.grade;
+                grade = _this.getGrade(value);
 
                 for (const thing of _this.things) {
                     const originalId = thing['@iot.id'];
@@ -1071,10 +1077,10 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                         valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),
                         stationName: $('#overlay_' + thingId + ' .stationName').text(),
-                        grade: _this.getGrade(value),
-                        gradeText: _this.getGradeMessage(_this.getGrade(value)),
+                        grade: grade,
+                        gradeText: _this.getGradeMessage(grade),
                         selected: selected,
-                        subTitle: JS_MESSAGE["iot.dust.fine"]
+                        subTitle: JS_MESSAGE["iot.occupancy"]
                     }]
                 };
 
@@ -1126,11 +1132,12 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
         let value = '-', grade = 0;
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = observationTop.result.value;
+            value = parseInt(observationTop.result.value);
             if (randomValue) {
                 value += randomValue;
             }
-            grade = observationTop.result.grade;
+            //grade = observationTop.result.grade;
+            grade = _this.getGrade(value);
         }
 
         const buildingInfo = {
@@ -1173,11 +1180,12 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
                     let value = '-', grade = 0;
                     if (observations && observations.length > 0) {
                         const observationTop = observations[0];
-                        value = observationTop.result.value;
+                        value = parseInt(observationTop.result.value);
                         if (randomValue) {
                             value += randomValue;
                         }
-                        grade = observationTop.result.grade;
+                        //grade = observationTop.result.grade;
+                        grade = _this.getGradeFloor(value);
                     }
 
                     buildingInfo.listOfFloorOccupancy.push({
@@ -1185,9 +1193,8 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
                         floorText: _this.getFloorText(thing.properties.floor, baseFloor),
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
-                        //grade: grade,
-                        grade : _this.getGradeFloor(value),
-                        gradeText: _this.getGradeMessage(_this.getGradeFloor(value)),
+                        grade: grade,
+                        gradeText: _this.getGradeMessage(grade),
                         unit: _this.getUnit(dataStream)
                     });
 
@@ -1240,6 +1247,7 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
+                '$top=1;' +
                 '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
     console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
@@ -1268,10 +1276,11 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
                     // ObservationTop
                     const observationTop = dataStream['Observations'][0];
                     //value = parseFloat(observation.result.value);
-                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    value = parseInt(observationTop.result.value);
                     value += randomValue;
                     value = _this.formatValueByDigits(value, 3);
-                    grade = observationTop.result.grade;
+                    //grade = observationTop.result.grade;
+                    grade = _this.getGrade(value);
 
                     if (_this.gaugeChartNeedle.data) {
                         // 게이지 차트 업데이트
@@ -1282,13 +1291,13 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
                     _this.updateOccupancyChart(dataStream, randomValue);
 
                 }
-                const gradeText = _this.getGradeMessage(grade);
+
                 dataStreamContents.dataStreams.push({
                     name: dataStream.name,
                     unit: _this.getUnit(dataStream),
                     value: value,
                     grade: grade,
-                    gradeText: gradeText,
+                    gradeText: _this.getGradeMessage(grade),
                     observedPropertyName: observedPropertyName
                 });
 
@@ -1315,9 +1324,8 @@ OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, ran
     if (dataStream['Observations'].length > 0) {
         for (const observation of dataStream['Observations']) {
             const observedPropertyName = _this.getObservedPropertyName(dataStream);
-            let value = _this.formatValueByDigits(observation.result.value, 3);
+            let value = parseInt(observation.result.value);
             value += randomValue;
-            value = _this.formatValueByDigits(value, 3);
             occupancyChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
                     console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
@@ -1352,7 +1360,7 @@ OccupancySensorThings.prototype.changeRoomColor = function() {
         let value = '-';
         if (observations && observations.length > 0) {
             const observationTop = observations[0];
-            value = this.formatValueByDigits(observationTop.result.value, 3);
+            value = observationTop.result.value;
         }
 
         const cellId = thing['properties']['cell'];
