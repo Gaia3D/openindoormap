@@ -12,8 +12,10 @@ import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.sensor.AirQualityObservedProperty;
 import io.openindoormap.domain.sensor.TimeType;
 import io.openindoormap.service.AirQualityService;
+import io.openindoormap.utils.NumberUtils;
 import io.openindoormap.utils.SensorThingsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -29,6 +31,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,6 +66,11 @@ class AirQualityServiceImplTest {
     @Test
     void 미세먼지_데이터_넣기() {
         sensorService.insertSensorData();
+    }
+
+    @Test
+    void 미세먼지_하루_통계_생성() {
+        sensorService.insertStatisticsDaily();
     }
 
     @Test
@@ -124,10 +133,9 @@ class AirQualityServiceImplTest {
     void 시간_범위_검색() {
         //http://localhost:8888/FROST-Server/v1.0/Observations?$filter=resultTime ge 2020-11-16T15:00:00.000Z and
         // resultTime le 2020-11-17T14:00:00.000Z and Datastreams/Things/name eq '금천구' and Datastreams/ObservedProperties/name eq 'pm10Value'
-        ZoneId zoneId = ZoneId.of("Asia/Seoul");
         ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
-        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, zoneId);
-        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, zoneId);
+        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, now.getZone());
+        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, now.getZone());
         log.info("start ============ {} ", start.toInstant());
         log.info("end ================ {} ", end.toInstant());
 
@@ -150,9 +158,12 @@ class AirQualityServiceImplTest {
         //http://localhost:8888/FROST-Server/v1.0/Datastreams?$filter=Thing/name eq '금천구' and Datastream/ObservedProperty/name eq 'pm10ValueDaily'
         String stationName = "금천구";
         for (AirQualityObservedProperty type : AirQualityObservedProperty.values()) {
-            if(type.getTimeType().equals(TimeType.DAILY)){
+            if (type.getTimeType().equals(TimeType.DAILY)) {
                 String filter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '" + type.getName() + "'";
                 Datastream datastream = sta.hasDatastream(filter, null);
+                if (datastream == null) {
+                    continue;
+                }
                 log.info(datastream.getName());
             }
         }
@@ -175,7 +186,55 @@ class AirQualityServiceImplTest {
     }
 
     @Test
-    void test() {
-        log.info("test =============== {} ", sta.hasThingsWithObservation(null, "금천구"));
+    void 하루_통계_데이터_생성() throws ServiceFailureException {
+        String stationName = "금천구";
+        ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
+        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, now.getZone());
+        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, now.getZone());
+        List<AirQualityObservedProperty> hourType = AirQualityObservedProperty.getObservedPropertyByType(TimeType.HOUR);
+        for (AirQualityObservedProperty hour : hourType) {
+            String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
+                    " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" + hour.getName() + "'";
+            EntityList<Observation> observations = sta.hasObservations(observationFilter, null);
+
+            JSONObject json = getObservationSum(observations, hour);
+            log.info("json value ================= {}", json.get("value"));
+            String timeName = TimeType.DAILY.getValue();
+            String dailyName = hour.getName() + timeName.charAt(0) + timeName.toLowerCase().substring(1);
+            log.info("dailyName ====== {}", dailyName);
+            String datastreamFilter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '" + dailyName + "'";
+            Datastream datastream = sta.hasDatastream(datastreamFilter, null);
+            Thing thing = datastream.getThing();
+
+            assertThat(thing.getName()).isEqualTo(stationName);
+        }
+    }
+
+    private JSONObject getObservationSum(EntityList<Observation> observations, AirQualityObservedProperty type) {
+        JSONObject json = new JSONObject();
+        int size = observations.size();
+        if (type.equals(AirQualityObservedProperty.PM10) || type.equals(AirQualityObservedProperty.PM25)) {
+            int observationSum = observations.stream()
+                    .mapToInt(f -> {
+                        Map<String, Object> map = (Map<String, Object>) f.getResult();
+                        return Integer.parseInt(map.get("value").toString());
+                    })
+                    .sum();
+
+            json.put("value", observationSum / size);
+
+            return json;
+        }
+
+        double observationSum = observations.stream()
+                .mapToDouble(f -> {
+                    Map<String, Object> map = (Map<String, Object>) f.getResult();
+                    return Double.parseDouble(map.get("value").toString());
+                })
+                .sum();
+
+        json.put("value", NumberUtils.round(5, observationSum / size));
+
+        return json;
     }
 }

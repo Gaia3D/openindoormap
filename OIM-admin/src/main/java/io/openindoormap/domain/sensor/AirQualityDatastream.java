@@ -31,7 +31,7 @@ public enum AirQualityDatastream {
         return name;
     }
 
-    public UnitOfMeasurement getUnitOfMeasurementName() {
+    public UnitOfMeasurement getUnitOfMeasurement() {
         UnitOfMeasurement unitOfMeasurement = new UnitOfMeasurement();
         if (this.unitOfMeasurementName.equals("microgram per cubic meter")) {
             unitOfMeasurement.setName(this.unitOfMeasurementName);

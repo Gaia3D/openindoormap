@@ -406,26 +406,9 @@ public class OccupancyServiceImpl implements OccupancyService {
                             return Integer.parseInt(map.get("value").toString());
                         })
                         .sum();
+
                 buildSum += floorSum;
             }
-//            for (var thing : things) {
-//                try {
-//                    List<Datastream> datastreamList = thing.getDatastreams().toList();
-//                    datastream = datastreamList.size() > 0 ? datastreamList.get(0) : null;
-//                    var observation = datastream != null ? datastream.getObservations() : null;
-//                    var lastObservation = observation.size() > 0 ? observation.toList().get(0) : null;
-//                    featureOfInterest = lastObservation != null ? lastObservation.getFeatureOfInterest() : null;
-//                    resultTime = lastObservation != null ? lastObservation.getResultTime() : null;
-//                    floorSum += lastObservation != null ? (int) lastObservation.getResult() : null;
-//
-//                    long count = things.stream()
-//                            .mapToLong(f-> Long.parseLong(f.getDatastreams().toList().get(0).getObservations().toList().get(0).getResult().toString()))
-//                            .sum();
-//                    buildSum += floorSum;
-//                } catch (ServiceFailureException e) {
-//                    e.printStackTrace();
-//                }
-//            }
             Map<String, Object> resultMap = Map.ofEntries(
                     entry("grade", getGrade(floorSum)),
                     entry("value", floorSum)
