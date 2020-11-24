@@ -12,8 +12,10 @@ import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.domain.sensor.AirQualityDatastream;
 import io.openindoormap.domain.sensor.AirQualityObservedProperty;
+import io.openindoormap.domain.sensor.TimeType;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
+import io.openindoormap.utils.NumberUtils;
 import io.openindoormap.utils.SensorThingsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -199,13 +201,94 @@ public class AirQualityServiceImpl implements AirQualityService {
         }
     }
 
+    /**
+     * 미세먼지 하루 통계 데이터 생성
+     */
     @Override
     public void insertStatisticsDaily() {
-        JSONObject stationJson = getListStation();
-        List<?> stationList = (List<?>) stationJson.get("list");
-        for (var station : stationList) {
-
+        EntityList<Thing> thingList = sta.hasThingsFindAll(getFilter());
+        for (Thing thing : thingList) {
+            insertObservationDaily(thing);
         }
+    }
+
+    /**
+     * 미세먼지 타입별 24시간 Observation 생성
+     *
+     * @param thing Thing Entity
+     */
+    private void insertObservationDaily(Thing thing) {
+        String stationName = thing.getName();
+        ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
+        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, now.getZone());
+        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, now.getZone());
+        List<AirQualityObservedProperty> typeList = AirQualityObservedProperty.getObservedPropertyByType(TimeType.HOUR);
+        for (AirQualityObservedProperty type : typeList) {
+            String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
+                    " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" + type.getName() + "'";
+            EntityList<Observation> observations = sta.hasObservations(observationFilter, null);
+            if (observations.size() == 0) {
+                continue;
+            }
+            JSONObject json = getObservationAverage(observations, type);
+            String timeName = TimeType.DAILY.getValue();
+            String dailyName = type.getName() + timeName.charAt(0) + timeName.toLowerCase().substring(1);
+            String datastreamFilter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '" + dailyName + "'";
+            Datastream datastream = sta.hasDatastream(datastreamFilter, null);
+            if (datastream == null) {
+                continue;
+            }
+            ZonedDateTime insertTime = ZonedDateTime.now();
+
+            Observation observation = ObservationBuilder.builder()
+                    .phenomenonTime(new TimeObject(insertTime))
+                    .resultTime(start)
+                    .result(json)
+                    .datastream(datastream)
+                    .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
+                    .build();
+
+            try {
+                service.create(observation);
+            } catch (ServiceFailureException e) {
+                LogMessageSupport.printMessage(e, "-------- AirQualityService insertObservationDaily = {}", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Observation 평균 구하기
+     *
+     * @param observations Observation list
+     * @param type         미세먼지 타입
+     * @return JSONObject
+     */
+    private JSONObject getObservationAverage(EntityList<Observation> observations, AirQualityObservedProperty type) {
+        JSONObject json = new JSONObject();
+        int size = observations.size();
+        if (type.equals(AirQualityObservedProperty.PM10) || type.equals(AirQualityObservedProperty.PM25)) {
+            int observationSum = observations.stream()
+                    .mapToInt(f -> {
+                        Map<String, Object> map = (Map<String, Object>) f.getResult();
+                        return Integer.parseInt(map.get("value").toString());
+                    })
+                    .sum();
+
+            json.put("value", observationSum / size);
+
+            return json;
+        }
+
+        double observationSum = observations.stream()
+                .mapToDouble(f -> {
+                    Map<String, Object> map = (Map<String, Object>) f.getResult();
+                    return Double.parseDouble(map.get("value").toString());
+                })
+                .sum();
+
+        json.put("value", NumberUtils.round(5, observationSum / size));
+
+        return json;
     }
 
     /**
@@ -289,7 +372,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .name(datastreamType.getName())
                     .description(datastreamType.getName())
                     .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                    .unitOfMeasurement(datastreamType.getUnitOfMeasurementName())
+                    .unitOfMeasurement(datastreamType.getUnitOfMeasurement())
                     .sensor(sensorEntity)
                     .observedProperty(observedPropertyMap.get(entity.getName()))
                     .thing(thing)
@@ -380,10 +463,6 @@ public class AirQualityServiceImpl implements AirQualityService {
             // 운영시 api 연동
             log.info("api 연동 미세먼지 저장소 목록");
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getMsrstnList";
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
                     .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
                     .queryParam("numOfRows", 10000)
@@ -410,23 +489,23 @@ public class AirQualityServiceImpl implements AirQualityService {
         if (mockEnable) {
             Random random = new Random();
             // 미세먼지 pm10
-            String pm10Value = String.valueOf(random.nextInt(601));
-            String pm10Grade = getGrade(pm10Value, AirQualityObservedProperty.PM10);
+            int pm10Value = random.nextInt(601);
+            int pm10Grade = getGrade(pm10Value, AirQualityObservedProperty.PM10);
             // 미세먼지 pm2.5
-            String pm25Value = String.valueOf(random.nextInt(501));
-            String pm25Grade = getGrade(pm25Value, AirQualityObservedProperty.PM25);
+            int pm25Value = random.nextInt(501);
+            int pm25Grade = getGrade(pm25Value, AirQualityObservedProperty.PM25);
             // 아황산가스 농도
-            String so2Value = String.valueOf(random.nextFloat());
-            String so2Grade = getGrade(so2Value, AirQualityObservedProperty.SO2);
+            double so2Value = NumberUtils.round(5, random.nextFloat());
+            int so2Grade = getGrade(so2Value, AirQualityObservedProperty.SO2);
             // 일산화탄소 농도
-            String coValue = String.valueOf(random.nextFloat() * 50);
-            String coGrade = getGrade(coValue, AirQualityObservedProperty.CO);
+            double coValue = NumberUtils.round(5, random.nextFloat() * 50);
+            int coGrade = getGrade(coValue, AirQualityObservedProperty.CO);
             // 오존 농도
-            String o3Value = String.valueOf(random.nextFloat() * 0.6);
-            String o3Grade = getGrade(o3Value, AirQualityObservedProperty.O3);
+            double o3Value = NumberUtils.round(5, random.nextFloat() * 0.6);
+            int o3Grade = getGrade(o3Value, AirQualityObservedProperty.O3);
             // 이산화질소 농도
-            String no2Value = String.valueOf(random.nextFloat() * 2);
-            String no2Grade = getGrade(no2Value, AirQualityObservedProperty.NO2);
+            double no2Value = NumberUtils.round(5, random.nextFloat() * 2);
+            int no2Grade = getGrade(no2Value, AirQualityObservedProperty.NO2);
 
             json.put("pm10Value", pm10Value);
             json.put("pm25Value", pm25Value);
@@ -475,7 +554,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI.toString()), HttpMethod.GET, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity, String.class);
             JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
             List<?> resultList = (List<?>) apiResultJson.get("list");
             json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
@@ -494,82 +573,74 @@ public class AirQualityServiceImpl implements AirQualityService {
      * @param type  측정데이터 타입
      * @return String
      */
-    private String getGrade(String value, AirQualityObservedProperty type) {
-        String grade = "";
-        float floatNum = Float.parseFloat(value);
-        if (AirQualityObservedProperty.SO2 == type) {
-            if (floatNum >= 0 && floatNum <= 0.02) {
-                grade = "1";
-            } else if (floatNum >= 0.021 && floatNum <= 0.05) {
-                grade = "2";
-            } else if (floatNum >= 0.051 && floatNum <= 0.15) {
-                grade = "3";
-            } else if (floatNum >= 0.151 && floatNum <= 1) {
-                grade = "4";
-            } else {
-                grade = "0";
-            }
-        } else if (AirQualityObservedProperty.CO == type) {
-            if (0 >= floatNum && floatNum <= 2) {
-                grade = "1";
-            } else if (floatNum >= 2.01 && floatNum <= 9) {
-                grade = "2";
-            } else if (floatNum >= 9.01 && floatNum <= 15) {
-                grade = "3";
-            } else if (floatNum >= 15.01 && floatNum <= 50) {
-                grade = "4";
-            } else {
-                grade = "0";
-            }
-        } else if (AirQualityObservedProperty.O3 == type) {
-            if (0 >= floatNum && floatNum <= 0.03) {
-                grade = "1";
-            } else if (floatNum >= 0.031 && floatNum <= 0.09) {
-                grade = "2";
-            } else if (floatNum >= 0.091 && floatNum <= 0.15) {
-                grade = "3";
-            } else if (floatNum >= 0.151 && floatNum <= 0.6) {
-                grade = "4";
-            } else {
-                grade = "0";
-            }
-        } else if (AirQualityObservedProperty.NO2 == type) {
-            if (floatNum >= 0 && floatNum <= 0.03) {
-                grade = "1";
-            } else if (floatNum >= 0.031 && floatNum <= 0.06) {
-                grade = "2";
-            } else if (floatNum >= 0.061 && floatNum <= 0.2) {
-                grade = "3";
-            } else if (floatNum >= 0.201 && floatNum <= 2) {
-                grade = "4";
-            } else {
-                grade = "0";
-            }
-        } else if (AirQualityObservedProperty.PM10 == type) {
-            int intNum = Integer.parseInt(value);
-            if (intNum >= 0 && intNum <= 30) {
-                grade = "1";
-            } else if (intNum >= 31 & intNum <= 80) {
-                grade = "2";
-            } else if (intNum >= 81 && intNum <= 150) {
-                grade = "3";
-            } else if (intNum >= 151 && intNum <= 600) {
-                grade = "4";
-            } else {
-                grade = "0";
+    private int getGrade(int value, AirQualityObservedProperty type) {
+        int grade = 0;
+        if (AirQualityObservedProperty.PM10 == type) {
+            if (value >= 0 && value <= 30) {
+                grade = 1;
+            } else if (value >= 31 & value <= 80) {
+                grade = 2;
+            } else if (value >= 81 && value <= 150) {
+                grade = 3;
+            } else if (value >= 151 && value <= 600) {
+                grade = 4;
             }
         } else if (AirQualityObservedProperty.PM25 == type) {
-            int intNum = Integer.parseInt(value);
-            if (intNum >= 0 && intNum <= 15) {
-                grade = "1";
-            } else if (intNum >= 16 && intNum <= 35) {
-                grade = "2";
-            } else if (intNum >= 36 && intNum <= 75) {
-                grade = "3";
-            } else if (intNum >= 76 && intNum <= 500) {
-                grade = "4";
-            } else {
-                grade = "0";
+            if (value >= 0 && value <= 15) {
+                grade = 1;
+            } else if (value >= 16 && value <= 35) {
+                grade = 2;
+            } else if (value >= 36 && value <= 75) {
+                grade = 3;
+            } else if (value >= 76 && value <= 500) {
+                grade = 4;
+            }
+        }
+
+        return grade;
+    }
+
+    private int getGrade(double value, AirQualityObservedProperty type) {
+        int grade = 0;
+        if (AirQualityObservedProperty.SO2 == type) {
+            if (value >= 0 && value <= 0.02) {
+                grade = 1;
+            } else if (value >= 0.021 && value <= 0.05) {
+                grade = 2;
+            } else if (value >= 0.051 && value <= 0.15) {
+                grade = 3;
+            } else if (value >= 0.151 && value <= 1) {
+                grade = 4;
+            }
+        } else if (AirQualityObservedProperty.CO == type) {
+            if (0 >= value && value <= 2) {
+                grade = 1;
+            } else if (value >= 2.01 && value <= 9) {
+                grade = 2;
+            } else if (value >= 9.01 && value <= 15) {
+                grade = 3;
+            } else if (value >= 15.01 && value <= 50) {
+                grade = 4;
+            }
+        } else if (AirQualityObservedProperty.O3 == type) {
+            if (0 >= value && value <= 0.03) {
+                grade = 1;
+            } else if (value >= 0.031 && value <= 0.09) {
+                grade = 2;
+            } else if (value >= 0.091 && value <= 0.15) {
+                grade = 3;
+            } else if (value >= 0.151 && value <= 0.6) {
+                grade = 4;
+            }
+        } else if (AirQualityObservedProperty.NO2 == type) {
+            if (value >= 0 && value <= 0.03) {
+                grade = 1;
+            } else if (value >= 0.031 && value <= 0.06) {
+                grade = 2;
+            } else if (value >= 0.061 && value <= 0.2) {
+                grade = 3;
+            } else if (value >= 0.201 && value <= 2) {
+                grade = 4;
             }
         }
 
