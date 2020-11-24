@@ -21,6 +21,16 @@ SelectedDataController.prototype.setEventHandler = function() {
 		}
 	});
 	
+	magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4DOBJECT, function(result) {
+		var f4d = result.f4d;
+		var f4dObject = result.selected;
+		
+		if(f4d && f4d instanceof Mago3D.Node 
+		&& f4dObject && f4dObject instanceof Mago3D.NeoReference) {
+			that.selectData(f4dObject, f4d);
+		}
+	});
+	
 	magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, function(result) {
 		var native = result.selected;
 		if(native && native instanceof Mago3D.MagoRenderable) {
@@ -31,6 +41,13 @@ SelectedDataController.prototype.setEventHandler = function() {
 	magoManager.on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDF4D, function(result) {
 		var f4d = result.deselected
 		if(f4d && f4d instanceof Mago3D.Node) {
+			that.deselectData();
+		}
+	});
+	
+	magoManager.on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT, function(result) {
+		var f4dObject = result.deselected
+		if(f4dObject && f4dObject instanceof Mago3D.NeoReference) {
 			that.deselectData();
 		}
 	});
@@ -249,24 +266,27 @@ SelectedDataController.prototype.setEventHandler = function() {
 	});
 }
 
-SelectedDataController.prototype.selectData = function(selected) {
+SelectedDataController.prototype.selectData = function(selected, parent) {
 	var that = this;
 	that.toggleWrap(true);
 	that.selected = selected;
+	that.parent = parent;
+	init(selected, parent);
 	
-	init(selected);
-	
-	function init(selectedData) {
-		setTitle(selectedData);
-		setHex(selectedData);
-		setPositionInfo(selectedData);
+	function init(selectedData, parent) {
+		setTitle(selectedData, parent);
+		setHex(selectedData, parent);
+		setPositionInfo(selectedData, parent);
 		setHeightInfo(selectedData);
 		setBtn(selectedData);
 	}
 	
-	function setTitle(selectData) {
-		if(selectData instanceof Mago3D.Node) {
-			var data = selectData.data;
+	function setTitle(selectData, parent) {
+		if(selectData instanceof Mago3D.Node || selectData instanceof Mago3D.NeoReference) {
+			
+			
+			var target = (selectData instanceof Mago3D.Node) ? selectData : parent;
+			var data = target.data;
 			var projectId = data.projectId;
 
 			var dataGroupName = OIM.dataGroup.get(projectId);
@@ -275,7 +295,9 @@ SelectedDataController.prototype.selectData = function(selected) {
 			if(tempDataName.indexOf("F4D_") >= 0) {
 				tempDataName = tempDataName.replace("F4D_", "");
 			}
-			$('#dataControlWrap .layerDivTit').text(dataGroupName + ' / ' + tempDataName);
+			var title = dataGroupName + ' / ' + tempDataName + ((parent) ? ' / ' + selectData.objectId : '');
+			
+			$('#dataControlWrap .layerDivTit').text(title);
 		} else if(selectData instanceof Mago3D.MagoRenderable) {
 			$('#dataControlWrap .layerDivTit').text(selectData._guid);
 		}
@@ -296,14 +318,44 @@ SelectedDataController.prototype.selectData = function(selected) {
 		$('#dcColorPicker').val(hex).change();
 	}
 	
-	function setPositionInfo(selectData) {
-		var currentGeoLocData = selectData.getCurrentGeoLocationData();
-		
-		var positionInfo = that.getPositionInfoFromGeolocationData(currentGeoLocData);
-		that.changePositionInfo(positionInfo);
+	function setPositionInfo(selectData, parent) {
+		$('#dcRotLocForm').hide();
+		if(selectData instanceof Mago3D.NeoReference) {
+			return false;
+			/*var block = parent.data.neoBuilding.motherBlocksArray[selectData._block_idx];
+			var bbCenter = block.bbox.getCenterPoint();
+			var orgMat = selectData._originalMatrix4;
+			var auxLocalPoint = orgMat.transformPoint3D(bbCenter);
+			var geoLocData = parent.getCurrentGeoLocationData();
+			var pinPoint = geoLocData.tMatrix.transformPoint3D(auxLocalPoint);
+
+			var pinGeoCoord = Mago3D.ManagerUtils.pointToGeographicCoord(pinPoint);
+			
+			pinGeoCoord.heading = 0;
+			pinGeoCoord.pitch = 0;
+			pinGeoCoord.roll = 0;
+			
+			that.changePositionInfo(pinGeoCoord);*/
+		} else {
+			$('#dcRotLocForm').show();
+			var currentGeoLocData = selectData.getCurrentGeoLocationData();
+			
+			var positionInfo = that.getPositionInfoFromGeolocationData(currentGeoLocData);
+			that.changePositionInfo(positionInfo);
+		}
 	}
 	
 	function setHeightInfo(selectData) {
+		$('#dcHeightReference').hide();
+		$('label[for="dcHeightReference"]').hide();
+		
+		if(selectData  instanceof Mago3D.NeoReference) {
+			return false;
+		}
+		
+		$('#dcHeightReference').show();
+		$('label[for="dcHeightReference"]').show();
+		
 		var heightReference = that.getHeightReferenceFromData();
 		that.changeHeightInfo(heightReference);
 		
@@ -319,7 +371,7 @@ SelectedDataController.prototype.selectData = function(selected) {
 				$('#dcSavePosRot').hide();
 				$('#dcShowAttr').hide();
 			}
-		} else if(selectData instanceof Mago3D.MagoRenderable) {
+		} else {/* if(selectData instanceof Mago3D.MagoRenderable || selectData instanceof Mago3D.NeoReference) { */
 			$('#dcSavePosRot').hide();
 			$('#dcShowAttr').hide();
 		}
@@ -401,6 +453,8 @@ SelectedDataController.prototype.changeColor = function() {
 		this.changeF4dColor();
 	} else if (this.selected instanceof Mago3D.MagoRenderable) {
 		this.changeNativeColor();
+	} else { /* this.selected instanceof Mago3D.NeoReference*/
+		this.changeReferenceColor();
 	}
 }
 SelectedDataController.prototype.restoreColor = function() {
@@ -408,7 +462,20 @@ SelectedDataController.prototype.restoreColor = function() {
 		this.restoreF4dColor();
 	} else if (this.selected instanceof Mago3D.MagoRenderable) {
 		this.restoreNativeColor();
+	} else { /* this.selected instanceof Mago3D.NeoReference*/
+		this.restoreReferenceColor();
 	}
+}
+
+SelectedDataController.prototype.changeReferenceColor = function() {
+	if(!this.selected || !(this.selected instanceof Mago3D.NeoReference)) {
+		alert(JS_MESSAGE["data.select"]);
+		return;
+	}
+	var data = this.parent.data;
+
+	var rgbArray = hex2rgbArray($('#dcColorInput').val());
+	changeColorAPI(this.magoInstance, data.projectId, data.nodeId, [this.selected.objectId], 'isPhysical=true', rgbArray.join(','));
 }
 
 SelectedDataController.prototype.changeF4dColor = function() {
@@ -433,6 +500,10 @@ SelectedDataController.prototype.changeNativeColor = function() {
 
 SelectedDataController.prototype.restoreF4dColor = function() {
 	this.selected.deleteChangeColor(this.magoInstance.getMagoManager());
+}
+
+SelectedDataController.prototype.restoreReferenceColor = function() {
+	this.parent.deleteChangeColor(this.magoInstance.getMagoManager());
 }
 
 SelectedDataController.prototype.restoreNativeColor = function() {
