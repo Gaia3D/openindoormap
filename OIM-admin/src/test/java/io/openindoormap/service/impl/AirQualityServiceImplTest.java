@@ -16,6 +16,7 @@ import io.openindoormap.utils.NumberUtils;
 import io.openindoormap.utils.SensorThingsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -58,22 +59,22 @@ class AirQualityServiceImplTest {
         sta.init(propertiesConfig.getSensorThingsApiServer());
     }
 
-    @Test
+    @Ignore
     void 측정소_데이터_넣기() {
         sensorService.initSensorData();
     }
 
-    @Test
+    @Ignore
     void 미세먼지_데이터_넣기() {
         sensorService.insertSensorData();
     }
 
-    @Test
+    @Ignore
     void 미세먼지_하루_통계_생성() {
         sensorService.insertStatisticsDaily();
     }
 
-    @Test
+    @Ignore
     void 측정소별_데이터스트림() throws ServiceFailureException {
         //http://localhost:8888/FROST-Server/v1.0/Things?$filter= name eq '반송로'&$expand=Datastreams
         EntityList<Thing> things = sensorThingsService.things()
@@ -88,7 +89,7 @@ class AirQualityServiceImplTest {
         }
     }
 
-    @Test
+    @Ignore
     void 시간_비교() throws ServiceFailureException {
         EntityList<Thing> things = sensorThingsService.things()
                 .query()
@@ -109,7 +110,7 @@ class AirQualityServiceImplTest {
 
     }
 
-    @Test
+    @Ignore
     void 데이터스트림_정렬() throws ServiceFailureException {
 
         var thing = sta.hasThingWithRelationEntities(null, "금천구");
@@ -129,7 +130,7 @@ class AirQualityServiceImplTest {
         assertThat(sensor.getType()).isEqualTo(EntityType.SENSOR);
     }
 
-    @Test
+    @Ignore
     void 시간_범위_검색() {
         //http://localhost:8888/FROST-Server/v1.0/Observations?$filter=resultTime ge 2020-11-16T15:00:00.000Z and
         // resultTime le 2020-11-17T14:00:00.000Z and Datastreams/Things/name eq '금천구' and Datastreams/ObservedProperties/name eq 'pm10Value'
@@ -153,7 +154,7 @@ class AirQualityServiceImplTest {
         observations.forEach(f -> log.info(f.getResultTime().toString()));
     }
 
-    @Test
+    @Ignore
     void 데이터스트림_24시간() {
         //http://localhost:8888/FROST-Server/v1.0/Datastreams?$filter=Thing/name eq '금천구' and Datastream/ObservedProperty/name eq 'pm10ValueDaily'
         String stationName = "금천구";
@@ -169,7 +170,7 @@ class AirQualityServiceImplTest {
         }
     }
 
-    @Test
+    @Ignore
     void 미세먼지_전체_thing_조회() {
         String filter = "Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
                 " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
@@ -185,7 +186,7 @@ class AirQualityServiceImplTest {
         things.forEach(f -> log.info(String.valueOf(f.getId())));
     }
 
-    @Test
+    @Ignore
     void 하루_통계_데이터_생성() throws ServiceFailureException {
         String stationName = "금천구";
         ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
