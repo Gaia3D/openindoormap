@@ -183,6 +183,8 @@ OccupancySensorThings.prototype.getOccupancyColor = function (value) {
             return "255,215,0,200";
         case 4:
             return "255,89,89,200";
+        default:
+            return "255,255,255,255";
     }
 };
 
@@ -630,6 +632,7 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
         const cellId = thing['properties']['cell'];
         const cellSpace = _this.cellSpaceList[dataId][cellId];
+        if (!cellSpace) continue;
         const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
 
         const magoManager = _this.magoInstance.getMagoManager();
