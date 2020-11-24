@@ -104,18 +104,18 @@
                 const floor = $(this).data('floor');
 
                 sensorThings.observedProperty = 'occupancyFloor';
-                const selectedGroupId = sensorThings.selectedGroupId;
+                const selectedDataGroupId = sensorThings.selectedDataGroupId;
                 const selectedDataKey = sensorThings.selectedDataKey;
 
                 if (sensorThings.selectedFloorSensorList.length > 0) {
                     const rgbColorCode = "255,255,255,255";
                     for (const cellId of sensorThings.selectedFloorSensorList) {
-                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedDataGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
                     }
                 }
 
                 const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
-                sensorThings.selectedGroupId = buildingInfo.dataGroupId;
+                sensorThings.selectedDataGroupId = buildingInfo.dataGroupId;
                 sensorThings.selectedDataKey = buildingInfo.dataKey;
 
                 sensorThings.clearOverlay();

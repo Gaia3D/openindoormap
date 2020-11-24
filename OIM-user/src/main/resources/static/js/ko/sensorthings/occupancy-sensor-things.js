@@ -23,8 +23,8 @@ const OccupancySensorThings = function (magoInstance) {
     this.occupancyGradeMax = 10;
     this.maxCapacity = 10;
 
-    //this.currentTime = "2020-11-17T12:15:00.000Z";
-    this.currentTime = moment.utc().format();
+    this.currentTime = "2020-11-23T12:15:00.000Z";
+    //this.currentTime = moment.utc().format();
     this.processingTime = 60;       // 60s
     this.callInterval = 10;         // 10s
     this.filterInterval = 120;      // 120s
@@ -36,7 +36,7 @@ const OccupancySensorThings = function (magoInstance) {
     this.chartYAxesTitle = '재실자(명)';
 
     this.selectedBuildingId = 0;
-    this.selectedGroupId = '';
+    this.selectedDataGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
     this.selectedFloorSensorList = [];
@@ -130,7 +130,6 @@ OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
 OccupancySensorThings.prototype.init = function () {
-
     if ($('#buildingInfoWrap').is(':visible')) {
         $('#buildingInfoWrap').hide();
     }
@@ -141,7 +140,7 @@ OccupancySensorThings.prototype.init = function () {
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
     this.selectedBuildingId = 0;
-    this.selectedGroupId = '';
+    this.selectedDataGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
     this.selectedFloorSensorList = [];
@@ -634,7 +633,7 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
         const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
 
         const magoManager = _this.magoInstance.getMagoManager();
-        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedGroupId, _this.selectedDataKey);
+        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedDataGroupId, _this.selectedDataKey);
         const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
         const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
         const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
@@ -827,11 +826,11 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
 
     // TODO 시립대 데이터인 경우 하드코딩 삭제
     if (this.selectedDataKey === 'admin_20201013064147_346094873669678') {
-        searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
+        searchDataAPI(this.magoInstance, this.selectedDataGroupId, this.selectedDataKey);
         return;
     }
 
-    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedGroupId, null);
+    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedDataGroupId, null);
     for (const i in nodes) {
         const node = nodes[i];
         const nodeData = node.data;
@@ -839,7 +838,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
         const nodeId = nodeData.nodeId;
         const nodeAttribute = nodeData.attributes;
         if (!nodeId || !nodeAttribute) continue;
-        if (nodeId === this.selectedGroupId) {
+        if (nodeId === this.selectedDataGroupId) {
             nodeAttribute.isVisible = false;
             continue;
         }
@@ -858,7 +857,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
             nodeAttribute.isVisible = true;
         }
     }
-    searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
+    searchDataAPI(this.magoInstance, this.selectedDataGroupId, this.selectedDataKey);
 };
 
 OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) {
@@ -900,13 +899,51 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) 
 
 };
 
-OccupancySensorThings.prototype.closeBuildingInformation = function () {
-    $('#buildingInfoWrap').hide();
+OccupancySensorThings.prototype.changeBuildingMode = function (dataGroupId) {
+
+    // 색상 변경
+    const magoManager = this.magoInstance.getMagoManager();
+    if (this.selectedFloorSensorList.length > 0) {
+        const rgbColorCode = "255,255,255,255";
+        for (const cellId of this.selectedFloorSensorList) {
+            changeColorAPI(magoManager, this.selectedDataGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+        }
+    }
+
+    // Visibility 변경
+    const nodes = magoManager.hierarchyManager.getNodesMap(dataGroupId, null);
+    for (const i in nodes) {
+        const node = nodes[i];
+        const nodeData = node.data;
+        if (!nodeData) continue;
+        const nodeId = nodeData.nodeId;
+        const nodeAttribute = nodeData.attributes;
+        if (!nodeId || !nodeAttribute) continue;
+        nodeAttribute.isVisible = true;
+    }
+
+    // 멤버 초기화
     this.selectedThingId = 0;
     this.selectedBuildingId = 0;
     this.selectedDataKey = '';
+
+    // 모드 변경
     this.observedProperty = 'occupancyBuild';
     this.addOverlay();
+
+}
+
+OccupancySensorThings.prototype.closeBuildingInformation = function (dataGroupId, dataKey) {
+    $('#buildingInfoWrap').hide();
+    this.changeBuildingMode(dataGroupId);
+    searchDataAPI(this.magoInstance, dataGroupId, dataKey);
+};
+
+OccupancySensorThings.prototype.flyTo = function (dataGroupId, dataKey) {
+    if (this.selectedDataGroupId) {
+        this.closeBuildingInformation(this.selectedDataGroupId, this.selectedDataKey);
+    }
+    searchDataAPI(this.magoInstance, dataGroupId, dataKey);
 };
 
 OccupancySensorThings.prototype.getSensorInformation = function(content) {
@@ -1158,7 +1195,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                 const innerHtml = $(template(contents)).find('ul').html();
                 $('#overlay_' + thingId + '> ul').html(innerHtml);
 
-                console.debug("updated thingId: " + thingId);
+                //console.debug("updated thingId: " + thingId);
 
             }
 
@@ -1319,7 +1356,7 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
                 '$top=1;' +
                 '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
-    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getFilterEndTime()));
+    //console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getFilterEndTime()));
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -1397,7 +1434,7 @@ OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, ran
             value += randomValue;
             occupancyChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
-                    console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
+                    //console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
                     if (occupancyChartData.datasets.length > 100) {
                         dataset.data.pop();
                     }
@@ -1440,7 +1477,7 @@ OccupancySensorThings.prototype.changeRoomColor = function() {
         this.selectedFloorSensorList.push(cellId);
 
         const rgbColorCode = this.getOccupancyColor(value);
-        changeColorAPI(magoManager, this.selectedGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+        changeColorAPI(magoManager, this.selectedDataGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
 
     }
 

@@ -15,8 +15,8 @@ const DustSensorThings = function (magoInstance) {
     this.pm10GradeMin = 0;
     this.pm10GradeMax = 600;
 
-    //this.currentTime = "2020-10-26T04:50:00.000Z";
-    this.currentTime = moment.utc().format();
+    this.currentTime = "2020-11-23T12:15:00.000Z";
+    //this.currentTime = moment.utc().format();
     this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
