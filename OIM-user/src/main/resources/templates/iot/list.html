@@ -27,7 +27,8 @@
         <div id="iotDustListDHTML" style="display:none"></div>
     </div>
     <div id="iotPaginationDHTML" class="paginationWrap"></div>
-    <div th:replace="~{/iot/legend-template :: #iotLegendSource}"></div>
+    <div th:replace="~{/iot/occupancy-legend-template :: #iotOccupancyLegendSource}"></div>
+    <div th:replace="~{/iot/dust-legend-template :: #iotDustLegendSource}"></div>
     <div th:replace="~{/common/search-summary-template :: #searchSummarySource}"></div>
     <div th:replace="~{/iot/occupancy-template :: #occupancyListSource}"></div>
     <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
@@ -55,6 +56,7 @@
             // 검색조건 변경
             $('#iotContent input[name="searchWord"]').change(function (e) {
                 // TODO 레이어 온오프 형태로 변경
+                sensorThings.init();
                 sensorThings = sensorThings.createSensorThings();
                 sensorThings.dataSearch(1);
                 sensorThings.clearOverlay();
@@ -103,18 +105,18 @@
                 const floor = $(this).data('floor');
 
                 sensorThings.observedProperty = 'occupancyFloor';
-                const selectedGroupId = sensorThings.selectedGroupId;
+                const selectedDataGroupId = sensorThings.selectedDataGroupId;
                 const selectedDataKey = sensorThings.selectedDataKey;
 
                 if (sensorThings.selectedFloorSensorList.length > 0) {
                     const rgbColorCode = "255,255,255,255";
                     for (const cellId of sensorThings.selectedFloorSensorList) {
-                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedDataGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
                     }
                 }
 
                 const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
-                sensorThings.selectedGroupId = buildingInfo.dataGroupId;
+                sensorThings.selectedDataGroupId = buildingInfo.dataGroupId;
                 sensorThings.selectedDataKey = buildingInfo.dataKey;
 
                 sensorThings.clearOverlay();

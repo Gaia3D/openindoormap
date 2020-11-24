@@ -1,0 +1,29 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="iotDustLegendSource" type="text/x-handlebars-template">
+<div class="legendWrap">
+    <h3>
+        <th:block th:text="#{iot.dust.legend}"></th:block>
+    </h3>
+    <ul class="legend marT5">
+        <li>
+            <div th:text="#{iot.occupancy.legend.grade}"></div><div class="marT5" th:text="#{iot.occupancy.legend.range}"></div>
+        </li>
+        <li>
+            <div class="color good"></div><div th:text="#{iot.dust.legend.good}"></div>
+        </li>
+        <li>
+            <div class="color normal"></div><div th:text="#{iot.dust.legend.normal}"></div>
+        </li>
+        <li>
+            <div class="color bad"></div><div th:text="#{iot.dust.legend.bad}"></div>
+        </li>
+        <li>
+            <div class="color very-bad"></div><div th:text="#{iot.dust.legend.very-bad}"></div>
+        </li>
+        <li>
+            <div class="color nodata"></div><div th:text="#{iot.occupancy.legend.nodata}"></div>
+        </li>
+    </ul>
+</div>
+</script>
+</html>

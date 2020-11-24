@@ -34,5 +34,6 @@ public class AirQualityScheduler {
     @Scheduled(cron = "${openindoormap.schedule.every-days}")
     public void everyDaysScheduler() {
         airQualityService.initSensorData();
+        airQualityService.insertStatisticsDaily();
     }
 }

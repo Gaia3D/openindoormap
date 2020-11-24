@@ -1,5 +1,9 @@
 package io.openindoormap.domain.sensor;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 미세먼지 ObservedProperty 속성값 enum
  */
@@ -43,5 +47,11 @@ public enum AirQualityObservedProperty {
 
     public TimeType getTimeType() {
         return type;
+    }
+
+    public static List<AirQualityObservedProperty> getObservedPropertyByType(TimeType type) {
+        return Arrays.stream(AirQualityObservedProperty.values())
+                .filter(f -> f.type == type)
+                .collect(Collectors.toList());
     }
 }

@@ -23,8 +23,9 @@ const OccupancySensorThings = function (magoInstance) {
     this.occupancyGradeMax = 10;
     this.maxCapacity = 10;
 
-    this.currentTime = "2020-11-17T12:15:00.000Z";
+    this.currentTime = "2020-11-23T12:15:00.000Z";
     //this.currentTime = moment.utc().format();
+    this.processingTime = 60;       // 60s
     this.callInterval = 10;         // 10s
     this.filterInterval = 120;      // 120s
 
@@ -35,13 +36,15 @@ const OccupancySensorThings = function (magoInstance) {
     this.chartYAxesTitle = '재실자(명)';
 
     this.selectedBuildingId = 0;
-    this.selectedGroupId = '';
+    this.selectedDataGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
     this.selectedFloorSensorList = [];
 
     this.chartOptions = {
+        animation: false,
         responsive: true,
+        maintainAspectRatio: false,
         legend: {
             position: 'bottom',
             labels: {
@@ -61,6 +64,36 @@ const OccupancySensorThings = function (magoInstance) {
             mode: 'nearest',
             intersect: true
         },
+        plugins: {
+            zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'x',
+                    rangeMin: {
+                        x: null,
+                        y: null
+                    },
+                    rangeMax: {
+                        x: null,
+                        y: null
+                    }
+                },
+                zoom: {
+                    enabled: true,
+                    drag: false,
+                    mode: 'x',
+                    rangeMin: {
+                        x: null,
+                        y: null
+                    },
+                    rangeMax: {
+                        x: null,
+                        y: null
+                    },
+                    speed: 0.03
+                }
+            }
+        },
         scales: {
             xAxes: [{
                 type: 'time',
@@ -71,7 +104,7 @@ const OccupancySensorThings = function (magoInstance) {
                     hour: 'HH:mm',
                     day: 'MMM DD',
                     month: 'YYYY MMM',
-                    tooltipFormat: 'YYYY-MM-DD HH:mm',
+                    tooltipFormat: 'YYYY-MM-DD HH:mm:ss',
                     displayFormats: {
                         second: 'HH:mm:ss a'
                     }
@@ -91,11 +124,29 @@ const OccupancySensorThings = function (magoInstance) {
             }]
         }
     };
+
 };
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
-OccupancySensorThings.prototype.getGradeByPercent = function(percent) {
+OccupancySensorThings.prototype.init = function () {
+    if ($('#buildingInfoWrap').is(':visible')) {
+        $('#buildingInfoWrap').hide();
+    }
+    if ($('#dustInfoDHTML').is(':visible')) {
+        $('#dustInfoDHTML').hide();
+    }
+    this.things = [];
+    this.selectedThingId = 0;
+    this.selectedDataStreams = [];
+    this.selectedBuildingId = 0;
+    this.selectedDataGroupId = '';
+    this.selectedDataKey = '';
+    this.cellSpaceList = {};
+    this.selectedFloorSensorList = [];
+};
+
+OccupancySensorThings.prototype.getGradeByPercent = function (percent) {
     let grade = 0;
     if (percent >= 0 && percent <= 20) {
         grade = 1;
@@ -132,6 +183,8 @@ OccupancySensorThings.prototype.getOccupancyColor = function (value) {
             return "255,215,0,200";
         case 4:
             return "255,89,89,200";
+        default:
+            return "255,255,255,255";
     }
 };
 
@@ -177,7 +230,7 @@ OccupancySensorThings.prototype.ajaxThingInfo = function(thingId) {
         'Datastreams/Observations(' +
             '$select=result,phenomenonTime,resultTime;' +
             '$orderby=resultTime desc;' +
-            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
         ')';
 
     return $.ajax({
@@ -211,9 +264,10 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             'Datastreams/Observations(' +
                 '$select=result,phenomenonTime,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
+    // TODO DataInfo 조회 결과를 통해 Things을 조회하도록 수정 필요
     $.ajax({
         // http://localhost:8888/FROST-Server/v1.0/Things?$select=@iot.id,name,description&$top=5&$count=true&$orderby=name asc&$filter=Datastreams/ObservedProperty/name eq 'occupancy' and (startswith(name, '1') or endswith(name, '1'))&$expand=Locations($select=@iot.id,location,name),Datastreams($select=@iot.id,description,unitOfMeasurement;$filter=ObservedProperty/name eq 'occupancy'),Datastreams/Observations($select=result,phenomenonTime,resultTime;$orderby=resultTime desc;$filter=resultTime lt 2020-11-03T05:00:00.000Z and resultTime ge 2020-11-03T04:00:00.000Z)
         url: _this.FROST_SERVER_URL + queryString,
@@ -225,7 +279,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             const pagination = new Pagination(pageNo, msg['@iot.count'], 5, msg['@iot.nextLink']);
             msg.pagination = pagination;
 
-            const templateLegend = Handlebars.compile($("#iotLegendSource").html());
+            const templateLegend = Handlebars.compile($("#iotOccupancyLegendSource").html());
             $("#iotLegendDHTML").html("").append(templateLegend(_this));
 
             const data = {
@@ -272,11 +326,18 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
 
                 msg.contents = [];
 
-                for (const argument of arguments) {
-                    const dataInfo = argument[0]['dataInfo'];
+                if (data.promises.length === 1) {
+                    const dataInfo = arguments[0]['dataInfo'];
                     const dataId = dataInfo.dataId;
                     const thingsContent = data.thingsContent[dataId];
                     msg.contents.push(Object.assign(thingsContent, dataInfo));
+                } else {
+                    for (const argument of arguments) {
+                        const dataInfo = argument[0]['dataInfo'];
+                        const dataId = dataInfo.dataId;
+                        const thingsContent = data.thingsContent[dataId];
+                        msg.contents.push(Object.assign(thingsContent, dataInfo));
+                    }
                 }
 
                 const templateSearchSummary = Handlebars.compile($("#searchSummarySource").html());
@@ -315,7 +376,7 @@ OccupancySensorThings.prototype.getDetail = function(obj, thingId) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -384,7 +445,7 @@ OccupancySensorThings.prototype.addOverlay = function () {
             'Datastreams/Observations(' +
                 '$select=result,phenomenonTime,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -571,10 +632,11 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
         const cellId = thing['properties']['cell'];
         const cellSpace = _this.cellSpaceList[dataId][cellId];
+        if (!cellSpace) continue;
         const localCoordinate = {x: cellSpace.x, y: cellSpace.y, z: cellSpace.z};
 
         const magoManager = _this.magoInstance.getMagoManager();
-        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedGroupId, _this.selectedDataKey);
+        const targetNode = magoManager.hierarchyManager.getNodeByDataKey(_this.selectedDataGroupId, _this.selectedDataKey);
         const targetNodeGeoLocDataManager = targetNode.getNodeGeoLocDataManager();
         const targetNodeGeoLocData = targetNodeGeoLocDataManager.getCurrentGeoLocationData();
         const tempGlobalCoordinateObject = targetNodeGeoLocData.localCoordToWorldCoord(localCoordinate);
@@ -708,7 +770,7 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
         '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
         '$expand=Thing,Observations(' +
             '$select=result,resultTime;' +
-            '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+            '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
         ')';
 
     const baseFloor = buildingInfo.baseFloor;
@@ -767,11 +829,11 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
 
     // TODO 시립대 데이터인 경우 하드코딩 삭제
     if (this.selectedDataKey === 'admin_20201013064147_346094873669678') {
-        searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
+        searchDataAPI(this.magoInstance, this.selectedDataGroupId, this.selectedDataKey);
         return;
     }
 
-    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedGroupId, null);
+    const nodes = this.magoInstance.getMagoManager().hierarchyManager.getNodesMap(this.selectedDataGroupId, null);
     for (const i in nodes) {
         const node = nodes[i];
         const nodeData = node.data;
@@ -779,7 +841,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
         const nodeId = nodeData.nodeId;
         const nodeAttribute = nodeData.attributes;
         if (!nodeId || !nodeAttribute) continue;
-        if (nodeId === this.selectedGroupId) {
+        if (nodeId === this.selectedDataGroupId) {
             nodeAttribute.isVisible = false;
             continue;
         }
@@ -798,7 +860,7 @@ OccupancySensorThings.prototype.displaySelectedFloor = function(floor) {
             nodeAttribute.isVisible = true;
         }
     }
-    searchDataAPI(this.magoInstance, this.selectedGroupId, this.selectedDataKey);
+    searchDataAPI(this.magoInstance, this.selectedDataGroupId, this.selectedDataKey);
 };
 
 OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) {
@@ -819,7 +881,7 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) 
             'Datastreams/Observations(' +
                 '$select=result,phenomenonTime,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
 
@@ -840,13 +902,51 @@ OccupancySensorThings.prototype.addSelectedFloorOverlay = function(floor, name) 
 
 };
 
-OccupancySensorThings.prototype.closeBuildingInformation = function () {
-    $('#buildingInfoWrap').hide();
+OccupancySensorThings.prototype.changeBuildingMode = function (dataGroupId) {
+
+    // 색상 변경
+    const magoManager = this.magoInstance.getMagoManager();
+    if (this.selectedFloorSensorList.length > 0) {
+        const rgbColorCode = "255,255,255,255";
+        for (const cellId of this.selectedFloorSensorList) {
+            changeColorAPI(magoManager, this.selectedDataGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+        }
+    }
+
+    // Visibility 변경
+    const nodes = magoManager.hierarchyManager.getNodesMap(dataGroupId, null);
+    for (const i in nodes) {
+        const node = nodes[i];
+        const nodeData = node.data;
+        if (!nodeData) continue;
+        const nodeId = nodeData.nodeId;
+        const nodeAttribute = nodeData.attributes;
+        if (!nodeId || !nodeAttribute) continue;
+        nodeAttribute.isVisible = true;
+    }
+
+    // 멤버 초기화
     this.selectedThingId = 0;
     this.selectedBuildingId = 0;
     this.selectedDataKey = '';
+
+    // 모드 변경
     this.observedProperty = 'occupancyBuild';
     this.addOverlay();
+
+}
+
+OccupancySensorThings.prototype.closeBuildingInformation = function (dataGroupId, dataKey) {
+    $('#buildingInfoWrap').hide();
+    this.changeBuildingMode(dataGroupId);
+    searchDataAPI(this.magoInstance, dataGroupId, dataKey);
+};
+
+OccupancySensorThings.prototype.flyTo = function (dataGroupId, dataKey) {
+    if (this.selectedDataGroupId) {
+        this.closeBuildingInformation(this.selectedDataGroupId, this.selectedDataKey);
+    }
+    searchDataAPI(this.magoInstance, dataGroupId, dataKey);
 };
 
 OccupancySensorThings.prototype.getSensorInformation = function(content) {
@@ -861,7 +961,7 @@ OccupancySensorThings.prototype.getSensorInformation = function(content) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
             ')';
 
     $.ajax({
@@ -968,7 +1068,8 @@ OccupancySensorThings.prototype.drawOccupancyChart = function (dataStreams) {
             data: points,
             borderColor: propertyColor,
             backgroundColor: new Color(propertyColor).alpha(0.2).rgbString(),
-            observedPropertyName: observedPropertyName
+            observedPropertyName: observedPropertyName,
+            steppedLine: 'middle'
         });
     }
 
@@ -1004,9 +1105,6 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
     const length = overlayIds.length;
     if (!overlayIds || length <= 0) {
         return;
-    } else if (length > 30) {
-        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
-        return;
     }
 
     //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
@@ -1030,7 +1128,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -1064,9 +1162,20 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                 for (const thing of _this.things) {
                     const originalId = thing['@iot.id'];
                     if (originalId == thingId) {
-                        thing['Datastreams'][0]['Observations'][0]['result'].grade = grade;
-                        thing['Datastreams'][0]['Observations'][0]['result'].value = value;
-                        thing['Datastreams'][0]['Observations'][0]['resultTime'] = observationTop['resultTime'];
+                        const observationTopOld = thing['Datastreams'][0]['Observations'];
+                        if (observationTopOld.length === 0) {
+                            observationTopOld.push({
+                                'result' : {
+                                    'grade' : grade,
+                                    'value' : value
+                                }
+                            });
+                        } else {
+                            observationTopOld[0]['result'].grade = grade;
+                            observationTopOld[0]['result'].value = value;
+                            observationTopOld[0]['resultTime'] = observationTop['resultTime'];
+                        }
+
                     }
                 }
 
@@ -1089,7 +1198,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                 const innerHtml = $(template(contents)).find('ul').html();
                 $('#overlay_' + thingId + '> ul').html(innerHtml);
 
-                console.debug("updated thingId: " + thingId);
+                //console.debug("updated thingId: " + thingId);
 
             }
 
@@ -1160,7 +1269,7 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
             '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
             '$expand=Thing,Observations(' +
                 '$select=result,resultTime;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
         $.ajax({
@@ -1248,9 +1357,9 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
                 '$top=1;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
-    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
+    //console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getFilterEndTime()));
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -1328,15 +1437,19 @@ OccupancySensorThings.prototype.updateOccupancyChart = function (dataStream, ran
             value += randomValue;
             occupancyChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
-                    console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
-                    dataset.data.pop();
+                    //console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
+                    if (occupancyChartData.datasets.length > 100) {
+                        dataset.data.pop();
+                    }
                     dataset.data.unshift({x: time, y: value});
                 }
             });
         }
     } else {
         occupancyChartData.datasets.forEach(function (dataset) {
-            dataset.data.pop();
+            if (occupancyChartData.datasets.length > 100) {
+                dataset.data.pop();
+            }
             dataset.data.unshift({x: time, y: value});
         });
     }
@@ -1367,7 +1480,7 @@ OccupancySensorThings.prototype.changeRoomColor = function() {
         this.selectedFloorSensorList.push(cellId);
 
         const rgbColorCode = this.getOccupancyColor(value);
-        changeColorAPI(magoManager, this.selectedGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+        changeColorAPI(magoManager, this.selectedDataGroupId, this.selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
 
     }
 

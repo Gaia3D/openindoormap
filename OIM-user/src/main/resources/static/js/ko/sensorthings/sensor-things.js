@@ -5,8 +5,9 @@ const SensorThings = function (magoInstance) {
     this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
 
     this.currentPageNo = 0;
-    this.currentTime = "2020-10-23T04:59:40.000Z";
-    //this.currentTime = moment.utc().format();
+    //this.currentTime = "2020-10-23T04:59:40.000Z";
+    this.currentTime = moment.utc().format();
+    this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
 
@@ -15,6 +16,7 @@ const SensorThings = function (magoInstance) {
     this.selectedDataStreams = [];
 
     this.gaugeChartNeedle = {};
+
 };
 
 SensorThings.prototype.createSensorThings = function () {
@@ -34,13 +36,6 @@ SensorThings.prototype.clearOverlay = function () {
     if ($('.overlayWrap').length >= 0) {
         $('#overlayDHTML').html("");
     }
-    /*
-    if ($('#dustInfoDHTML').is(':visible')) {
-        $('#dustInfoDHTML').hide();
-    }
-     */
-    //this.selectedThingId = 0;
-    //this.selectedDataStreams = [];
 };
 
 /**
@@ -65,8 +60,20 @@ SensorThings.prototype.getCurrentTime = function () {
     return this.currentTime;
 };
 
+SensorThings.prototype.getCorrectTime = function (filteredTime, interval) {
+    const utcTime = moment(filteredTime).utc();
+    const time = utcTime.hours() * 3600 + utcTime.minutes() * 60 + utcTime.seconds();
+    const diff = time - Math.floor(time / interval) * interval;
+    return utcTime.subtract(diff, 's').format();
+};
+
 SensorThings.prototype.getFilterStartTime = function () {
-    return moment(this.currentTime).utc().subtract(this.filterInterval, 's').format();
+    const filteredTime = moment(this.currentTime).utc().subtract(this.processingTime, 's');
+    return this.getCorrectTime(filteredTime, this.filterInterval);
+};
+
+SensorThings.prototype.getFilterEndTime = function () {
+    return moment(this.getFilterStartTime()).utc().add(this.filterInterval, 's').format();
 };
 
 SensorThings.prototype.getFilterDayStartTime = function () {

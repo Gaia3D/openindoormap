@@ -536,5 +536,7 @@ INSERT INTO data_info(
     data_id, data_group_id, converter_job_id, data_key, data_name, data_type, sharing, user_id, mapping_type, location,
     altitude, heading, pitch, roll, metainfo, status, attribute_exist, object_attribute_exist)
 values
-    (NEXTVAL('data_info_seq'), 10000, NULL, 'Alphadom_IndoorGML_data', '알파돔', 'indoorgml', 'common', 'admin', 'origin',
+    (200003, 10000, NULL, 'Alphadom_IndoorGML_data', '알파돔', 'indoorgml', 'common', 'admin', 'origin',
      ST_GeomFromText('POINT(127.11209614609372 37.394169200581445)', 4326), 10.45, 0, 0, 0, '{"isPhysical": true, "floors" : [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]}', 'use', false, false);
+
+ALTER SEQUENCE data_info_seq RESTART WITH 200003;
