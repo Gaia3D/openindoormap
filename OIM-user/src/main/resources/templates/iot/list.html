@@ -55,6 +55,7 @@
             // 검색조건 변경
             $('#iotContent input[name="searchWord"]').change(function (e) {
                 // TODO 레이어 온오프 형태로 변경
+                sensorThings.init();
                 sensorThings = sensorThings.createSensorThings();
                 sensorThings.dataSearch(1);
                 sensorThings.clearOverlay();

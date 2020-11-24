@@ -63,6 +63,8 @@
 	<script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/hammerjs/hammer.min.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/externlib/chartjs-plugin-zoom/chartjs-plugin-zoom.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -361,6 +363,8 @@
 				// 한 시간에 한번씩 자료 갱신
 				setInterval(function () {
 
+					let currentTime = sensorThings.getCorrectTime(sensorThings.getCurrentTime(), sensorThings.callInterval);
+					sensorThings.setCurrentTime(currentTime);
 					sensorThings.update();
 
 					// TODO 목록 갱신 추가
@@ -368,9 +372,11 @@
 					//const params = getFormData($form);
 					//sensorThings.getList(sensorThings.currentPageNo, params);
 
-					let currentTime = sensorThings.getCurrentTime();
 					currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
 					sensorThings.setCurrentTime(currentTime);
+					//let currentTime = sensorThings.getCurrentTime();
+					//currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
+					//sensorThings.setCurrentTime(currentTime);
 
 				}, 1000 * sensorThings.callInterval);
 
