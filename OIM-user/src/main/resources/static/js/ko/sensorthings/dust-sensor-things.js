@@ -15,8 +15,9 @@ const DustSensorThings = function (magoInstance) {
     this.pm10GradeMin = 0;
     this.pm10GradeMax = 600;
 
-    this.currentTime = "2020-10-26T04:50:00.000Z";
-    //this.currentTime = moment.utc().format();
+    //this.currentTime = "2020-10-26T04:50:00.000Z";
+    this.currentTime = moment.utc().format();
+    this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
 
@@ -24,8 +25,11 @@ const DustSensorThings = function (magoInstance) {
     this.chartTitle = '1시간 공기질(Hourly Air Quality)';
     this.chartXAxesTitle = '시간(시)';
     this.chartYAxesTitle = '공기질(Value)';
+
     this.chartOptions = {
+        animation: false,
         responsive: true,
+        maintainAspectRatio: false,
         legend: {
             position: 'bottom',
             labels: {
@@ -45,6 +49,36 @@ const DustSensorThings = function (magoInstance) {
             mode: 'nearest',
             intersect: true
         },
+        plugins: {
+            zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'x',
+                    rangeMin: {
+                        x: null,
+                        y: null
+                    },
+                    rangeMax: {
+                        x: null,
+                        y: null
+                    }
+                },
+                zoom: {
+                    enabled: true,
+                    drag: false,
+                    mode: 'x',
+                    rangeMin: {
+                        x: null,
+                        y: null
+                    },
+                    rangeMax: {
+                        x: null,
+                        y: null
+                    },
+                    speed: 0.03
+                }
+            }
+        },
         scales: {
             xAxes: [{
                 type: 'time',
@@ -55,7 +89,7 @@ const DustSensorThings = function (magoInstance) {
                     hour: 'HH:mm',
                     day: 'MMM DD',
                     month: 'YYYY MMM',
-                    tooltipFormat: 'YYYY-MM-DD HH:mm',
+                    tooltipFormat: 'YYYY-MM-DD HH:mm:ss',
                     displayFormats: {
                         second: 'HH:mm:ss a'
                     }
@@ -75,10 +109,19 @@ const DustSensorThings = function (magoInstance) {
             }]
         }
     };
-
 };
 DustSensorThings.prototype = Object.create(SensorThings.prototype);
 DustSensorThings.prototype.constructor = DustSensorThings;
+
+DustSensorThings.prototype.init = function () {
+
+    if ($('#dustInfoDHTML').is(':visible')) {
+        $('#dustInfoDHTML').hide();
+    }
+    this.things = [];
+    this.selectedThingId = 0;
+    this.selectedDataStreams = [];
+};
 
 /**
  * 관측소 목록 조회
@@ -107,7 +150,7 @@ DustSensorThings.prototype.getList = function (pageNo, params) {
             'Datastreams/Observations(' +
                 '$select=result,phenomenonTime,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -194,7 +237,7 @@ DustSensorThings.prototype.getDetail = function(obj, thingId) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
             ')';
 
     $.ajax({
@@ -263,7 +306,7 @@ DustSensorThings.prototype.addOverlay = function () {
                 'Datastreams/Observations(' +
                     '$select=result,phenomenonTime,resultTime;' +
                     '$orderby=resultTime desc;' +
-                    '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                    '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
                 ')';
 
     $.ajax({
@@ -382,7 +425,7 @@ DustSensorThings.prototype.getInformation = function (thingId) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
             ')';
 
     $.ajax({
@@ -537,9 +580,9 @@ DustSensorThings.prototype.update = function () {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
-    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getCurrentTime()));
+    console.debug("from: " + _this.observationTimeToLocalTime(_this.getFilterStartTime()) + ", to: " + _this.observationTimeToLocalTime(_this.getFilterEndTime()));
 
     $.ajax({
         url: _this.FROST_SERVER_URL + queryString,
@@ -629,7 +672,7 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getCurrentTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -714,14 +757,18 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
             hourlyAirQualityChartData.datasets.forEach(function (dataset) {
                 if (dataset.observedPropertyName === observedPropertyName) {
                     console.debug("observedPropertyName: " + observedPropertyName + "value: " + value + ", time: " + time);
-                    dataset.data.pop();
+                    if (hourlyAirQualityChartData.datasets.length > 100) {
+                        dataset.data.pop();
+                    }
                     dataset.data.unshift({x: time, y: value});
                 }
             });
         }
     } else {
         hourlyAirQualityChartData.datasets.forEach(function (dataset) {
-            dataset.data.pop();
+            if (hourlyAirQualityChartData.datasets.length > 100) {
+                dataset.data.pop();
+            }
             dataset.data.unshift({x: time, y: value});
         });
     }
