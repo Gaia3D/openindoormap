@@ -277,7 +277,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             const pagination = new Pagination(pageNo, msg['@iot.count'], 5, msg['@iot.nextLink']);
             msg.pagination = pagination;
 
-            const templateLegend = Handlebars.compile($("#iotLegendSource").html());
+            const templateLegend = Handlebars.compile($("#iotOccupancyLegendSource").html());
             $("#iotLegendDHTML").html("").append(templateLegend(_this));
 
             const data = {

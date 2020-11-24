@@ -1,9 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<script id="iotLegendSource" type="text/x-handlebars-template">
+<script id="iotOccupancyLegendSource" type="text/x-handlebars-template">
 <div class="legendWrap">
     <h3>
-        {{#ifMatch type 'iot_occupancy'}}<th:block th:text="#{iot.occupancy.legend}"></th:block>{{/ifMatch}}
-        {{#ifMatch type 'iot_dust'}}<th:block th:text="#{iot.dust.legend}"></th:block>{{/ifMatch}}
+        <th:block th:text="#{iot.occupancy.legend}"></th:block>
     </h3>
     <ul class="legend marT5">
         <li>

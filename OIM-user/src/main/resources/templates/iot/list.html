@@ -27,7 +27,8 @@
         <div id="iotDustListDHTML" style="display:none"></div>
     </div>
     <div id="iotPaginationDHTML" class="paginationWrap"></div>
-    <div th:replace="~{/iot/legend-template :: #iotLegendSource}"></div>
+    <div th:replace="~{/iot/occupancy-legend-template :: #iotOccupancyLegendSource}"></div>
+    <div th:replace="~{/iot/dust-legend-template :: #iotDustLegendSource}"></div>
     <div th:replace="~{/common/search-summary-template :: #searchSummarySource}"></div>
     <div th:replace="~{/iot/occupancy-template :: #occupancyListSource}"></div>
     <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
