@@ -93,6 +93,7 @@
 	<script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/{lang}/selected-data-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 </head>
@@ -166,6 +167,10 @@
 		<!-- S: MAP SETTING WRAP -->
 		<div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
 		<!-- E: MAP SETTING WRAP -->
+
+		<!-- S: DATA CONTROL WRAP -->
+		<div th:replace="~{/fragments/data-control :: #dataControlWrap}"></div>
+		<!-- E: DATA CONTROL WRAP -->
 
 		<!-- S: BUILDING INFO TEMPLATE -->
 		<div id="buildingInfoDHTML"></div>
@@ -336,6 +341,7 @@
 		MapDataControll(magoInstance);
 
 		OIM.issueController = new IssueController(magoInstance);
+		OIM.selectedDataController = new SelectedDataController(e);
 
 		//나침반 시작
 		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
@@ -382,19 +388,19 @@
 
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, (e)=> {
-			let dataGroupId = e.selected.data.projectId;
-			let dataKey = e.selected.data.nodeId;
-			sensorThingsController.openFloorInformation(dataGroupId, dataKey);
+			//let dataGroupId = e.selected.data.projectId;
+			//let dataKey = e.selected.data.nodeId;
+			//sensorThingsController.openFloorInformation(dataGroupId, dataKey);
 		});
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDF4D, (e)=> {
-			let dataGroupId = e.deselected.data.projectId;
-			let dataKey = e.deselected.data.nodeId;
-			sensorThingsController.closeFloorInformation(dataGroupId, dataKey);
+			//let dataGroupId = e.deselected.data.projectId;
+			//let dataKey = e.deselected.data.nodeId;
+			//sensorThingsController.closeFloorInformation(dataGroupId, dataKey);
 		});
 
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
-			sensorThingsController.getSensorInformation(e.selected);
+			//sensorThingsController.getSensorInformation(e.selected);
 		});
 
 		// 지도상의 센서 위치 갱신
