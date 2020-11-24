@@ -96,7 +96,6 @@
 	<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/{lang}/selected-data-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensorthings-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 
 </head>
 <body>
@@ -244,10 +243,6 @@
 		userId : '[[${owner}]]'
 	};
 	var segments2dObj = {};
-	var sensorChart;
-	var dataGroupId = 'result', dataKey = 'Alphadom_IndoorGML_data';
-	var sensorThingsController = new SensorThingsController(dataGroupId, dataKey);
-
 	let sensorThings;
 
 	initPolicy(function(policy, baseLayers){
@@ -353,61 +348,46 @@
 		sensorThings = new SensorThings(magoInstance);
 		sensorThings = sensorThings.createSensorThings();
 
-		var sampleJsonURL = '/sample/json';
-		setTimeout(function(){$.ajax({
-			url: sampleJsonURL + '/workshop-data.json',
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function(json){
-				f4dController.addF4dMember('10000', json.children);
+		const sampleJsonURL = '/sample/json';
+		setTimeout(function () {
+			$.ajax({
+				url: sampleJsonURL + '/workshop-data.json',
+				type: "GET",
+				headers: {"X-Requested-With": "XMLHttpRequest"},
+				dataType: "json",
+				success: function (json) {
 
-				sensorThings.dataSearch(1);
-				sensorThings.clearOverlay();
-				sensorThings.addOverlay();
+					f4dController.addF4dMember('10000', json.children);
 
-				// 한 시간에 한번씩 자료 갱신
-				setInterval(function () {
+					sensorThings.dataSearch(1);
+					sensorThings.clearOverlay();
+					sensorThings.addOverlay();
 
-					let currentTime = sensorThings.getCorrectTime(sensorThings.getCurrentTime(), sensorThings.callInterval);
-					sensorThings.setCurrentTime(currentTime);
-					sensorThings.update();
+					// 자료 갱신
+					setInterval(function () {
 
-					// TODO 목록 갱신 추가
-					//const $form = $("#searchIotForm");
-					//const params = getFormData($form);
-					//sensorThings.getList(sensorThings.currentPageNo, params);
+						let currentTime = sensorThings.getCorrectTime(sensorThings.getCurrentTime(), sensorThings.callInterval);
+						sensorThings.setCurrentTime(currentTime);
 
-					currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
-					sensorThings.setCurrentTime(currentTime);
-					//let currentTime = sensorThings.getCurrentTime();
-					//currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
-					//sensorThings.setCurrentTime(currentTime);
+						// TODO 램덤 값 삭제
+						sensorThings.update();
 
-				}, 1000 * sensorThings.callInterval);
+						// TODO 목록 갱신 추가
+						const $form = $("#searchIotForm");
+						const params = getFormData($form);
+						sensorThings.getList(sensorThings.currentPageNo, params);
 
-			},
-			error:function(request,status,error){
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		})}, 5000);
+						currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
+						sensorThings.setCurrentTime(currentTime);
 
+					}, 1000 * sensorThings.callInterval);
 
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDF4D, (e)=> {
-			//let dataGroupId = e.selected.data.projectId;
-			//let dataKey = e.selected.data.nodeId;
-			//sensorThingsController.openFloorInformation(dataGroupId, dataKey);
-		});
-
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.DESELECTEDF4D, (e)=> {
-			//let dataGroupId = e.deselected.data.projectId;
-			//let dataKey = e.deselected.data.nodeId;
-			//sensorThingsController.closeFloorInformation(dataGroupId, dataKey);
-		});
-
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.SELECTEDGENERALOBJECT, (e)=> {
-			//sensorThingsController.getSensorInformation(e.selected);
-		});
+				},
+				error: function (request, status, error) {
+					alert(JS_MESSAGE["ajax.error.message"]);
+				}
+			});
+		}, 5000);
 
 		// 지도상의 센서 위치 갱신
 		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
