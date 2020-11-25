@@ -37,19 +37,19 @@ public class OccupancyServiceTests {
     @Autowired
     private PropertiesConfig propertiesConfig;
 
-    @Test
+    @Ignore
     public void testInitSensorData() {
         sensorService.setDryRun(false);
         sensorService.initSensorData();
     }
 
-    @Test
+    @Ignore
     public void testInsertSensorData() {
         sensorService.setDryRun(false);
         sensorService.insertSensorData();
     }
 
-    @Test
+    @Ignore
     public void testInitSensorDataByDataId() {
         Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
         //Long dataId = 200003L;  // Alphadom(알파돔)
@@ -57,7 +57,7 @@ public class OccupancyServiceTests {
         sensorService.initSensorData(dataId);
     }
 
-    @Test
+    @Ignore
     public void testInsertSensorDataByDataId() {
         Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
         //Long dataId = 200003L;  // Alphadom(알파돔)
