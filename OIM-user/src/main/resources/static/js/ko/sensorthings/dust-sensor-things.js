@@ -15,8 +15,8 @@ const DustSensorThings = function (magoInstance) {
     this.pm10GradeMin = 0;
     this.pm10GradeMax = 600;
 
-    this.currentTime = "2020-11-23T12:15:00.000Z";
-    //this.currentTime = moment.utc().format();
+    //this.currentTime = "2020-11-23T12:15:00.000Z";
+    this.currentTime = moment.utc().format();
     this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
@@ -551,7 +551,8 @@ DustSensorThings.prototype.drawHourlyAirQualityChart = function (dataStreams) {
 DustSensorThings.prototype.update = function () {
 
     // TODO 램덤 값 삭제
-    const randomValue = Math.floor(Math.random() * 100);
+    //const randomValue = Math.floor(Math.random() * 100);
+    const randomValue = 0;
 
     this.updateOverlay(randomValue);
 

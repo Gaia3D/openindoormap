@@ -1,6 +1,7 @@
 const SensorThings = function (magoInstance) {
     this.magoInstance = magoInstance;
-    this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
+    //this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
+    this.FROST_SERVER_URL = 'http://iot.openindoormap.io/v1.0/';
     this.queryString = '';
     this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
 
