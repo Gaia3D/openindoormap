@@ -14,7 +14,7 @@
                 <span class="subResult txlv{{grade}}">{{gradeText}}</span>
             </li>
         </ul>
-        <div class="scrollTable" style="height: 240px;">
+        <div class="scrollTable" style="height: 360px;">
             <table>
                 <tr>
                     <th th:text="#{iot.occupancy.floor}"></th>
@@ -23,7 +23,7 @@
                 </tr>
                 {{#greaterThan listOfFloorOccupancy.length 0}}
                 {{#each listOfFloorOccupancy}}
-                <tr data-floor="{{floor}}">
+                <tr data-floor="{{floor}}" class="{{selectedFloor}}">
                     <td>{{floorText}}층</td>
                     <td>{{valueWithCommas}}{{unit}}</td>
                     <td>

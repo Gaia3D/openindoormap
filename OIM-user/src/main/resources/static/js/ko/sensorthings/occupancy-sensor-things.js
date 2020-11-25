@@ -103,6 +103,7 @@ const OccupancySensorThings = function (magoInstance) {
         scales: {
             xAxes: [{
                 type: 'time',
+                autoSkip: false,
                 time: {
                     parser: "YYYY-MM-DD HH:mm:ss",
                     second: 'mm:ss',
@@ -113,7 +114,9 @@ const OccupancySensorThings = function (magoInstance) {
                     tooltipFormat: 'YYYY-MM-DD HH:mm:ss',
                     displayFormats: {
                         second: 'HH:mm:ss a'
-                    }
+                    },
+                    unit: 'second',
+                    unitStepSize: 10
                 },
                 display: true,
                 scaleLabel: {
@@ -126,6 +129,11 @@ const OccupancySensorThings = function (magoInstance) {
                 scaleLabel: {
                     display: true,
                     labelString: this.chartYAxesTitle
+                },
+                ticks: {
+                    min: 0,
+                    max: 10,
+                    stepSize: 2
                 }
             }]
         }
@@ -794,9 +802,10 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
         '$filter=Thing/name eq \'' + buildingInfo.name + '\' and ObservedProperty/name eq \'' + observedProperty + '\'&' +
         '$expand=Thing,Observations(' +
             '$select=result,resultTime;' +
+            '$orderby=resultTime desc;' +
             '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
         ')&' +
-        '$orderby=Thing/properties/floor asc';
+        '$orderby=id desc';
 
     const baseFloor = buildingInfo.baseFloor;
     $.ajax({
@@ -972,11 +981,13 @@ OccupancySensorThings.prototype.changeBuildingMode = function (dataGroupId) {
 OccupancySensorThings.prototype.closeBuildingInformation = function (dataGroupId, dataKey) {
     $('#buildingInfoWrap').hide();
     this.changeBuildingMode(dataGroupId);
+    searchDataAPI(this.magoInstance, dataGroupId, dataKey);
 };
 
 OccupancySensorThings.prototype.flyTo = function (dataGroupId, dataKey) {
     if (this.selectedDataGroupId) {
-        this.closeBuildingInformation(this.selectedDataGroupId, this.selectedDataKey);
+        $('#buildingInfoWrap').hide();
+        this.changeBuildingMode(this.selectedDataGroupId);
     }
     searchDataAPI(this.magoInstance, dataGroupId, dataKey);
 };
@@ -1027,7 +1038,7 @@ OccupancySensorThings.prototype.getSensorInformation = function(content) {
                     const observationTop = observations[0];
                     value = observationTop.result;
                     //grade = observationTop.result.grade;
-                    grade = _this.getGrade(value, 0, this.maxCapacity);
+                    grade = _this.getGrade(value, 0, _this.maxCapacity);
                 }
 
                 const data = {
@@ -1200,13 +1211,11 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                     const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
                     grade = _this.getGrade(value, 0, maxCapacityBuilding);
                 } else if (ObservedPropertyName === 'occupancyFloor') {
-                    mappingInfo = _this.mappingTable[_this.selectedThingId];
+                    mappingInfo = _this.mappingTable[_this.selectedBuildingId];
                     const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
                     grade = _this.getGrade(value, 0, maxCapacityFloor);
-                } else {
-                    mappingInfo = _this.mappingTable[_this.selectedThingId];
-                    const maxCapacity = mappingInfo['maxCapacity'];
-                    grade = _this.getGrade(value, 0, maxCapacity);
+                } else if (ObservedPropertyName === 'occupancy') {
+                    grade = _this.getGrade(value, 0, _this.maxCapacity);
                 }
 
                 for (const thing of _this.things) {
@@ -1319,7 +1328,8 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
                 '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
-            ')';
+            ')&' +
+            '$orderby=id desc';
 
         $.ajax({
             url: _this.FROST_SERVER_URL + queryString,
@@ -1346,9 +1356,23 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
                         grade = _this.getGrade(value, 0, maxCapacityFloor);
                     }
 
+                    let selectedFloorOn = '';
+                    if (_this.selectedDataKey !== '') {
+                        // TODO 시립대 데이터인 경우 하드코딩 삭제
+                        if (_this.selectedDataKey === 'admin_20201013064147_346094873669678') {
+                            selectedFloorOn = 'on';
+                        }
+                        const dataKeys = _this.selectedDataKey.split('_');
+                        const selectedFloor = parseInt(dataKeys[dataKeys.length - 1]);
+                        if (thing.properties.floor === selectedFloor) {
+                            selectedFloorOn = 'on';
+                        }
+                    }
+
                     buildingInfo.listOfFloorOccupancy.push({
                         floor: thing.properties.floor,
                         floorText: _this.getFloorText(thing.properties.floor, baseFloor),
+                        selectedFloor: selectedFloorOn,
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
                         grade: grade,

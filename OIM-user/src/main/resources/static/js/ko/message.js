@@ -151,13 +151,11 @@ JS_MESSAGE["simulation.select.location"] = "위치를 지정해주시기 바랍�
 
 JS_MESSAGE["policy.camera.location"] = "카메라를 지표면에 더 가까이 이동해주세요.";
 
-
-JS_MESSAGE["iot.occupancy.legend.good"]="좋음";
-JS_MESSAGE["iot.occupancy.legend.normal"]="보통";
-JS_MESSAGE["iot.occupancy.legend.bad"]="나쁨";
-JS_MESSAGE["iot.occupancy.legend.very-bad"]="매우나쁨";
-JS_MESSAGE["iot.occupancy.legend.nodata"]="없음";
-
 JS_MESSAGE["iot.occupancy"]="재실자";
 JS_MESSAGE["iot.dust.fine"]="미세";
 JS_MESSAGE["iot.dust"]="미세먼지";
+JS_MESSAGE["iot.occupancy.legend.good"]="쾌적";
+JS_MESSAGE["iot.occupancy.legend.normal"]="보통";
+JS_MESSAGE["iot.occupancy.legend.bad"]="혼잡";
+JS_MESSAGE["iot.occupancy.legend.very-bad"]="매우혼잡";
+JS_MESSAGE["iot.occupancy.legend.nodata"]="없음";
