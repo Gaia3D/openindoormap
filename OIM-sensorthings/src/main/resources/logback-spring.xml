@@ -25,10 +25,12 @@
 		</encoder>
 	</appender> -->
 
+    <logger name="de.fraunhofer.iosb.ilt.sta" level="info" additivity="false" />
+    <logger name="org.apache.http" level="info" additivity="false" />
 	<logger name="org.apache.tomcat" level="debug" additivity="false" />
 	<logger name="org.apache.commons" level="info" additivity="false" />
 	<logger name="org.springframework" level="info" additivity="false" />
-	<!-- <logger name="org.springframework.web" level="info" additivity="false" /> -->
+	<logger name="org.springframework.web" level="debug" additivity="false" />
 	<logger name="com.zaxxer.hikari.pool.HikariPool" level="info" additivity="false" />
 	
 	<root level="debug">
