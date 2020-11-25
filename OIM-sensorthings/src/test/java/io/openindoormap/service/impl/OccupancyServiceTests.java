@@ -8,7 +8,7 @@ import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractFeatureOfInterestBui
 import de.fraunhofer.iosb.ilt.sta.model.builder.ext.UnitOfMeasurementBuilder;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
-import io.openindoormap.OIMAdminApplication;
+import io.openindoormap.OIMSensorthingsApplication;
 import io.openindoormap.config.PropertiesConfig;
 import io.openindoormap.service.OccupancyService;
 import io.openindoormap.utils.SensorThingsUtils;
@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 @Slf4j
-@SpringBootTest(classes = OIMAdminApplication.class)
+@SpringBootTest(classes = OIMSensorthingsApplication.class)
 public class OccupancyServiceTests {
 
     @Qualifier("occupancyService")
@@ -37,32 +37,32 @@ public class OccupancyServiceTests {
     @Autowired
     private PropertiesConfig propertiesConfig;
 
-    @Ignore
+    @Test
     public void testInitSensorData() {
         sensorService.setDryRun(false);
         sensorService.initSensorData();
     }
 
-    @Ignore
+    @Test
     public void testInsertSensorData() {
         sensorService.setDryRun(false);
         sensorService.insertSensorData();
     }
 
-    @Ignore
+    @Test
     public void testInitSensorDataByDataId() {
         Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
         //Long dataId = 200003L;  // Alphadom(알파돔)
         sensorService.setDryRun(false);
-        sensorService.initSensorData(dataId);
+        // sensorService.initSensorData(dataId);
     }
 
-    @Ignore
+    @Test
     public void testInsertSensorDataByDataId() {
         Long dataId = 200002L;  // UOS21C-indoorgml(시립대)
         //Long dataId = 200003L;  // Alphadom(알파돔)
         sensorService.setDryRun(false);
-        sensorService.insertSensorData(dataId);
+        // sensorService.insertSensorData(dataId);
     }
 
     @Ignore
