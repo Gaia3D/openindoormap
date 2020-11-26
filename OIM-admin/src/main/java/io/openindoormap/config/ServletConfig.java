@@ -1,10 +1,12 @@
 package io.openindoormap.config;
 
+import io.openindoormap.domain.ProfileType;
 import io.openindoormap.interceptor.*;
 import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -40,7 +42,8 @@ public class ServletConfig implements WebMvcConfigurer {
 	
 	@Autowired
 	private PropertiesConfig propertiesConfig;
-
+	@Value("${spring.profiles.active}")
+	private String profile;
 	@Autowired
 	private LocaleInterceptor localeInterceptor;
 	@Autowired
@@ -125,22 +128,32 @@ public class ServletConfig implements WebMvcConfigurer {
 		registry.addViewController("/").setViewName("forward:/sign/signin");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
-	
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		log.info(" @@@ ServletConfig addResourceHandlers @@@");
-		
+
 		// F4D converter file 경로
 		registry.addResourceHandler("/f4d/**").addResourceLocations("file:" + propertiesConfig.getDataServiceDir());
 		registry.addResourceHandler("/f4d/sample/**").addResourceLocations("file:" + propertiesConfig.getGuideDataServiceDir());
 		registry.addResourceHandler("/sample/json/**").addResourceLocations("classpath:static/sample/json/");
 		registry.addResourceHandler("/sample/images/**").addResourceLocations("classpath:static/sample/images/");
-		registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
-		registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
-		registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
-		registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
-		
-//		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+		registry.addResourceHandler("/sample/wind/**").addResourceLocations("classpath:static/sample/wind/");
+		if (ProfileType.LOCAL.toString().equalsIgnoreCase(profile)) {
+			log.info(" @@@ ServletConfig addResourceHandlers profile is LOCAL @@@");
+			registry.addResourceHandler("/css/**").addResourceLocations("file:src/main/resources/static/css/");
+			registry.addResourceHandler("/externlib/**").addResourceLocations("file:src/main/resources/static/externlib/");
+			registry.addResourceHandler("/images/**").addResourceLocations("file:src/main/resources/static/images/");
+			registry.addResourceHandler("/js/**").addResourceLocations("file:src/main/resources/static/js/");
+			registry.addResourceHandler("/docs/**").addResourceLocations("file:src/main/resources/static/docs/");
+		} else {
+			log.info(" @@@ ServletConfig addResourceHandlers profile is {} @@@", profile);
+			registry.addResourceHandler("/css/**").addResourceLocations("classpath:static/css/");
+			registry.addResourceHandler("/externlib/**").addResourceLocations("classpath:static/externlib/");
+			registry.addResourceHandler("/images/**").addResourceLocations("classpath:static/images/");
+			registry.addResourceHandler("/js/**").addResourceLocations("classpath:static/js/");
+			registry.addResourceHandler("/docs/**").addResourceLocations("classpath:static/docs/");
+		}
 	}
 	
 	@Bean
