@@ -6,11 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< Updated upstream
-import org.springframework.boot.web.servlet.ServletContextInitializer;
-=======
 import org.springframework.beans.factory.annotation.Value;
->>>>>>> Stashed changes
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -35,8 +32,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import java.util.Collections;
