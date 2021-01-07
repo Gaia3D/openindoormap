@@ -59,6 +59,7 @@ public class AirQualityServiceImpl implements AirQualityService {
     public void postConstruct() {
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
+        sta.setDryRun(false);
         service = sta.getService();
     }
 
