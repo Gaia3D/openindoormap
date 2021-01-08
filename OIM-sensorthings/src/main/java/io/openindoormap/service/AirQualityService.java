@@ -12,4 +12,8 @@ public interface AirQualityService extends SensorService {
     void insertSensorData();
 
     void insertStatisticsDaily();
+
+    public Boolean getDryRun();
+
+    public void setDryRun(Boolean dryRun);
 }

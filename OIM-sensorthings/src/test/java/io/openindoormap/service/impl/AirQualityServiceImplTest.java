@@ -46,10 +46,12 @@ class AirQualityServiceImplTest {
     @Qualifier("airQualityService")
     @Autowired
     private AirQualityService sensorService;
+
     @Autowired
     private PropertiesConfig propertiesConfig;
 
     private SensorThingsService sensorThingsService;
+
     private SensorThingsUtils sta;
 
     @BeforeAll
@@ -57,6 +59,13 @@ class AirQualityServiceImplTest {
         sensorThingsService = new SensorThingsService(new URL(propertiesConfig.getSensorThingsApiServer()));
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
+
+        // Mock 데이터 사용
+        propertiesConfig.setMockEnable(true);
+
+        // 서버에 데이터를 넣지 않음
+        sta.setDryRun(true);
+        sensorService.setDryRun(true);
     }
 
     @Test

@@ -53,13 +53,11 @@ public class AirQualityServiceImpl implements AirQualityService {
     private final PropertiesConfig propertiesConfig;
 
     private SensorThingsUtils sta;
-    private SensorThingsService service;
 
     @PostConstruct
     public void postConstruct() {
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
-        service = sta.getService();
     }
 
     /**
@@ -138,11 +136,8 @@ public class AirQualityServiceImpl implements AirQualityService {
             var jsonObject = (JSONObject) station;
             var stationName = (String) jsonObject.get("stationName");
             JSONObject json = new JSONObject();
-//                for(int i=0; i< 24;i++) {
             JSONObject result = getHourValue(stationName);
             LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-//                    t = t.minusDays(1);
-//                    t = t.plusHours(i);
             ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
             EntityList<Thing> things = sta.hasThingsWithObservation(null, stationName);
             // 일치하는 thing 이 없을경우 skip
@@ -186,18 +181,14 @@ public class AirQualityServiceImpl implements AirQualityService {
                 var observationCount = datastream.getObservations().size();
                 var lastObservation = observationCount > 0 ? datastream.getObservations().toList().get(0) : null;
                 var lastTime = lastObservation != null ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")) : null;
-                try {
-                    if (zonedDateTime.equals(lastTime)) {
-                        observation.setId(lastObservation.getId());
-                        service.update(observation);
-                    } else {
-                        service.create(observation);
-                    }
-                } catch (ServiceFailureException e) {
-                    LogMessageSupport.printMessage(e, "-------- AirQualityService insertSensorData = {}", e.getMessage());
+
+                if (zonedDateTime.equals(lastTime)) {
+                    observation.setId(lastObservation.getId());
+                    sta.update(observation);
+                } else {
+                    sta.create(observation);
                 }
             }
-//                }
         }
     }
 
@@ -248,11 +239,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
                     .build();
 
-            try {
-                service.create(observation);
-            } catch (ServiceFailureException e) {
-                LogMessageSupport.printMessage(e, "-------- AirQualityService insertObservationDaily = {}", e.getMessage());
-            }
+            sta.create(observation);
         }
     }
 
@@ -414,9 +401,9 @@ public class AirQualityServiceImpl implements AirQualityService {
         try {
             for (var entity : entityList) {
                 if (entityExist) {
-                    service.update(entity);
+                    sta.update(entity);
                 } else {
-                    service.create(entity);
+                    sta.create(entity);
                 }
             }
         } catch (Exception e) {
@@ -434,11 +421,8 @@ public class AirQualityServiceImpl implements AirQualityService {
             var properties = thing.getProperties();
             properties.put("available", false);
             thing.setProperties(properties);
-            try {
-                service.update(thing);
-            } catch (ServiceFailureException e) {
-                LogMessageSupport.printMessage(e, "-------- AirQualityService updateAirQualityThingsStatus Error = {}", e.getMessage());
-            }
+            
+            sta.update(thing);
         }
     }
 
@@ -659,5 +643,13 @@ public class AirQualityServiceImpl implements AirQualityService {
                 " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
                 " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
                 " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'";
+    }
+
+    public Boolean getDryRun() {
+        return sta.getDryRun();
+    }
+
+    public void setDryRun(Boolean dryRun) {
+        sta.setDryRun(dryRun);
     }
 }

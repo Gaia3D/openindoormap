@@ -153,9 +153,6 @@ public class OccupancyServiceImpl implements OccupancyService {
         this.maxFloor = 0;
 
         ZoneId zoneId = ZoneId.of("Asia/Seoul");
-        // LocalDateTime localDateTime = LocalDateTime.parse("2020-11-02 09:50:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        // ZonedDateTime nowTime = ZonedDateTime.of(localDateTime, zoneId);
-
         ZonedDateTime nowTime = ZonedDateTime.now(zoneId);
         ZonedDateTime resultTime = correctTime(nowTime, interval);
 
@@ -230,7 +227,9 @@ public class OccupancyServiceImpl implements OccupancyService {
                 .name("Count")
                 .definition("https://en.wikipedia.org/wiki/Counting")
                 .build();
-        ObservedProperty observedProperty = sta.hasObservedProperty(null, "occupancy");
+        // ObservedProperty observedProperty = sta.hasObservedProperty(null, "occupancy");
+        ObservedProperty observedProperty = sta.createObservedProperty(null, "occupancy", "https://en.wikipedia.org/wiki/Occupancy", "The occupancy of each cell based on the number of people");
+
         String opDefinition = observedProperty.getDefinition();
         String opDescription = observedProperty.getDescription();
         ObservedProperty observedPropertyBuilding = sta.createObservedProperty(null, "occupancyBuild", opDefinition, opDescription);
@@ -294,11 +293,13 @@ public class OccupancyServiceImpl implements OccupancyService {
         }
 
         ZonedDateTime zonedDateTime = resultTime;
+        ZonedDateTime insertTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+
         if (zonedDateTime == null) {
-            zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+            zonedDateTime = insertTime.withNano(0);
         }
 
-        sta.createObservation(result, resultTime, resultTime, 0, dataStream, foi);
+        sta.createObservation(result, zonedDateTime, insertTime, 0, dataStream, foi);
     }
 
 
@@ -312,18 +313,11 @@ public class OccupancyServiceImpl implements OccupancyService {
      */
     public void generatePeopleObservation(Datastream dataStream, FeatureOfInterest featureOfInterest, ZonedDateTime targetTime, int min, int max) {
         ZonedDateTime resultTime = targetTime.withNano(0);
+        // ZonedDateTime insertTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
 
         long result = ThreadLocalRandom.current().nextInt(min, max + 1);
-        // int grade = getGrade(result);
-        // Map<String, Object> resultMap = Map.ofEntries(
-        //         entry("grade", grade),
-        //         entry("value", result)
-        // );
-        // Id dataStreamId = dataStream.getId();
-        // Id foiId = featureOfInterest.getId();
-        // generateObservation(dataStreamId, foiId, resultTime, new BigDecimal(result));
 
-        sta.createObservation(result, resultTime, resultTime, 0, dataStream, featureOfInterest);
+        sta.createObservation(result, resultTime, null, 0, dataStream, featureOfInterest);
     }
 
     private void generateStatisticsObservation(String buildId, ZonedDateTime targetTime, long interval) {
@@ -377,7 +371,7 @@ public class OccupancyServiceImpl implements OccupancyService {
             }
             buildSum += floorSum;
 
-            sta.createObservation(floorSum, resultTime, resultTime, 0, datastream, featureOfInterest);
+            sta.createObservation(floorSum, resultTime, null, 0, datastream, featureOfInterest);
         }
         
         String datastreamName = buildId + " Occupancy";
@@ -389,7 +383,7 @@ public class OccupancyServiceImpl implements OccupancyService {
         //         entry("value", buildSum)
         // );
 
-        sta.createObservation(buildSum, resultTime, resultTime, 0, datastream, featureOfInterest);
+        sta.createObservation(buildSum, resultTime, null, 0, datastream, featureOfInterest);
         
     }
 
