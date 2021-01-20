@@ -66,6 +66,7 @@ dependencies {
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.32'
+	compile 'com.opencsv:opencsv:5.3'
 }
 
 ext {

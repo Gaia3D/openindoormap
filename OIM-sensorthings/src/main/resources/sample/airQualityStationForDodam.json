@@ -1,0 +1,274 @@
+{
+  "list": [
+    {
+      "type": 1,
+      "sid": 1,
+      "lat": 36.51165,
+      "lon": 127.26704,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기1",
+      "addr": "세종시 보듬2로 42"
+    },
+    {
+      "type": 1,
+      "sid": 2,
+      "lat": 36.50795,
+      "lon": 127.25754,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기2",
+      "addr": " 세종시 도담동 936"
+    },
+    {
+      "type": 1,
+      "sid": 3,
+      "lat": 36.51101,
+      "lon": 127.26407,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기3",
+      "addr": "세종시 보듬2로 42"
+    },
+    {
+      "type": 1,
+      "sid": 4,
+      "lat": 36.513065,
+      "lon": 127.26327,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기4",
+      "addr": "세종시 보듬4로 19"
+    },
+    {
+      "type": 1,
+      "sid": 5,
+      "lat": 36.51515,
+      "lon": 127.26299,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기5",
+      "addr": "세종시 보람로 80"
+    },
+    {
+      "type": 1,
+      "sid": 6,
+      "lat": 36.513943,
+      "lon": 127.26618,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기6",
+      "addr": "세종시 보듬4로 55"
+    },
+    {
+      "type": 1,
+      "sid": 7,
+      "lat": 36.5141,
+      "lon": 127.26808,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기7",
+      "addr": "세종시 세종리 734-53"
+    },
+    {
+      "type": 1,
+      "sid": 8,
+      "lat": 36.515663,
+      "lon": 127.26837,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기8",
+      "addr": "세종시 세종리 734-99"
+    },
+    {
+      "type": 1,
+      "sid": 9,
+      "lat": 36.515823,
+      "lon": 127.26533,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기9",
+      "addr": "세종시 보듬6로 52"
+    },
+    {
+      "type": 1,
+      "sid": 10,
+      "lat": 36.51833,
+      "lon": 127.264496,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기10",
+      "addr": "세종시 세종리 산409"
+    },
+    {
+      "type": 1,
+      "sid": 11,
+      "lat": 36.51877,
+      "lon": 127.26285,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기11",
+      "addr": "세종시 도담동 556"
+    },
+    {
+      "type": 1,
+      "sid": 12,
+      "lat": 36.512146,
+      "lon": 127.2594,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기12",
+      "addr": "세종시 보듬3로 7"
+    },
+    {
+      "type": 1,
+      "sid": 13,
+      "lat": 36.518215,
+      "lon": 127.261765,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기13",
+      "addr": "세종시 도담동 582"
+    },
+    {
+      "type": 1,
+      "sid": 14,
+      "lat": 36.516354,
+      "lon": 127.26227,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기14",
+      "addr": "세종시 보람로 95"
+    },
+    {
+      "type": 1,
+      "sid": 15,
+      "lat": 36.51597,
+      "lon": 127.25927,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기15",
+      "addr": "세종시 보듬6로 18"
+    },
+    {
+      "type": 1,
+      "sid": 16,
+      "lat": 36.510674,
+      "lon": 127.26076,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기16",
+      "addr": "세종시 보듬4로 20"
+    },
+    {
+      "type": 1,
+      "sid": 17,
+      "lat": 36.5189,
+      "lon": 127.256485,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기17",
+      "addr": "세종시 도담동 407-2"
+    },
+    {
+      "type": 1,
+      "sid": 18,
+      "lat": 36.509514,
+      "lon": 127.25624,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기18",
+      "addr": "세종시 도담동 936"
+    },
+    {
+      "type": 1,
+      "sid": 19,
+      "lat": 36.514446,
+      "lon": 127.25535,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기19",
+      "addr": "세종시 다솜1로 183"
+    },
+    {
+      "type": 1,
+      "sid": 20,
+      "lat": 36.51208,
+      "lon": 127.25587,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기20",
+      "addr": "세종시 도담동 718"
+    },
+    {
+      "type": 1,
+      "sid": 21,
+      "lat": 36.517815,
+      "lon": 127.258606,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기21",
+      "addr": "세종시 도담동 630"
+    },
+    {
+      "type": 1,
+      "sid": 22,
+      "lat": 36.516117,
+      "lon": 127.2571,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기22",
+      "addr": "세종시 도담동 900"
+    },
+    {
+      "type": 1,
+      "sid": 23,
+      "lat": 36.51243,
+      "lon": 127.257904,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기23",
+      "addr": "세종시 도담동 900"
+    },
+    {
+      "type": 1,
+      "sid": 24,
+      "lat": 36.52173,
+      "lon": 127.260124,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기24",
+      "addr": "세종시 도담동 406"
+    },
+    {
+      "type": 1,
+      "sid": 25,
+      "lat": 36.50831,
+      "lon": 127.26748,
+      "uvi": false,
+      "o3": true,
+      "stationName": "간이형 측정기25",
+      "addr": "세종시 보듬2로 42"
+    },
+    {
+      "type": 1,
+      "sid": 26,
+      "lat": 36.515793,
+      "lon": 127.261734,
+      "uvi": false,
+      "o3": false,
+      "stationName": "고정형 측정기1",
+      "addr" : "세종시 보람로 77 (도담동주민센터)"
+    },
+    {
+      "type": 1,
+      "sid": 27,
+      "lat": 36.521458,
+      "lon": 127.263954,
+      "uvi": false,
+      "o3": false,
+      "stationName": "고정형 측정기2",
+      "addr" : "세종시 도담동 (주민운동마당)"
+    }
+  ]
+}

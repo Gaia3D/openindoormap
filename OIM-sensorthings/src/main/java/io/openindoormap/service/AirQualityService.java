@@ -16,4 +16,8 @@ public interface AirQualityService extends SensorService {
     public Boolean getDryRun();
 
     public void setDryRun(Boolean dryRun);
+
+    public void importSensorThing();
+
+    public void importSensorData();
 }

@@ -84,6 +84,16 @@ class AirQualityServiceImplTest {
     }
 
     @Test
+    void 도담에어자료_초기화() {
+        sensorService.importSensorThing();
+    }
+
+    @Test
+    void 도담에어자료_데이터_넣기() {
+        sensorService.importSensorData();
+    }
+
+    @Test
     void 측정소별_데이터스트림() throws ServiceFailureException {
         //http://localhost:8888/FROST-Server/v1.0/Things?$filter= name eq '반송로'&$expand=Datastreams
         EntityList<Thing> things = sensorThingsService.things()

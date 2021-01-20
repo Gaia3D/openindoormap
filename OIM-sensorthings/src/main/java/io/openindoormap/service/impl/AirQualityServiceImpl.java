@@ -31,6 +31,11 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
@@ -75,8 +80,8 @@ public class AirQualityServiceImpl implements AirQualityService {
         for (var station : stationList) {
             var json = (JSONObject) station;
             var stationName = json.get("stationName").toString();
-            var dmX = json.get("dmX").toString().trim();
-            var dmY = json.get("dmY").toString().trim();
+            String dmX = json.get("dmX").toString().trim();
+            String dmY = json.get("dmY").toString().trim();
             var mangName = json.get("mangName").toString();
             var addr = json.get("addr").toString();
 
@@ -109,16 +114,12 @@ public class AirQualityServiceImpl implements AirQualityService {
                 locationList.add(locationEntity);
             }
 
-            Thing thingEntity = ThingBuilder.builder()
-                    .id(thing != null ? thing.getId() : null)
-                    .name(stationName)
-                    .description("한국환경공단 측정소")
-                    .properties(thingProperties)
-                    .locations(locationList)
-                    .build();
+            Thing thingEntity = ThingBuilder.builder().id(thing != null ? thing.getId() : null).name(stationName)
+                    .description("한국환경공단 측정소").properties(thingProperties).locations(locationList).build();
 
             entityList.add(thingEntity);
-            entityList.addAll(initDatastreamAndSensor(thingEntity, datastreams, observedPropertyMap, stationName, mangName));
+            entityList.addAll(
+                    initDatastreamAndSensor(thingEntity, datastreams, observedPropertyMap, stationName, mangName));
             entityList.add(initFeatureOfInterest(feature, stationName));
 
             initEntity(entityList, thing != null);
@@ -137,11 +138,14 @@ public class AirQualityServiceImpl implements AirQualityService {
             var stationName = (String) jsonObject.get("stationName");
             JSONObject json = new JSONObject();
             JSONObject result = getHourValue(stationName);
-            LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
+            LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"),
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(),
+                    t.getHour(), 0, 0, 0, ZoneId.of("Asia/Seoul"));
             EntityList<Thing> things = sta.hasThingsWithObservation(null, stationName);
             // 일치하는 thing 이 없을경우 skip
-            if (things.size() == 0) continue;
+            if (things.size() == 0)
+                continue;
 
             Thing thing = things.toList().get(0);
             EntityList<Datastream> datastreamList = thing.getDatastreams();
@@ -171,16 +175,18 @@ public class AirQualityServiceImpl implements AirQualityService {
                 }
 
                 Observation observation = ObservationBuilder.builder()
-                        .phenomenonTime(new TimeObject(ZonedDateTime.now()))
-                        .resultTime(zonedDateTime)
-                        .result(json)
-                        .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId()))).build())
-                        .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
+                        .phenomenonTime(new TimeObject(ZonedDateTime.now())).resultTime(zonedDateTime).result(json)
+                        .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId())))
+                                .build())
+                        .featureOfInterest(FeatureOfInterestBuilder.builder()
+                                .id(Id.tryToParse(String.valueOf(thing.getId()))).build())
                         .build();
 
-                var observationCount = datastream.getObservations().size();
+                int observationCount = datastream.getObservations().size();
                 var lastObservation = observationCount > 0 ? datastream.getObservations().toList().get(0) : null;
-                var lastTime = lastObservation != null ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")) : null;
+                var lastTime = lastObservation != null
+                        ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                        : null;
 
                 if (zonedDateTime.equals(lastTime)) {
                     observation.setId(lastObservation.getId());
@@ -211,12 +217,15 @@ public class AirQualityServiceImpl implements AirQualityService {
     private void insertObservationDaily(Thing thing) {
         String stationName = thing.getName();
         ZonedDateTime now = ZonedDateTime.now().minusDays(1L);
-        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0, now.getZone());
-        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0, now.getZone());
+        ZonedDateTime start = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 0, 0, 0, 0,
+                now.getZone());
+        ZonedDateTime end = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), 23, 0, 0, 0,
+                now.getZone());
         List<AirQualityObservedProperty> typeList = AirQualityObservedProperty.getObservedPropertyByType(TimeType.HOUR);
         for (AirQualityObservedProperty type : typeList) {
-            String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() +
-                    " and Datastreams/Things/name eq '" + stationName + "' and Datastreams/ObservedProperties/name eq '" + type.getName() + "'";
+            String observationFilter = "resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant()
+                    + " and Datastreams/Things/name eq '" + stationName
+                    + "' and Datastreams/ObservedProperties/name eq '" + type.getName() + "'";
             EntityList<Observation> observations = sta.hasObservations(observationFilter, null);
             if (observations.size() == 0) {
                 continue;
@@ -224,19 +233,18 @@ public class AirQualityServiceImpl implements AirQualityService {
             JSONObject json = getObservationAverage(observations, type);
             String timeName = TimeType.DAILY.getValue();
             String dailyName = type.getName() + timeName.charAt(0) + timeName.toLowerCase().substring(1);
-            String datastreamFilter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '" + dailyName + "'";
+            String datastreamFilter = "Thing/name eq '" + stationName + "' and Datastream/ObservedProperty/name eq '"
+                    + dailyName + "'";
             Datastream datastream = sta.hasDatastream(datastreamFilter, null);
             if (datastream == null) {
                 continue;
             }
             ZonedDateTime insertTime = ZonedDateTime.now();
 
-            Observation observation = ObservationBuilder.builder()
-                    .phenomenonTime(new TimeObject(insertTime))
-                    .resultTime(start)
-                    .result(json)
-                    .datastream(datastream)
-                    .featureOfInterest(FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
+            Observation observation = ObservationBuilder.builder().phenomenonTime(new TimeObject(insertTime))
+                    .resultTime(start).result(json).datastream(datastream)
+                    .featureOfInterest(
+                            FeatureOfInterestBuilder.builder().id(Id.tryToParse(String.valueOf(thing.getId()))).build())
                     .build();
 
             sta.create(observation);
@@ -254,24 +262,20 @@ public class AirQualityServiceImpl implements AirQualityService {
         JSONObject json = new JSONObject();
         int size = observations.size();
         if (type.equals(AirQualityObservedProperty.PM10) || type.equals(AirQualityObservedProperty.PM25)) {
-            int observationSum = observations.stream()
-                    .mapToInt(f -> {
-                        Map<String, Object> map = (Map<String, Object>) f.getResult();
-                        return Integer.parseInt(map.get("value").toString());
-                    })
-                    .sum();
+            int observationSum = observations.stream().mapToInt(f -> {
+                Map<String, Object> map = (Map<String, Object>) f.getResult();
+                return Integer.parseInt(map.get("value").toString());
+            }).sum();
 
             json.put("value", observationSum / size);
 
             return json;
         }
 
-        double observationSum = observations.stream()
-                .mapToDouble(f -> {
-                    Map<String, Object> map = (Map<String, Object>) f.getResult();
-                    return Double.parseDouble(map.get("value").toString());
-                })
-                .sum();
+        double observationSum = observations.stream().mapToDouble(f -> {
+            Map<String, Object> map = (Map<String, Object>) f.getResult();
+            return Double.parseDouble(map.get("value").toString());
+        }).sum();
 
         json.put("value", NumberUtils.round(5, observationSum / size));
 
@@ -286,7 +290,8 @@ public class AirQualityServiceImpl implements AirQualityService {
     private Map<String, ObservedProperty> initObservedProperty() {
         Map<String, ObservedProperty> map = new HashMap<>();
         for (AirQualityObservedProperty entity : AirQualityObservedProperty.values()) {
-            var observedProperty = sta.createObservedProperty(null, entity.getName(), entity.getDescription(), entity.getDefinition());
+            var observedProperty = sta.createObservedProperty(null, entity.getName(), entity.getDescription(),
+                    entity.getDefinition());
             map.put(entity.getName(), observedProperty);
         }
         log.info("================== ObservedProperty insert success ==================");
@@ -304,12 +309,8 @@ public class AirQualityServiceImpl implements AirQualityService {
     private Location initLocation(Feature feature, String address) {
         Location location = sta.hasLocation(null, address);
 
-        return LocationBuilder.builder()
-                .id(location != null ? location.getId() : null)
-                .name(address)
-                .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON)
-                .description("대기질 측정소 위치")
-                .location(feature)
+        return LocationBuilder.builder().id(location != null ? location.getId() : null).name(address)
+                .encodingType(AbstractLocationBuilder.ValueCode.GeoJSON).description("대기질 측정소 위치").location(feature)
                 .build();
     }
 
@@ -323,7 +324,8 @@ public class AirQualityServiceImpl implements AirQualityService {
      * @param mangName            관리타입
      * @return List
      */
-    private List<Entity> initDatastreamAndSensor(Thing thing, List<Datastream> datastreams, Map<String, ObservedProperty> observedPropertyMap, String stationName, String mangName) {
+    private List<Entity> initDatastreamAndSensor(Thing thing, List<Datastream> datastreams,
+            Map<String, ObservedProperty> observedPropertyMap, String stationName, String mangName) {
         List<Entity> entityList = new ArrayList<>();
         int i = 0;
         if (datastreams != null) {
@@ -345,25 +347,16 @@ public class AirQualityServiceImpl implements AirQualityService {
             } catch (ServiceFailureException e) {
                 e.printStackTrace();
             }
-            Sensor sensorEntity = SensorBuilder.builder()
-                    .id(sensor != null ? sensor.getId() : null)
-                    .name(stationName + ":" + datastreamType.getName())
-                    .description("미세먼지 측정소")
-                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
-                    .metadata(mangName)
-                    .build();
+            Sensor sensorEntity = SensorBuilder.builder().id(sensor != null ? sensor.getId() : null)
+                    .name(stationName + ":" + datastreamType.getName()).description("미세먼지 측정소")
+                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML).metadata(mangName).build();
             entityList.add(sensorEntity);
 
-            Datastream datastreamEntity = DatastreamBuilder.builder()
-                    .id(datastream != null ? datastream.getId() : null)
-                    .name(datastreamType.getName())
-                    .description(datastreamType.getName())
+            Datastream datastreamEntity = DatastreamBuilder.builder().id(datastream != null ? datastream.getId() : null)
+                    .name(datastreamType.getName()).description(datastreamType.getName())
                     .observationType(AbstractDatastreamBuilder.ValueCode.OM_Observation)
-                    .unitOfMeasurement(datastreamType.getUnitOfMeasurement())
-                    .sensor(sensorEntity)
-                    .observedProperty(observedPropertyMap.get(entity.getName()))
-                    .thing(thing)
-                    .build();
+                    .unitOfMeasurement(datastreamType.getUnitOfMeasurement()).sensor(sensorEntity)
+                    .observedProperty(observedPropertyMap.get(entity.getName())).thing(thing).build();
             entityList.add(datastreamEntity);
             i++;
         }
@@ -382,13 +375,9 @@ public class AirQualityServiceImpl implements AirQualityService {
         String foiName = stationName + " 측정소";
         FeatureOfInterest foi = sta.hasFeatureOfInterest(null, foiName);
 
-        return FeatureOfInterestBuilder.builder()
-                .id(foi != null ? foi.getId() : null)
-                .name(foiName)
-                .description("한국환경공단 대기질 측정소")
-                .encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
-                .feature(feature)
-                .build();
+        return FeatureOfInterestBuilder.builder().id(foi != null ? foi.getId() : null).name(foiName)
+                .description("한국환경공단 대기질 측정소").encodingType(AbstractFeatureOfInterestBuilder.ValueCode.GeoJSON)
+                .feature(feature).build();
     }
 
     /**
@@ -421,7 +410,7 @@ public class AirQualityServiceImpl implements AirQualityService {
             var properties = thing.getProperties();
             properties.put("available", false);
             thing.setProperties(properties);
-            
+
             sta.update(thing);
         }
     }
@@ -439,7 +428,8 @@ public class AirQualityServiceImpl implements AirQualityService {
         if (mockEnable) {
             log.info("mock 미세먼지 저장소 목록");
             try {
-                stationJson = (JSONObject) parser.parse(new FileReader(this.getClass().getClassLoader().getResource("sample/airQualityStation.json").getFile()));
+                stationJson = (JSONObject) parser.parse(new FileReader(
+                        this.getClass().getClassLoader().getResource("sample/airQualityStation.json").getFile()));
             } catch (IOException | ParseException e) {
                 LogMessageSupport.printMessage(e, "-------- AirQualityService getListStation = {}", e.getMessage());
             }
@@ -447,12 +437,10 @@ public class AirQualityServiceImpl implements AirQualityService {
             // 운영시 api 연동
             log.info("api 연동 미세먼지 저장소 목록");
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getMsrstnList";
-            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
-                    .queryParam("numOfRows", 10000)
-                    .queryParam("pageNo", 1)
-                    .queryParam("_returnType", "json")
-                    .build(false);    //자동으로 encode해주는 것을 막기 위해 false
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url).queryParam("ServiceKey",
+                    "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
+                    .queryParam("numOfRows", 10000).queryParam("pageNo", 1).queryParam("_returnType", "json")
+                    .build(false); // 자동으로 encode해주는 것을 막기 위해 false
 
             stationJson = getAPIResult(builder.toString());
         }
@@ -507,15 +495,11 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else {
             // 운영시 api 연동
             String url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
-            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
-                    .queryParam("numOfRows", 10000)
-                    .queryParam("pageNo", 1)
-                    .queryParam("stationName", stationName)
-                    .queryParam("dataTerm", "DAILY")
-                    .queryParam("ver", 1.3)
-                    .queryParam("_returnType", "json")
-                    .build(false);    //자동으로 encode해주는 것을 막기 위해 false
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url).queryParam("ServiceKey",
+                    "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
+                    .queryParam("numOfRows", 10000).queryParam("pageNo", 1).queryParam("stationName", stationName)
+                    .queryParam("dataTerm", "DAILY").queryParam("ver", 1.3).queryParam("_returnType", "json")
+                    .build(false); // 자동으로 encode해주는 것을 막기 위해 false
 
             json = getAPIResult(builder.toString());
         }
@@ -538,7 +522,8 @@ public class AirQualityServiceImpl implements AirQualityService {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity, String.class);
+            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity,
+                    String.class);
             JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
             List<?> resultList = (List<?>) apiResultJson.get("list");
             json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
@@ -637,12 +622,12 @@ public class AirQualityServiceImpl implements AirQualityService {
      * @return
      */
     private String getFilter() {
-        return "Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'" +
-                " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" +
-                " or name eq " + "'" + AirQualityObservedProperty.SO2.getName() + "'" +
-                " or name eq " + "'" + AirQualityObservedProperty.CO.getName() + "'" +
-                " or name eq " + "'" + AirQualityObservedProperty.O3.getName() + "'" +
-                " or name eq " + "'" + AirQualityObservedProperty.NO2.getName() + "'";
+        return "Datastreams/ObservedProperties/name eq " + "'" + AirQualityObservedProperty.PM10.getName() + "'"
+                + " or name eq " + "'" + AirQualityObservedProperty.PM25.getName() + "'" + " or name eq " + "'"
+                + AirQualityObservedProperty.SO2.getName() + "'" + " or name eq " + "'"
+                + AirQualityObservedProperty.CO.getName() + "'" + " or name eq " + "'"
+                + AirQualityObservedProperty.O3.getName() + "'" + " or name eq " + "'"
+                + AirQualityObservedProperty.NO2.getName() + "'";
     }
 
     public Boolean getDryRun() {
@@ -651,5 +636,143 @@ public class AirQualityServiceImpl implements AirQualityService {
 
     public void setDryRun(Boolean dryRun) {
         sta.setDryRun(dryRun);
+    }
+
+    public void importSensorThing() {
+        // 저장소 목록
+        JSONParser parser = new JSONParser();
+        JSONObject stationJson = null;
+        try {
+            stationJson = (JSONObject) parser.parse(new FileReader(
+                    this.getClass().getClassLoader().getResource("sample/airQualityStationForDodam.json").getFile()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        // things 의 모든 available 값을 false 처리
+        updateThingsStatus();
+        List<?> stationList = (List<?>) stationJson.get("list");
+        // ObservedProperty init
+        Map<String, ObservedProperty> observedPropertyMap = initObservedProperty();
+        for (var station : stationList) {
+            var json = (JSONObject) station;
+            var stationName = json.get("stationName").toString();
+            var lon = json.get("lon").toString().trim();
+            var lat = json.get("lat").toString().trim();
+            var addr = json.get("addr").toString();
+
+            Map<String, Object> thingProperties = new HashMap<>();
+            thingProperties.put("stationName", stationName);
+            thingProperties.put("sid", json.get("sid"));
+            thingProperties.put("available", true);
+
+            var thing = sta.hasThingWithRelationEntities(null, stationName);
+            var datastreams = thing != null ? thing.getDatastreams().toList() : null;
+            Point point = null;
+            if (!"".equals(lon) && !"".equals(lat)) {
+                point = new Point(Double.parseDouble(lon), Double.parseDouble(lat));
+            }
+            Feature feature = new Feature();
+            feature.setGeometry(point);
+            List<Location> locationList = new ArrayList<>();
+            List<Entity> entityList = new ArrayList<>();
+            // Location
+            Location locationEntity = initLocation(feature, addr);
+
+            if (point != null) {
+                entityList.add(locationEntity);
+                locationList.add(locationEntity);
+            }
+
+            Thing thingEntity = ThingBuilder.builder().id(thing != null ? thing.getId() : null).name(stationName)
+                    .description("미세먼지 측정기").properties(thingProperties).locations(locationList).build();
+
+            entityList.add(thingEntity);
+            entityList.addAll(
+                    initDatastreamAndSensor(thingEntity, datastreams, observedPropertyMap, stationName, "미세먼지 측정기"));
+            entityList.add(initFeatureOfInterest(feature, stationName));
+
+            initEntity(entityList, thing != null);
+        }
+    }
+
+    public void importSensorData() {
+        CSVReader reader = null;
+        try {
+            reader = new CSVReader(new FileReader(
+                    this.getClass().getClassLoader().getResource("sample/airQualityDataForDodam.csv").getFile()));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        String[] contents;
+        long count = 0L;
+
+        try {
+            // 날짜,시간,센서,PM2.5,PM10,,,
+            while ((contents = reader.readNext()) != null) { // 2
+                count++;
+
+                String sensorDate = contents[0] + " " + contents[1];
+                String stationName = contents[2];
+                String pm25Value = contents[3];
+                String pm10Value = contents[4];
+                int pm25Grade = 0;
+                int pm10Grade = 0;
+
+                EntityList<Thing> things = sta.hasThingsWithObservation(null, stationName);
+                // 일치하는 thing 이 없을경우 skip
+                if (things.size() == 0)
+                {
+                    continue;
+                }
+    
+                JSONObject result = new JSONObject();
+
+                LocalDateTime localDateTime = LocalDateTime.parse(sensorDate, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm"));
+                ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("Asia/Seoul"));
+
+                Thing thing = things.toList().get(0);
+                EntityList<Datastream> datastreamList = thing.getDatastreams();
+                for (var datastream : datastreamList) {
+                    var name = datastream.getName();
+                    if (name.equals(AirQualityDatastream.PM10.getName())) {
+                        result.put("value", pm10Value);
+                        result.put("grade", pm10Grade);
+                    } else if (name.equals(AirQualityDatastream.PM25.getName())) {
+                        result.put("value", pm25Value);
+                        result.put("grade", pm25Grade);
+                    }  else {
+                        continue;
+                    }
+    
+                    Observation observation = ObservationBuilder.builder()
+                            .phenomenonTime(new TimeObject(ZonedDateTime.now())).resultTime(zonedDateTime).result(result)
+                            .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId())))
+                                    .build())
+                            .featureOfInterest(FeatureOfInterestBuilder.builder()
+                                    .id(Id.tryToParse(String.valueOf(thing.getId()))).build())
+                            .build();
+    
+                    var observationCount = datastream.getObservations().size();
+                    var lastObservation = observationCount > 0 ? datastream.getObservations().toList().get(0) : null;
+                    var lastTime = lastObservation != null
+                            ? lastObservation.getResultTime().withZoneSameInstant(ZoneId.of("Asia/Seoul"))
+                            : null;
+    
+                    if (zonedDateTime.equals(lastTime)) {
+                        observation.setId(lastObservation.getId());
+                        sta.update(observation);
+                    } else {
+                        sta.create(observation);
+                    }
+                }
+                log.debug("[ImportSensorData] count = " + count);
+            }
+        } catch (CsvValidationException | IOException e) {
+            e.printStackTrace();
+        }
     }
 }

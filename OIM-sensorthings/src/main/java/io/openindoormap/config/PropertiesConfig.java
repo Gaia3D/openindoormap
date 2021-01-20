@@ -29,10 +29,5 @@ public class PropertiesConfig {
     private boolean callRemoteEnable;
     private String serverIp;
 
-    // http, https
-    // private String restTemplateMode;
-    // private String restAuthKey;
-    private String staRestServer;
-    // private String restServer;
     private String sensorThingsApiServer;
 }
