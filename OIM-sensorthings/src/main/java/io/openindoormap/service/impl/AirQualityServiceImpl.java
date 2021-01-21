@@ -17,6 +17,9 @@ import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
 import io.openindoormap.utils.NumberUtils;
 import io.openindoormap.utils.SensorThingsUtils;
+import io.openindoormap.utils.airquality.AirQuality;
+import io.openindoormap.utils.airquality.ConcentrationsGenerator;
+import io.openindoormap.utils.airquality.IndexCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
@@ -56,13 +59,15 @@ import java.util.*;
 public class AirQualityServiceImpl implements AirQualityService {
 
     private final PropertiesConfig propertiesConfig;
-
     private SensorThingsUtils sta;
+    private IndexCalculator indexCalculator;
 
     @PostConstruct
     public void postConstruct() {
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
+
+        indexCalculator = new IndexCalculator(ConcentrationsGenerator.createAQIConcentrations());
     }
 
     /**
@@ -149,29 +154,57 @@ public class AirQualityServiceImpl implements AirQualityService {
 
             Thing thing = things.toList().get(0);
             EntityList<Datastream> datastreamList = thing.getDatastreams();
-            for (var datastream : datastreamList) {
-                var name = datastream.getName();
+            for (Datastream datastream : datastreamList) {
+                double scaleFactor = 1.0;
+                AirQuality airQuality = null;
+                String name = datastream.getName();
                 if (name.equals(AirQualityDatastream.PM10.getName())) {
+                    scaleFactor = 1.0;
+                    airQuality = AirQuality.PM10;
                     json.put("value", result.get("pm10Value"));
-                    json.put("grade", result.get("pm10Grade"));
+                    // json.put("grade", result.get("pm10Grade"));
                 } else if (name.equals(AirQualityDatastream.PM25.getName())) {
+                    scaleFactor = 1.0;
+                    airQuality = AirQuality.PM25;
                     json.put("value", result.get("pm25Value"));
-                    json.put("grade", result.get("pm25Grade"));
+                    // json.put("grade", result.get("pm25Grade"));
                 } else if (name.equals(AirQualityDatastream.SO2.getName())) {
+                    scaleFactor = 1000.0;
+                    airQuality = AirQuality.SO2;
                     json.put("value", result.get("so2Value"));
-                    json.put("grade", result.get("so2Grade"));
+                    // json.put("grade", result.get("so2Grade"));
                 } else if (name.equals(AirQualityDatastream.CO.getName())) {
+                    scaleFactor = 1.0;
+                    airQuality = AirQuality.CO;
                     json.put("value", result.get("coValue"));
-                    json.put("grade", result.get("coGrade"));
+                    // json.put("grade", result.get("coGrade"));
                 } else if (name.equals(AirQualityDatastream.O3.getName())) {
+                    scaleFactor = 1000.0;
+                    airQuality = AirQuality.O3;
                     json.put("value", result.get("o3Value"));
-                    json.put("grade", result.get("o3Grade"));
+                    // json.put("grade", result.get("o3Grade"));
                 } else if (name.equals(AirQualityDatastream.NO2.getName())) {
+                    scaleFactor = 1000.0;
+                    airQuality = AirQuality.NO2;
                     json.put("value", result.get("no2Value"));
-                    json.put("grade", result.get("no2Grade"));
+                    // json.put("grade", result.get("no2Grade"));
                 } else {
                     // 24시간 datastream 에는 여기서 값을 넣지 않는다.
                     continue;
+                }
+
+                // Calculate AQI
+                if(airQuality != null) {
+                    double concentration = -1.0;
+                    try {
+                        concentration = Double.parseDouble(json.get("value").toString());
+                    } catch (Exception e) {
+                        concentration = -1.0;
+                        log.debug(e.getMessage());
+                    }
+
+                    int aqi = indexCalculator.getAQI(airQuality, concentration * scaleFactor);
+                    json.put("index", Integer.toString(aqi));
                 }
 
                 Observation observation = ObservationBuilder.builder()
@@ -719,8 +752,6 @@ public class AirQualityServiceImpl implements AirQualityService {
                 String stationName = contents[2];
                 String pm25Value = contents[3];
                 String pm10Value = contents[4];
-                int pm25Grade = 0;
-                int pm10Grade = 0;
 
                 EntityList<Thing> things = sta.hasThingsWithObservation(null, stationName);
                 // 일치하는 thing 이 없을경우 skip
@@ -737,17 +768,32 @@ public class AirQualityServiceImpl implements AirQualityService {
                 Thing thing = things.toList().get(0);
                 EntityList<Datastream> datastreamList = thing.getDatastreams();
                 for (var datastream : datastreamList) {
+                    AirQuality airQuality = null;
                     var name = datastream.getName();
                     if (name.equals(AirQualityDatastream.PM10.getName())) {
+                        airQuality = AirQuality.PM10;
                         result.put("value", pm10Value);
-                        result.put("grade", pm10Grade);
                     } else if (name.equals(AirQualityDatastream.PM25.getName())) {
+                        airQuality = AirQuality.PM25;
                         result.put("value", pm25Value);
-                        result.put("grade", pm25Grade);
                     }  else {
                         continue;
                     }
     
+                    // Calculate AQI
+                    if(airQuality != null) {
+                        double concentration = -1.0;
+                        try {
+                            concentration = Double.parseDouble(result.get("value").toString());
+                        } catch (Exception e) {
+                            concentration = -1.0;
+                            log.debug(e.getMessage());
+                        }
+    
+                        int aqi = indexCalculator.getAQI(airQuality, concentration);
+                        result.put("index", Integer.toString(aqi));
+                    }
+
                     Observation observation = ObservationBuilder.builder()
                             .phenomenonTime(new TimeObject(ZonedDateTime.now())).resultTime(zonedDateTime).result(result)
                             .datastream(DatastreamBuilder.builder().id(Id.tryToParse(String.valueOf(datastream.getId())))
