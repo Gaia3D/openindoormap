@@ -30,4 +30,8 @@ public class PropertiesConfig {
     private String serverIp;
 
     private String sensorThingsApiServer;
+
+    private String airkoreaApiServiceUrl;
+    private String airkoreaAuthKey;
+
 }

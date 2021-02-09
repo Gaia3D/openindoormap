@@ -62,12 +62,18 @@ public class AirQualityServiceImpl implements AirQualityService {
     private SensorThingsUtils sta;
     private IndexCalculator indexCalculator;
 
+    private String airkoreaApiServiceUrl;
+    private String airkoreaAuthKey;
+
     @PostConstruct
     public void postConstruct() {
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
-
+        // 인덱스 계산
         indexCalculator = new IndexCalculator(ConcentrationsGenerator.createAQIConcentrations());
+        // 에어코리아 API 관련
+        airkoreaApiServiceUrl = propertiesConfig.getAirkoreaApiServiceUrl();
+        airkoreaAuthKey = propertiesConfig.getAirkoreaAuthKey();
     }
 
     /**
@@ -468,12 +474,14 @@ public class AirQualityServiceImpl implements AirQualityService {
             }
         } else {
             // 운영시 api 연동
-            log.info("api 연동 미세먼지 저장소 목록");
-            String url = "http://openapi.airkorea.or.kr/openapi/services/rest/MsrstnInfoInqireSvc/getMsrstnList";
-            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url).queryParam("ServiceKey",
-                    "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
-                    .queryParam("numOfRows", 10000).queryParam("pageNo", 1).queryParam("_returnType", "json")
-                    .build(false); // 자동으로 encode해주는 것을 막기 위해 false
+            log.info("api 연동 [한국환경공단_에어코리아_측정소정보]");
+            String url = airkoreaApiServiceUrl + "/MsrstnInfoInqireSvc/getMsrstnList";
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
+                    .queryParam("ServiceKey", airkoreaAuthKey)
+                    .queryParam("numOfRows", 10000)
+                    .queryParam("pageNo", 1)
+                    .queryParam("_returnType", "json")
+                    .build(false);    //자동으로 encode해주는 것을 막기 위해 false
 
             stationJson = getAPIResult(builder.toString());
         }
@@ -527,14 +535,21 @@ public class AirQualityServiceImpl implements AirQualityService {
             json.put("dataTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:00")));
         } else {
             // 운영시 api 연동
-            String url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
-            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url).queryParam("ServiceKey",
-                    "ZiKeHEKOV18foLQEgnvy1DHa%2FefMY%2F999Lk9MhSty%2FO9a0awuczi0DcG1X8x%2BhnMiNkileMj7w00M%2F0ZtKVfAw%3D%3D")
-                    .queryParam("numOfRows", 10000).queryParam("pageNo", 1).queryParam("stationName", stationName)
-                    .queryParam("dataTerm", "DAILY").queryParam("ver", 1.3).queryParam("_returnType", "json")
-                    .build(false); // 자동으로 encode해주는 것을 막기 위해 false
+            log.info("api 연동 [한국환경공단_에어코리아_대기오염정보]");
+            String url = airkoreaApiServiceUrl + "/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
+                    .queryParam("ServiceKey", airkoreaAuthKey)
+                    .queryParam("numOfRows", 10000)
+                    .queryParam("pageNo", 1)
+                    .queryParam("stationName", stationName)
+                    .queryParam("dataTerm", "DAILY")
+                    .queryParam("ver", 1.3)
+                    .queryParam("_returnType", "json")
+                    .build(false);    //자동으로 encode해주는 것을 막기 위해 false
 
             json = getAPIResult(builder.toString());
+            List<?> resultList = (List<?>) json.get("list");
+            json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
         }
 
         return json;
@@ -555,16 +570,15 @@ public class AirQualityServiceImpl implements AirQualityService {
         headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity,
-                    String.class);
+            ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity, String.class);
             JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
             List<?> resultList = (List<?>) apiResultJson.get("list");
-            json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
+            if (resultList.size() <= 0) return null;
+            json = apiResultJson;
             log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
         } catch (URISyntaxException | ParseException e) {
             LogMessageSupport.printMessage(e, "-------- AirQualityService getAirQualityData = {}", e.getMessage());
         }
-
         return json;
     }
 
