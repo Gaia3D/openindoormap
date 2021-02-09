@@ -29632,165 +29632,156 @@ MagoManager.prototype.drawStadistics = function () {
  */
 
 
-MagoManager.prototype.drawBuildingNames = function (visibleObjControlerNodes) {
-  var canvas = this.getObjectLabel();
-  var ctx = canvas.getContext("2d"); // lod2.
+MagoManager.prototype.drawBuildingNames = function(visibleObjControlerNodes) 
+{
+	var canvas = this.getObjectLabel();
+	var ctx = canvas.getContext("2d");
 
-  var gl = this.getGl();
-  var node;
-  var nodeRoot;
-  var geoLocDataManager;
-  var geoLoc;
-  var neoBuilding;
-  var worldPosition;
-  var screenCoord; // 1rst, collect rootNodes.
+	// lod2.
+	var gl = this.getGl();
+	var node;
+	var nodeRoot;
+	var geoLocDataManager;
+	var geoLoc;
+	var worldPosition;
+	var screenCoord;
+	
+	// 1rst, collect rootNodes.
+	var rootNodesMap = {};
+	var currentVisiblesArray = visibleObjControlerNodes.currentVisibles1.concat(visibleObjControlerNodes.currentVisibles2, visibleObjControlerNodes.currentVisibles3);
+	var nodesCount = currentVisiblesArray.length;
+	for (var i=0; i<nodesCount; i++)
+	{
+		node = currentVisiblesArray[i];
+		nodeRoot = node.getRoot();
+		if (node.data === undefined || node.data.neoBuilding === undefined)
+		{ continue; }
+	
+		if (node.data.distToCam > 3000.0)
+		{ continue; }
+		
+		var key = node.data.neoBuilding.buildingId;
+		rootNodesMap[key] = nodeRoot;
+	}
+	
 
-  var rootNodesMap = {};
-  var currentVisiblesArray = visibleObjControlerNodes.currentVisibles1.concat(visibleObjControlerNodes.currentVisibles2, visibleObjControlerNodes.currentVisibles3);
-  var nodesCount = currentVisiblesArray.length;
+	for (var key in rootNodesMap)
+	{
+		if (Object.prototype.hasOwnProperty.call(rootNodesMap, key))
+		{
+			nodeRoot = rootNodesMap[key];
+			var label = nodeRoot.data.attributes.label;
 
-  for (var i = 0; i < nodesCount; i++) {
-    node = currentVisiblesArray[i];
-    nodeRoot = node.getRoot();
+			if(nodeRoot.data.attributes.isVisible === false) continue;
+			geoLocDataManager = nodeRoot.data.geoLocDataManager;
+			geoLoc = geoLocDataManager.getCurrentGeoLocationData();
 
-    if (node.data === undefined || node.data.neoBuilding === undefined) {
-      continue;
-    }
+			worldPosition = nodeRoot.getBBoxCenterPositionWorldCoord(geoLoc);
+			screenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(gl, worldPosition.x, worldPosition.y, worldPosition.z, screenCoord, this);
 
-    if (node.data.distToCam > 3000.0) {
-      continue;
-    }
+			if(isNaN(screenCoord.x) || isNaN(screenCoord.y)) continue;
 
-    var key = node.data.neoBuilding.buildingId; ///rootNodesMap.set(nodeRoot, nodeRoot);
+			if(!label) {
+				var dataName = nodeRoot.data.data_name;
+				if(!dataName || dataName.length === 0) continue;
+				var elemFromPoints = document.elementsFromPoint(screenCoord.x, screenCoord.y);
+				if (elemFromPoints.length > 0 && elemFromPoints[0].nodeName === 'CANVAS' && screenCoord.x >= 0 && screenCoord.y >= 0)
+				{
+					ctx.font = "13px Arial";
+					ctx.strokeStyle = 'MidnightBlue';
+					ctx.fillStyle= "PapayaWhip";
 
-    rootNodesMap[key] = nodeRoot;
-  }
+					ctx.fillText(dataName, screenCoord.x, screenCoord.y);
+					ctx.strokeText(dataName, screenCoord.x, screenCoord.y);
+				}
+			} else {
+				if(label instanceof Array)
+				{
+					for(var j=0,labelLen=label.length;j<labelLen;j++)
+					{
+						var lb = label[j];
+						ctx.fillStyle = lb.backgroundFillColor ;
+						ctx.strokeStyle = lb.backgroundStrokeColor ;
+						var backgroundOffset = lb.backgroundOffset;
+						var backgroundSize = lb.backgroundSize;
+						roundRect(ctx, screenCoord.x+backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true,true);
+						ctx.font = "13px Arial";
+						ctx.fillStyle = "white";
+						ctx.strokeStyle = "white";
+						ctx.textAlign = "center";
+						var textOffset = lb.textOffset;
+						ctx.fillText(lb.text, screenCoord.x+textOffset[0], screenCoord.y+textOffset[1]);
+					}
+				} else {
+					ctx.fillStyle = label.backgroundFillColor ;
+					ctx.strokeStyle = label.backgroundStrokeColor ;
+					var backgroundOffset = label.backgroundOffset;
+					var backgroundSize = label.backgroundSize;
+					roundRect(ctx, screenCoord.x+backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true,true);
+					ctx.font = label.font ? label.font :"13px Arial";
+					ctx.fillStyle = "white";
+					ctx.strokeStyle = "white";
+					ctx.textAlign = "center";
+					var textOffset = label.textOffset;
+					var text = label.text;
+					if(text.indexOf('\n') > -1) {
+						var splitTexts = text.split('\n');
+						var yoffset = textOffset[1];
+						var ypos = screenCoord.y + yoffset;
+						for(var k=0,textLen=splitTexts.length;k<textLen;k++) {
+							var splitText = splitTexts[k];
+							ypos = ypos + k*-2*yoffset;
+							if(k>0) ypos += 3;
+							ctx.fillText(splitText, screenCoord.x+textOffset[0], ypos);
+						}
+					} else {
+						ctx.fillText(text, screenCoord.x+textOffset[0], screenCoord.y+textOffset[1]);
+					}
+				}
+			}
+		}
+	}
+	
+	rootNodesMap = {};
 
-  for (var key in rootNodesMap) {
-    if (Object.prototype.hasOwnProperty.call(rootNodesMap, key)) {
-      //nodeRoot = rootNodesArray[i];
-      nodeRoot = rootNodesMap[key];
-      if (nodeRoot.data.attributes.isVisible === false || !nodeRoot.data.attributes.label) continue;
-      geoLocDataManager = nodeRoot.data.geoLocDataManager;
-      geoLoc = geoLocDataManager.getCurrentGeoLocationData(); //neoBuilding = node.data.neoBuilding;
+	ctx.restore(); 
 
-      worldPosition = nodeRoot.getBBoxCenterPositionWorldCoord(geoLoc);
-      screenCoord = ManagerUtils.calculateWorldPositionToScreenCoord(gl, worldPosition.x, worldPosition.y, worldPosition.z, screenCoord, this);
-      if (isNaN(screenCoord.x) || isNaN(screenCoord.y)) continue;
-      var elemFromPoints = document.elementsFromPoint(screenCoord.x, screenCoord.y); //if (elemFromPoints.length === 0) { continue; }
-      //if (elemFromPoints[0].nodeName === 'CANVAS' && screenCoord.x >= 0 && screenCoord.y >= 0)
-      //{
-
-      var label = nodeRoot.data.attributes.label;
-
-      if (label instanceof Array) {
-        for (var j = 0, labelLen = label.length; j < labelLen; j++) {
-          var lb = label[j];
-          ctx.fillStyle = lb.backgroundFillColor;
-          ctx.strokeStyle = lb.backgroundStrokeColor;
-          var backgroundOffset = lb.backgroundOffset;
-          var backgroundSize = lb.backgroundSize;
-          roundRect(ctx, screenCoord.x + backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true, true);
-          ctx.font = "13px Arial";
-          ctx.fillStyle = "white";
-          ctx.strokeStyle = "white";
-          ctx.textAlign = "center"; //ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
-          //ctx.fillText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
-          //ctx.strokeText('민간분양', screenCoord.x+30, screenCoord.y);
-
-          var textOffset = lb.textOffset;
-          ctx.fillText(lb.text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
-        }
-      } else {
-        ctx.fillStyle = label.backgroundFillColor;
-        ctx.strokeStyle = label.backgroundStrokeColor;
-        var backgroundOffset = label.backgroundOffset;
-        var backgroundSize = label.backgroundSize;
-        roundRect(ctx, screenCoord.x + backgroundOffset[0], screenCoord.y + backgroundOffset[1], backgroundSize[0], backgroundSize[1], 10, true, true);
-        ctx.font = label.font ? label.font : "13px Arial";
-        ctx.fillStyle = "white";
-        ctx.strokeStyle = "white";
-        ctx.textAlign = "center"; //ctx.strokeText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
-        //ctx.fillText(nodeRoot.data.nodeId, screenCoord.x, screenCoord.y);
-        //ctx.strokeText('민간분양', screenCoord.x+30, screenCoord.y);
-
-        var textOffset = label.textOffset;
-        var text = label.text;
-
-        if (text.indexOf('\n') > -1) {
-          var splitTexts = text.split('\n');
-          var yoffset = textOffset[1];
-          var halfYoffset = yoffset / 2;
-          var ypos = screenCoord.y + yoffset;
-
-          for (var k = 0, textLen = splitTexts.length; k < textLen; k++) {
-            var splitText = splitTexts[k];
-            ypos = ypos + k * -2 * yoffset;
-            if (k > 0) ypos += 3;
-            ctx.fillText(splitText, screenCoord.x + textOffset[0], ypos);
-          }
-        } else {
-          ctx.fillText(text, screenCoord.x + textOffset[0], screenCoord.y + textOffset[1]);
-        }
-      } //}
-
-    }
-  }
-
-  rootNodesMap = {};
-  ctx.restore();
-
-  function roundRect(context, x, y, width, height, radius, fill, stroke) {
-    if (typeof stroke === 'undefined') {
-      stroke = true;
-    }
-
-    if (typeof radius === 'undefined') {
-      radius = 5;
-    }
-
-    if (typeof radius === 'number') {
-      radius = {
-        tl: radius,
-        tr: radius,
-        br: radius,
-        bl: radius
-      };
-    } else {
-      var defaultRadius = {
-        tl: 0,
-        tr: 0,
-        br: 0,
-        bl: 0
-      };
-
-      for (var side in defaultRadius) {
-        if (defaultRadius.hasOwnProperty(side)) {
-          radius[side] = radius[side] || defaultRadius[side];
-        }
-      }
-    }
-
-    context.beginPath();
-    context.moveTo(x + radius.tl, y);
-    context.lineTo(x + width - radius.tr, y);
-    context.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-    context.lineTo(x + width, y + height - radius.br);
-    context.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-    context.lineTo(x + radius.bl, y + height);
-    context.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-    context.lineTo(x, y + radius.tl);
-    context.quadraticCurveTo(x, y, x + radius.tl, y);
-    context.closePath();
-
-    if (fill) {
-      context.fill();
-    }
-
-    if (stroke) {
-      context.stroke();
-    }
-  }
+	function roundRect(context, x, y, width, height, radius, fill, stroke) {
+		if (typeof stroke === 'undefined') {
+		  stroke = true;
+		}
+		if (typeof radius === 'undefined') {
+		  radius = 5;
+		}
+		if (typeof radius === 'number') {
+		  radius = {tl: radius, tr: radius, br: radius, bl: radius};
+		} else {
+		  var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+		  for (var side in defaultRadius) {
+			if(defaultRadius.hasOwnProperty(side)) {
+				radius[side] = radius[side] || defaultRadius[side];
+			}
+		  }
+		}
+		context.beginPath();
+		context.moveTo(x + radius.tl, y);
+		context.lineTo(x + width - radius.tr, y);
+		context.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+		context.lineTo(x + width, y + height - radius.br);
+		context.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+		context.lineTo(x + radius.bl, y + height);
+		context.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+		context.lineTo(x, y + radius.tl);
+		context.quadraticCurveTo(x, y, x + radius.tl, y);
+		context.closePath();
+		if (fill) {
+			context.fill();
+		}
+		if (stroke) {
+			context.stroke();
+		}
+	  
+	}
 };
 /**
  * Draw building names on scene.
@@ -34817,6 +34808,30 @@ MagoManager.prototype.callAPI = function (api) {
         type: MagoManager.EVENT_TYPE.DESELECTEDF4DOBJECT
       });
     }
+
+    var targetType = DataType.NATIVE;
+    switch (parseInt(objectMoveMode)) {
+      case 0:
+        {
+          targetType = DataType.F4D;
+          break;
+        }
+      case 1:
+        {
+          targetType = DataType.OBJECT;
+          break;
+        }
+      default :
+      {
+        targetType = DataType.NATIVE;
+        break;
+      }
+    }
+
+    this.defaultSelectInteraction.setActive(true);
+    this.defaultSelectInteraction.setTargetType(targetType);
+    this.defaultTranslateInteraction.setActive(true);
+    this.defaultTranslateInteraction.setTargetType(targetType);
 
     this.magoPolicy.setObjectMoveMode(objectMoveMode);
   } else if (apiName === "saveObjectMove") {//		var changeHistory = new ChangeHistory();
@@ -88345,6 +88360,18 @@ TranslateInteraction.prototype.handleUpEvent = function () {
   this.init();
   this.manager.setCameraMotion(true);
   this.manager.isCameraMoved = true;
+
+  if (this.manager.objectMoved) {
+    this.manager.objectMoved = false;
+    var nodeSelected = this.manager.selectionManager.currentNodeSelected;
+
+    if (nodeSelected === undefined) {
+      return;
+    }
+
+    this.manager.saveHistoryObjectMovement(this.manager.selectionManager.getSelectedF4dObject(), nodeSelected);
+  }
+
   return;
 };
 

@@ -54,7 +54,7 @@
 	var isDataExist = function() {
 
 		var dataKey = $('#api27-p1').val();
-		var result = isDataExistAPI("projectId_" + dataKey.toString());
+		var result = isDataExistAPI(MAGO3D_INSTANCE2, "projectId_" + dataKey.toString());
 
 		document.getElementById("api27-result").innerText = result.toString();
 

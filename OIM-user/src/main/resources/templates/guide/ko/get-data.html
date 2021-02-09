@@ -54,7 +54,7 @@
 	var getData = function() {
 
 		var dataKey = $('#api28-p1').val();
-		var result = getDataAPI("projectId_" + dataKey.toString());
+		var result = getDataAPI(MAGO3D_INSTANCE2, "projectId_" + dataKey.toString());
 		var table = document.getElementById("api28-result");
 		table.innerHTML = '';
 		
