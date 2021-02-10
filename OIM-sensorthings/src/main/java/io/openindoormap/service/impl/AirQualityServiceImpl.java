@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -85,7 +86,7 @@ public class AirQualityServiceImpl implements AirQualityService {
         JSONObject stationJson = getListStation();
         // things 의 모든 available 값을 false 처리
         updateThingsStatus();
-        List<?> stationList = (List<?>) stationJson.get("list");
+        List<?> stationList = (List<?>) stationJson.get("items");
         // ObservedProperty init
         Map<String, ObservedProperty> observedPropertyMap = initObservedProperty();
         for (var station : stationList) {
@@ -99,10 +100,6 @@ public class AirQualityServiceImpl implements AirQualityService {
             Map<String, Object> thingProperties = new HashMap<>();
             thingProperties.put("stationName", stationName);
             thingProperties.put("year", json.get("year"));
-            thingProperties.put("oper", json.get("oper"));
-            thingProperties.put("photo", json.get("photo"));
-            thingProperties.put("vrml", json.get("vrml"));
-            thingProperties.put("map", json.get("map"));
             thingProperties.put("mangName", mangName);
             thingProperties.put("item", json.get("item"));
             thingProperties.put("available", true);
@@ -143,12 +140,29 @@ public class AirQualityServiceImpl implements AirQualityService {
     @Override
     public void insertSensorData() {
         JSONObject stationJson = getListStation();
-        List<?> stationList = (List<?>) stationJson.get("list");
+        JSONObject observationJson = getHourValue("전국");
+
+        List<?> stationList = (List<?>) stationJson.get("items");
+        List<?> observationList = (List<?>) observationJson.get("items");
+
         for (var station : stationList) {
             var jsonObject = (JSONObject) station;
             var stationName = (String) jsonObject.get("stationName");
             JSONObject json = new JSONObject();
-            JSONObject result = getHourValue(stationName);
+            // JSONObject result = getHourValue(stationName);
+
+            JSONObject result = null;
+            for (var observation : observationList) {
+                if(((JSONObject)observation).get("stationName").toString().equals(stationName)) {
+                    result = (JSONObject)observation;
+                    break;
+                }
+            }
+
+            if(result == null || result.get("dataTime") == null) {
+                continue;
+            }
+            
             LocalDateTime t = LocalDateTime.parse((String) result.get("dataTime"),
                     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             ZonedDateTime zonedDateTime = ZonedDateTime.of(t.getYear(), t.getMonthValue(), t.getDayOfMonth(),
@@ -167,32 +181,32 @@ public class AirQualityServiceImpl implements AirQualityService {
                 if (name.equals(AirQualityDatastream.PM10.getName())) {
                     scaleFactor = 1.0;
                     airQuality = AirQuality.PM10;
-                    json.put("value", result.get("pm10Value"));
+                    json.put("value", result.get("pm10Flag") == null ? result.get("pm10Value") : null);
                     // json.put("grade", result.get("pm10Grade"));
                 } else if (name.equals(AirQualityDatastream.PM25.getName())) {
                     scaleFactor = 1.0;
                     airQuality = AirQuality.PM25;
-                    json.put("value", result.get("pm25Value"));
+                    json.put("value", result.get("pm25Flag") == null ? result.get("pm25Value") : null);
                     // json.put("grade", result.get("pm25Grade"));
                 } else if (name.equals(AirQualityDatastream.SO2.getName())) {
                     scaleFactor = 1000.0;
                     airQuality = AirQuality.SO2;
-                    json.put("value", result.get("so2Value"));
+                    json.put("value", result.get("so2Flag") == null ? result.get("so2Value") : null);
                     // json.put("grade", result.get("so2Grade"));
                 } else if (name.equals(AirQualityDatastream.CO.getName())) {
                     scaleFactor = 1.0;
                     airQuality = AirQuality.CO;
-                    json.put("value", result.get("coValue"));
+                    json.put("value", result.get("coFlag") == null ? result.get("coValue") : null);
                     // json.put("grade", result.get("coGrade"));
                 } else if (name.equals(AirQualityDatastream.O3.getName())) {
                     scaleFactor = 1000.0;
                     airQuality = AirQuality.O3;
-                    json.put("value", result.get("o3Value"));
+                    json.put("value", result.get("o3Flag") == null ? result.get("o3Value") : null);
                     // json.put("grade", result.get("o3Grade"));
                 } else if (name.equals(AirQualityDatastream.NO2.getName())) {
                     scaleFactor = 1000.0;
                     airQuality = AirQuality.NO2;
-                    json.put("value", result.get("no2Value"));
+                    json.put("value", result.get("no2Flag") == null ? result.get("no2Value") : null);
                     // json.put("grade", result.get("no2Grade"));
                 } else {
                     // 24시간 datastream 에는 여기서 값을 넣지 않는다.
@@ -202,11 +216,13 @@ public class AirQualityServiceImpl implements AirQualityService {
                 // Calculate AQI
                 if(airQuality != null) {
                     double concentration = -1.0;
-                    try {
-                        concentration = Double.parseDouble(json.get("value").toString());
-                    } catch (Exception e) {
-                        concentration = -1.0;
-                        log.debug(e.getMessage());
+                    if(json.get("value") != null) {
+                        try {
+                            concentration = Double.parseDouble(json.get("value").toString());
+                        } catch (Exception e) {
+                            concentration = -1.0;
+                            log.debug(e.getMessage());
+                        }
                     }
 
                     int aqi = indexCalculator.getAQI(airQuality, concentration * scaleFactor);
@@ -477,10 +493,10 @@ public class AirQualityServiceImpl implements AirQualityService {
             log.info("api 연동 [한국환경공단_에어코리아_측정소정보]");
             String url = airkoreaApiServiceUrl + "/MsrstnInfoInqireSvc/getMsrstnList";
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", airkoreaAuthKey)
+                    .queryParam("ServiceKey", UriUtils.encode(airkoreaAuthKey, "UTF-8"))
                     .queryParam("numOfRows", 10000)
                     .queryParam("pageNo", 1)
-                    .queryParam("_returnType", "json")
+                    .queryParam("returnType", "json")
                     .build(false);    //자동으로 encode해주는 것을 막기 위해 false
 
             stationJson = getAPIResult(builder.toString());
@@ -492,10 +508,10 @@ public class AirQualityServiceImpl implements AirQualityService {
     /**
      * 측정소에 해당하는 미세먼지 데이터 조회
      *
-     * @param stationName 측정소 이름
+     * @param sidoName 시도명
      * @return JSONObejct
      */
-    private JSONObject getHourValue(String stationName) {
+    private JSONObject getHourValue(String sidoName) {
         boolean mockEnable = propertiesConfig.isMockEnable();
         JSONObject json = new JSONObject();
         // 테스트
@@ -536,20 +552,17 @@ public class AirQualityServiceImpl implements AirQualityService {
         } else {
             // 운영시 api 연동
             log.info("api 연동 [한국환경공단_에어코리아_대기오염정보]");
-            String url = airkoreaApiServiceUrl + "/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
+            String url = airkoreaApiServiceUrl + "/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty";
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("ServiceKey", airkoreaAuthKey)
+                    .queryParam("ServiceKey", UriUtils.encode(airkoreaAuthKey, "UTF-8"))
                     .queryParam("numOfRows", 10000)
                     .queryParam("pageNo", 1)
-                    .queryParam("stationName", stationName)
-                    .queryParam("dataTerm", "DAILY")
+                    .queryParam("sidoName", UriUtils.encode(sidoName, "UTF-8"))
                     .queryParam("ver", 1.3)
-                    .queryParam("_returnType", "json")
+                    .queryParam("returnType", "json")
                     .build(false);    //자동으로 encode해주는 것을 막기 위해 false
 
             json = getAPIResult(builder.toString());
-            List<?> resultList = (List<?>) json.get("list");
-            json = resultList.size() > 0 ? (JSONObject) resultList.get(0) : null;
         }
 
         return json;
@@ -571,11 +584,19 @@ public class AirQualityServiceImpl implements AirQualityService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         try {
             ResponseEntity<?> response = restTemplate.exchange(new URI(requestURI), HttpMethod.GET, entity, String.class);
-            JSONObject apiResultJson = (JSONObject) parser.parse(response.getBody().toString());
-            List<?> resultList = (List<?>) apiResultJson.get("list");
-            if (resultList.size() <= 0) return null;
-            json = apiResultJson;
-            log.info("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
+            JSONObject apiResultJson = (JSONObject) (((JSONObject) parser.parse(response.getBody().toString())).get("response"));
+            JSONObject apiResultHeader = (JSONObject) apiResultJson.get("header");
+            JSONObject apiResultBody = (JSONObject) apiResultJson.get("body");
+            if(!apiResultHeader.get("resultCode").toString().equals("00"))
+            {
+                return null;
+            }
+            List<?> resultList = (List<?>) apiResultBody.get("items");
+            if (resultList.size() <= 0) {
+                return null;  
+            } 
+            json = apiResultBody;
+            log.debug("-------- statusCode = {}, body = {}", response.getStatusCodeValue(), response.getBody());
         } catch (URISyntaxException | ParseException e) {
             LogMessageSupport.printMessage(e, "-------- AirQualityService getAirQualityData = {}", e.getMessage());
         }

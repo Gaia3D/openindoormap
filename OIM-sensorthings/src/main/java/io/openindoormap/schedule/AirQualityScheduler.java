@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "true")
+@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "false")
 public class AirQualityScheduler {
 
     @Qualifier("airQualityService")
