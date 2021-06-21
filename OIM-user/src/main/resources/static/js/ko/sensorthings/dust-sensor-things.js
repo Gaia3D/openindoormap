@@ -166,7 +166,7 @@ DustSensorThings.prototype.clearDustLayer = function () {
         this.layer.show = false;
     }
     if (this.dataSource && this.dataSource.show) {
-        OIM.sensorThings.dataSource.show = false;
+        this.dataSource.show = false;
     }
 };
 
@@ -370,7 +370,7 @@ DustSensorThings.prototype.addOverlay = function () {
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
 
-            if (!_this.created) return;
+            if (!_this.created || !(OIM.sensorThings instanceof DustSensorThings)) return;
 
             _this.things = msg.value;
 
