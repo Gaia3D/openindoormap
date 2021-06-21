@@ -17,7 +17,7 @@
                     </li>
                     <li>
                         <label th:text="#{iot.dust.station.addr}"></label>
-                        <a href="#" class="ellipsis" onclick="gotoFly('{{longitude}}', '{{latitude}}', 50);return false;">{{addr}}</a>
+                        <a href="#" class="ellipsis" onclick="OIM.sensorThings.gotoFly('{{longitude}}', '{{latitude}}', 50);return false;">{{addr}}</a>
                     </li>
                     <li>
                         <label th:text="#{iot.dust.value}"></label>
@@ -27,7 +27,7 @@
             </div>
             <div class="iotDustMoreDHTML" style="display: none"></div>
             <div class="btnCt">
-                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="sensorThings.getDetail(this, {{id}})"></button>
+                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="OIM.sensorThings.getDetail(this, {{id}})"></button>
             </div>
         </div>
     {{/each}}

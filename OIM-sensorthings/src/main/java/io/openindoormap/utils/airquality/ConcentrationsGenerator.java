@@ -4,13 +4,13 @@ public class ConcentrationsGenerator {
     public static Concentrations createAQIConcentrations() {
         Concentrations concentrations = new Concentrations();
 
-        Index index1 = new Index(0, 50);    // good
-        Index index2 = new Index(51, 100);  // moderate
-        Index index3 = new Index(101, 150); // unhealthy for sensitive groups
-        Index index4 = new Index(151, 200); // unhealthy
-        Index index5 = new Index(201, 300); // very unhealthy
-        Index index6 = new Index(301, 400); // hazardous
-        Index index7 = new Index(401, 500); // hazardous
+        Index index1 = new Index(0, 50, 1);    // good
+        Index index2 = new Index(51, 100, 2);  // moderate
+        Index index3 = new Index(101, 150,3); // unhealthy for sensitive groups
+        Index index4 = new Index(151, 200, 4); // unhealthy
+        Index index5 = new Index(201, 300, 5); // very unhealthy
+        Index index6 = new Index(301, 400, 6); // hazardous
+        Index index7 = new Index(401, 500, 7); // hazardous
 
         Concentration pm25 = new Concentration(AirQuality.PM25);    // 24Hour(μg/m3)
         pm25.addIndexStep(new IndexStep(index1,   0.0,  12.0));
@@ -84,10 +84,10 @@ public class ConcentrationsGenerator {
     public static Concentrations createCAIConcentrations() {
         Concentrations concentrations = new Concentrations();
 
-        Index index1 = new Index(0, 50);    // 좋음
-        Index index2 = new Index(51, 100);  // 보통
-        Index index3 = new Index(101, 250); // 나쁨
-        Index index4 = new Index(251, 500); // 매우나쁨
+        Index index1 = new Index(0, 50, 1);    // 좋음
+        Index index2 = new Index(51, 100, 2);  // 보통
+        Index index3 = new Index(101, 250, 3); // 나쁨
+        Index index4 = new Index(251, 500, 4); // 매우나쁨
 
         Concentration pm25 = new Concentration(AirQuality.PM25);    // 24Hour(μg/m3)
         pm25.addIndexStep(new IndexStep(index1,  0.0,  15.0));

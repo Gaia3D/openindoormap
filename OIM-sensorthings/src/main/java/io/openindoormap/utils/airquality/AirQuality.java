@@ -1,5 +1,7 @@
 package io.openindoormap.utils.airquality;
 
+import java.util.Arrays;
+
 public enum AirQuality {
     PM10("PM10"),
     PM25("PM2.5"),
@@ -19,11 +21,9 @@ public enum AirQuality {
     }
 
     public static AirQuality parseFromString(String name) {
-        for (AirQuality air : AirQuality.values()) {
-            if (air.getName().equals(name)) {
-                return air;
-            }
-        }
-        return null;
+        return Arrays.stream(AirQuality.values())
+                .filter(air -> air.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -1,8 +1,13 @@
 package io.openindoormap.utils.airquality;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class Concentrations {
     private List<Concentration> concentrations;
 
@@ -10,25 +15,14 @@ public class Concentrations {
         this.concentrations = new ArrayList<>();
     }
 
-    public List<Concentration> getConcentrations() {
-        return concentrations;
-    }
-
-    public void setConcentrations(List<Concentration> concentrations) {
-        this.concentrations = concentrations;
-    }
-
     public void addConcentration(Concentration concentration) {
         this.concentrations.add(concentration);
     }
 
     public Concentration getConcentration(AirQuality airQuality) {
-        for (Concentration concentration : concentrations) {
-            if(concentration.getAirQuality().equals(airQuality)) {
-                return concentration;
-            }
-        }
-
-        return null;
+        return concentrations.stream()
+                .filter(concentration -> concentration.getAirQuality().equals(airQuality))
+                .findFirst()
+                .orElse(null);
     }
 }

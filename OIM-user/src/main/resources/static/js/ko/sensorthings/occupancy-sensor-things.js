@@ -10,15 +10,15 @@ const OccupancySensorThings = function (magoInstance) {
         'occupancyFloor': '#2196F3'
     };
     this.mappingTable = {
-        366 : {
-            dataId : 200003,
+        'Alphadom_IndoorGML' : {
+            dataId : 5000000,
             baseFloor: 7,
             maxCapacityBuilding : 3000,
             maxCapacityFloor : 200,
             maxCapacity : 10
         },
-        418 : {
-            dataId : 200002,
+        'UOS21C_IndoorGML' : {
+            dataId : 5000001,
             baseFloor: 0,
             maxCapacityBuilding : 400,
             maxCapacityFloor : 400,
@@ -31,9 +31,9 @@ const OccupancySensorThings = function (magoInstance) {
 
     //this.currentTime = "2020-11-23T12:15:00.000Z";
     this.currentTime = moment.utc().format();
-    this.processingTime = 30;       // 30s
+    this.processingTime = 60;       // 30s
     this.callInterval = 10;         // 10s
-    this.filterInterval = 60;       // 60s
+    this.filterInterval = 600;       // 60s
 
     this.gaugeChartNeedle = {};
     this.occupancyChart = {};
@@ -42,6 +42,7 @@ const OccupancySensorThings = function (magoInstance) {
     this.chartYAxesTitle = '재실자(명)';
 
     this.selectedBuildingId = 0;
+    this.selectedBuildingName = '';
     this.selectedDataGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
@@ -143,6 +144,14 @@ const OccupancySensorThings = function (magoInstance) {
 OccupancySensorThings.prototype = Object.create(SensorThings.prototype);
 OccupancySensorThings.prototype.constructor = OccupancySensorThings;
 
+OccupancySensorThings.prototype.getFilterHourlyStartTime = function () {
+    let filteredTime = moment(this.currentTime).utc().subtract(this.processingTime, 's');
+    let correctTime = this.getCorrectTime(filteredTime, this.filterInterval);
+    return moment(correctTime).utc().subtract(3600 * 2, 's').format();
+    //return this.getCorrectTime(filteredTime, this.filterInterval);
+    //return moment(this.currentTime).utc().subtract(this.filterInterval, 's').format();
+};
+
 OccupancySensorThings.prototype.init = function () {
     if ($('#buildingInfoWrap').is(':visible')) {
         $('#buildingInfoWrap').hide();
@@ -154,6 +163,7 @@ OccupancySensorThings.prototype.init = function () {
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
     this.selectedBuildingId = 0;
+    this.selectedBuildingName = '';
     this.selectedDataGroupId = '';
     this.selectedDataKey = '';
     this.cellSpaceList = {};
@@ -298,6 +308,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
             for (const thing of things) {
 
                 const thingId = thing['@iot.id'];
+                const thingName = thing['name'];
 
                 // Datastreams
                 const dataStreams = thing['Datastreams'];
@@ -305,7 +316,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 const dataStream = dataStreams[0];
 
                 // MappingInformation
-                const mappingInfo = _this.mappingTable[thingId];
+                const mappingInfo = _this.mappingTable[thingName];
                 const dataId = mappingInfo['dataId'];
                 const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
                 const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
@@ -359,7 +370,7 @@ OccupancySensorThings.prototype.getList = function (pageNo, params) {
                 const template = Handlebars.compile($("#occupancyListSource").html());
                 $("#iotOccupancyListDHTML").html("").append(template(msg));
 
-                const templatePagination = Handlebars.compile($("#paginationSource").html());
+                const templatePagination = Handlebars.compile($("#iotPaginationSource").html());
                 $("#iotPaginationDHTML").html("").append(templatePagination(msg));
 
                 $('#iotOccupancyListDHTML').show();
@@ -487,9 +498,10 @@ OccupancySensorThings.prototype.setCellSpaceList = function() {
     for (const thing of _this.things) {
 
         const thingId = parseInt(thing['@iot.id']);
+        const thingName = thing['name'];
 
         // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
-        const dataId = _this.mappingTable[thingId]['dataId'];
+        const dataId = _this.mappingTable[thingName]['dataId'];
         data.promises.push(_this.ajaxDataInfo(dataId));
 
     }
@@ -534,6 +546,7 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
     };
     for (const thing of _this.things) {
         const thingId = parseInt(thing['@iot.id']);
+        const thingName = thing['name'];
 
         // Datastreams
         const dataStreams = thing['Datastreams'];
@@ -541,7 +554,8 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
         const dataStream = dataStreams[0];
 
         // MappingInformation
-        const mappingInfo = _this.mappingTable[thingId];
+        const mappingInfo = _this.mappingTable[thingName];
+        if (!mappingInfo) return;
         const dataId = mappingInfo['dataId'];
         const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
         const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
@@ -623,7 +637,8 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
     const _this = this;
 
     // MappingInformation
-    const mappingInfo = _this.mappingTable[_this.selectedBuildingId];
+    const mappingInfo = _this.mappingTable[_this.selectedBuildingName];
+    if (!mappingInfo) return;
     const dataId = mappingInfo['dataId'];
     const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
     const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
@@ -729,7 +744,7 @@ OccupancySensorThings.prototype.getInformation = function(thingId) {
     if (_this.observedProperty === 'occupancyBuild') {
         mappingInfo = _this.mappingTable[thingId];
     } else if (_this.observedProperty === 'occupancyFloor') {
-        mappingInfo = _this.mappingTable[_this.selectedBuildingId];
+        mappingInfo = _this.mappingTable[_this.selectedBuildingName];
     }
 
     const dataId = mappingInfo['dataId'];
@@ -796,6 +811,7 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
 
     const _this = this;
     _this.selectedBuildingId = buildingInfo.id;
+    _this.selectedBuildingName = buildingInfo.name;
 
     const observedProperty = 'occupancyFloor';
     const queryString = 'Datastreams?$select=id,name,unitOfMeasurement&' +
@@ -821,7 +837,7 @@ OccupancySensorThings.prototype.getFloorInformation = function (buildingInfo) {
                 const thing = dataStream['Thing'];
 
                 // MappingInformation
-                const mappingInfo = _this.mappingTable[_this.selectedBuildingId];
+                const mappingInfo = _this.mappingTable[_this.selectedBuildingName];
                 const dataId = mappingInfo['dataId'];
                 const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
                 const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
@@ -1004,7 +1020,7 @@ OccupancySensorThings.prototype.getSensorInformation = function(content) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterHourlyStartTime() +
             ')';
 
     $.ajax({
@@ -1127,8 +1143,8 @@ OccupancySensorThings.prototype.drawOccupancyChart = function (dataStreams) {
 OccupancySensorThings.prototype.update = function () {
 
     // TODO 램덤 값 삭제
-    //const randomValue = Math.floor(Math.random() * (this.occupancyGradeMax - this.occupancyGradeMin)) + this.occupancyGradeMin;
-    const randomValue = 0;
+    const randomValue = Math.floor(Math.random() * (this.occupancyGradeMax - this.occupancyGradeMin)) + this.occupancyGradeMin;
+    //const randomValue = 0;
 
     this.updateOverlay(randomValue);
 
@@ -1153,6 +1169,22 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
 
     //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
     //filter += 'and (';
+    for (let i = 0; i < length; i += 5) {
+        let filter = '';
+        for (let j = i; j < i + 5; j++) {
+            const thingId = overlayIds[j];
+            if (!thingId) return;
+            if (j === i) {
+                filter += 'Things/id eq ' + thingId;
+            } else {
+                filter += ' or Things/id eq ' + thingId;
+            }
+        }
+        //console.log("filter = " + filter);
+        _this.callDatastreamsByThingsId(filter, randomValue);
+    }
+
+    /*
     let filter = '';
     for (const i in overlayIds) {
         const thingId = overlayIds[i];
@@ -1162,8 +1194,13 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
             filter += ' or Things/id eq ' + thingId;
         }
     }
+    */
     //filter += ')';
 
+};
+
+OccupancySensorThings.prototype.callDatastreamsByThingsId = function (filter, randomValue) {
+    const _this = this;
     const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
         '&$filter=' + filter +
         '&$orderby=ObservedProperty/@iot.id asc' +
@@ -1211,7 +1248,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
                     const maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
                     grade = _this.getGrade(value, 0, maxCapacityBuilding);
                 } else if (ObservedPropertyName === 'occupancyFloor') {
-                    mappingInfo = _this.mappingTable[_this.selectedBuildingId];
+                    mappingInfo = _this.mappingTable[_this.selectedBuildingName];
                     const maxCapacityFloor = mappingInfo['maxCapacityFloor'];
                     grade = _this.getGrade(value, 0, maxCapacityFloor);
                 } else if (ObservedPropertyName === 'occupancy') {
@@ -1266,6 +1303,7 @@ OccupancySensorThings.prototype.updateOverlay = function (randomValue) {
 
 };
 
+
 OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) {
 
     const _this = this;
@@ -1273,7 +1311,7 @@ OccupancySensorThings.prototype.updateFloorInformation = function (randomValue) 
     // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
     // MappingInformation
     let dataId = '', baseFloor = 0, maxCapacityBuilding = 0, maxCapacityFloor = 0, maxCapacity = 0;
-    const mappingInfo = _this.mappingTable[_this.selectedBuildingId];
+    const mappingInfo = _this.mappingTable[_this.selectedBuildingName];
     dataId = mappingInfo['dataId'];
     baseFloor = mappingInfo['baseFloor'];
     maxCapacityBuilding = mappingInfo['maxCapacityBuilding'];
@@ -1406,11 +1444,29 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
     const _this = this;
 
     //let filter = 'ObservedProperty/name eq \'' + _this.observedProperty + '\'';
-    let filter = '';
+
     const dataStreamIds = _this.selectedDataStreams;
     const length = dataStreamIds.length;
     if (!dataStreamIds || length <= 0 || _this.selectedThingId == 0) return;
     //filter += 'and (';
+
+    for (let i = 0; i < length; i += 5) {
+        let filter = '';
+        for (let j = i; j < i + 5; j++) {
+            const dataStreamId = dataStreamIds[j];
+            if (!dataStreamId) break;
+            if (j === i) {
+                filter += 'id eq ' + dataStreamId;
+            } else {
+                filter += ' or id eq ' + dataStreamId;
+            }
+        }
+        //console.log("filter = " + filter);
+        _this.callDatastreamsById(filter, randomValue);
+    }
+
+    //filter += ')';
+    /*
     for (const i in dataStreamIds) {
         const dataStreamId = dataStreamIds[i];
         if (i == 0) {
@@ -1419,8 +1475,12 @@ OccupancySensorThings.prototype.updateSensorInformation = function (randomValue)
             filter += ' or id eq ' + dataStreamId;
         }
     }
-    //filter += ')';
+    */
 
+};
+
+OccupancySensorThings.prototype.callDatastreamsById = function(filter, randomValue) {
+    const _this = this;
     const queryString = 'Datastreams?$select=@iot.id,description,name,unitOfMeasurement' +
         '&$filter=' + filter +
         '&$orderby=ObservedProperty/@iot.id asc' +
@@ -1557,4 +1617,32 @@ OccupancySensorThings.prototype.changeRoomColor = function() {
 
     }
 
+};
+
+/**
+ * 등급별 상태메세지 가져오기
+ * @param grade
+ * @returns {*}
+ */
+OccupancySensorThings.prototype.getGradeMessage = function (grade) {
+    let message;
+    const num = parseInt(grade);
+    switch (num) {
+        case 1:
+            message = JS_MESSAGE["iot.occupancy.legend.good"];
+            break;
+        case 2:
+            message = JS_MESSAGE["iot.occupancy.legend.normal"];
+            break;
+        case 3:
+            message = JS_MESSAGE["iot.occupancy.legend.bad"];
+            break;
+        case 4:
+            message = JS_MESSAGE["iot.occupancy.legend.very-bad"];
+            break;
+        default:
+            message = JS_MESSAGE["iot.occupancy.legend.nodata"];
+            break;
+    }
+    return message;
 };

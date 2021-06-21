@@ -11,6 +11,9 @@ public interface OccupancyService extends SensorService {
     @Override
     void insertSensorData();
 
+    @Override
+    void deleteSensorData();
+
     public Boolean getDryRun();
 
     public void setDryRun(Boolean dryRun);

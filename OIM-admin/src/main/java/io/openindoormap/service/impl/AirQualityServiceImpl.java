@@ -10,9 +10,9 @@ import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractSensorBuilder;
 import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.sensor.AirQualityDatastream;
-import io.openindoormap.domain.sensor.AirQualityObservedProperty;
-import io.openindoormap.domain.sensor.TimeType;
+import io.openindoormap.sensor.AirQualityDatastream;
+import io.openindoormap.sensor.AirQualityObservedProperty;
+import io.openindoormap.sensor.TimeType;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.support.LogMessageSupport;
 import io.openindoormap.utils.NumberUtils;
@@ -363,7 +363,7 @@ public class AirQualityServiceImpl implements AirQualityService {
                     .id(sensor != null ? sensor.getId() : null)
                     .name(stationName + ":" + datastreamType.getName())
                     .description("미세먼지 측정소")
-                    .encodingType(AbstractSensorBuilder.ValueCode.SensorML)
+                    .encodingType("http://www.opengis.net/doc/IS/SensorML/2.0")
                     .metadata(mangName)
                     .build();
             entityList.add(sensorEntity);

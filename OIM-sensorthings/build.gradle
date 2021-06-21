@@ -65,7 +65,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.32'
+    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.34'
 	compile 'com.opencsv:opencsv:5.3'
 }
 
@@ -77,6 +77,7 @@ test {
 	outputs.dir snippetsDir
 	useJUnitPlatform()
 	ignoreFailures = true
+	exclude '**/*'
 }
 
 asciidoctor {

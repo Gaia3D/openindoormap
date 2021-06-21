@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "false")
+@ConditionalOnProperty(name = "openindoormap.schedule-enable", havingValue = "true")
 public class AirQualityScheduler {
 
     @Qualifier("airQualityService")
@@ -40,4 +40,14 @@ public class AirQualityScheduler {
         airQualityService.initSensorData();
         airQualityService.insertStatisticsDaily();
     }
+
+    /**
+     * 매일 00:30에 Observation 정보 삭제
+     */
+    @Scheduled(cron = "${openindoormap.schedule.every-days}")
+    public void deleteScheduler() {
+        airQualityService.setDryRun(false);
+        airQualityService.deleteSensorData();
+    }
+
 }

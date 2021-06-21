@@ -121,7 +121,7 @@ public class OccupancyServiceImpl implements OccupancyService {
                 sta.updateThingWithLocation(thing, location);
 
                 // Sensor 생성
-                Sensor sensor = sta.createSensor(null, "인원 계수 센서", "재실자 파악을 위한 가상 센서", AbstractSensorBuilder.ValueCode.PDF.getValue(), "https://en.wikipedia.org/wiki/Occupancy");
+                Sensor sensor = sta.createSensor(null, "인원 계수 센서", "재실자 파악을 위한 가상 센서", "application/pdf", "https://en.wikipedia.org/wiki/Occupancy");
 
                 // Datastream 생성
                 String dsName = "Cell " + cellName + " Occupancy";

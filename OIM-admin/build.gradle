@@ -117,7 +117,7 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.2.14'
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.32'
+    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.34'
 	
 	//providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
     providedCompile 'javax:javaee-api:8.0.1'
@@ -134,12 +134,13 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok:1.18.12'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 }
 
 test {
 	useJUnitPlatform()
 	ignoreFailures = true
-	//exclude '**/*'
+	exclude '**/*'
 }
 
 task wrapper(type: Wrapper) {

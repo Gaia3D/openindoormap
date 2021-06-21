@@ -1,5 +1,29 @@
 package io.openindoormap.service.impl;
 
+import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
+import de.fraunhofer.iosb.ilt.sta.model.*;
+import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractDatastreamBuilder;
+import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractFeatureOfInterestBuilder;
+import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractLocationBuilder;
+import de.fraunhofer.iosb.ilt.sta.model.builder.ext.UnitOfMeasurementBuilder;
+import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
+import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
+import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
+import io.openindoormap.config.PropertiesConfig;
+import io.openindoormap.service.OccupancyService;
+import io.openindoormap.support.LogMessageSupport;
+import io.openindoormap.utils.SensorThingsUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.geojson.Feature;
+import org.geojson.GeoJsonObject;
+import org.geojson.Point;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,39 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.annotation.PostConstruct;
-
-import org.geojson.Feature;
-import org.geojson.GeoJsonObject;
-import org.geojson.Point;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import de.fraunhofer.iosb.ilt.sta.ServiceFailureException;
-import de.fraunhofer.iosb.ilt.sta.model.Datastream;
-import de.fraunhofer.iosb.ilt.sta.model.FeatureOfInterest;
-import de.fraunhofer.iosb.ilt.sta.model.Id;
-import de.fraunhofer.iosb.ilt.sta.model.Location;
-import de.fraunhofer.iosb.ilt.sta.model.Observation;
-import de.fraunhofer.iosb.ilt.sta.model.ObservedProperty;
-import de.fraunhofer.iosb.ilt.sta.model.Sensor;
-import de.fraunhofer.iosb.ilt.sta.model.Thing;
-import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractDatastreamBuilder;
-import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractFeatureOfInterestBuilder;
-import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractLocationBuilder;
-import de.fraunhofer.iosb.ilt.sta.model.builder.api.AbstractSensorBuilder;
-import de.fraunhofer.iosb.ilt.sta.model.builder.ext.UnitOfMeasurementBuilder;
-import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
-import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
-import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
-import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.service.OccupancyService;
-import io.openindoormap.utils.SensorThingsUtils;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 public class OccupancyServiceImpl implements OccupancyService {
@@ -52,7 +43,8 @@ public class OccupancyServiceImpl implements OccupancyService {
     @Autowired
     private PropertiesConfig propertiesConfig;
 
-    private long interval = 60;
+    //private long interval = 60;
+    private long interval = 600;
     private long minFloor = 0;
     private long maxFloor = 0;
     private SensorThingsUtils sta;
@@ -118,7 +110,7 @@ public class OccupancyServiceImpl implements OccupancyService {
                 sta.updateThingWithLocation(thing, location);
 
                 // Sensor 생성
-                Sensor sensor = sta.createSensor(null, "인원 계수 센서", "재실자 파악을 위한 가상 센서", AbstractSensorBuilder.ValueCode.PDF.getValue(), "https://en.wikipedia.org/wiki/Occupancy");
+                Sensor sensor = sta.createSensor(null, "인원 계수 센서", "재실자 파악을 위한 가상 센서", "application/pdf", "https://en.wikipedia.org/wiki/Occupancy");
 
                 // Datastream 생성
                 String dsName = "Cell " + cellName + " Occupancy";
@@ -190,6 +182,38 @@ public class OccupancyServiceImpl implements OccupancyService {
         insert(dataKey, cells);
     }
 
+    @Override
+    public void deleteSensorData() {
+
+        // find
+        ZonedDateTime now = correctTime(ZonedDateTime.now(), interval);
+        ZonedDateTime start = now.minusDays(2);
+        ZonedDateTime end = now.minusDays(1);
+        StringBuilder observationFilter = new StringBuilder("resultTime ge " + start.toInstant() + " and resultTime le " + end.toInstant() + " and (");
+        observationFilter.append("Datastreams/ObservedProperties/name eq 'occupancyBuilding' or ")
+                .append("Datastreams/ObservedProperties/name eq 'occupancyFloor' or ")
+                .append("Datastreams/ObservedProperties/name eq 'occupancy')");
+
+        log.info("@@@ filter = {}", observationFilter);
+        EntityList<Observation> observations = sta.hasObservations(observationFilter.toString(), null);
+
+        log.info("@@@ size = {}", observations.size());
+        if (observations.size() == 0) {
+            return;
+        }
+
+        // delete
+        for (Observation observation : observations) {
+            try {
+                sta.getService().delete(observation);
+            } catch (ServiceFailureException e) {
+                log.error(e.getMessage());
+                LogMessageSupport.printMessage(e);
+            }
+        }
+
+    }
+
     /**
      * 재실자용 CELL 목록 조회
      *
@@ -205,11 +229,11 @@ public class OccupancyServiceImpl implements OccupancyService {
             cellJson = (JSONObject) parser.parse(new FileReader(
                     this.getClass().getClassLoader().getResource(fileName).getFile()));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LogMessageSupport.printMessage(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            LogMessageSupport.printMessage(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            LogMessageSupport.printMessage(e);
         }
 
         return cellJson;
@@ -344,7 +368,7 @@ public class OccupancyServiceImpl implements OccupancyService {
             try {
                 things = service.things().query().filter(thingFilter).expand("Datastreams/Observations(" + timeFilter + ")").list();
             } catch (ServiceFailureException e) {
-                e.printStackTrace();
+                LogMessageSupport.printMessage(e);
             }
 
             // EntityList<Thing> things = sta.hasThingsWithObservation(thingFilter, null);

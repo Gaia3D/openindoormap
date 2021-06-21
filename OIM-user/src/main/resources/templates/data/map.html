@@ -156,11 +156,12 @@
 	<div id="magoContainer" class="mapWrap">
 
 		<div id="overlayDHTML"></div>
+		<div id="buildingInfoDHTML"></div>
 
 		<!-- S: GNB WRAP -->
 		<!-- <div th:replace="~{/fragments/global-search :: #gnbWrap}"></div> -->
 		<!-- E: GNB WRAP -->
-		
+
 		<!-- S: MAP CTRL WRAP -->
 		<div th:replace="~{/fragments/map-control :: #mapCtrlWrap}"></div>
 		<!-- E: MAP CTRL WRAP -->
@@ -173,16 +174,11 @@
 		<div th:replace="~{/fragments/data-control :: #dataControlWrap}"></div>
 		<!-- E: DATA CONTROL WRAP -->
 
-		<!-- S: BUILDING INFO TEMPLATE -->
-		<div id="buildingInfoDHTML"></div>
-		<div th:replace="~{/iot/building-info-template :: #buildingInfoSource}"></div>
-		<!-- E: BUILDING INFO TEMPLATE -->
-
 		<!-- S: BASE MAP TOGGLE -->
 		<!-- 토글주석 -->
 		<!-- <div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div> -->
 		<!-- E: BASE MAP TOGGLE -->
-		
+
 		<!-- S: BASE MAP TOGGLE -->
 		<!-- 토글주석 -->
 		<!-- <div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div> -->
@@ -192,7 +188,7 @@
 			<label for="timeInput" class="hiddenTag">saRange</label>
 			<input id="timeInput"/>
 		</div>
-		
+
 		<div class="positionBox" id="positionBox">
 			<button type="button" style="float: right;width: 20px;">X</button>
 			<div style="color: #D2D4E1; margin: 20px 0 0 10px;">
@@ -216,7 +212,7 @@
 <div th:replace="~{/data/sample-data-attribute-template :: #sampleDataAttributeDialogWrap}"></div>
 <div th:replace="~{/issue/issue-dialog :: #issueForm}"></div>
 <div th:replace="~{/common/overlay-template :: #overlaySource}"></div>
-<div th:replace="~{/iot/occupancy-info-template :: #occupancyInfoSource}"></div>
+<div th:replace="~{/iot/building-info-template :: #buildingInfoSource}"></div>
 <div th:replace="~{/iot/dust-info-template :: #dustInfoSource}"></div>
 
 <script type="text/javascript">
@@ -278,153 +274,97 @@
 		var magoInstance = e;
 		var geoPolicyJson = OIM.policy;
 		var viewer = magoInstance.getViewer();
-
-		viewer.dataSources.dataSourceAdded.addEventListener(function(){
-			stopLoading();
-		});
 		var magoManager = magoInstance.getMagoManager();
 		var f4dController = magoInstance.getF4dController();
 
+		viewer.dataSources.dataSourceAdded.addEventListener(function () {
+			stopLoading();
+		});
+
 		// TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
-		if(viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
+		if (viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
 		viewer.scene.globe.depthTestAgainstTerrain = true;
 		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
-
-		viewer.clock.onTick.addEventListener(function(e){
-			var pitchDeg = Cesium.Math.toDegrees(viewer.scene.camera.pitch);
-			for(var i in viewer.dataSources._dataSources) {
-				var ds = viewer.dataSources._dataSources[i];
-				if(ds instanceof Cesium.CustomDataSource) {
-					var entities = ds.entities.values;
-					entities.forEach(function(entity) {
-						entity.label.scale = (pitchDeg > -30) ? 0 : 0.5;
-					});
-				}
-			}
-		});
-/*
-		var vLayer = new Cesium.ImageryLayer(new Cesium.UrlTemplateImageryProvider({
-			url : 'https://map.pstatic.net/nrb/styles/basic/1602137999/{z}/{x}/{y}@2x.png?mt=bg.ol.ts.lko',
-			enablePickFeatures : false
-		}), {
-			show : true
-		});
-		viewer.imageryLayers.add(vLayer);
-*/
-
-		// 행정 구역 이동
-		// DistrictControll(magoInstance);
-
-		dataGroupList();
-		var dataInfoParams = { searchWord : "data_name", searchValue : null, searchOption : "1", dataGroupId : null, dataType : null};
-		mapDataInfoList(1, dataInfoParams);
-		//mapDataGroupList(1, null);
-		//mapDataInfoList(1, null, null, null);
-
-		// 환경 설정.
-		UserPolicy(magoInstance);
-
-		//AnalsLandScapeView(viewer, magoInstance);
 
 		// 기본 레이어 랜더링
 		setTimeout(function(){
 			OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
 			OIM.map.initLayer();
-
-			cesiumCreditAlt(); //웹접근성
+			cesiumCreditAlt(); 		// 웹 접근성
 		}, geoPolicyJson.initDuration * 1000);
 
-		//지도상에 데이터 다루는거
+		// 툴바
+		mapControllEvent(magoInstance);
+
+		// 지도상에 데이터 다루는거
 		MapDataControll(magoInstance);
 
+		// 행정 구역 이동
+		// DistrictControll(magoInstance);
+
+		// 데이터
+		dataGroupList();
+		mapDataInfoList(1, {searchWord: "data_name", searchValue: null, searchOption: "1", dataGroupId: null, dataType: null});
+		//mapDataGroupList(1, null);
+		//mapDataInfoList(1, null, null, null);
+
+		// 환경 설정
+		UserPolicy(magoInstance);
+
+		//AnalsLandScapeView(viewer, magoInstance);
+
+		// 이슈 등록
 		OIM.issueController = new IssueController(magoInstance);
+
+		// 3D 객체 선택
 		OIM.selectedDataController = new SelectedDataController(e);
 
-		//나침반 시작
-		var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
-		mapControllEvent(e);
+		// 나침반 시작
+		//var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
+		//mapControllEvent(e);
 
 		// 사물 인터넷
-		sensorThings = new SensorThings(magoInstance);
-		sensorThings = sensorThings.createSensorThings();
-
-		const sampleJsonURL = '/sample/json';
-		setTimeout(function () {
-			$.ajax({
-				url: sampleJsonURL + '/workshop-data.json',
-				type: "GET",
-				headers: {"X-Requested-With": "XMLHttpRequest"},
-				dataType: "json",
-				success: function (json) {
-
-					f4dController.addF4dMember('10003', json.children);
-
-					sensorThings.dataSearch(1);
-					sensorThings.clearOverlay();
-					sensorThings.addOverlay();
-
-					// 자료 갱신
-					setInterval(function () {
-
-						let currentTime = sensorThings.getCorrectTime(sensorThings.getCurrentTime(), sensorThings.callInterval);
-						sensorThings.setCurrentTime(currentTime);
-
-						// TODO 램덤 값 삭제
-						sensorThings.update();
-
-						// TODO 목록 갱신 추가
-						const $form = $("#searchIotForm");
-						const params = getFormData($form);
-						sensorThings.getList(sensorThings.currentPageNo, params);
-
-						currentTime = moment(currentTime).utc().add(sensorThings.callInterval, 's').format();
-						sensorThings.setCurrentTime(currentTime);
-
-					}, 1000 * sensorThings.callInterval);
-
-				},
-				error: function (request, status, error) {
-					alert(JS_MESSAGE["ajax.error.message"]);
-				}
-			});
-		}, 5000);
-
-		// 지도상의 센서 위치 갱신
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
-			sensorThings.clearOverlay();
-		});
-
-		magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e) => {
-			sensorThings.redrawOverlay();
-		});
+		OIM.sensorThings = new SensorThings(magoInstance);
+		OIM.sensorThings = OIM.sensorThings.create();
+		OIM.sensorThings.setCameraMoveEvent();
+		OIM.sensorThings.initF4dData();
 
 	}
 
 	// smart tiling data flyTo
 	function gotoFly(longitude, latitude, altitude) {
 		event.stopPropagation();
-		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
+		if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
 		}
-
 		gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, 500, 3);
-		//hereIamMarker(longitude, latitude, altitude);
+		hereIamMarker(longitude, latitude, altitude);
 	}
 
+	// 데이터로 이동
 	function flyTo(dataGroupId, dataKey) {
 		event.stopPropagation();
-		if(dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
+		if (dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
 			alert(JS_MESSAGE["location.invalid"]);
 			return;
 		}
-
-		//  searchDataAPI
+		// searchDataAPI
 		searchDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey);
 
 		var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
 		var geographic = node.data.bbox.geographicCoord;
-		//hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
+		hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
+	}
+
+	// 그룹 위치로 이동
+	function flyToGroup(longitude, latitude, altitude, duration) {
+		event.stopPropagation();
+		if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
+			alert(JS_MESSAGE["location.invalid"]);
+			return;
+		}
+		gotoFlyAPI(MAGO3D_INSTANCE, parseFloat(longitude), parseFloat(latitude), parseFloat(altitude), parseFloat(duration));
 	}
 
 	var hereIamTimeOut;
@@ -478,18 +418,10 @@
 		}
 	}
 
-	function flyToGroup(longitude, latitude, altitude, duration) {
-		event.stopPropagation();
-		if(longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
-			alert(JS_MESSAGE["location.invalid"]);
-			return;
-		}
-		gotoFlyAPI(MAGO3D_INSTANCE, parseFloat(longitude), parseFloat(latitude), parseFloat(altitude), parseFloat(duration));
-	}
-
+	// 그룹 보이기/숨기기
 	function visibleGroup(_this, dataGroupId) {
 		event.stopPropagation();
-		if(dataGroupId === null || dataGroupId === '') {
+		if (dataGroupId === null || dataGroupId === '') {
 			alert(JS_MESSAGE["data.info.incorrect"]);
 			return;
 		}
@@ -508,7 +440,7 @@
 				if (!$.isEmptyObject(nodeMap)) {
 					var nodeData = node.data;
 					if (nodeData && nodeData.attributes && nodeData.attributes.isPhysical === true) {
-						var optionObject = { isVisible : option };
+						var optionObject = {isVisible: option};
 						setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, key, optionObject);
 					}
 				} else {
@@ -540,6 +472,7 @@
 
 	}
 
+	// 데이터 보이기/숨기기
 	function visibleData(_this, dataGroupId, dataKey, dataTiling) {
 		event.stopPropagation();
 		if (dataGroupId === null || dataGroupId === '' ||
@@ -563,7 +496,7 @@
 			alert(JS_MESSAGE["data.not.loaded"]);
 			return;
 		}
-		var optionObject = { isVisible : option };
+		var optionObject = {isVisible: option};
 		setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
 
 		if ($(_this).hasClass("fa-eye")) {
@@ -577,26 +510,26 @@
 	}
 
 	// 데이터 정보 다이얼 로그
-	var dataInfoDialog = $( "#dataInfoDialogDHTML" ).dialog({
+	var dataInfoDialog = $("#dataInfoDialogDHTML").dialog({
 		autoOpen: false,
 		width: 500,
 		height: 720,
 		modal: true,
-		overflow : "auto",
+		overflow: "auto",
 		resizable: false
 	});
 
 	//데이터 상세 정보 조회
 	function detailDataInfo(url) {
-		dataInfoDialog.dialog( "open" );
+		dataInfoDialog.dialog("open");
 		$.ajax({
 			url: url,
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
 			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					dataInfoDialog.dialog( "option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
+			success: function (msg) {
+				if (msg.statusCode <= 200) {
+					dataInfoDialog.dialog("option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
 
 					var template = Handlebars.compile($("#dataInfoSource").html());
 					var dataInfoHtml = template(msg.dataInfo);
@@ -606,15 +539,14 @@
 					alert(JS_MESSAGE[msg.errorCode]);
 				}
 			},
-			error:function(request,status,error){
+			error: function (request, status, error) {
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
 	}
 
-
 	// 데이터 속성 다이얼 로그
-	var dataAttributeDialog = $( "#dataAttributeDialog" ).dialog({
+	var dataAttributeDialog = $("#dataAttributeDialog").dialog({
 		autoOpen: false,
 		width: 600,
 		height: 350,
@@ -622,42 +554,33 @@
 		resizable: false
 	});
 
-	// 부산 데이터 속성용 다이얼 로그
-	var sampleDataAttributeDialog = $( "#sampleDataAttributeDialogDHTML" ).dialog({
-		autoOpen: false,
-		width: 500,
-		height: 600,
-		modal: true,
-		resizable: false
-	});
-
 	// 데이터 속성
 	function detailDataAttribute(dataId, dataGroupKey, dataKey, dataName) {
-		sampleDataAttributeDialog.dialog( "open" );
+		dataAttributeDialog.dialog("open");
 		$.ajax({
 			url: "/attribute-repository/" + dataKey,
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
 			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					if(msg.attributeRepository !== null) {
-						var template = Handlebars.compile($("#sampleDataAttributeSource").html());
+			success: function (msg) {
+				if (msg.statusCode <= 200) {
+					if (msg.attributeRepository !== null) {
+						var template = Handlebars.compile($("#dataAttributeDialog").html());
 						var html = template(msg.attributeRepository);
-						$("#sampleDataAttributeDialogDHTML").html("").append(html);
+						$("#dataAttributeDialog").html("").append(html);
 					}
 				} else {
 					alert(JS_MESSAGE[msg.errorCode]);
 				}
 			},
-			error:function(request,status,error){
+			error: function (request, status, error) {
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
 	}
 
 	// 데이터 Object 속성 다이얼 로그
-	var dataObjectAttributeDialog = $( "#dataObjectAttributeDialog" ).dialog({
+	var dataObjectAttributeDialog = $("#dataObjectAttributeDialog").dialog({
 		autoOpen: false,
 		width: 800,
 		height: 550,
@@ -667,7 +590,7 @@
 
 	// 데이터 Object 속성
 	function detailDataObjectAttribute(dataId, dataName) {
-		dataObjectAttributeDialog.dialog( "open" );
+		dataObjectAttributeDialog.dialog("open");
 		$("#dataNameForObjectAttribute").html(dataName);
 
 		$.ajax({
@@ -675,9 +598,9 @@
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
 			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					if(msg.dataObjectAttribute !== null) {
+			success: function (msg) {
+				if (msg.statusCode <= 200) {
+					if (msg.dataObjectAttribute !== null) {
 						//$("#dataObjectAttributeForOrigin").html(msg.dataObjectAttribute.attributes);
 						$("#dataObjectAttributeViewer").html("");
 						var jsonViewer = new JSONViewer();
@@ -688,33 +611,33 @@
 					alert(JS_MESSAGE[msg.errorCode]);
 				}
 			},
-			error:function(request,status,error){
+			error: function (request, status, error) {
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
 	}
 
 	// 데이터 그룹 다이얼로그
-	var dataGroupDialog = $( "#dataGroupDialogDHTML" ).dialog({
+	var dataGroupDialog = $("#dataGroupDialogDHTML").dialog({
 		autoOpen: false,
 		width: 500,
 		height: 620,
 		modal: true,
-		overflow : "auto",
+		overflow: "auto",
 		resizable: false
 	});
 
 	// 데이터 그룹 상세 정보 조회
 	function detailDataGroup(url) {
-		dataGroupDialog.dialog( "open" );
+		dataGroupDialog.dialog("open");
 		$.ajax({
 			url: url,
 			type: "GET",
 			headers: {"X-Requested-With": "XMLHttpRequest"},
 			dataType: "json",
-			success: function(msg){
-				if(msg.statusCode <= 200) {
-					dataGroupDialog.dialog( "option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
+			success: function (msg) {
+				if (msg.statusCode <= 200) {
+					dataGroupDialog.dialog("option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
 
 					var template = Handlebars.compile($("#dataGroupSource").html());
 					var dataGroupHtml = template(msg.dataGroup);
@@ -724,13 +647,11 @@
 					alert(JS_MESSAGE[msg.errorCode]);
 				}
 			},
-			error:function(request,status,error){
+			error: function (request, status, error) {
 				alert(JS_MESSAGE["ajax.error.message"]);
 			}
 		});
 	}
-
 </script>
-
 </body>
 </html>

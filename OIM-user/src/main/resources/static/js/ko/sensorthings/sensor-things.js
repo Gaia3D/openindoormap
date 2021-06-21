@@ -1,13 +1,15 @@
 const SensorThings = function (magoInstance) {
+
     this.magoInstance = magoInstance;
-    //this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
-    this.FROST_SERVER_URL = 'http://iot.openindoormap.io/v1.0/';
+    this.FROST_SERVER_URL = 'http://localhost:8888/FROST-Server/v1.0/';
+    //this.FROST_SERVER_URL = 'http://iot.openindoormap.io/v1.0/';
     this.queryString = '';
     this.type = 'iot_occupancy'; // iot_occupancy, iot_dust
+    this.created = false;
 
-    this.currentPageNo = 0;
+    this.currentPageNo = 1;
     //this.currentTime = "2020-10-23T04:59:40.000Z";
-    this.currentTime = moment.utc().format();
+    this.currentTime = moment().utc().format();
     this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
@@ -16,11 +18,16 @@ const SensorThings = function (magoInstance) {
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
 
-    this.gaugeChartNeedle = {};
+    this.gaugeChart = null;
+    this.gaugeChartNeedle = null;
 
 };
 
-SensorThings.prototype.createSensorThings = function () {
+/**
+ * searchWord에 해당하는 자식 객체 생성하기
+ * @returns {OccupancySensorThings|DustSensorThings}
+ */
+SensorThings.prototype.create = function () {
     const $form = $("#searchIotForm");
     const params = getFormData($form);
     if (!params.searchWord) {
@@ -33,6 +40,86 @@ SensorThings.prototype.createSensorThings = function () {
     }
 };
 
+/**
+ * magoManager 카메라 이동시작, 카메라 이동종료 시 이벤트 걸기
+ */
+SensorThings.prototype.setCameraMoveEvent = function() {
+    const magoManager = this.magoInstance.getMagoManager();
+    magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
+        // 지도상의 센서 초기화
+        OIM.sensorThings.clearOverlay();
+    });
+    magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVEEND, (e) => {
+        // 지도상의 센서 위치 갱신
+        if (OIM.sensorThings.created) {
+            OIM.sensorThings.redrawOverlay();
+        }
+    });
+};
+
+/**
+ * 알파돔 F4D 초기화
+ */
+SensorThings.prototype.initF4dData = function() {
+
+    let add = false;
+    const magoManager = this.magoInstance.getMagoManager();
+    const f4dController = this.magoInstance.getF4dController();
+
+    // TODO 데이터 그룹 키 50000 하드코딩 제거 필요!
+    const dataGroupKey = '50000';
+    let setIntervalInitF4dData = setInterval(function () {
+        if (magoManager.hierarchyManager.existProject(dataGroupKey) && !add) {
+            add = true;
+
+            $.ajax({
+                url: '/sample/json/alphadom_data.json',
+                type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function (json) {
+                    f4dController.addF4dMember(dataGroupKey, json.children);
+                },
+                error: function (request, status, error) {
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+
+            clearInterval(setIntervalInitF4dData);
+        }
+    }, 1000);
+
+};
+
+/**
+ * 자료 갱신 이벤트 생성
+ */
+SensorThings.prototype.setInterval = function() {
+    return setInterval(function () {
+        let currentTime = OIM.sensorThings.getCorrectTime(OIM.sensorThings.getCurrentTime(), OIM.sensorThings.callInterval);
+        OIM.sensorThings.setCurrentTime(currentTime);
+
+        // TODO 램덤 값 삭제
+        OIM.sensorThings.update();
+
+        // TODO 목록 갱신 추가
+        const $form = $("#searchIotForm");
+        const params = getFormData($form);
+        OIM.sensorThings.getList(OIM.sensorThings.currentPageNo, params);
+
+        currentTime = moment(currentTime).utc().add(OIM.sensorThings.callInterval, 's').format();
+        //currentTime = moment(currentTime).utc().add(3600, 's').format();
+        OIM.sensorThings.setCurrentTime(currentTime);
+        //console.info("currentTime : " + currentTime);
+        //console.info("getFilterStartTime : " + LHDT.sensorThings.getFilterStartTime());
+        //console.info("getFilterEndTime : " + LHDT.sensorThings.getFilterEndTime());
+
+    }, 1000 * OIM.sensorThings.callInterval);
+};
+
+/**
+ * 화면 오버레이 clear
+ */
 SensorThings.prototype.clearOverlay = function () {
     if ($('.overlayWrap').length >= 0) {
         $('#overlayDHTML').html("");
@@ -51,7 +138,68 @@ SensorThings.prototype.getOverlay = function() {
         }
     }
     return result;
-}
+};
+
+/**
+ * 활성화 / 비활성화
+ * @param isVisible
+ */
+SensorThings.prototype.active = function (isVisible) {
+
+    // TODO 레이어 온오프 형태로 변경
+
+    if (isVisible) {
+        // 레이어 초기화
+        if (OIM.sensorThings instanceof DustSensorThings) {
+            OIM.sensorThings.clearDustLayer();
+        }
+
+        const newSensorThings = this.create();
+
+        // 처음 생성 시
+        if (!OIM.sensorThings.created) {
+            OIM.sensorThings = newSensorThings;
+            // TODO: 설정값으로 빼기
+            if (OIM.sensorThings instanceof DustSensorThings) {
+                OIM.sensorThings.addDustLayer();
+            }
+        }
+
+        if (OIM.sensorThings.created) {
+            if (OIM.sensorThings.type !== newSensorThings.type) {
+                // 기존에 생성 했지만 타입이 다를 경우
+                OIM.sensorThings = newSensorThings;
+                // TODO: 설정값으로 빼기
+                if (OIM.sensorThings instanceof DustSensorThings) {
+                    OIM.sensorThings.addDustLayer();
+                }
+            }
+        }
+
+        OIM.sensorThings.dataSearch(1);
+        OIM.sensorThings.clearOverlay();
+        OIM.sensorThings.addOverlay();
+
+        OIM.sensorThings.created = true;
+        OIM.updateSensorThings = OIM.sensorThings.setInterval();
+    } else {
+        OIM.sensorThings.init();
+        OIM.sensorThings.clearOverlay();
+        // TODO: 설정값으로 빼기
+        if (OIM.sensorThings instanceof DustSensorThings) {
+            OIM.sensorThings.clearDustLayer();
+        }
+        OIM.sensorThings.created = false;
+        clearInterval(OIM.updateSensorThings);
+    }
+};
+
+SensorThings.prototype.gotoFly = function (longitude, latitude, altitude) {
+    if (OIM.sensorThings instanceof DustSensorThings) {
+        OIM.sensorThings.clearDustLayer();
+    }
+    gotoFlyAPI(this.magoInstance, longitude, latitude, altitude, 3);
+};
 
 SensorThings.prototype.setCurrentTime = function (currentTime) {
     this.currentTime = currentTime;
@@ -78,7 +226,17 @@ SensorThings.prototype.getFilterEndTime = function () {
 };
 
 SensorThings.prototype.getFilterDayStartTime = function () {
-    return moment(this.currentTime).utc().subtract(this.filterInterval * 24, 's').format();
+    let filteredTime = moment(this.currentTime).utc().subtract(this.processingTime, 's');
+    filteredTime = filteredTime.subtract(3600 * 24, 's');
+    return this.getCorrectTime(filteredTime, this.filterInterval);
+    //return moment(this.currentTime).utc().subtract(3600 * 24, 's').format();
+};
+
+SensorThings.prototype.getFilterHourlyStartTime = function () {
+    let filteredTime = moment(this.currentTime).utc().subtract(this.processingTime, 's');
+    filteredTime = filteredTime.subtract(60 * 24, 's');
+    return this.getCorrectTime(filteredTime, this.filterInterval);
+    //return moment(this.currentTime).utc().subtract(this.filterInterval, 's').format();
 };
 
 SensorThings.prototype.observationTimeToLocalTime = function (observationTime) {
@@ -96,33 +254,7 @@ SensorThings.prototype.geographicCoordToScreenCoord = function (coordinates) {
     return resultScreenCoord;
 };
 
-/**
- * 등급별 상태메세지 가져오기
- * @param grade
- * @returns {*}
- */
-SensorThings.prototype.getGradeMessage = function (grade) {
-    let message;
-    const num = parseInt(grade);
-    switch (num) {
-        case 1:
-            message = JS_MESSAGE["iot.occupancy.legend.good"];
-            break;
-        case 2:
-            message = JS_MESSAGE["iot.occupancy.legend.normal"];
-            break;
-        case 3:
-            message = JS_MESSAGE["iot.occupancy.legend.bad"];
-            break;
-        case 4:
-            message = JS_MESSAGE["iot.occupancy.legend.very-bad"];
-            break;
-        default:
-            message = JS_MESSAGE["iot.occupancy.legend.nodata"];
-            break;
-    }
-    return message;
-};
+
 
 SensorThings.prototype.dataSearch = function (pageNo) {
     $('#iotInfoContent div').hide();
@@ -132,26 +264,28 @@ SensorThings.prototype.dataSearch = function (pageNo) {
     if (!params.searchWord) {
         params.searchWord = this.type;
     }
+
+    var sensorThings = OIM.sensorThings;
     sensorThings.getList(pageNo, params);
 };
 
 SensorThings.prototype.getUnit = function(dataStream) {
     return dataStream['unitOfMeasurement']['symbol'];
-}
+};
 
 SensorThings.prototype.getObservedPropertyName = function(dataStream) {
     return dataStream['ObservedProperty']['name'];
-}
+};
 
 SensorThings.prototype.numberWithCommas = function (x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+};
 
 SensorThings.prototype.closeDetail = function (obj) {
     const $iotDustMoreDHTML = $(obj).parents(".iotDustMoreDHTML");
     $iotDustMoreDHTML.hide();
     $(".show-more").show();
-}
+};
 
 /**
  * 게이지 차트 그리기
@@ -173,7 +307,11 @@ SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
         cutoutPercentage: 80
     };
 
-    const gaugeChart = new Chart(document.getElementById("gaugeChart"), {
+    if (this.gaugeChart !== null) {
+        this.gaugeChart.destroy();
+    }
+
+    this.gaugeChart = new Chart(document.getElementById("gaugeChart"), {
         type: 'doughnut',
         data: {
             labels: [this.getGradeMessage(1), this.getGradeMessage(2), this.getGradeMessage(3), this.getGradeMessage(4)],
@@ -203,6 +341,9 @@ SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
         options: gaugeChartOptions
     });
 
+    if (this.gaugeChartNeedle !== null) {
+        this.gaugeChartNeedle = null;
+    }
     this.gaugeChartNeedle = new Chart(document.getElementById("gaugeChartNeedle"), {
         type: 'doughnut',
         data: {
@@ -229,7 +370,7 @@ SensorThings.prototype.drawGaugeChart = function (range, total, percent) {
 };
 
 /**
- * 게이지 차트 없데이트
+ * 게이지 차트 업데이트
  * @param min
  * @param max
  * @param value

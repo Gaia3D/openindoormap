@@ -1,5 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
-<div id="iotContent" class="dataContents">
+<div id="iotContent" class="contents yScroll fullHeight">
     <form id="searchIotForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
         <div class="searchDataType">
             <div>
@@ -39,28 +39,37 @@
     <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/dust-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/occupancy-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript">
+
+        // 사물인터넷 이벤트 모음
         $(document).ready(function () {
+
+            var iotObserverTarget = document.getElementById('iotMenu');
+            if (iotObserverTarget) {
+                var iotObserverConfig = {attributes: true, attributeFilter:['class']};
+                var iotObserver = new MutationObserver(function (mutations) {
+                    for (var mutation of mutations) {
+                        var isVisible = mutation.target.classList.contains("on");
+                        OIM.sensorThings.active(isVisible);
+                    }
+                });
+                iotObserver.observe(iotObserverTarget, iotObserverConfig);
+            }
 
             // 검색 버튼 클릭
             $('#iotSearch').click(function () {
-                sensorThings.dataSearch(1);
+                OIM.sensorThings.dataSearch(1);
             });
 
             // 검색 엔터키
             $('#iotSearch').keyup(function (e) {
                 if (e.keyCode == 13) {
-                    sensorThings.dataSearch(1);
+                    OIM.sensorThings.dataSearch(1);
                 }
             });
 
             // 검색조건 변경
             $('#iotContent input[name="searchWord"]').change(function (e) {
-                // TODO 레이어 온오프 형태로 변경
-                sensorThings.init();
-                sensorThings = sensorThings.createSensorThings();
-                sensorThings.dataSearch(1);
-                sensorThings.clearOverlay();
-                sensorThings.addOverlay();
+                OIM.sensorThings.active(true);
             });
 
             // 오버레이 클릭
@@ -68,7 +77,7 @@
                 $('.dustStation').removeClass('on');
                 $(this).addClass('on');
                 const thingId = $(this).data('id');
-                sensorThings.getInformation(thingId);
+                OIM.sensorThings.getInformation(thingId);
             });
 
             let down = false;
@@ -94,7 +103,7 @@
             });
 
             $('#magoContainer').on('click', '#closeDustInfo', function () {
-                sensorThings.closeInformation();
+                OIM.sensorThings.closeInformation();
             });
 
             // 재실자 층 선택
@@ -104,24 +113,24 @@
                 $(this).toggleClass('on');
                 const floor = $(this).data('floor');
 
-                sensorThings.observedProperty = 'occupancyFloor';
-                const selectedDataGroupId = sensorThings.selectedDataGroupId;
-                const selectedDataKey = sensorThings.selectedDataKey;
+                OIM.sensorThings.observedProperty = 'occupancyFloor';
+                const selectedDataGroupId = OIM.sensorThings.selectedDataGroupId;
+                const selectedDataKey = OIM.sensorThings.selectedDataKey;
 
-                if (sensorThings.selectedFloorSensorList.length > 0) {
+                if (OIM.sensorThings.selectedFloorSensorList.length > 0) {
                     const rgbColorCode = "255,255,255,255";
-                    for (const cellId of sensorThings.selectedFloorSensorList) {
-                        changeColorAPI(sensorThings.magoInstance.getMagoManager(), selectedDataGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                    for (const cellId of OIM.sensorThings.selectedFloorSensorList) {
+                        changeColorAPI(OIM.sensorThings.magoInstance.getMagoManager(), selectedDataGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
                     }
                 }
 
                 const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
-                sensorThings.selectedDataGroupId = buildingInfo.dataGroupId;
-                sensorThings.selectedDataKey = buildingInfo.dataKey;
+                OIM.sensorThings.selectedDataGroupId = buildingInfo.dataGroupId;
+                OIM.sensorThings.selectedDataKey = buildingInfo.dataKey;
 
-                sensorThings.clearOverlay();
-                sensorThings.addSelectedFloorOverlay(floor, buildingInfo.name);
-                sensorThings.displaySelectedFloor(floor);
+                OIM.sensorThings.clearOverlay();
+                OIM.sensorThings.addSelectedFloorOverlay(floor, buildingInfo.name);
+                OIM.sensorThings.displaySelectedFloor(floor);
 
             });
 

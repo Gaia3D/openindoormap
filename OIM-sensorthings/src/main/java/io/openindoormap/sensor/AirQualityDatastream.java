@@ -1,4 +1,4 @@
-package io.openindoormap.domain.sensor;
+package io.openindoormap.sensor;
 
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 

@@ -14,4 +14,10 @@ public interface SensorService {
      * 센서 데이터를 parsing 해서 insert
      */
     void insertSensorData();
+
+    /**
+     * 센서 데이터 삭제
+     */
+    void deleteSensorData();
+
 }

@@ -85,7 +85,7 @@ public class IndexCalculatorTests {
     }
 
     @Test
-    @DisplayName("입력된 PM10의 농도값이 해당 농도 구간을 벗어난 값이면 AQI 인덱스값을 계산하지 않는다")
+    @DisplayName("입력된 PM10의 농도값이 해당 농도 구간을 벗어난 작은 값이면 AQI 인덱스값을 계산하지 않는다")
     public void test_pm10_001() {
         AirQuality airQuality = AirQuality.PM10;
 
@@ -123,6 +123,18 @@ public class IndexCalculatorTests {
     }
 
     @Test
+    @DisplayName("입력된 PM10의 농도값이 해당 농도 구간을 벗어난 큰 값이면 AQI 마지막 인덱스값을 반환한다.")
+    public void test_pm10_003() {
+        AirQuality airQuality = AirQuality.PM10;
+        double value = 800;
+        int expected = 500;
+        int result = this.calculatorForAQI.getAQI(airQuality, value);
+        int grade = this.calculatorForAQI.getGrade(airQuality, value);
+        assertEquals(expected, result);
+        assertEquals(7, grade);
+    }
+
+    @Test
     @DisplayName("입력된 PM10의 농도값이 해당 농도 구간을 벗어난 값이면 CAI 인덱스값을 계산하지 않는다")
     public void test_pm10_101() {
         AirQuality airQuality = AirQuality.PM10;
@@ -157,6 +169,18 @@ public class IndexCalculatorTests {
         expected = 250;
         result = this.calculatorForCAI.getAQI(airQuality, concentration);
         assertEquals(expected, result);
+    }
+
+    @Test
+    @DisplayName("입력된 PM10의 농도값이 해당 농도 구간을 벗어난 큰 값이면 AQI 마지막 인덱스값을 반환한다.")
+    public void test_pm10_103() {
+        AirQuality airQuality = AirQuality.PM10;
+        double value = 800;
+        int expected = 500;
+        int result = this.calculatorForCAI.getAQI(airQuality, value);
+        int grade = this.calculatorForCAI.getGrade(airQuality, value);
+        assertEquals(expected, result);
+        assertEquals(4, grade);
     }
 
     @Test

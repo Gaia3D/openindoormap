@@ -13,10 +13,10 @@ const DustSensorThings = function (magoInstance) {
         'no2Value': '#00BCD4'
     };
     this.pm10GradeMin = 0;
-    this.pm10GradeMax = 600;
+    this.pm10GradeMax = 500;
 
     //this.currentTime = "2020-11-23T12:15:00.000Z";
-    this.currentTime = moment.utc().format();
+    this.currentTime = moment().utc().format();
     this.processingTime = 1800;     // 30m
     this.callInterval = 10;         // 10s
     this.filterInterval = 3600;     // 1hour
@@ -109,6 +109,8 @@ const DustSensorThings = function (magoInstance) {
             }]
         }
     };
+    this.layer = null;
+    this.dataSource = null;
 };
 DustSensorThings.prototype = Object.create(SensorThings.prototype);
 DustSensorThings.prototype.constructor = DustSensorThings;
@@ -121,7 +123,53 @@ DustSensorThings.prototype.init = function () {
     this.things = [];
     this.selectedThingId = 0;
     this.selectedDataStreams = [];
+    if (this.layer != null) {
+        this.magoInstance.getViewer().imageryLayers.remove(this.layer);
+    }
+    if (this.dataSource != null) {
+        this.magoInstance.getViewer().dataSources.remove(this.dataSource);
+    }
+
 };
+
+DustSensorThings.prototype.addDustLayer = function () {
+    if (this.layer != null) {
+        this.layer.show = true;
+        return;
+    }
+
+    const provider = new Cesium.WebMapServiceImageryProvider({
+        url : [OIM.policy.geoserverDataUrl, OIM.policy.geoserverDataStore, 'wms'].join('/'),
+        layers : OIM.policy.geoserverDataStore + ':air-quality-group',
+        minimumLevel:2,
+        maximumLevel : 20,
+        rectangle : new Cesium.Rectangle(124.645669 * Math.PI / 180, 33.227749 * Math.PI / 180
+            , 130.904047 * Math.PI / 180, 38.566511 * Math.PI / 180),
+        parameters : {
+            service : 'WMS'
+            ,version : '1.1.1'
+            ,request : 'GetMap'
+            ,transparent : 'true'
+            ,format : 'image/png'
+            ,time : 'P2Y/PRESENT'
+            //,tiled : true
+        },
+        enablePickFeatures : false
+    });
+    provider.defaultAlpha = 0.7;
+    //provider.defaultBrightness = 2.0;
+    this.layer = this.magoInstance.getViewer().imageryLayers.addImageryProvider(provider);
+};
+
+DustSensorThings.prototype.clearDustLayer = function () {
+    if (this.layer != null) {
+        this.layer.show = false;
+    }
+    if (this.dataSource && this.dataSource.show) {
+        OIM.sensorThings.dataSource.show = false;
+    }
+};
+
 
 /**
  * 관측소 목록 조회
@@ -237,7 +285,7 @@ DustSensorThings.prototype.getDetail = function(obj, thingId) {
             'Observations(' +
                 '$select=result,resultTime;' +
                 '$orderby=resultTime desc;' +
-                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterDayStartTime() +
+                '$filter=resultTime lt ' + _this.getFilterEndTime() + ' and resultTime ge ' + _this.getFilterStartTime() +
             ')';
 
     $.ajax({
@@ -253,6 +301,12 @@ DustSensorThings.prototype.getDetail = function(obj, thingId) {
             const dataStreams = msg.value;
             if (!dataStreams || dataStreams.length <= 0) return;
             for (const dataStream of dataStreams) {
+
+                const observedPropertyName = _this.getObservedPropertyName(dataStream);
+                if (observedPropertyName.indexOf('Daily') > 0) {
+                    // 1일 평균 스킵
+                    continue;
+                }
 
                 // Observations
                 const observations = dataStream['Observations'];
@@ -315,7 +369,73 @@ DustSensorThings.prototype.addOverlay = function () {
         dataType: "json",
         headers: {"X-Requested-With": "XMLHttpRequest"},
         success: function (msg) {
+
+            if (!_this.created) return;
+
             _this.things = msg.value;
+
+            var ds = new Cesium.CustomDataSource();
+            for (const thing of _this.things) {
+                //const thingId = parseInt(thing['@iot.id']);
+
+                // Locations
+                const locations = thing['Locations'];
+                if (!locations || locations.length <= 0) continue;
+                const location = locations[0];
+                //const addr = location.name;
+                const coordinates = location.location.geometry.coordinates;
+
+                // Datastreams
+                const dataStreams = thing['Datastreams'];
+                if (!dataStreams || dataStreams.length <= 0) continue;
+                const dataStream = dataStreams[0];
+
+                // Observations
+                const observations = dataStream['Observations'];
+                let value = '-', grade = 0, selected = '';
+                if (observations && observations.length > 0) {
+                    const observationTop = observations[0];
+                    value = _this.formatValueByDigits(observationTop.result.value, 3);
+                    grade = observationTop.result.grade;
+                }
+
+                ds.entities.add({
+                    position : Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1]),
+                    label :  {
+                        text: _this.numberWithCommas(value) + '\n' +  _this.getUnit(dataStream)
+                    }
+                });
+
+            }
+
+            ds.clustering.enabled = true;
+            ds.clustering.minimumClusterSize = 1;
+            ds.clustering.clusterPoints = false;
+            ds.clustering.clusterBillboards = false;
+
+            ds.clustering.clusterEvent.addEventListener(function (clusteredEntities, cluster) {
+
+                const text = clusteredEntities[0].label.text.getValue();
+                const clusterLabel = cluster.label;
+
+                clusterLabel.text = text;
+                clusterLabel.scale = 1;
+                clusterLabel.font = "normal normal bolder 20px Helvetica";
+                clusterLabel.fillColor = Cesium.Color.WHITE;
+                clusterLabel.outlineColor = Cesium.Color.BLACK;
+                clusterLabel.outlineWidth = 1;
+                clusterLabel.style = Cesium.LabelStyle.FILL_AND_OUTLINE;
+                clusterLabel.disableDepthTestDistance = Number.POSITIVE_INFINITY;
+                clusterLabel.backgroundColor = new Cesium.Color(0.165, 0.165, 0.165, 0.7);
+                clusterLabel.backgroundPadding = new Cesium.Cartesian2(5, 10);
+                clusterLabel.showBackground = true;
+                clusterLabel.horizontalOrigin = Cesium.HorizontalOrigin.CENTER;
+                clusterLabel.verticalOrigin = Cesium.VerticalOrigin.CENTER;
+            });
+
+            _this.dataSource = ds;
+            _this.magoInstance.getViewer().dataSources.add(ds);
+
             _this.redrawOverlay();
         },
         error: function (request, status, error) {
@@ -390,18 +510,44 @@ DustSensorThings.prototype.redrawOverlay = function () {
             top: resultScreenCoord.y,
             left: resultScreenCoord.x,
             selected: selected,
-            subTitle: JS_MESSAGE["iot.dust.fine"]
+            subTitle: JS_MESSAGE["iot.dust.fine"],
+            coordinates : coordinates
         });
 
     }   // end for
 
     if (contents.things.length > 30) {
-        alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
-        return;
+        if (this.dataSource !== null) this.dataSource.show = true;
+        //alert('검색되는 센서가 너무 많습니다. 지도를 확대 하세요.');
+        //return;
+        /*
+        for (const i in contents.things) {
+            const thing = contents.things[i];
+            const coordinates = thing.coordinates;
+            this.magoInstance.getViewer().entities.add({
+                position : Cesium.Cartesian3.fromDegrees(coordinates[0], coordinates[1]),
+                point : {
+                    pixelSize : 5,
+                    color : Cesium.Color.RED,
+                    outlineColor : Cesium.Color.WHITE,
+                    outlineWidth : 2
+                },
+                label : {
+                    text : thing.stationName + ", " + thing.valueWithCommas,
+                    font : '14pt monospace',
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    outlineWidth : 2,
+                    verticalOrigin : Cesium.VerticalOrigin.TOP,
+                    pixelOffset : new Cesium.Cartesian2(0, 32)
+                }
+            });
+        }
+        */
+    } else {
+        if (this.dataSource !== null) this.dataSource.show = false;
+        const template = Handlebars.compile($("#overlaySource").html());
+        $('#overlayDHTML').html("").append(template(contents));
     }
-
-    const template = Handlebars.compile($("#overlaySource").html());
-    $('#overlayDHTML').html("").append(template(contents));
 
 };
 
@@ -448,6 +594,10 @@ DustSensorThings.prototype.getInformation = function (thingId) {
             for (const dataStream of dataStreams) {
 
                 const observedPropertyName = _this.getObservedPropertyName(dataStream);
+                if (observedPropertyName.indexOf('Daily') > 0) {
+                    // 1일 평균 차트 그리기
+                    continue;
+                }
                 const observations = dataStream['Observations'];
                 let value = '-', grade = 0;
                 if (observations && observations.length > 0) {
@@ -593,6 +743,7 @@ DustSensorThings.prototype.update = function () {
         success: function (msg) {
 
             const dataStreamContents = {
+                observedProperty: 'dust',
                 dataStreams: []
             };
 
@@ -775,4 +926,32 @@ DustSensorThings.prototype.updateHourlyAirQualityChart = function (dataStream, r
     }
     _this.hourlyAirQualityChart.update();
 
+};
+
+/**
+ * 등급별 상태메세지 가져오기
+ * @param grade
+ * @returns {*}
+ */
+DustSensorThings.prototype.getGradeMessage = function (grade) {
+    let message;
+    const num = parseInt(grade);
+    switch (num) {
+        case 1:
+            message = JS_MESSAGE["iot.dust.legend.good"];
+            break;
+        case 2:
+            message = JS_MESSAGE["iot.dust.legend.normal"];
+            break;
+        case 3:
+            message = JS_MESSAGE["iot.dust.legend.bad"];
+            break;
+        case 4:
+            message = JS_MESSAGE["iot.dust.legend.very-bad"];
+            break;
+        default:
+            message = JS_MESSAGE["iot.dust.legend.nodata"];
+            break;
+    }
+    return message;
 };

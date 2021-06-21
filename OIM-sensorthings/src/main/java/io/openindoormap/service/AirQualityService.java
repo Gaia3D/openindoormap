@@ -11,6 +11,9 @@ public interface AirQualityService extends SensorService {
     @Override
     void insertSensorData();
 
+    @Override
+    void deleteSensorData();
+
     void insertStatisticsDaily();
 
     public Boolean getDryRun();

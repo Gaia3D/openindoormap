@@ -20,13 +20,13 @@
                 </li>
                 <li>
                     <label th:text="#{iot.dust.station.addr}"></label>
-                    <a href="#" class="ellipsis" onclick="sensorThings.flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">{{dataKey}}</a>
+                    <a href="#" class="ellipsis" onclick="OIM.sensorThings.flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">{{dataKey}}</a>
                 </li>
             </ul>
         </div>
         <div class="iotDustMoreDHTML" style="display: none"></div>
         <div class="btnCt">
-            <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="sensorThings.getDetail(this, {{id}})"></button>
+            <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="OIM.sensorThings.getDetail(this, {{id}})"></button>
         </div>
     </div>
     {{/each}}

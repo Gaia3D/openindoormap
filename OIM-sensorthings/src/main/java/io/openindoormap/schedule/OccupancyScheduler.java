@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 @Slf4j
 @Component
-@ConditionalOnProperty(name = "openindoormap.mock-enable", havingValue = "true")
+@ConditionalOnProperty(name = "openindoormap.schedule-enable", havingValue = "true")
 public class OccupancyScheduler {
 
     @Qualifier("OccupancyService1")
@@ -27,24 +27,26 @@ public class OccupancyScheduler {
     private OccupancyService occupancyService2;
 
     /**
-     * 1분 주기로 재실자 데이터 추가(알파돔)
+     * 10분 주기로 재실자 데이터 추가(알파돔)
      */
-    @Scheduled(cron = "${openindoormap.schedule.every-mins}")
+    //@Scheduled(cron = "${openindoormap.schedule.every-mins}")
+    @Scheduled(cron = "${openindoormap.schedule.interval-ten-mins}")
     public void everyHoursScheduler1() {
         String dataKey = "Alphadom_IndoorGML";
         occupancyService1.setDryRun(false);
-        occupancyService1.setInterval(60);
+        occupancyService1.setInterval(600);
         occupancyService1.insertSensorData(dataKey);
     }
 
     /**
-     * 10초 주기로 재실자 데이터 추가(시립대)
+     * 10분 주기로 재실자 데이터 추가(시립대)
      */
-    @Scheduled(cron = "${openindoormap.schedule.every-mins}")
+    //@Scheduled(cron = "${openindoormap.schedule.every-mins}")
+    @Scheduled(cron = "${openindoormap.schedule.interval-ten-mins}")
     public void everyHoursScheduler2() {
         String dataKey = "UOS21C_IndoorGML";
         occupancyService2.setDryRun(false);
-        occupancyService2.setInterval(60);
+        occupancyService2.setInterval(600);
         occupancyService2.insertSensorData(dataKey);
     }
 
@@ -67,4 +69,14 @@ public class OccupancyScheduler {
         occupancyService2.setDryRun(false);
         occupancyService2.initSensorData(dataKey);
     }
+
+    /**
+     * 매일 00:30에 Observation 정보 삭제
+     */
+    @Scheduled(cron = "${openindoormap.schedule.every-days}")
+    public void deleteScheduler() {
+        occupancyService1.setDryRun(false);
+        occupancyService1.deleteSensorData();
+    }
+
 }

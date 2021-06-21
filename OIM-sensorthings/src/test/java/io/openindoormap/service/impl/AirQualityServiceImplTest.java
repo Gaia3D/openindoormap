@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.runner.RunWith;
@@ -30,8 +31,8 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
 import io.openindoormap.OIMSensorthingsApplication;
 import io.openindoormap.config.PropertiesConfig;
-import io.openindoormap.domain.sensor.AirQualityObservedProperty;
-import io.openindoormap.domain.sensor.TimeType;
+import io.openindoormap.sensor.AirQualityObservedProperty;
+import io.openindoormap.sensor.TimeType;
 import io.openindoormap.service.AirQualityService;
 import io.openindoormap.utils.NumberUtils;
 import io.openindoormap.utils.SensorThingsUtils;
@@ -60,12 +61,9 @@ class AirQualityServiceImplTest {
         sta = new SensorThingsUtils();
         sta.init(propertiesConfig.getSensorThingsApiServer());
 
-        // Mock 데이터 사용
-        propertiesConfig.setMockEnable(true);
-
         // 서버에 데이터를 넣지 않음
-        sta.setDryRun(true);
-        sensorService.setDryRun(true);
+        sta.setDryRun(false);
+        sensorService.setDryRun(false);
     }
 
     @Test
@@ -78,7 +76,12 @@ class AirQualityServiceImplTest {
         sensorService.insertSensorData();
     }
 
-    @Test
+    @Disabled
+    void 미세먼지_데이터_삭제() {
+        sensorService.deleteSensorData();
+    }
+
+    @Disabled
     void 미세먼지_하루_통계_생성() {
         sensorService.insertStatisticsDaily();
     }

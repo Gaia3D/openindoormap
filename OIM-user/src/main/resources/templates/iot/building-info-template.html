@@ -1,7 +1,7 @@
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <script id="buildingInfoSource" type="text/x-handlebars-template">
 <div id="buildingInfoWrap" class="building-detail" style="display: none">
-    <button class="circle-small fas fa-times float-right" th:title="#{common.close}" onclick="sensorThings.closeBuildingInformation('{{dataGroupId}}', '{{dataKey}}')"></button>
+    <button class="circle-small fas fa-times float-right" th:title="#{common.close}" onclick="OIM.sensorThings.closeBuildingInformation('{{dataGroupId}}', '{{dataKey}}')"></button>
     <div>
         <ul class="dustStation marR40 marB10">
             <li class="scolor brLeft lv{{grade}}">

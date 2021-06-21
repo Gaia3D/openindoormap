@@ -2,11 +2,11 @@
 <script id="iotPaginationSource" type="text/x-handlebars-template">
     {{#greaterThan pagination.totalCount 0}}
     <ul class="pagination">
-        <li class="ico first" onclick="sensorThings.dataSearch('{{pagination.firstPage}}');">
+        <li class="ico first" onclick="OIM.sensorThings.dataSearch('{{pagination.firstPage}}');">
             <th:block th:text="#{common.first}"></th:block>
         </li>
         {{#if pagination.existPrePage}}
-        <li class="ico forward" onclick="sensorThings.dataSearch('{{pagination.prePageNo}}');">
+        <li class="ico forward" onclick="OIM.sensorThings.dataSearch('{{pagination.prePageNo}}');">
             <th:block th:text="#{common.forward}"></th:block>
         </li>
         {{/if}}
@@ -15,16 +15,16 @@
         {{#numberEqual this ../pagination.pageNo}}
         <li class="on">{{this}}</li>
         {{else}}
-        <li onclick="sensorThings.dataSearch('{{this}}');">{{this}}</li>
+        <li onclick="OIM.sensorThings.dataSearch('{{this}}');">{{this}}</li>
         {{/numberEqual}}
         {{/forEachStep}}
 
         {{#if pagination.existNextPage}}
-        <li class="ico back" onclick="sensorThings.dataSearch('{{pagination.nextPageNo}}');">
+        <li class="ico back" onclick="OIM.sensorThings.dataSearch('{{pagination.nextPageNo}}');">
             <th:block th:text="#{common.back}"></th:block>
         </li>
         {{/if}}
-        <li class="ico end" onclick="sensorThings.dataSearch('{{pagination.lastPage}}');">
+        <li class="ico end" onclick="OIM.sensorThings.dataSearch('{{pagination.lastPage}}');">
             <th:block th:text="#{common.end}"></th:block>
         </li>
     </ul>

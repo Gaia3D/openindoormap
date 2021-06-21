@@ -16,8 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.geojson.Feature;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +48,8 @@ public class OccupancyServiceTests {
         sta.init(propertiesConfig.getSensorThingsApiServer());
         
         // 서버에 데이터를 넣지 않음
-        sta.setDryRun(true);
-        sensorService.setDryRun(true);
+        sta.setDryRun(false);
+        sensorService.setDryRun(false);
     }
 
     @Test
@@ -76,7 +76,12 @@ public class OccupancyServiceTests {
         sensorService.insertSensorData(dataKey);
     }
 
-    @Test
+    @Disabled
+    void 재실자_데이터_삭제() {
+        sensorService.deleteSensorData();
+    }
+
+    @Disabled
     public void 최소_최대_층정보_구하기() throws Exception {
         JSONParser parser = new JSONParser();
         JSONObject cells = (JSONObject) parser.parse(new FileReader(this.getClass().getClassLoader().getResource("sample/Alphadom_IndoorGML_cellspacelist.json").getFile()));
@@ -95,7 +100,7 @@ public class OccupancyServiceTests {
         log.info("min value ========= {}, max value ================ {} ", min, max);
     }
 
-    @Test
+    @Disabled
     public void 층별_빌딩별_데이터_생성() throws Exception {
         int min = 0;
         int max = 21;
@@ -132,7 +137,7 @@ public class OccupancyServiceTests {
         }
     }
 
-    @Ignore
+    @Disabled
     void 층별_합계() {
 //        http://localhost:8888/FROST-Server/v1.0/Things?$filter=properties/floor%20eq%201&$count=true
 //        http://localhost:8888/FROST-Server/v1.0/Things?$filter=properties/floor eq 0 and Datastreams/ObservedProperties/name eq 'occupancy'&$expand=Datastreams/Observations($orderby=id desc)

@@ -1,4 +1,4 @@
-package io.openindoormap.domain.sensor;
+package io.openindoormap.sensor;
 
 public enum TimeType {
     HOUR("HOUR"),

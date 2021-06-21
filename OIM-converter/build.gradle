@@ -99,7 +99,7 @@ dependencies {
 test {
 	useJUnitPlatform()
 	ignoreFailures = true
-	//exclude '**/*'
+	exclude '**/*'
 }
 
 task wrapper(type: Wrapper) {

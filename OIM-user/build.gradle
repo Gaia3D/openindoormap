@@ -136,7 +136,7 @@ test {
     outputs.dir snippetsDir
     useJUnitPlatform()
     ignoreFailures = true
-    //exclude '**/*'
+    exclude '**/*'
 }
 
 asciidoctor {

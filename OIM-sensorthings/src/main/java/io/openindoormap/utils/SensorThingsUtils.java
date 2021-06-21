@@ -6,6 +6,7 @@ import de.fraunhofer.iosb.ilt.sta.model.ext.EntityList;
 import de.fraunhofer.iosb.ilt.sta.model.ext.UnitOfMeasurement;
 import de.fraunhofer.iosb.ilt.sta.query.Query;
 import de.fraunhofer.iosb.ilt.sta.service.SensorThingsService;
+import io.openindoormap.support.LogMessageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.geojson.Feature;
@@ -36,7 +37,8 @@ public class SensorThingsUtils {
             URL serviceEndpoint = new URL(url);
             service = new SensorThingsService(serviceEndpoint);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.error("-------- init. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
     }
 
@@ -60,7 +62,8 @@ public class SensorThingsUtils {
             try {
                 service.create(entity);
             } catch (ServiceFailureException e) {
-                e.printStackTrace();
+                log.error("-------- create. message = {}", e.getMessage());
+                LogMessageSupport.printMessage(e);
             }
         }
     }
@@ -77,7 +80,8 @@ public class SensorThingsUtils {
             try {
                 service.update(entity);
             } catch (ServiceFailureException e) {
-                e.printStackTrace();
+                log.error("-------- update. message = {}", e.getMessage());
+                LogMessageSupport.printMessage(e);
             }
         }
     }
@@ -90,8 +94,7 @@ public class SensorThingsUtils {
      * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
      * @return
      */
-    public static <T extends Entity<T>> Query<T> createFilter(final Query<T> query, final String filter,
-            final String name) {
+    public static <T extends Entity<T>> Query<T> createFilter(final Query<T> query, final String filter, final String name) {
         String filterString = filter;
 
         if (StringUtils.isBlank(filterString)) {
@@ -120,7 +123,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(Thing) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasThing. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return thing;
@@ -147,10 +151,29 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(Thing) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasThingWithRelationEntities. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return thing;
+    }
+
+    /**
+     * 필터를 통해 특정 조건으로 STA Entity(Thing) 를 검색
+     * @param filter 필터 구문
+     * @param name 내용(필터 구문이 없는 경우 기본값으로 사용)
+     * @return
+     */
+    public EntityList<Thing> hasThingsByName(String filter, String name) {
+        EntityList<Thing> thingList = null;
+        Query<Thing> query = service.things().query();
+        try {
+            thingList = createFilter(query, filter, name).expand("Datastreams/Observations").list();
+        } catch (ServiceFailureException e) {
+            log.error("-------- hasThingsWithObservation. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
+        }
+        return thingList;
     }
 
     /**
@@ -166,7 +189,8 @@ public class SensorThingsUtils {
         try {
             thingList = createFilter(query, filter, name).expand("Datastreams($orderby=id asc)/Observations($orderby=id desc)").list();
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasThingsWithObservation. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return thingList;
@@ -185,7 +209,8 @@ public class SensorThingsUtils {
         try {
             thingList = createFilter(query, filter, null).skip(skipCount).list();
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasThingsSkip. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return thingList;
@@ -231,7 +256,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(Location) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasLocation. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return location;
@@ -257,7 +283,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(Sensor) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasSensor. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return sensor;
@@ -283,7 +310,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(ObservedProperty) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasObservedProperty. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return observedProperty;
@@ -309,7 +337,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(Datastream) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasDatastream. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return datastream;
@@ -335,7 +364,8 @@ public class SensorThingsUtils {
                 log.debug("More than one entity(FeatureOfInterest) with name " + name);
             }
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasFeatureOfInterest. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return featureOfInterest;
@@ -355,7 +385,8 @@ public class SensorThingsUtils {
         try {
             observations = createFilter(query, filter, name).list();
         } catch (ServiceFailureException e) {
-            e.printStackTrace();
+            log.error("-------- hasObservations. message = {}", e.getMessage());
+            LogMessageSupport.printMessage(e);
         }
 
         return observations;
