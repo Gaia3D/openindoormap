@@ -1,11 +1,7 @@
 package io.openindoormap.geoserver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openindoormap.OIMSensorthingsApplication;
-import io.openindoormap.geoserver.domain.Coverage;
-import io.openindoormap.geoserver.domain.DefaultStyle;
-import io.openindoormap.geoserver.domain.Layer;
 import io.openindoormap.geoserver.domain.Style;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
