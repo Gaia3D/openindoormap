@@ -77,7 +77,8 @@
                 $('.dustStation').removeClass('on');
                 $(this).addClass('on');
                 const thingId = $(this).data('id');
-                OIM.sensorThings.getInformation(thingId);
+                const thingName = $(this).data('name');
+                OIM.sensorThings.getInformation(thingId, thingName);
             });
 
             let down = false;

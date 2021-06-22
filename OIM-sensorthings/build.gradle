@@ -6,8 +6,6 @@ plugins {
 	id 'war'
 }
 
-apply plugin: 'project-report'
-
 group = 'io.openindoormap'
 version = '1.0.0'
 sourceCompatibility = '11'
@@ -30,10 +28,56 @@ repositories {
 	maven {
 		url "https://repo.osgeo.org/repository/release/"
 	}
+	/*
 	maven {
         url  "https://dl.bintray.com/fraunhoferiosb/Maven"
     }
+	*/
 	mavenCentral()
+}
+
+sourceSets {
+	main {
+		resources {
+			if (!project.hasProperty('profile') || !profile) {
+				println " ========== > default profile is local. "
+				ext.profile = DEFAULT_PROFILE
+			}
+
+			if (profile == 'product') {
+				println " ===========> profile file is ${profile}"
+				println " ===========> copy from src/main/resources/product to src/main/resources"
+
+				copy {
+					from("src/main/resources/product") {
+						include 'application.properties'
+						include 'openindoormap.properties'
+						include 'logback-spring.xml'
+					}
+					into "src/main/resources"
+				}
+				exclude "**/develop/*"
+			} else if (profile == 'develop') {
+				println " ===========> profile file is ${profile}"
+				println " ===========> copy from src/main/resources/develop to src/main/resources"
+
+				copy {
+					from("src/main/resources/develop") {
+						include 'application.properties'
+						include 'openindoormap.properties'
+						include 'logback-spring.xml'
+					}
+					into "src/main/resources"
+				}
+				exclude "**/product/*"
+			} else {
+				println " ===========> profile file is ${profile}"
+				//srcDir "src/main/resources"
+				exclude "**/product/*"
+				exclude "**/develop/*"
+			}
+		}
+	}
 }
 
 dependencies {
@@ -65,8 +109,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'de.fraunhofer.iosb.ilt:FROST-Client:0.34'
-	compile 'com.opencsv:opencsv:5.3'
+	implementation 'de.fraunhofer.iosb.ilt:FROST-Client:0.34'
+	implementation 'com.opencsv:opencsv:5.3'
 }
 
 ext {
@@ -78,23 +122,6 @@ test {
 	useJUnitPlatform()
 	ignoreFailures = true
 	exclude '**/*'
-}
-
-asciidoctor {
-	attributes 'snippets': snippetsDir
-	inputs.dir snippetsDir
-	dependsOn test
-}
-
-task copyDocument(type: Copy) {
-	println " @@@@@ copyDocument execute @@@@@ "
-	dependsOn asciidoctor
-	from file("build/asciidoc/html5/")
-	into file("src/main/resources/static/docs")
-}
-
-build {
-	dependsOn copyDocument
 }
 
 task wrapper(type: Wrapper) {
