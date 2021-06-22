@@ -12,6 +12,7 @@ const OccupancySensorThings = function (magoInstance) {
     this.mappingTable = {
         'Alphadom_IndoorGML' : {
             dataId : 5000000,
+            dataGroupPath : "infra/data/alphadom/",
             baseFloor: 7,
             maxCapacityBuilding : 3000,
             maxCapacityFloor : 200,
@@ -19,6 +20,7 @@ const OccupancySensorThings = function (magoInstance) {
         },
         'UOS21C_IndoorGML' : {
             dataId : 5000001,
+            dataGroupPath : "infra/data/uos21c/",
             baseFloor: 0,
             maxCapacityBuilding : 400,
             maxCapacityFloor : 400,
@@ -515,9 +517,20 @@ OccupancySensorThings.prototype.setCellSpaceList = function() {
             const dataGroupId = dataInfo.dataGroupId;
             const dataKey = dataInfo.dataKey;
 
+            let projectFolderName = '';
+            for (const i in _this.mappingTable) {
+                const mappingInfo = _this.mappingTable[i];
+                if (dataId === mappingInfo.dataId) {
+                    projectFolderName = mappingInfo.dataGroupPath;
+                    break;
+                }
+            }
+            if (!projectFolderName) return;
+
             const magoManager = _this.magoInstance.getMagoManager();
-            const nodeData = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
-            const projectFolderName = nodeData.projectFolderName;
+            // F4D dependency 제거
+            //const nodeData = magoManager.hierarchyManager.getNodeByDataKey(dataGroupId, dataKey).data;
+            //const projectFolderName = nodeData.projectFolderName;
             const cellSpaceListFileName = dataKey + '_cellspacelist.json';
 
             $.ajax({
@@ -578,6 +591,7 @@ OccupancySensorThings.prototype.redrawOverlayBuilding = function() {
         data.promises.push(_this.ajaxDataInfo(dataId));
         data.thingsContent[dataId] = {
             id: thingId,
+            name: thingName,
             value: value,
             valueWithCommas: _this.numberWithCommas(value),
             unit: _this.getUnit(dataStream),
@@ -704,6 +718,7 @@ OccupancySensorThings.prototype.redrawOverlayFloor = function() {
 
         contents.things.push({
             id: thingId,
+            name: thing['name'],
             value: value,
             valueWithCommas: _this.numberWithCommas(value),
             unit: _this.getUnit(dataStream),
@@ -735,14 +750,14 @@ OccupancySensorThings.prototype.redrawOverlay = function () {
     }
 };
 
-OccupancySensorThings.prototype.getInformation = function(thingId) {
+OccupancySensorThings.prototype.getInformation = function(thingId, thingName) {
 
     const _this = this;
 
     // TODO thingId와 dataId 맵핑테이블을 통한 데이터 조회
     let mappingInfo;
     if (_this.observedProperty === 'occupancyBuild') {
-        mappingInfo = _this.mappingTable[thingId];
+        mappingInfo = _this.mappingTable[thingName];
     } else if (_this.observedProperty === 'occupancyFloor') {
         mappingInfo = _this.mappingTable[_this.selectedBuildingName];
     }
@@ -1271,6 +1286,7 @@ OccupancySensorThings.prototype.callDatastreamsByThingsId = function (filter, ra
                 const contents = {
                     things: [{
                         id: thingId,
+                        name: thing['name'],
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),

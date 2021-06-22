@@ -500,10 +500,11 @@ DustSensorThings.prototype.redrawOverlay = function () {
 
         contents.things.push({
             id: thing['@iot.id'],
+            name: thing['name'],
             value: value,
             valueWithCommas: this.numberWithCommas(value),
             unit: this.getUnit(dataStream),
-            stationName: thing.name,
+            stationName: thing['name'],
             //addr: addr,
             grade: grade,
             gradeText: gradeText,
@@ -867,6 +868,7 @@ DustSensorThings.prototype.updateOverlay = function (randomValue) {
                 const contents = {
                     things: [{
                         id: thingId,
+                        name: thing['name'],
                         value: value,
                         valueWithCommas: _this.numberWithCommas(value),
                         unit: _this.getUnit(dataStream),

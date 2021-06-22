@@ -43,7 +43,7 @@ SensorThings.prototype.create = function () {
 /**
  * magoManager 카메라 이동시작, 카메라 이동종료 시 이벤트 걸기
  */
-SensorThings.prototype.setCameraMoveEvent = function() {
+SensorThings.prototype.setCameraMoveEvent = function () {
     const magoManager = this.magoInstance.getMagoManager();
     magoManager.on(Mago3D.MagoManager.EVENT_TYPE.CAMERAMOVESTART, (e) => {
         // 지도상의 센서 초기화
@@ -53,41 +53,48 @@ SensorThings.prototype.setCameraMoveEvent = function() {
         // 지도상의 센서 위치 갱신
         if (OIM.sensorThings.created) {
             OIM.sensorThings.redrawOverlay();
+            if (OIM.sensorThings.layer) {
+                OIM.sensorThings.layer.show = true;
+            }
         }
     });
 };
 
 /**
- * 알파돔 F4D 초기화
+ * 사물인터넷용 F4D 초기화
  */
-SensorThings.prototype.initF4dData = function() {
+SensorThings.prototype.initF4dData = function () {
 
-    let add = false;
+    let count = 0;
     const magoManager = this.magoInstance.getMagoManager();
     const f4dController = this.magoInstance.getF4dController();
 
-    // TODO 데이터 그룹 키 50000 하드코딩 제거 필요!
-    const dataGroupKey = '50000';
-    let setIntervalInitF4dData = setInterval(function () {
-        if (magoManager.hierarchyManager.existProject(dataGroupKey) && !add) {
-            add = true;
-
-            $.ajax({
-                url: '/sample/json/alphadom_data.json',
-                type: "GET",
-                headers: {"X-Requested-With": "XMLHttpRequest"},
-                dataType: "json",
-                success: function (json) {
-                    f4dController.addF4dMember(dataGroupKey, json.children);
-                },
-                error: function (request, status, error) {
-                    alert(JS_MESSAGE["ajax.error.message"]);
-                }
-            });
-
+    // TODO 사물인터넷용 데이터 그룹 키 ajax 호출 필요
+    // 조회된 데이터 그룹들은 층별 F4D가 존재할 경우만 해당
+    const dataGroupKeys = ['50000'];
+    const dataGroupLength = dataGroupKeys.length;
+    for (const dataGroupKey of dataGroupKeys) {
+        let setIntervalInitF4dData = setInterval(function () {
+            if (magoManager.hierarchyManager.existProject(dataGroupKey) &&
+                (count === 0 || dataGroupLength !== count)) {
+                // TODO 사물인터넷용 데이터 그룹 키를 통한 하위 F4D 조회 ajax 호출 필요
+                $.ajax({
+                    url: '/sample/json/alphadom_data.json',
+                    type: "GET",
+                    headers: {"X-Requested-With": "XMLHttpRequest"},
+                    dataType: "json",
+                    success: function (json) {
+                        f4dController.addF4dMember(dataGroupKey, json.children);
+                        count++;
+                    },
+                    error: function (request, status, error) {
+                        alert(JS_MESSAGE["ajax.error.message"]);
+                    }
+                });
+            }
             clearInterval(setIntervalInitF4dData);
-        }
-    }, 1000);
+        }, 1000);
+    }
 
 };
 
@@ -195,8 +202,8 @@ SensorThings.prototype.active = function (isVisible) {
 };
 
 SensorThings.prototype.gotoFly = function (longitude, latitude, altitude) {
-    if (OIM.sensorThings instanceof DustSensorThings) {
-        OIM.sensorThings.clearDustLayer();
+    if (OIM.sensorThings.layer) {
+        OIM.sensorThings.layer.show = false;
     }
     gotoFlyAPI(this.magoInstance, longitude, latitude, altitude, 3);
 };
