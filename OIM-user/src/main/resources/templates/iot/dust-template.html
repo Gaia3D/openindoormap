@@ -1,0 +1,38 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dustListSource" type="text/x-handlebars-template">
+    <!-- 측정소 정보 -->
+    {{#greaterThan contents.length 0}}
+    {{#each contents}}
+        <div class="sInfoWrap">
+            <div class="sInfo">
+                <ul class="lv{{grade}}">
+                    <li class="state">{{gradeText}}</li>
+                    <li class="result">{{value}}</li>
+                    <li class="unit">{{unit}}</li>
+                </ul>
+                <ul>
+                    <li>
+                        <label th:text="#{iot.dust.station.name}"></label>
+                        <span>{{stationName}}</span>
+                    </li>
+                    <li>
+                        <label th:text="#{iot.dust.station.addr}"></label>
+                        <a href="#" class="ellipsis" onclick="OIM.sensorThings.gotoFly('{{longitude}}', '{{latitude}}', 50);return false;">{{addr}}</a>
+                    </li>
+                    <li>
+                        <label th:text="#{iot.dust.value}"></label>
+                        <span>{{value}}</span>{{unit}}
+                    </li>
+                </ul>
+            </div>
+            <div class="iotDustMoreDHTML" style="display: none"></div>
+            <div class="btnCt">
+                <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="OIM.sensorThings.getDetail(this, {{id}})"></button>
+            </div>
+        </div>
+    {{/each}}
+    {{else}}
+        <div class="sInfoWrap" th:text="#{iot.dust.station.does.not.exist}"></div>
+    {{/greaterThan}}
+    <!-- // 측정소 정보  -->
+</script>

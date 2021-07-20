@@ -1,0 +1,20 @@
+{
+"type": "FeatureCollection",
+"name": "23",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007425417527287, 37.452525350664331 ], [ 127.007518287910955, 37.452566769444658 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007295839975171, 37.452567808921003 ], [ 127.007334300599581, 37.452488808719508 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007122247427148, 37.452504400864541 ], [ 127.007162214757443, 37.452422505974468 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007102738310337, 37.452405882641628 ], [ 127.007005826077574, 37.452366150511921 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007159416357254, 37.452305474369915 ], [ 127.007064036752368, 37.452258044973028 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007213630141237, 37.452211665310742 ], [ 127.007125365856155, 37.452167610531845 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007261537256127, 37.452130189383759 ], [ 127.007174221243943, 37.452080294519661 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007313511072894, 37.452039754942575 ], [ 127.007224116108048, 37.451996096936483 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007338326021141, 37.451997368413878 ], [ 127.007381077034708, 37.451917096734988 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007466446808692, 37.452047624758684 ], [ 127.007508932623963, 37.451965952122755 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007572340680426, 37.452085491901336 ], [ 127.007609761828505, 37.452004412747165 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007638867165895, 37.452161373673825 ], [ 127.007701235746026, 37.452041833895244 ] ] } },
+{ "type": "Feature", "properties": { }, "geometry": { "type": "LineString", "coordinates": [ [ 127.007637827689564, 37.452162413150162 ], [ 127.007733459512423, 37.452197755345566 ] ] } }
+]
+}

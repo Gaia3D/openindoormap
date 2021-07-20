@@ -1,0 +1,175 @@
+= REST API Guide
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= 개요
+
+[[overview-http-verbs]]
+== HTTP 동사
+
+본 REST API에서 사용하는 HTTP 동사(verbs)는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 동사 | 용례
+
+| `GET`
+| 리소스를 가져올 때 사용
+
+| `POST`
+| 새 리소스를 만들 때 사용
+
+| `PUT`
+| 기존 리소스를 수정할 때 사용
+
+| `PATCH`
+| 기존 리소스의 일부를 수정할 때 사용
+
+| `DELETE`
+| 기존 리소스를 삭제할 떄 사용
+|===
+
+[[overview-http-status-codes]]
+== HTTP 상태 코드
+
+본 REST API에서 사용하는 HTTP 상태 코드는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 상태 코드 | 용례
+
+| `200 OK`
+| 요청을 성공적으로 처리함
+
+| `201 Created`
+| 새 리소스를 성공적으로 생성함. 응답의 `Location` 헤더에 해당 리소스의 URI가 담겨있다.
+
+| `204 No Content`
+| 기존 리소스를 성공적으로 수정함.
+
+| `400 Bad Request`
+| 잘못된 요청을 보낸 경우. 응답 본문에 더 오류에 대한 정보가 담겨있다.
+
+| `404 Not Found`
+| 요청한 리소스가 없음.
+|===
+
+[[overview-hypermedia]]
+== 하이퍼미디어
+
+본 REST API는 하이퍼미디어와 사용하며 응답에 담겨있는 리소스는 다른 리소스에 대한 링크를 가지고 있다.
+응답은 http://stateless.co/hal_specification.html[Hypertext Application from resource to resource. Language (HAL)] 형식을 따른다.
+링크는 `_links`라는 키로 제공한다. 본 API의 사용자(클라이언트)는 URI를 직접 생성하지 않아야 하며, 리소스에서 제공하는 링크를 사용해야 한다.
+
+[[resources]]
+= 리소스
+
+[[resources-data]]
+== 데이터
+
+데이터 또는 목록을 조회 한다.
+
+[[resources-data-list]]
+=== 데이터 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 데이터를 조회할 수 있다.
+
+include::{snippets}/data-list/curl-request.adoc[]
+include::{snippets}/data-list/request-parameters.adoc[]
+include::{snippets}/data-list/http-response.adoc[]
+
+[[resources-data-get]]
+=== 데이터 조회
+
+`GET` 요청을 사용해서 기존 데이터 하나를 조회할 수 있다.
+
+include::{snippets}/data-get/curl-request.adoc[]
+include::{snippets}/data-get/http-response.adoc[]
+include::{snippets}/data-get/response-fields.adoc[]
+
+[[resources-data-group]]
+== 데이터 그룹
+
+데이터 그룹 또는 목록을 조회 한다.
+
+[[resources-data-group-list]]
+=== 데이터 그룹 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 데이터 그룹을 조회할 수 있다.
+
+include::{snippets}/data-group-list/curl-request.adoc[]
+include::{snippets}/data-group-list/http-response.adoc[]
+
+[[resources-data-group-list-by-parent]]
+=== 데이터 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 데이터 그룹을 조회할 수 있다.
+
+include::{snippets}/data-group-list-by-parent/curl-request.adoc[]
+
+[[resources-data-group-get]]
+=== 데이터 그룹 조회
+
+`Get` 요청을 사용해서 기존 데이터 그룹 하나를 조회할 수 있다.
+
+include::{snippets}/data-group-get/curl-request.adoc[]
+include::{snippets}/data-group-get/http-response.adoc[]
+include::{snippets}/data-group-get/response-fields.adoc[]
+
+[[resources-layer]]
+== 레이어
+
+레이어 또는 목록을 조회 한다.
+
+[[resources-layer-list]]
+=== 레이어 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 레이어를 조회할 수 있다.
+
+include::{snippets}/layer-list/curl-request.adoc[]
+include::{snippets}/layer-list/request-parameters.adoc[]
+include::{snippets}/layer-list/http-response.adoc[]
+
+[[resources-layer-get]]
+=== 레이어 조회
+
+`GET` 요청을 사용해서 기존 레이어 하나를 조회할 수 있다.
+
+include::{snippets}/layer-get/curl-request.adoc[]
+include::{snippets}/layer-get/http-response.adoc[]
+include::{snippets}/layer-get/response-fields.adoc[]
+
+[[resources-layer-group]]
+== 레이어 그룹
+
+레이어 그룹 또는 목록을 조회 한다.
+
+[[resources-layer-group-list]]
+=== 레이어 그룹 목록 조회
+
+`GET` 요청을 사용하여 서비스의 모든 레이어 그룹을 조회할 수 있다.
+
+include::{snippets}/layer-group-list/curl-request.adoc[]
+include::{snippets}/layer-group-list/http-response.adoc[]
+
+[[resources-layer-group-list-by-parent]]
+=== 레이어 그룹 parent 로 조회
+
+`GET` 요청을 사용하여 parent 에 해당하는 레이어 그룹을 조회할 수 있다.
+
+include::{snippets}/layer-group-list-by-parent/curl-request.adoc[]
+
+[[resources-layer-group-get]]
+=== 레이어 그룹 조회
+
+`Get` 요청을 사용해서 기존 레이어 그룹 하나를 조회할 수 있다.
+
+include::{snippets}/layer-group-get/curl-request.adoc[]
+include::{snippets}/layer-group-get/http-response.adoc[]
+include::{snippets}/layer-group-get/response-fields.adoc[]
+

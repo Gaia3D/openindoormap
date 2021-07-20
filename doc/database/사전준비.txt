@@ -1,0 +1,22 @@
+INSERT INTO data_group (
+    data_group_id, data_group_key, data_group_name, data_group_path, data_group_target, sharing, user_id,
+    ancestor, parent, depth, view_order, children, basic, available, tiling, data_count, metainfo)
+values
+    (2, 'masterplan', '마스터플랜', 'infra/data/masterplan/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, false, 0,  TO_JSON('{"isPhysical": false}'::json));
+
+INSERT INTO data_info(
+    data_id, data_group_id, converter_job_id, data_key, data_name, data_type, sharing, user_id, mapping_type, location,
+    altitude, heading, pitch, roll, metainfo, status, attribute_exist, object_attribute_exist)
+values
+    (NEXTVAL('data_info_seq'), 2, 1, 'MasterPlan', 'MasterPlan', '3ds', 'public', 'admin', 'boundingboxcenter',
+     ST_GeomFromText('POINT(127.01288139968887 37.44959387479118)', 4326), 150, 0, 0, 0, '{"isPhysical": true}', 'use', false, false);
+
+
+INSERT INTO data_info(
+    data_id, data_group_id, converter_job_id, data_key, data_name, data_type, sharing, user_id, mapping_type, location,
+    altitude, heading, pitch, roll, metainfo, status, attribute_exist, object_attribute_exist)
+values
+    (NEXTVAL('data_info_seq'), 1, 1, 'MasterPlan', '과천-시범단지', '3ds', 'public', 'admin', 'boundingboxcenter',
+     ST_GeomFromText('POINT(127.01288139968887 37.44959387479118)', 4326), 50, 0, 0, 0, '{"isPhysical": true}', 'use', false, false);
+commit;
+

@@ -1,0 +1,37 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="occupancyListSource" type="text/x-handlebars-template">
+    {{#greaterThan contents.length 0}}
+    {{#each contents}}
+    <div class="sInfoWrap">
+        <div class="sInfo">
+            <ul class="lv{{grade}}">
+                <li class="state">{{gradeText}}</li>
+                <li class="result">{{valueWithCommas}}</li>
+                <li class="unit">{{unit}}</li>
+            </ul>
+            <ul>
+                <li>
+                    <label th:text="#{common.data.name}"></label>
+                    <span>{{dataName}}</span>
+                </li>
+                <li>
+                    <label th:text="#{iot.occupancy.average.people}"></label>
+                    <span>{{valueWithCommas}}</span>{{unit}}
+                </li>
+                <li>
+                    <label th:text="#{iot.dust.station.addr}"></label>
+                    <a href="#" class="ellipsis" onclick="OIM.sensorThings.flyTo('{{dataGroupId}}', '{{dataKey}}');return false;">{{dataKey}}</a>
+                </li>
+            </ul>
+        </div>
+        <div class="iotDustMoreDHTML" style="display: none"></div>
+        <div class="btnCt">
+            <button type="button" class="show-more more" th:title="#{common.more}" th:text="#{common.more}" onclick="OIM.sensorThings.getDetail(this, {{id}})"></button>
+        </div>
+    </div>
+    {{/each}}
+    {{else}}
+    <div class="sInfoWrap" th:text="#{iot.dust.station.does.not.exist}"></div>
+    {{/greaterThan}}
+
+</script>

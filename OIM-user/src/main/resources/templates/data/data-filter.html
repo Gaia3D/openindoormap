@@ -1,0 +1,112 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="searchFilterContent" class="searchDataFilterLayer" style="display: none;">
+    <form id="searchDataFilterForm" th:object="${searchDataFilterForm}" method="post" onsubmit="return false;">
+        <div class="yScroll" style="height: 315px;">
+            <div class="elementWrap">
+                <h3 th:text="#{data.group.sharing}"></h3>
+                <div class="searchDataFilterType">
+                    <div>
+                        <input type="radio" id="radioCommon" name="sharing" class="fas fa-share" value="common">
+                        <label for="radioCommon" th:text="#{common.common}" th:title="#{common.common}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioPublic" name="sharing" class="fas fa-share-alt" value="public">
+                        <label for="radioPublic" th:text="#{common.public}" th:title="#{common.public}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioPrivate" name="sharing" class="fas fa-share-alt-square" value="private">
+                        <label for="radioPrivate" th:text="#{common.private}" th:title="#{common.private}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioGruop" name="sharing" class="fas fa-share-square" value="group">
+                        <label for="radioGruop" th:text="#{common.group}" th:title="#{common.group}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="elementWrap">
+                <h3 th:text="#{common.data.type}"></h3>
+                <div class="searchDataFilterType">
+                    <div>
+                        <input type="checkbox" id="checkboxCitygml" name="dataTypes" class="fas fa-file" value="citygml">
+                        <label for="checkboxCitygml">CityGML</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkboxIndoorgml" name="dataTypes" class="fas fa-file" value="indoorgml">
+                        <label for="checkboxIndoorgml">IndoorGML</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkboxLas" name="dataTypes" class="fas fa-file" value="las">
+                        <label for="checkboxLas">LAS</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkboxIfc" name="dataTypes" class="fas fa-file" value="ifc">
+                        <label for="checkboxIfc">IFC</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkboxDae" name="dataTypes" class="fas fa-file" value="dae">
+                        <label for="checkboxDae">DAE</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkboxObj" name="dataTypes" class="fas fa-file" value="obj">
+                        <label for="checkboxObj">OBJ</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="checkbox3ds" name="dataTypes" class="fas fa-file" value="3ds">
+                        <label for="checkbox3ds">3DS</label>
+                    </div>
+                </div>
+            </div>
+            <div class="elementWrap">
+                <h3 th:text="#{common.mapping.type}"></h3>
+                <div class="searchDataFilterType">
+                    <div>
+                        <input type="radio" id="radioOrigin" name="mappingType" class="fas fa-map-marked" value="origin">
+                        <label for="radioOrigin" th:text="#{common.origin}" th:title="#{common.origin}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioBbox" name="mappingType" class="fas fa-map" value="boundingboxcenter">
+                        <label for="radioBbox" th:text="#{common.bounding.box}" th:title="#{common.bounding.box}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="elementWrap">
+                <h3 th:text="#{common.attribute}"></h3>
+                <div class="searchDataFilterType">
+                    <div>
+                        <input type="radio" id="radioRegisterd" name="attributeExist" class="fas fa-check-circle" value="true">
+                        <label for="radioRegisterd" th:text="#{common.registered}" th:title="#{common.registered}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioUnregisterd" name="attributeExist" class="fas fa-exclamation-circle" value="false">
+                        <label for="radioUnregisterd" th:text="#{common.not.registered}" th:title="#{common.not.registered}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="elementWrap">
+                <h3 th:text="#{common.status}"></h3>
+                <div class="searchDataFilterType">
+                    <div>
+                        <input type="radio" id="radioUse" name="status" class="fas fa-toggle-on" value="use">
+                        <label for="radioUse" th:text="#{common.use}" th:title="#{common.use}"></label>
+                    </div>
+                    <div>
+                        <input type="radio" id="radioUnused" name="status" class="fas fa-toggle-off" value="unused">
+                        <label for="radioUnused" th:text="#{common.unused}" th:title="#{common.unused}"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="districtBtn">
+            <button type="button" class="focus" id="filterApplyButton" th:title="#{common.apply}">
+                <th:block th:text="#{common.apply}"></th:block>
+            </button>
+            <button type="button" class="basic" id="filterInitButton" th:title="#{data.filter.initialization}">
+                <th:block th:text="#{data.filter.initialization}"></th:block>
+            </button>
+            <button type="button" class="basic" id="filterCloseButton" th:title="#{common.close}">
+                <th:block th:text="#{common.close}"></th:block>
+            </button>
+        </div>
+    </form>
+</div>
+</html>

@@ -1,0 +1,240 @@
+@charset "UTF-8";
+/*ds*/
+.col-width-10 {width:10% !important;}
+.col-width-15 {width:15% !important;}
+.col-width-20 {width:20% !important;}
+.col-width-25 {width:25% !important;}
+.col-width-30 {width:30% !important;}
+.col-width-35 {width:35% !important;}
+.col-width-40 {width:40% !important;}
+.col-width-45 {width:45% !important;}
+.col-width-50 {width:50% !important;}
+
+.text-left {text-align:left  !important;}
+.text-center {text-align:center  !important;}
+.text-right {text-align:right  !important;}
+
+.mt-2 {margin-top:2px !important;}
+.mt-5 {margin-top:5px !important;}
+.mt-10 {margin-top:10px !important;}
+.mt-15 {margin-top:15px !important;}
+.mt-20 {margin-top:20px !important;}
+
+.mr-10 {margin-right:10px !important;}
+
+.cursor-pointer {cursor:pointer !important;}
+.cursor-default {cursor:default !important;}
+
+.display-none {display:none !important;}
+
+.w-30 {width:30% !important;}
+
+.ui-dialog { z-index: 1000 !important ;}
+
+.fw-bold {font-weight: bold !important;}
+
+.color-red {color:red !important;}
+.color-normal { color: #3f48cc !important}
+.color-exceed { color: #cc3f3f !important}
+
+button.textBtnSub.active {background-color:#258FFF; color:white; font-weight:bold;background-image: url('../../images/ico_checked.png') !important; background-repeat: no-repeat; background-size: 32px;}
+button[class*=ds-tool], button[class*=design-layer-tool] {width:23% !important; margin-bottom:2px;}
+button[class*=ds-tool][class=active] {background-image: '../../images/ico_checked.png'; background-repeat: no-repeat;}
+
+table.ds-data-library-list > tbody > tr {font-weight:normal; background-color:white;}
+table.ds-data-library-list > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
+table.design-layers > tbody > tr {font-weight:normal; background-color:white;}
+table.design-layers > tbody > tr.on {font-weight:bold !important; background-color:lightyellow !important;}
+
+div.design-layer-modeless-wrapper select {
+    margin: 0;
+    outline: 0;
+    vertical-align: middle;
+    font-family: Arial,Helvetica,sans-serif;
+    border-color: #d5d5d5;
+    color: #7d7d7d;
+    font-size: small;
+    line-height: 1.5em;
+    padding: 5px;
+    width: 50px;
+}
+
+div.design-layer-modeless-wrapper button[class*=floor-co] {
+    margin: 0;
+    outline: 0;
+    cursor: pointer;
+    font-family: Arial,Helvetica,sans-serif;
+    padding: 5px;
+    line-height: 1.5em;
+    font-size: small;
+    vertical-align: middle;
+    width: 30px;
+}
+
+
+
+
+table[class*=design-layer],
+table[class=sunshine-result-report-table] {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: calc(100% - 1px);
+}
+
+table[class*=design-layer] > thead,
+table[class=sunshine-result-report-table] > thead {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table[class*=design-layer] > thead > tr,
+table[class=sunshine-result-report-table] > thead > tr {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table[class*=design-layer] > thead > tr > th,
+table[class=sunshine-result-report-table] > thead > tr > th {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    background-color: #f3f3f3;
+    word-break: break-all;
+    vertical-align: middle;
+    border-right: 1px solid #ccc;
+    padding: 3px 0;
+    cursor: default;
+    text-align: center;
+    border-top: 2px solid #19334a;
+}
+
+table[class*=design-layer] > thead > tr > th:last-child {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    background-color: #f3f3f3;
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 3px 0;
+    cursor: default;
+    text-align: center;
+    border-top: 2px solid #19334a;
+    border-right: none;
+}
+
+table[class*=design-layer] > tbody,
+table[class=sunshine-result-report-table] > tbody {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+}
+
+table[class*=design-layer] > tbody > tr,
+table[class=sunshine-result-report-table] > tbody > tr {
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    font-size: 13px;
+    line-height: 1.5em;
+    list-style: none;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    vertical-align: top;
+    font-weight: normal;
+    background-color: white;
+}
+
+table[class*=design-layer] > tbody > tr > td,
+table[class=sunshine-result-report-table] > tbody > tr > td {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-weight: normal;
+    margin: 0;
+    outline: 0;
+    color: #444;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    line-height: 1.5em;
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 7px 5px;
+    border-right: 1px solid #ccc;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    cursor: default;
+}
+
+table[class*=design-layer] > tbody > tr > td:last-child {
+    list-style: none;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-weight: bold !important;
+    margin: 0;
+    outline: 0;
+    color: #3f48cc;
+    font-family: 'Malgun Gothic','돋움',dotum, sans-serif;
+    line-height: 1.5em;
+    /* text-align: left  !important; */
+    word-break: break-all;
+    vertical-align: middle;
+    padding: 7px 5px;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    border-right: none;
+}

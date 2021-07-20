@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.GeometryMapper">
+
+    <select id="getIntersectionDatas" parameterType="spatialOperationInfo" resultType="dataInfo">
+        /* getIntersectionDatas */
+        SELECT
+            data_id,
+            data_group_id,
+            converter_job_id,
+            data_key,
+            data_name,
+            data_type,
+            sharing,
+            user_id,
+            update_user_id,
+            mapping_type,
+            st_astext(location) as location,
+            altitude,
+            heading,
+            pitch,
+            roll,
+            children_ancestor,
+            children_parent,
+            children_depth,
+            children_view_order,
+            metainfo,
+            status,
+            attribute_exist,
+            object_attribute_exist,
+            description,
+            update_date,
+            insert_date
+        FROM data_info
+        <choose>
+            <when test="buffer !=null and buffer > 0" >
+                WHERE st_intersects(st_buffer(ST_GeomFromText(#{wkt},4326),#{buffer}), location) = true
+            </when>
+            <otherwise>
+                WHERE st_intersects(ST_GeomFromText(#{wkt},4326), location) = true
+            </otherwise>
+        </choose>
+        <if test="maxFeatures !=null and maxFeatures > 0">
+            limit #{maxFeatures}
+        </if>
+    </select>
+</mapper>

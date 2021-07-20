@@ -1,0 +1,9 @@
+20/8/12 13:56 cheon
+
+alter table geopolicy add column extrusion_required_columns                          varchar(1000);
+comment on column geopolicy.extrusion_required_columns is 'extrusion model 가시화를 위한 shape 필수 속성명. 콤마로 구분';
+commit;
+
+2020/8/19 20:56 cheon
+alter table layer rename service_type to ogc_web_services;
+commit;

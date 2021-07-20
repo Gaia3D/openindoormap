@@ -1,0 +1,150 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="dataTestDialogWrap">
+<div id="dataInfoTestDialogDHTML" class="basicTable" style="display: none;">
+</div>
+<script id="dataInfoTestSource" type="text/x-handlebars-template">
+	<table th:summary="#{data.dialog.summary}">
+	<caption class="hiddenTag"><th:block th:text="#{data.dialog.summary}"></th:block></caption>
+		<col class="col-label" style="width: 100px;" />
+		<col class="col-data" />
+		<tr>
+			<th class="col-label" th:text="#{data.group.name}" scope="row"></th>
+			<td id="dataGroupNameTest" class="col-data ellipsis" style="max-width: 300px;">{{dataGroupName}}</td>
+		</tr>
+{{#greaterThan dataId 4}}
+		<tr>
+			<th class="col-label" th:text="#{data.key}" scope="row"></th>
+			<td id="dataKeyTest" class="col-data">{{dataKey}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.data.type}" scope="row"></th>
+			<td id="dataTypeTest" class="col-data">{{dataType}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{data.group.user.id}" scope="row"></th>
+			<td id="userIdTest" class="col-data">{{userId}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.sharing}" scope="row"></th>
+			<td id="sharingTest" class="col-data">
+				공통
+			</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.mapping.type}" scope="row"></th>
+			<td id="mappingTypeTest" class="col-data">{{mappingType}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.longitude}" scope="row"></th>
+			<td id="longitudeTest" class="col-data">{{longitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.latitude}" scope="row"></th>
+			<td id="latitudeTest" class="col-data">{{latitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.altitude}" scope="row"></th>
+			<td id="altitudeTest" class="col-data">{{altitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Heading</th>
+			<td id="headingTest" class="col-data">{{heading}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Pitch</th>
+			<td id="pitchTest" class="col-data">{{pitch}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Roll</th>
+			<td id="rollTest" class="col-data">{{roll}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.meta.information}" scope="row"></th>
+			<td id="metainfoTest" class="col-data">{{metainfo}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.attribute}" scope="row"></th>
+			<td id="attributeExistTest" class="col-data">
+				미등록
+			</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.object.attribute}" scope="row"></th>
+			<td id="objectAttributeExistTest" class="col-data">
+				미등록
+			</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.description}" scope="row"></th>
+			<td id="descriptionTest" class="col-data">{{description}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.updated}" scope="row"></th>
+			<td id="updateDateTest" class="col-data">{{viewUpdateDate}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.created}" scope="row"></th>
+			<td id="insertDateTest" class="col-data">{{viewInsertDate}}</td>
+		</tr>
+{{else}}
+		<tr>
+			<th class="col-label"scope="row">필지명</th>
+			<td class="col-data">학교</td>
+		</tr>
+		<tr>
+			<th class="col-label"scope="row">건페율</th>
+			<td class="col-data">60</td>
+		</tr>
+		<tr>
+			<th class="col-label"scope="row">용적률 </th>
+			<td class="col-data">250</td>
+		</tr>
+		<tr>
+			<th class="col-label"scope="row">건축한계높이 </th>
+			<td class="col-data">8층</td>
+		</tr>
+		<tr>
+			<th class="col-label"scope="row">용도 </th>
+			<td class="col-data">학교</td>
+		</tr>
+		<tr>
+			<th class="col-label"scope="row">관련법령 </th>
+			<td class="col-data">학교보건법 시행규칙 제 9조 별표 8에 따른<br/> 학교 일조기준(일조량)<br/>
+				교사 - 동짓날 기준 05:00 부터 16:00 까지<br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8시간 중 4시간 이상 일조권이 확보됨<br/>
+				체육장 - 동짓날 기준 05:99 부터 16:00 까지<br/>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8시간 중 2시간 이상 일조권이 확보됨<br/></td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.longitude}" scope="row"></th>
+			<td  class="col-data">{{longitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.latitude}" scope="row"></th>
+			<td class="col-data">{{latitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.altitude}" scope="row"></th>
+			<td class="col-data">{{altitude}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Heading</th>
+			<td class="col-data">{{heading}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Pitch</th>
+			<td class="col-data">{{pitch}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" scope="row">Roll</th>
+			<td class="col-data">{{roll}}</td>
+		</tr>
+		<tr>
+			<th class="col-label" th:text="#{common.mapping.type}" scope="row"></th>
+			<td class="col-data">{{mappingType}}</td>
+		</tr>
+{{/greaterThan}}
+	</table>
+</script>
+</div>
+</html>

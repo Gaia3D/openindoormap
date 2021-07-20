@@ -1,0 +1,141 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div id="iotContent" class="contents yScroll fullHeight">
+    <form id="searchIotForm" class="searchDataWrap" th:object="${searchDataForm}" method="post" onsubmit="return false;">
+        <div class="searchDataType">
+            <div>
+                <input type="radio" id="radioOccupancy" name="searchWord" class="fas fa-street-view" value="iot_occupancy" checked>
+                <label for="radioOccupancy" th:text="#{iot.occupancy}"></label>
+            </div>
+            <div>
+                <input type="radio" id="radioDust" name="searchWord" class="fas fa-industry" value="iot_dust">
+                <label for="radioDust" th:text="#{iot.dust}"></label>
+            </div>
+        </div>
+        <div class="searchDataInputWrap">
+            <div class="searchDataInput">
+                <span class="searchIcon"></span>
+                <label for="searchName" th:text="#{common.data.name}" class="hiddenTag"></label>
+                <input type="text" id="searchName" name="searchValue" th:placeholder="#{data.enter.data.name}">
+                <button type="submit" id="iotSearch" class="btnSearch" th:text="#{common.search}" th:title="#{common.search}"></button>
+            </div>
+        </div>
+    </form>
+    <div id="iotLegendDHTML"></div>
+    <div id="iotSearchSummaryDHTML"></div>
+    <div id="iotInfoContent" class="yScroll" style="height: calc(100% - 331px)">
+        <div id="iotOccupancyListDHTML" style="display:block"></div>
+        <div id="iotDustListDHTML" style="display:none"></div>
+    </div>
+    <div id="iotPaginationDHTML" class="paginationWrap"></div>
+    <div th:replace="~{/iot/occupancy-legend-template :: #iotOccupancyLegendSource}"></div>
+    <div th:replace="~{/iot/dust-legend-template :: #iotDustLegendSource}"></div>
+    <div th:replace="~{/common/search-summary-template :: #searchSummarySource}"></div>
+    <div th:replace="~{/iot/occupancy-template :: #occupancyListSource}"></div>
+    <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
+    <div th:replace="~{/iot/dust-more-template :: #dustMoreSource}"></div>
+    <div th:replace="~{/iot/pagination-template :: #iotPaginationSource}"></div>
+    <script type="text/javascript" th:src="@{/js/{lang}/common/pagination.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/dust-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/occupancy-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript">
+
+        // 사물인터넷 이벤트 모음
+        $(document).ready(function () {
+
+            var iotObserverTarget = document.getElementById('iotMenu');
+            if (iotObserverTarget) {
+                var iotObserverConfig = {attributes: true, attributeFilter:['class']};
+                var iotObserver = new MutationObserver(function (mutations) {
+                    for (var mutation of mutations) {
+                        var isVisible = mutation.target.classList.contains("on");
+                        OIM.sensorThings.active(isVisible);
+                    }
+                });
+                iotObserver.observe(iotObserverTarget, iotObserverConfig);
+            }
+
+            // 검색 버튼 클릭
+            $('#iotSearch').click(function () {
+                OIM.sensorThings.dataSearch(1);
+            });
+
+            // 검색 엔터키
+            $('#iotSearch').keyup(function (e) {
+                if (e.keyCode == 13) {
+                    OIM.sensorThings.dataSearch(1);
+                }
+            });
+
+            // 검색조건 변경
+            $('#iotContent input[name="searchWord"]').change(function (e) {
+                OIM.sensorThings.active(true);
+            });
+
+            // 오버레이 클릭
+            $('#overlayDHTML').on('click', '.overlayWrap > ul', function () {
+                $('.dustStation').removeClass('on');
+                $(this).addClass('on');
+                const thingId = $(this).data('id');
+                const thingName = $(this).data('name');
+                OIM.sensorThings.getInformation(thingId, thingName);
+            });
+
+            let down = false;
+            $('#overlayDHTML').on('wheel mousedown mouseup mousemove pointerdown pointerup', '.overlayWrap > ul', function (e) {
+
+                const canvas = MAGO3D_INSTANCE.getViewer().scene.canvas;
+                const orgEvent = e.originalEvent;
+                const cloneEvent = new orgEvent.constructor(orgEvent.type, orgEvent);
+
+                if (orgEvent.type === 'wheel') {
+                    canvas.dispatchEvent(cloneEvent);
+                } else if ((orgEvent.type === 'mousedown' || orgEvent.type === 'pointerdown') && orgEvent.which === 2) {
+                    down = true;
+                    cloneEvent.isTrusted = true;
+                    canvas.dispatchEvent(cloneEvent);
+                } else if ((orgEvent.type === 'mouseup' || orgEvent.type === 'pointerup') && orgEvent.which === 2) {
+                    down = false;
+                } else if (orgEvent.type === 'mousemove' && down) {
+                    cloneEvent.isTrusted = true;
+                    canvas.dispatchEvent(cloneEvent);
+                }
+
+            });
+
+            $('#magoContainer').on('click', '#closeDustInfo', function () {
+                OIM.sensorThings.closeInformation();
+            });
+
+            // 재실자 층 선택
+            $('#buildingInfoDHTML').on('click', '#buildingInfoWrap table tr', function () {
+
+                $(this).siblings().removeClass('on');
+                $(this).toggleClass('on');
+                const floor = $(this).data('floor');
+
+                OIM.sensorThings.observedProperty = 'occupancyFloor';
+                const selectedDataGroupId = OIM.sensorThings.selectedDataGroupId;
+                const selectedDataKey = OIM.sensorThings.selectedDataKey;
+
+                if (OIM.sensorThings.selectedFloorSensorList.length > 0) {
+                    const rgbColorCode = "255,255,255,255";
+                    for (const cellId of OIM.sensorThings.selectedFloorSensorList) {
+                        changeColorAPI(OIM.sensorThings.magoInstance.getMagoManager(), selectedDataGroupId, selectedDataKey, [cellId], "isPhysical=true", rgbColorCode);
+                    }
+                }
+
+                const buildingInfo = $('#buildingInfoDHTML').data('buildingInfo');
+                OIM.sensorThings.selectedDataGroupId = buildingInfo.dataGroupId;
+                OIM.sensorThings.selectedDataKey = buildingInfo.dataKey;
+
+                OIM.sensorThings.clearOverlay();
+                OIM.sensorThings.addSelectedFloorOverlay(floor, buildingInfo.name);
+                OIM.sensorThings.displaySelectedFloor(floor);
+
+            });
+
+        });
+    </script>
+</div>
+</html>

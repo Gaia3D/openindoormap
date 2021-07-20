@@ -1,0 +1,36 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="occupancyInfoSource" type="text/x-handlebars-template">
+<button class="circle-small fas fa-times float-right marT5 marR5" th:title="#{common.close}" onclick="sensorThingsController.closeSensorInformation()"></button>
+<div class="sensor-detail">
+    <div class="chart-container">
+        <h3 class="marB15">Information of the feature</h3>
+        <ul>
+            <li>
+                <label>ID</label>
+                <input type="text" th:value="'{{sensorId}}'" readonly />
+            </li>
+            <li>
+                <label>Name</label>
+                <input type="text" th:value="'{{sensorName}}'" readonly />
+            </li>
+            <li>
+                <label>Time</label>
+                <input type="text" th:value="'{{lastTime}}'" readonly />
+            </li>
+            <li>
+                <label>Value</label>
+                <input type="text" th:value="'{{lastValue}}'" readonly />
+            </li>
+            <li>
+                <label>GMLID</label>
+                <input type="text" th:value="'{{sensorGMLId}}'" readonly />
+            </li>
+        </ul>
+        <button class="focus" onclick="sensorThingsController.gotoSensor('{{sensorId}}')">이동</button>
+    </div>
+    <div class="chart-container" style="width: 674px">
+        <canvas id="sensorChart" class="chartjs" style="display: block; width: 100%; height: 100%"></canvas>
+    </div>
+</div>
+</script>
+</html>

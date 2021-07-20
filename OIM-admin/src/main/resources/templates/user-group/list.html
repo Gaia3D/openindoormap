@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html th:lang="${accessibility}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="/layouts/default">
+<head>
+	<meta charset="utf-8">
+	<title>사용자 그룹</title>
+	<th:block layout:fragment="pageCustomStyle">
+		<link rel="stylesheet" th:href="@{/css/{lang}/font/font.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+		<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+		<link rel="stylesheet" th:href="@{/css/{lang}/admin-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="pageCustomContent">
+	<div class="site-body">
+		<div class="container">
+			<div class="site-content">
+				<div th:replace="~{/fragments/sub-menu :: #subMenuWrap}"></div>
+				<div class="page-area">
+					<div th:replace="~{/fragments/page-header :: #pageHeaderWrap}"></div>
+					<div class="page-content">
+						<div style="height: 30px;"></div>
+						<div class="list">
+							<div class="list-header row">
+								<div class="list-desc u-pull-left">
+									<div class="button-group">
+										<a href="#" onclick="openAll(); return false;" class="button">펼치기</a>
+										<a href="#" onclick="closeAll(); return false;" class="button">접기</a>
+									</div>
+								</div>
+								<div class="list-functions u-pull-right">
+									<div class="button-group">
+										<a href="/user-group/input" class="button">사용자 그룹 등록</a>
+									</div>
+								</div>
+							</div>
+							<!-- S: 사용자 그룹 목록 -->
+							<table class="list-table scope-col" summary="사용자 그룹 리스트를 트리 형태로 조회 ">
+								<caption class="hiddenTag">사용자 그룹</caption>
+								<colgroup>
+									<col class="col-name"></col>
+									<col class="col-name"></col>
+									<col class="col-id"></col>
+									<col class="col-toggle"></col>
+									<col class="col-toggle"></col>
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-functions"></col>
+									<col class="col-date"></col>
+								</colgroup>
+								<thead>
+									<tr>
+										<th scope="col"><th:block th:text="#{user.group.name}"></th:block></th>
+					                    <th scope="col">그룹Key</th>
+					                    <th scope="col">기본 여부</th>
+					                    <th scope="col">사용 여부</th>
+					                    <th scope="col">사용자</th>
+					                    <th scope="col">메뉴</th>
+					                    <th scope="col">Role</th>
+					                    <th scope="col">편집</th>
+					                    <th scope="col">등록일</th>
+									</tr>
+								</thead>
+								<tbody>
+<th:block th:if="${userGroupList.empty}">
+									<tr>
+										<td colspan="9" class="col-none"><th:block th:text="#{user.group.empty}"></th:block></td>
+									</tr>
+</th:block>
+<th:block th:unless="${userGroupList.empty}" th:each="userGroup : ${userGroupList}">
+									<tr th:class="|rowId-${userGroup.userGroupId} rowDepth-${userGroup.depth} rowAncestor-${userGroup.ancestor} rowParent-${userGroup.parent}|">
+										<td class="col-key ellipsis" style="max-width: 300px;">
+											<th:block th:with="paddingLeftValue = ${(userGroup.depth -1)  * 40}">
+																		<span th:onclick="childrenDisplayToggle([[${userGroup.userGroupId}]], [[${userGroup.depth}]]);"
+																			  th:style="|padding-left: ${paddingLeftValue}px; font-size: 1.6em;|">
+																			<i th:id="|myArrow-${userGroup.userGroupId}|"
+																			   th:class="|fa fa-caret-right depthArrow-${userGroup.depth} parentArrow-${userGroup.parent}|" aria-hidden="true"></i>
+																		</span>&nbsp;
+											</th:block>
+											<th:block th:if="${userGroup.depth == 1}">
+																		<span style="font-size: 1.5em; color: Dodgerblue;">
+											</th:block>
+											<th:block th:if="${userGroup.depth == 2}">
+																		<span style="font-size: 1.5em; color: Mediumslateblue;">
+											</th:block>
+											<th:block th:if="${userGroup.depth == 3}">
+																		<span style="font-size: 1.5em; color: Tomato;">
+											</th:block>
+											<th:block th:if="${userGroup.depth == 4}">
+																		<span style="font-size: 1.5em; color: #82c91e;">
+											</th:block>
+											<th:block th:if="${userGroup.depth == 5}">
+																		<span style="font-size: 1.5em; color: #f783ac;">
+											</th:block>
+											<i th:id="|myFolder-${userGroup.userGroupId}|"
+											   th:class="|fa fa-folder depthFolder-${userGroup.depth} parentFolder-${userGroup.parent}|" aria-hidden="true"></i>
+											</span>
+											<span th:text="${userGroup.userGroupName}"></span>
+										</td>
+										<td class="col-key" th:text="${userGroup.userGroupKey}"></td>
+										<td class="col-type">
+											<th:block th:if="${#bools.isTrue(userGroup.basic)}">기본</th:block>
+											<th:block th:if="${#bools.isFalse(userGroup.basic)}">선택</th:block>
+										</td>
+										<td class="col-type">
+											<th:block th:if="${#bools.isTrue(userGroup.available)}">사용</th:block>
+											<th:block th:if="${#bools.isFalse(userGroup.available)}">미사용</th:block>
+										</td>
+										<td class="col-type">
+											<a th:href="@{/user/list(searchOption=0, searchWord=user_group_name, searchValue=${userGroup.userGroupName})}" class="linkButton">보기</a>
+										</td>
+										<td class="col-type">
+											<a th:href="@{/user-group/menu(userGroupId=${userGroup.userGroupId})}" class="linkButton">수정</a>
+										</td>
+										<td class="col-type">
+											<a th:href="@{/user-group/role(userGroupId=${userGroup.userGroupId})}" class="linkButton">수정</a>
+										</td>
+										<td class="col-type">
+											<a th:href="@{/user-group/modify(userGroupId=${userGroup.userGroupId})}" class="image-button button-edit" th:text="#{modified}"></a>&nbsp;&nbsp;
+											<a th:href="@{/user-group/delete(userGroupId=${userGroup.userGroupId})}" onclick="return deleteUserGroupWarning();" class="image-button button-delete" th:text="#{delete}"></a>
+										</td>
+										<td class="col-date">
+											<p th:text="${#temporals.format(userGroup.insertDate, 'yyyy-MM-dd HH:mm')}"></p>
+										</td>
+									</tr>
+</th:block>
+								</tbody>
+							</table>
+						</div>
+						<!-- E: 사용자 그룹 목록 -->
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="pageCustomScript">
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/{lang}/tree.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript">
+	function deleteUserGroupWarning() {
+		if(confirm("삭제 하시겠습니까?\n그룹에 포함된 사용자도 함께 삭제됩니다.")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+</script>
+</th:block>
+</body>
+</html>

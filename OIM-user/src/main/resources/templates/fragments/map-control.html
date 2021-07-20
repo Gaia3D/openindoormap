@@ -1,0 +1,36 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+    <div id="mapCtrlWrap" class="mapCtrl">
+        <!-- 선택시 button에 on클래스 추가 -->
+        <div class="controlWrap">
+            <button id="mapCtrlHome" class="go"><span>처음</span></button>
+            <button id="mapCtrlFullScreen" class="fs"><span>전체화면</span></button>
+            <button id="mapCtrlMeasure" class="ms"><span>측정</span></button>
+            <button id="mapCtrlDivide" class="ge"><span>화면분할</span></button>
+            <button id="mapCameraFix" class="pf"><span>시점고정</span></button>
+            <button id="mapRenderPosition" class="li"><span>위치조회</span></button>
+            <button id="mapCtrlSetting" class="st"><span>설정</span></button>
+        </div>
+        <div id="controlMeasureWrap" class="controlMeasureWrap" style="display: none">
+            <button id="mapCtrlMeasureDistance" class="ms_di"><span>거리</span></button>
+            <button id="mapCtrlMeasureArea" class="ms_ar"><span>면적</span></button>
+            <button id="mapCtrlMeasureHeight" class="ms_hi"><span>높이</span></button>
+        </div>
+        <div class="controlWrap">
+            <button id="mapCtrlZoomIn" class="zi" title="확대"></button>
+            <button id="mapCtrlZoomOut" class="zo" title="축소"></button>
+        </div>
+        <div id="mapCtrlCompassOut" class="bearing" ondragstart = "function () { return false; }">
+            <div id="mapCtrlCompassIn" class="bearingIn" ondragstart = "function () { return false; }"></div>
+            <div class="bearingInFan" ondragstart = "function () { return false; }">
+            	<svg style="width:100%;height:100%;" height="145" viewBox="0 0 145 145" enable-background="new 0 0 145 145">
+					<path fill="#231815" d="M107.586,36.797c0-0.48-0.22-0.905-0.56-1.193c-0.005-0.005-0.008-0.016-0.013-0.021
+						c-9.653-9.046-22.048-13.569-34.436-13.551c-12.408,0.018-24.836,4.586-34.485,13.687c-0.003,0.003-0.005,0.011-0.008,0.015
+						c-0.305,0.287-0.499,0.691-0.499,1.143c0,0.424,0.169,0.806,0.441,1.088C38.029,37.975,38.034,38,38.034,38l8.925,8.902
+						c0,0,0.023,0.004,0.031,0.005c0.281,0.264,0.657,0.429,1.073,0.429c0.449,0,0.851-0.19,1.137-0.491
+					c13.302-12.237,33.521-12.243,46.818-0.034c0.005,0.005,0.017,0.006,0.022,0.011c0.283,0.279,0.671,0.452,1.101,0.452
+					c0.445,0,0.845-0.187,1.131-0.483l0.001,0l8.854-8.881v-0.002C107.411,37.622,107.586,37.23,107.586,36.797z"/>
+				</svg>
+            </div>
+        </div>
+    </div>
+</html>

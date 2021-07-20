@@ -1,0 +1,24 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="overlaySource" type="text/x-handlebars-template">
+    {{#greaterThan things.length 0}}
+        {{#each things}}
+            <div id="overlay_{{id}}" class="overlayWrap rel">
+                <!-- 맵내 측정소 -->
+                <ul class="dustStation abs {{selected}}" style="top:{{top}}px;left:{{left}}px" data-id="{{id}}" data-name="{{name}}">
+                    <li class="scolor lv{{grade}} brLeft">
+                        <span class="overlay-value">{{valueWithCommas}}</span>
+                        <span>{{unit}}</span>
+                    </li>
+                    <li class="sname">
+                        <p class="stationName">{{stationName}}</p>
+                        <span class="subTit">{{subTitle}}</span>
+                        <span class="overlay-caiText subResult txlv{{grade}}">{{gradeText}}</span>
+                    </li>
+                </ul>
+                <!-- // 맵내 측정소 -->
+            </div>
+        {{/each}}
+    {{else}}
+    {{/greaterThan}}
+</script>
+</html>

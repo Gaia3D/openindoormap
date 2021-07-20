@@ -1,0 +1,23 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<script id="dustMoreSource" type="text/x-handlebars-template">
+<div>
+    <ul class="mResult">
+        {{#greaterThan dataStreams.length 0}}
+        {{#each dataStreams}}
+        <li>
+            <span>{{name}}</span>
+            <span class="result">{{value}}{{unit}}</span>
+        </li>
+        {{/each}}
+        {{else}}
+        <li>
+            <span th:text="#{iot.dust.sensor.info.does.not.exist}"></span>
+        </li>
+        {{/greaterThan}}
+    </ul>
+</div>
+<div class="btnCt">
+    <button type="button" class="hide-more more on" th:title="#{common.folding}" th:text="#{common.folding}" onclick="OIM.sensorThings.closeDetail(this)"></button>
+</div>
+</script>
+</html>
