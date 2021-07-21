@@ -34,10 +34,10 @@
     <div th:replace="~{/iot/dust-template :: #dustListSource}"></div>
     <div th:replace="~{/iot/dust-more-template :: #dustMoreSource}"></div>
     <div th:replace="~{/iot/pagination-template :: #iotPaginationSource}"></div>
-    <script type="text/javascript" th:src="@{/js/{lang}/common/pagination.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/dust-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-    <script type="text/javascript" th:src="@{/js/{lang}/sensorthings/occupancy-sensor-things.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/common/pagination.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/sensorthings/sensor-things.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/sensorthings/dust-sensor-things.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/sensorthings/occupancy-sensor-things.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript">
 
         // 사물인터넷 이벤트 모음

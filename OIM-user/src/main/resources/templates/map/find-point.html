@@ -9,8 +9,8 @@
     <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/externlib/cesium/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}">
     <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/style.css( cacheVersion=${contentCacheVersion})}">
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <style type="text/css">
@@ -48,10 +48,10 @@
 <script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/message_{lang}.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/map-init.js( cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 	//Cesium.Ion.defaultAccessToken = '';
 	//var viewer = new Cesium.Viewer('magoContainer');

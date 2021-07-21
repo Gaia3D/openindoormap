@@ -24,7 +24,7 @@ services:
 #      context: ./doc/docker/geoserver
 #      dockerfile: Dockerfile
     volumes:
-      - C:\data\oim\geoserver:/geoserver-data
+      - oim-geoserver-data:/geoserver-data
     network_mode: "service:db"
 
   rabbitmq:

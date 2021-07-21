@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
 	<!-- range.css 보다 user-style.css 가 뒤에 있어야함	-->
 	<link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}">
     <link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}">
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -174,22 +174,22 @@
     <div th:replace="~{/data/data-dialog-template :: #dataDialogWrap}"></div>
 </body>
 <script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/handlebars-helper.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/cesium/Cesium.js}"></script>
 <script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/wps-request.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/common.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/message_{lang}.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/map-controll.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/ui-controll.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/wps-request.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/data-info.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/user-policy.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/map-data-controll.js( cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/map-init.js( cacheVersion=${contentCacheVersion})}"></script>
 
 <script type="text/javascript" th:inline="javascript">
 

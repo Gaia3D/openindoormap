@@ -1,87 +1,14 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.3.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-	id 'org.asciidoctor.convert' version '1.5.8'
-	id 'java'
+	id "org.asciidoctor.convert" version "1.5.9.2"
 	id 'war'
 }
 
-group = 'io.openindoormap'
-version = '1.0.0'
-sourceCompatibility = '11'
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
-// gradle build -Pprofile=product (develop, test, local)
-final String DEFAULT_PROFILE = 'local'
-
-configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
-repositories {
-	maven {
-		url "https://repo.osgeo.org/repository/release/"
-	}
-	/*
-	maven {
-        url  "https://dl.bintray.com/fraunhoferiosb/Maven"
-    }
-	*/
-	mavenCentral()
-}
-
-sourceSets {
-	main {
-		resources {
-			if (!project.hasProperty('profile') || !profile) {
-				println " ========== > default profile is local. "
-				ext.profile = DEFAULT_PROFILE
-			}
-
-			if (profile == 'product') {
-				println " ===========> profile file is ${profile}"
-				println " ===========> copy from src/main/resources/product to src/main/resources"
-
-				copy {
-					from("src/main/resources/product") {
-						include 'application.properties'
-						include 'openindoormap.properties'
-						include 'logback-spring.xml'
-					}
-					into "src/main/resources"
-				}
-				exclude "**/develop/*"
-			} else if (profile == 'develop') {
-				println " ===========> profile file is ${profile}"
-				println " ===========> copy from src/main/resources/develop to src/main/resources"
-
-				copy {
-					from("src/main/resources/develop") {
-						include 'application.properties'
-						include 'openindoormap.properties'
-						include 'logback-spring.xml'
-					}
-					into "src/main/resources"
-				}
-				exclude "**/product/*"
-			} else {
-				println " ===========> profile file is ${profile}"
-				//srcDir "src/main/resources"
-				exclude "**/product/*"
-				exclude "**/develop/*"
-			}
-		}
-	}
+war {
+	enabled = true
 }
 
 dependencies {
-	implementation project(':common')
+	implementation project(':OIM-common')
 
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
@@ -95,9 +22,7 @@ dependencies {
 	runtimeOnly 'org.postgresql:postgresql'
 
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     compileOnly 'org.projectlombok:lombok:1.18.12'

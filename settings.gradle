@@ -9,17 +9,8 @@
 
 rootProject.name = 'openindoormap'
 
-include ':common'
+include ':OIM-common'
 include ':OIM-admin'
 include ':OIM-user'
 include ':OIM-converter'
 include ':OIM-sensorthings'
-include ':html'
-include ':doc'
-
-//project(':common').projectDir = "$rootDir/common" as File
-//project(':mago3d-admin').projectDir = "$rootDir/mago3d-admin" as File
-//project(':mago3d-user').projectDir = "$rootDir/mago3d-user" as File
-//project(':mago3d-converter').projectDir = "$rootDir/mago3d-converter" as File
-//project(':html').projectDir = "$rootDir/html" as File
-//project(':doc').projectDir = "$rootDir/doc" as File

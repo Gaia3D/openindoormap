@@ -7,13 +7,13 @@
     <meta name="robots" content="index,nofollow"/>
 	<title th:text="#{error.page.title}"></title>
     <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/css/{lang}/style.css(lang=${lang},cacheVersion=${contentCacheVersion})}"/>
+	<link rel="stylesheet" th:href="@{/css/style.css(cacheVersion=${contentCacheVersion})}"/>
 </head>
 
 <body>
 	
 <div id="errorPage" style="width: 100%; text-align: center; padding-top: 200px;">
-	<img th:src="@{/images/{lang}/no_page.png(lang=${lang},cacheVersion=${contentCacheVersion})}">
+	<img th:src="@{/images/{lang}/no_page.png(cacheVersion=${contentCacheVersion})}">
 	<div style="margin-top: 10px; font-size: 16px;">
 		<p th:text="|#{error.code} ${httpStatusCode}|" style="height: 30px;"></p>
 		<p th:text="#{error.message}" style="height: 30px;"></p>

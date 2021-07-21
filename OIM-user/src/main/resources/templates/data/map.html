@@ -12,7 +12,7 @@
 	<link rel="stylesheet" th:href="@{/externlib/geostats/geostats.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/css/{lang}/user-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
@@ -57,7 +57,7 @@
 	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/handlebars-helper.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/handlebars-helper.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
 	<script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -71,31 +71,31 @@
 	<script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
 	<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/map-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/ui-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/district-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/data-info.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/user-policy.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/message_{lang}.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/district-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/search.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/data-info.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/user-policy.js(cacheVersion=${contentCacheVersion})}"></script>
 
 	<!--DS lib-->
 	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
 	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
 	<!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
-	<!--<link rel="stylesheet" th:href="@{/css/{lang}/ds-style.css(lang=${lang}, cacheVersion=${contentCacheVersion})}" />-->
-	<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(lang=${lang},cacheVersion=${contentCacheVersion})}" ></script>-->
+	<!--<link rel="stylesheet" th:href="@{/css/ds-style.css( cacheVersion=${contentCacheVersion})}" />-->
+	<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(cacheVersion=${contentCacheVersion})}" ></script>-->
 
-	<script type="text/javascript" th:src="@{/js/{lang}/layer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/map-data-controll.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/map-init.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/issue-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/map-data-search.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/drawer/line-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/drawer/polygon-drawer.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/terrain-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/{lang}/selected-data-controller.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/layer.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/map-data-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/map-init.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/issue-controller.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/map-data-search.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/drawer/line-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/drawer/polygon-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/terrain-controller.js(cacheVersion=${contentCacheVersion})}"></script>
+	<script type="text/javascript" th:src="@{/js/selected-data-controller.js(cacheVersion=${contentCacheVersion})}"></script>
 
 </head>
 <body>

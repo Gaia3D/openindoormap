@@ -4,3 +4,115 @@
  * This is a general purpose Gradle build.
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds
  */
+
+ buildscript {
+    ext {
+        springBootVersion = '2.3.11.RELEASE'
+    }
+    repositories {
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE"
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'io.openindoormap'
+    version = '1.0.0-SNAPSHOT'
+    sourceCompatibility = '11'
+    compileJava.options.encoding = "UTF-8"
+    compileTestJava.options.encoding = "UTF-8"
+
+    ext {
+        geoToolsVersion = '22.2'
+        lombokVersion = '1.18.12'
+    }
+    repositories {
+        maven {
+            url "https://repo.osgeo.org/repository/release/"
+        }
+        maven {
+            url "https://repo.osgeo.org/repository/Geoserver-releases/"
+        }
+        mavenCentral()
+    }
+
+    configurations {
+        developmentOnly
+        runtimeClasspath {
+            extendsFrom developmentOnly
+        }
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    // gradle build -Pprofile=product (develop, test, local)
+
+    sourceSets {
+        main {
+            resources {
+                if (!project.hasProperty('profile') || !profile) {
+                    println " ========== > default profile is local. "
+                    ext.profile = 'local'
+                }
+
+                if (profile == 'product') {
+                    println " ===========> profile file is ${profile}"
+                    println " ===========> copy from src/main/resources/product to src/main/resources"
+
+                    copy {
+                        from("src/main/resources/product") {
+                            include 'application.properties'
+                            include 'openindoormap.properties'
+                            include 'logback-spring.xml'
+                        }
+                        into "src/main/resources"
+                    }
+                    exclude "**/develop/*"
+                } else if (profile == 'develop') {
+                    println " ===========> profile file is ${profile}"
+                    println " ===========> copy from src/main/resources/develop to src/main/resources"
+
+                    copy {
+                        from("src/main/resources/develop") {
+                            include 'application.properties'
+                            include 'openindoormap.properties'
+                            include 'logback-spring.xml'
+                        }
+                        into "src/main/resources"
+                    }
+                    exclude "**/product/*"
+                } else {
+                    println " ===========> profile file is ${profile}"
+                    //srcDir "src/main/resources"
+                    exclude "**/product/*"
+                    exclude "**/develop/*"
+                }
+            }
+        }
+    }
+
+    // 모든 모듈에서 사용하는 라이브러리
+    dependencies {
+        // https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    }
+}
