@@ -30,16 +30,16 @@
 	<logger name="org.apache.commons" level="info" />
 	<logger name="org.springframework.web" level="info" />
 	<logger name="com.zaxxer.hikari.pool.HikariPool" level="info" />
-	
+
 -->
-	
+
 	<logger name="jdbc" level="OFF"/>
     <logger name="jdbc.sqlonly" level="OFF"/>
+  	<logger name="jdbc.sqltiming" level="DEBUG"/>
   	<logger name="jdbc.audit" level="OFF"/>
   	<logger name="jdbc.resultset" level="OFF"/>
   	<logger name="jdbc.resultsettable" level="OFF"/>
   	<logger name="jdbc.connection" level="OFF"/>
-  	<logger name="jdbc.sqltiming" level="DEBUG"/>
 
 	<logger name="org.springframework" level="INFO" />
 	<logger name="io.openindoormap" level="DEBUG" />
