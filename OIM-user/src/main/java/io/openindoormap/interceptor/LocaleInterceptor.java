@@ -1,23 +1,20 @@
 package io.openindoormap.interceptor;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import io.openindoormap.domain.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Locale;
+import io.openindoormap.domain.Key;
 
 /**
  * Locale 관련 설정
  * Enum은 성능을 위해 사용하지 않음
- *  
+ *
  * @author jeongdae
  *
  */
-@Slf4j
 @Component
 public class LocaleInterceptor extends HandlerInterceptorAdapter {
 
@@ -25,8 +22,9 @@ public class LocaleInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     	String lang = (String)request.getSession().getAttribute(Key.LANG.name());
 		if(lang == null || "".equals(lang)) {
-			Locale myLocale = request.getLocale();
-			lang = myLocale.getLanguage();
+			// Locale myLocale = request.getLocale();
+			// lang = myLocale.getLanguage();
+			lang = "en";
 		}
 
 		String accessibility = "ko-KR";

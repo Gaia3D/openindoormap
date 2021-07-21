@@ -8,7 +8,7 @@
 	<title><th:block th:text="#{data.adjust.page.title}"></th:block></title>
 	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css( cacheVersion=${contentCacheVersion})}">
+	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}">
 	<link rel="stylesheet" th:href="@{/css/style.css( cacheVersion=${contentCacheVersion})}">
 	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -24,7 +24,7 @@
 		<div th:replace="~{/fragments/menu :: #navWrap}"></div>
 	</div>
 	<!-- E: NAVWRAP -->
-	
+
 	<div class="container" style="float:left; width: calc(100% - 78px);">
 		<div style="padding: 20px 20px 0px 10px; font-size: 18px;"><th:block th:text="#{converter.subtitle}"></th:block></div>
 		<!-- TAB -->
@@ -204,17 +204,17 @@
 		</div>
 		</form>
 	</div>
-	
+
 </div>
 <!-- E: WRAP -->
 <script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/js/message_{lang}.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
 	});
-	
+
 	function validate() {
 		if ($("#longitude").val() === "") {
 			alert(JS_MESSAGE["data.longitude.empty"]);
@@ -232,7 +232,7 @@
 			return false;
 		}
 	}
-	
+
 	// 수정
 	var insertDataAdjustLogFlag = true;
 	function insertDataAdjustLog() {
@@ -241,7 +241,7 @@
 		}
 		if(insertDataAdjustLogFlag) {
 			insertDataAdjustLogFlag = false;
-			var formData = $("#dataInfo").serialize();		
+			var formData = $("#dataInfo").serialize();
 			$.ajax({
 				url: "/data-adjust-logs",
 				type: "POST",
@@ -265,7 +265,7 @@
 			alert(JS_MESSAGE["button.dobule.click"]);
 		}
 	}
-	
+
 	// 지도에서 찾기 -- common.js, openFindDataPoint
 	$( "#mapButtion" ).on( "click", function() {
 		//openFindDataPoint("${dataInfo.dataId}", "MODIFY");
@@ -281,7 +281,7 @@
 	            + ", directories=no,status=yes,scrollbars=no,menubar=no,location=no");
 	    //popWin.document.title = layerName;
 	});
-	
+
 </script>
 </body>
 </html>
