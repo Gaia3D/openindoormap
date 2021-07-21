@@ -1,9 +1,13 @@
 package io.openindoormap.interceptor;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import io.openindoormap.domain.Key;
@@ -18,6 +22,9 @@ import io.openindoormap.domain.Key;
 @Component
 public class LocaleInterceptor extends HandlerInterceptorAdapter {
 
+	@Autowired
+	private LocaleResolver localeResolver;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     	String lang = (String)request.getSession().getAttribute(Key.LANG.name());
@@ -25,6 +32,7 @@ public class LocaleInterceptor extends HandlerInterceptorAdapter {
 			// Locale myLocale = request.getLocale();
 			// lang = myLocale.getLanguage();
 			lang = "en";
+			localeResolver.setLocale(request, response, new Locale(lang));
 		}
 
 		String accessibility = "ko-KR";
@@ -39,7 +47,6 @@ public class LocaleInterceptor extends HandlerInterceptorAdapter {
 			lang = "en";
 			accessibility = "en-US";
 		}
-
 		request.setAttribute("lang", lang);
 		request.setAttribute("accessibility", accessibility);
 

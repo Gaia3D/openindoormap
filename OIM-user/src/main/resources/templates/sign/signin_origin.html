@@ -6,7 +6,7 @@
 	<title><th:block th:text="#{signin.page.title}"></th:block></title>
 	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/css/font/font.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(cacheVersion=${contentCacheVersion})}" />
+	<link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
 	<link rel="stylesheet" th:href="@{/css/style.css(cacheVersion=${contentCacheVersion})}" />
 	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
