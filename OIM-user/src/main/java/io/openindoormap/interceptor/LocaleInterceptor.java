@@ -27,12 +27,12 @@ public class LocaleInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    	String lang = (String)request.getSession().getAttribute(Key.LANG.name());
-		if(lang == null || "".equals(lang)) {
-			// Locale myLocale = request.getLocale();
-			// lang = myLocale.getLanguage();
-			lang = "en";
+    	String lang = (String)request.getParameter("lang");
+		if(lang != null && !"".equals(lang)) {
 			localeResolver.setLocale(request, response, new Locale(lang));
+		} else {
+			Locale local = localeResolver.resolveLocale(request);
+			lang = local.getLanguage();
 		}
 
 		String accessibility = "ko-KR";

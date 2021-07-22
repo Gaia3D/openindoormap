@@ -35,8 +35,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import java.util.Collections;
+import java.util.Locale;
 
-//import nz.net.ultraq.thymeleaf.LayoutDialect;
 
 @Slf4j
 @EnableSwagger2
@@ -98,7 +98,9 @@ public class ServletConfig implements WebMvcConfigurer {
 
 	@Bean
 	public LocaleResolver localeResolver() {
-		return new SessionLocaleResolver();
+		SessionLocaleResolver resolver = new SessionLocaleResolver();
+		resolver.setDefaultLocale(Locale.ENGLISH);
+		return resolver;
 	}
 
 	@Bean
@@ -124,8 +126,7 @@ public class ServletConfig implements WebMvcConfigurer {
 		bean.setValidationMessageSource(messageSource());
 		return bean;
 	}
-	
-	
+
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/").setViewName("redirect:/data/map");
@@ -158,7 +159,6 @@ public class ServletConfig implements WebMvcConfigurer {
 			registry.addResourceHandler("/docs/**").addResourceLocations("classpath:static/docs/");
 		}
 	}
-	
 
 	@Bean
 	public RequestDataValueProcessor requestDataValueProcessor() {
@@ -170,8 +170,6 @@ public class ServletConfig implements WebMvcConfigurer {
 	public ModelMapper modelMapper() {
 		return new ModelMapper();
 	}
-	
-	
 
 	@Bean
     public Docket apiDocket() {

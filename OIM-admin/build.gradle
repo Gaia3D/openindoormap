@@ -22,6 +22,9 @@ dependencies {
 
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.4.1'
 
+	// https://mvnrepository.com/artifact/org.bgee.log4jdbc-log4j2/log4jdbc-log4j2-jdbc4.1
+	implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+
 	implementation 'org.apache.httpcomponents:httpclient'
 	implementation 'org.apache.commons:commons-exec:1.3'
 

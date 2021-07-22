@@ -1,9 +1,8 @@
 import io.openindoormap.utils.MessageUtil
 
-
 buildscript {
     dependencies {
-        classpath files('build/classes/java/main')
+        classpath files('build/classes/java/main', 'bin/main')
     }
 }
 

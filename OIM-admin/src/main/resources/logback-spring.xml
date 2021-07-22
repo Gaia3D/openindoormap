@@ -4,7 +4,7 @@
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<Pattern>
-				%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}[%method:%line] - %replace(%msg){'[\r\n]', ''}%n
+				%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}[%method:%line] -%replace(%msg){'(\r\n)\r\n|(\n)\n',  '$1'} %n
 			</Pattern>
 		</layout>
 	</appender>
@@ -25,15 +25,27 @@
 		</encoder>
 	</appender> -->
 
-	<logger name="de.fraunhofer.iosb.ilt.sta" level="info" additivity="false" />
-	<logger name="org.apache.http" level="info" additivity="false" />
-	<logger name="org.apache.tomcat" level="debug" additivity="false" />
-	<logger name="org.apache.commons" level="info" additivity="false" />
-	<logger name="org.springframework" level="info" additivity="false" />
-	<!-- <logger name="org.springframework.web" level="info" additivity="false" /> -->
-	<logger name="com.zaxxer.hikari.pool.HikariPool" level="info" additivity="false" />
-	
-	<root level="debug">
+<!--
+	<logger name="org.apache.tomcat" level="info" />
+	<logger name="org.apache.commons" level="info" />
+	<logger name="org.springframework.web" level="info" />
+	<logger name="com.zaxxer.hikari.pool.HikariPool" level="info" />
+
+-->
+
+	<logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.sqlonly" level="OFF"/>
+  	<logger name="jdbc.sqltiming" level="DEBUG"/>
+  	<logger name="jdbc.audit" level="OFF"/>
+  	<logger name="jdbc.resultset" level="OFF"/>
+  	<logger name="jdbc.resultsettable" level="OFF"/>
+  	<logger name="jdbc.connection" level="OFF"/>
+
+	<logger name="org.springframework" level="INFO" />
+	<logger name="io.openindoormap" level="DEBUG" />
+	<logger name="io.openindoormap.persistence" level="INFO" />
+
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<!-- <appender-ref ref="dailyRollingFileAppender" /> -->
 	</root>

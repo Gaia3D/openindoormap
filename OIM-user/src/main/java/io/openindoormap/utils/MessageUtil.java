@@ -9,9 +9,6 @@ import java.nio.file.Paths;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class MessageUtil {
 	public void makeConfig(String in, String out) throws InvalidPropertiesFormatException, IOException {
 
