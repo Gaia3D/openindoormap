@@ -1,67 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="referrer" content="origin">
     <meta name="viewport" content="width=device-width">
     <meta name="robots" content="index,nofollow"/>
-	<title><th:block th:text="#{data.page.title}"></th:block></title>
-	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/externlib/CesiumUnminified/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}" />
-	<!-- <link rel="stylesheet" th:href="@{/css/ol.css( cacheVersion=${contentCacheVersion})}" /> -->
-	<style type="text/css">
-		.mapWrap {
-			float:right;
-			width: calc(100% - 60px);
-			height: 100%;
-			background-color: #eee;
-		}
+    <title><th:block th:text="#{data.page.title}"></th:block></title>
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/CesiumUnminified/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/user-style_{lang}.css(lang=${lang},cacheVersion=${contentCacheVersion})}">
+    <!-- <link rel="stylesheet" th:href="@{/css/ol.css( cacheVersion=${contentCacheVersion})}" /> -->
+    <style type="text/css">
+        .mapWrap {
+            float:right;
+            width: calc(100% - 60px);
+            height: 100%;
+            background-color: #eee;
+        }
     </style>
 </head>
 <body>
 
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
 <div id="loadingWrap">
-	<div class="loading">
-		<span class="spinner"></span>
-	</div>
+    <div class="loading">
+        <span class="spinner"></span>
+    </div>
 </div>
 <div id="wrap" style="min-height: 560px;"> <!-- 왼쪽 메뉴 높이에 맞춰서 설정해 줘야함 -->
-	<!-- S: NAVWRAP -->
-	<div class="navWrap">
-		<ul id="navWrap" class="nav">
-			<li style="background-image: none;" id="callBuilding" onselectstart="return false;">건물 호출</li>
-			<li style="background-image: none;" id="selectArea"onselectstart="return false;" >영역 선택</li>
-			<li style="background-image: none;" id="heightUp" onselectstart="return false;">증가</li>
-			<li style="background-image: none;" id="heightDown" onselectstart="return false;">감소</li>
-			
-			<li style="background-image: none;" id="drawBig" onselectstart="return false;">84형</li>
-			<li style="background-image: none;" id="drawSmall" onselectstart="return false;">59형</li>
-		</ul>
-		<!-- E: NAVWRAP -->
-		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<div id="searchContent" class="contents fullHeight" style="display:none;">
-				<div th:replace="~{/search/district :: #districtWrap}"></div>
-			</div>
-			<!-- E: CONTENTSBTN -->
-		</div>
-		<div class="contentsBtn">
-			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
-		</div>
-		<!-- E: CONTENTSWRAP -->
+    <!-- S: NAVWRAP -->
+    <div class="navWrap">
+        <ul id="navWrap" class="nav">
+            <li style="background-image: none;" id="callBuilding" onselectstart="return false;">건물 호출</li>
+            <li style="background-image: none;" id="selectArea"onselectstart="return false;" >영역 선택</li>
+            <li style="background-image: none;" id="heightUp" onselectstart="return false;">증가</li>
+            <li style="background-image: none;" id="heightDown" onselectstart="return false;">감소</li>
 
-	</div>
-	<!-- E: NAVWRAP -->
-	<!-- CTRLWRAP -->
-	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
-	<!-- E: CTRLWRAP -->
+            <li style="background-image: none;" id="drawBig" onselectstart="return false;">84형</li>
+            <li style="background-image: none;" id="drawSmall" onselectstart="return false;">59형</li>
+        </ul>
+        <!-- E: NAVWRAP -->
+        <div id="contentsWrap" class="contentsWrap" style="display: none;">
+            <div id="searchContent" class="contents fullHeight" style="display:none;">
+                <div th:replace="~{/search/district :: #districtWrap}"></div>
+            </div>
+            <!-- E: CONTENTSBTN -->
+        </div>
+        <div class="contentsBtn">
+            <button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
+        </div>
+        <!-- E: CONTENTSWRAP -->
 
-	<!-- MAP -->
-	<div id="magoContainer" class="mapWrap">
-	</div>
-	<!-- E: MAP -->
+    </div>
+    <!-- E: NAVWRAP -->
+    <!-- CTRLWRAP -->
+    <!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
+    <!-- E: CTRLWRAP -->
+
+    <!-- MAP -->
+    <div id="magoContainer" class="mapWrap">
+    </div>
+    <!-- E: MAP -->
 </div>
 
 <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -78,462 +79,462 @@
 <script type="text/javascript">
 
 Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857'] = function webMercatorToCartesian3(coordinates){
-	var wmp = new Cesium.WebMercatorProjection();
-	var carto = wmp.unproject(new Cesium.Cartesian3(coordinates[0], coordinates[1], 0));
-	return Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), carto.height);
+    var wmp = new Cesium.WebMercatorProjection();
+    var carto = wmp.unproject(new Cesium.Cartesian3(coordinates[0], coordinates[1], 0));
+    return Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), carto.height);
 }
 
 
 
 var MAGO3D_INSTANCE;
 var OIM = OIM || {
-	policy : {},
-	globe : undefined
+    policy : {},
+    globe : undefined
 };
 
 initPolicy(function(policy, baseLayers){
-	OIM.policy = policy;
-	magoStart();
+    OIM.policy = policy;
+    magoStart();
 });
 var selectArea = false;
 var r;
-function magoStart() {	
-	OIM.policy.initLongitude = 127.007282;
-	OIM.policy.initLatitude = 37.444507;
-	OIM.policy.initAltitude = 3000;
-	OIM.policy.initDuration = 3;
+function magoStart() {
+    OIM.policy.initLongitude = 127.007282;
+    OIM.policy.initLatitude = 37.444507;
+    OIM.policy.initAltitude = 3000;
+    OIM.policy.initDuration = 3;
 
-	OIM.globe = new Mago3D.Mago3d('magoContainer', OIM.policy, undefined, {});
-	
-	var area = new Cesium.WebMapServiceImageryProvider({
-	    url : 'http://192.168.10.98:18080/geoserver/lhdt/wms',
-	    parameters : {
-	    	transparent : true,
-	    	format: "image/png"
-	    },
-	    layers : 'lhdt:lot'
-	});
-	
-	var magoManager = OIM.globe.getMagoManager();
-	var viewer = OIM.globe.getViewer();
-	
-	var osm = new Cesium.OpenStreetMapImageryProvider({
-	    url : 'https://a.tile.openstreetmap.org/'
-	});
-	viewer.imageryLayers.addImageryProvider(osm);
-	viewer.imageryLayers.add(new Cesium.ImageryLayer(area, {alpha : 0.7}));
-	
-	var geoJsonLoader = new Cesium.GeoJsonDataSource();
-	var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-	
-	var drawMode;
-	var drawingModel;
-	var selectedModel;
-	var floorHeight = 3.3;
-	var mnum;
-	var buildings = [];
-	var wkt;
-	r = new Cesium.Resource({
-		url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
-		queryParameters : {
-			service : 'wfs',
-			version : '1.0.0',
-			request : 'GetFeature',
-			typeNames : 'lhdt:lot',
-			srsName : 'EPSG:3857',
-			outputFormat : 'application/json'
-		}
-	});
-	handler.setInputAction(function (e) {
-		
-		
-		if(drawingModel) {
-			drawingModel = undefined;
-			drawMode = undefined;
-			$('#drawBig').removeClass('on');
-			$('#drawSmall').removeClass('on');
-			return false;
-		}
-		
-		if(!selectArea) return false;
-		
-		var scene = viewer.scene;
-        var pickRay = viewer.camera.getPickRay(e.position);
-        
-        var featuresPromise = viewer.imageryLayers.pickImageryLayerInRay(pickRay, scene, test);
-        
-        if(featuresPromise) {
-        	if(selectedModel) {
-        		magoManager.modeler.removeObject(selectedModel);
-        		selectedModel = undefined;
-        		for(var i in buildings) {
-        			magoManager.modeler.removeObject(buildings[i]);
-        		}
-        		buildings = [];
-        	}
-        	
-       	  	var pickedLocation = scene.globe.ellipsoid.cartesianToCartographic(scene.globe.pick(pickRay, scene));
-       	 	var lon = Cesium.Math.toDegrees(pickedLocation.longitude);
-       	 	var lat = Cesium.Math.toDegrees(pickedLocation.latitude);
-       	 	
-       	 	var wfsRequest = getWfsRequest(r, {
-				cql_filter : 'CONTAINS(the_geom, POINT(' + lon + ' ' + lat + '))'
-			});
-       	 	
-       	 	geoJsonLoader.load(wfsRequest).then(function(e) {
-       	 		var entities = e.entities.values;
-       	 		
-       	 		var entity = entities[0];
-       	 		mnum = entity.properties.MNUM;
-       	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-       	 		
-       	 		var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-       	 		wkt = 'POLYGON((';
-       	 		for(var i=0,len=geographicCoordList.geographicCoordsArray.length;i<len;i++) {
-       	 			var gc = geographicCoordList.geographicCoordsArray[i];
-       	 			wkt += gc.longitude + ' ' + gc.latitude
-       	 			if(i!==len-1) {
-       	 				wkt +=','
-       	 			}
-       	 		}
-       	 		wkt += '))';
-       	 		
-       	 		selectedModel = geographicCoordList.getExtrudedMeshRenderableObject(10);
-	       		
-	       	 	selectedModel.setOneColor(0.2, 0.7, 0.8, 0.4);
-		       	selectedModel.attributes.isMovable = false;
-		       	selectedModel.attributes.isSelectable = false;
-		       	selectedModel.attributes.name = "extrudedObject";
-		       	//selectedModel.attributes.selectedColor4 = new Mago3D.Color(1.0, 1.0, 0.0, 0.0); // selectedColor fully transparent.
+    OIM.globe = new Mago3D.Mago3d('magoContainer', OIM.policy, undefined, {});
 
-	    		if (selectedModel.options === undefined)
-	    		{ selectedModel.options = {}; }
-	    		
-	    		selectedModel.options.renderWireframe = false;
-	    		selectedModel.options.renderShaded = true;
-	    		selectedModel.options.depthMask = true;
-	    		
-	    		magoManager.modeler.addObject(selectedModel);
-       	 	});
-       	 	
-       	 	/* var a =wfsRequest.fetchJson();
-       	 	a.then(function(e) {
-       	 		console.info(e);	
-       	 	}); */
+    var area = new Cesium.WebMapServiceImageryProvider({
+        url : 'http://192.168.10.98:18080/geoserver/lhdt/wms',
+        parameters : {
+            transparent : true,
+            format: "image/png"
+        },
+        layers : 'lhdt:lot'
+    });
+
+    var magoManager = OIM.globe.getMagoManager();
+    var viewer = OIM.globe.getViewer();
+
+    var osm = new Cesium.OpenStreetMapImageryProvider({
+        url : 'https://a.tile.openstreetmap.org/'
+    });
+    viewer.imageryLayers.addImageryProvider(osm);
+    viewer.imageryLayers.add(new Cesium.ImageryLayer(area, {alpha : 0.7}));
+
+    var geoJsonLoader = new Cesium.GeoJsonDataSource();
+    var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+
+    var drawMode;
+    var drawingModel;
+    var selectedModel;
+    var floorHeight = 3.3;
+    var mnum;
+    var buildings = [];
+    var wkt;
+    r = new Cesium.Resource({
+        url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
+        queryParameters : {
+            service : 'wfs',
+            version : '1.0.0',
+            request : 'GetFeature',
+            typeNames : 'lhdt:lot',
+            srsName : 'EPSG:3857',
+            outputFormat : 'application/json'
         }
-        
+    });
+    handler.setInputAction(function (e) {
+
+
+        if(drawingModel) {
+            drawingModel = undefined;
+            drawMode = undefined;
+            $('#drawBig').removeClass('on');
+            $('#drawSmall').removeClass('on');
+            return false;
+        }
+
+        if(!selectArea) return false;
+
+        var scene = viewer.scene;
+        var pickRay = viewer.camera.getPickRay(e.position);
+
+        var featuresPromise = viewer.imageryLayers.pickImageryLayerInRay(pickRay, scene, test);
+
+        if(featuresPromise) {
+            if(selectedModel) {
+                magoManager.modeler.removeObject(selectedModel);
+                selectedModel = undefined;
+                for(var i in buildings) {
+                    magoManager.modeler.removeObject(buildings[i]);
+                }
+                buildings = [];
+            }
+
+                 var pickedLocation = scene.globe.ellipsoid.cartesianToCartographic(scene.globe.pick(pickRay, scene));
+                var lon = Cesium.Math.toDegrees(pickedLocation.longitude);
+                var lat = Cesium.Math.toDegrees(pickedLocation.latitude);
+
+                var wfsRequest = getWfsRequest(r, {
+                cql_filter : 'CONTAINS(the_geom, POINT(' + lon + ' ' + lat + '))'
+            });
+
+                geoJsonLoader.load(wfsRequest).then(function(e) {
+                    var entities = e.entities.values;
+
+                    var entity = entities[0];
+                    mnum = entity.properties.MNUM;
+                    var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+
+                    var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+                    wkt = 'POLYGON((';
+                    for(var i=0,len=geographicCoordList.geographicCoordsArray.length;i<len;i++) {
+                        var gc = geographicCoordList.geographicCoordsArray[i];
+                        wkt += gc.longitude + ' ' + gc.latitude
+                        if(i!==len-1) {
+                            wkt +=','
+                        }
+                    }
+                    wkt += '))';
+
+                    selectedModel = geographicCoordList.getExtrudedMeshRenderableObject(10);
+
+                    selectedModel.setOneColor(0.2, 0.7, 0.8, 0.4);
+                   selectedModel.attributes.isMovable = false;
+                   selectedModel.attributes.isSelectable = false;
+                   selectedModel.attributes.name = "extrudedObject";
+                   //selectedModel.attributes.selectedColor4 = new Mago3D.Color(1.0, 1.0, 0.0, 0.0); // selectedColor fully transparent.
+
+                if (selectedModel.options === undefined)
+                { selectedModel.options = {}; }
+
+                selectedModel.options.renderWireframe = false;
+                selectedModel.options.renderShaded = true;
+                selectedModel.options.depthMask = true;
+
+                magoManager.modeler.addObject(selectedModel);
+                });
+
+                /* var a =wfsRequest.fetchJson();
+                a.then(function(e) {
+                    console.info(e);
+                }); */
+        }
+
         function test(il) {
-        	return !il.isBaseLayer();
+            return !il.isBaseLayer();
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-	
-	handler.setInputAction(function (e) {
-		if(!drawMode) return false;
-		
-		var center = Mago3D.ManagerUtils.screenCoordToWorldCoord(undefined, e.endPosition.x, e.endPosition.y, center, undefined, undefined, undefined, magoManager) 
+
+    handler.setInputAction(function (e) {
+        if(!drawMode) return false;
+
+        var center = Mago3D.ManagerUtils.screenCoordToWorldCoord(undefined, e.endPosition.x, e.endPosition.y, center, undefined, undefined, undefined, magoManager)
         //var pickRay = viewer.camera.getPickRay(e.position);
         //var center = new Mago3D.Point3D(pickRay.origin.x,pickRay.origin.y,pickRay.origin.z);
         /* var zAxis = new Mago3D.Point3D(0,0,1);
-        
+
         var magoCenter = new Mago3D.Point3D(center.x,center.y,center.z);
         magoCenter.unitary();
         var upDirection = new Mago3D.Point3D(magoCenter.x, magoCenter.y, magoCenter.z);
         var eastDirection = zAxis.crossProduct(upDirection);
-		var northDirection = upDirection.crossProduct(eastDirection);  
-		
-		eastDirection.unitary();
-		northDirection.unitary(); */
-		
-		/* console.info(eastDirection);
-		console.info(northDirection); */
+        var northDirection = upDirection.crossProduct(eastDirection);
+
+        eastDirection.unitary();
+        northDirection.unitary(); */
+
+        /* console.info(eastDirection);
+        console.info(northDirection); */
         if(!drawingModel)
         {
-        	var tMat = new Mago3D.Matrix4();
-    		Mago3D.Globe.transformMatrixAtCartesianPointWgs84(center.x, center.y, center.z, tMat._floatArrays);
-    		
-        	var cartesians = [];
-        	var halfEdgeLength = Math.sqrt(drawMode === 'big' ? 84 : 59) / 2;
-        	
-        	var lbLocal = new Mago3D.Point3D(-halfEdgeLength, -halfEdgeLength, 0);
-        	var rbLocal = new Mago3D.Point3D(halfEdgeLength, -halfEdgeLength, 0);
-        	var rtLocal = new Mago3D.Point3D(halfEdgeLength, halfEdgeLength, 0);
-        	var ltLocal = new Mago3D.Point3D(-halfEdgeLength, halfEdgeLength, 0);
-        	
-        	var lb = tMat.transformPoint3D(lbLocal, undefined);
-        	var rb = tMat.transformPoint3D(rbLocal, undefined);
-        	var rt = tMat.transformPoint3D(rtLocal, undefined);
-        	var lt = tMat.transformPoint3D(ltLocal, undefined);
-        	
-        	cartesians.push(lb);
-        	cartesians.push(rb);
-        	cartesians.push(rt);
-        	cartesians.push(lt);
-        	
-        	var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(cartesians);
-   	 		var height = floorHeight;
-   	 		
-	   	 	var r = randomNumber(0, 1);
-   	 		var g = randomNumber(0, 1);
-   	 		var b = randomNumber(0, 1);
-   	 		var color = new Mago3D.Color(r,g,b, 1.0);
-   	 		
-   	 		drawingModel = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
-	   	 	drawingModel.geographicCoordList = geographicCoordList;
-	   	 	drawingModel.height = height;
-	       		
-	   	 	drawingModel.setOneColor(r,g,b, 1.0);
-		   	drawingModel.attributes.isMovable = true;
-		   	drawingModel.attributes.isSelectable = true;
-		   	drawingModel.attributes.name = 'drawing';
+            var tMat = new Mago3D.Matrix4();
+            Mago3D.Globe.transformMatrixAtCartesianPointWgs84(center.x, center.y, center.z, tMat._floatArrays);
 
-    		if (drawingModel.options === undefined)
-    		{ drawingModel.options = {}; }
-    		
-    		drawingModel.options.renderWireframe = true;
-    		drawingModel.options.renderShaded = true;
-    		drawingModel.options.depthMask = true;
-    		
-    		magoManager.modeler.addObject(drawingModel, 15);
-    		buildings.push(drawingModel);
+            var cartesians = [];
+            var halfEdgeLength = Math.sqrt(drawMode === 'big' ? 84 : 59) / 2;
+
+            var lbLocal = new Mago3D.Point3D(-halfEdgeLength, -halfEdgeLength, 0);
+            var rbLocal = new Mago3D.Point3D(halfEdgeLength, -halfEdgeLength, 0);
+            var rtLocal = new Mago3D.Point3D(halfEdgeLength, halfEdgeLength, 0);
+            var ltLocal = new Mago3D.Point3D(-halfEdgeLength, halfEdgeLength, 0);
+
+            var lb = tMat.transformPoint3D(lbLocal, undefined);
+            var rb = tMat.transformPoint3D(rbLocal, undefined);
+            var rt = tMat.transformPoint3D(rtLocal, undefined);
+            var lt = tMat.transformPoint3D(ltLocal, undefined);
+
+            cartesians.push(lb);
+            cartesians.push(rb);
+            cartesians.push(rt);
+            cartesians.push(lt);
+
+            var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(cartesians);
+                var height = floorHeight;
+
+                var r = randomNumber(0, 1);
+                var g = randomNumber(0, 1);
+                var b = randomNumber(0, 1);
+                var color = new Mago3D.Color(r,g,b, 1.0);
+
+                drawingModel = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
+                drawingModel.geographicCoordList = geographicCoordList;
+                drawingModel.height = height;
+
+                drawingModel.setOneColor(r,g,b, 1.0);
+               drawingModel.attributes.isMovable = true;
+               drawingModel.attributes.isSelectable = true;
+               drawingModel.attributes.name = 'drawing';
+
+            if (drawingModel.options === undefined)
+            { drawingModel.options = {}; }
+
+            drawingModel.options.renderWireframe = true;
+            drawingModel.options.renderShaded = true;
+            drawingModel.options.depthMask = true;
+
+            magoManager.modeler.addObject(drawingModel, 15);
+            buildings.push(drawingModel);
         } else {
-        	var geolocdm = drawingModel.getGeoLocDataManager();
-        	var geoLocationData = geolocdm.getCurrentGeoLocationData();
-        	
-        	var geo = Mago3D.ManagerUtils.pointToGeographicCoord(center, undefined, magoManager);
-        	
-        	geoLocationData = Mago3D.ManagerUtils.calculateGeoLocationData(geo.longitude, geo.latitude, geo.altitude, undefined, undefined, undefined, geoLocationData, magoManager);
-        }
-        
-    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-	
-	
-	$('#callBuilding').click(function() {
-		if(!wkt) return false;
-		var filter = 'Intersects(the_geom, '  + wkt +')';
-		var building7Resource = new Cesium.Resource({
-			url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
-			queryParameters : {
-				service : 'wfs',
-				version : '1.0.0',
-				request : 'GetFeature',
-				typeNames : 'building_7',
-				srsName : 'EPSG:3857',
-				outputFormat : 'application/json',
-				cql_filter : filter
-				/* ,
-				cql_filter : "MNUM='"+mnum + "'" */
-			}
-		});
-		var building8Resource = new Cesium.Resource({
-			url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
-			queryParameters : {
-				service : 'wfs',
-				version : '1.0.0',
-				request : 'GetFeature',
-				typeNames : 'building_under_8',
-				srsName : 'EPSG:3857',
-				outputFormat : 'application/json',
-				cql_filter : filter
-				/* ,
-				cql_filter : "MNUM='"+mnum + "'" */
-			}
-		});
-		var building20Resource = new Cesium.Resource({
-			url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
-			queryParameters : {
-				service : 'wfs',
-				version : '1.0.0',
-				request : 'GetFeature',
-				typeNames : 'building_under_20',
-				srsName : 'EPSG:3857',
-				outputFormat : 'application/json',
-				cql_filter : filter
-				/* ,
-				cql_filter : "MNUM='"+mnum + "'" */
-			}
-		});
-		
-		
-		var loader7 = geoJsonLoader.load(building7Resource).then(function(e){
-			var entities = e.entities.values;
-   	 		for(var i in entities) {
-   	 			//if(randomNumber(0,100) < 80) continue;
-   	 			
-   	 			var entity = entities[i];
-	   	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-	   	 		
-	   	 		var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-	   	 		var level;
-	   	 		var height = floorHeight * 7;
-	   	 		
-		   	 	var r = randomNumber(0, 1);
-	   	 		var g = randomNumber(0, 1);
-	   	 		var b = randomNumber(0, 1);
-	   	 		var color = new Mago3D.Color(r,g,b, 1.0);
-	   	 		var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
-	   	 		building.geographicCoordList = geographicCoordList;
-	   	 		building.height = height;
-	       		
-	   	 		building.setOneColor(r,g,b, 1.0);
-	   	 		building.attributes.isMovable = true;
-	   	 		building.attributes.isSelectable = true;
-	   	 		building.attributes.name = entity.properties.UFID;
-	   	 		//building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
-	
-	    		if (building.options === undefined)
-	    		{ building.options = {}; }
-	    		
-	    		building.options.renderWireframe = true;
-	    		building.options.renderShaded = true;
-	    		building.options.depthMask = true;
-	    		
-	    		magoManager.modeler.addObject(building, 15);
-	    		buildings.push(building);
-   	 		}
-			
-		});
-		var loader8 = geoJsonLoader.load(building8Resource).then(function(e){
-			var entities = e.entities.values;
-   	 		for(var i in entities) {
-   	 			//if(randomNumber(0,100) < 80) continue;
-   	 			
-   	 			var entity = entities[i];
-	   	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-	   	 		
-	   	 		var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-	   	 		var level;
-	   	 		var height = parseInt(randomNumber(1,8)) * floorHeight;
-	   	 		
-		   	 	var r = randomNumber(0, 1);
-	   	 		var g = randomNumber(0, 1);
-	   	 		var b = randomNumber(0, 1);
-	   	 		var color = new Mago3D.Color(r,g,b, 1.0);
-	   	 		var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
-	   	 		building.geographicCoordList = geographicCoordList;
-	   	 		building.height = height;
-	   	 		
-	   	 		building.setOneColor(r,g,b, 1.0);
-	   	 		building.attributes.isMovable = true;
-	   	 		building.attributes.isSelectable = true;
-	   	 		building.attributes.name = entity.properties.UFID;
-	   	 		//building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
-	
-	    		if (building.options === undefined)
-	    		{ building.options = {}; }
-	    		
-	    		building.options.renderWireframe = true;
-	    		building.options.renderShaded = true;
-	    		building.options.depthMask = true;
-	    		
-	    		magoManager.modeler.addObject(building, 15);
-	    		buildings.push(building);
-   	 		}
-			
-		});
-		var loader20 = geoJsonLoader.load(building20Resource).then(function(e){
-			var entities = e.entities.values;
-   	 		for(var i in entities) {
-   	 			//if(randomNumber(0,100) < 80) continue;
-   	 			
-   	 			var entity = entities[i];
-	   	 		var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
-	   	 		var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
-	   	 		
-	   	 		var level;
-	   	 		var height = parseInt(randomNumber(7,20)) * floorHeight;
-		   	 	var r = randomNumber(0, 1);
-	   	 		var g = randomNumber(0, 1);
-	   	 		var b = randomNumber(0, 1);
-	   	 		var color = new Mago3D.Color(r,g,b, 1.0);
-	   	 		var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
-	   	 		building.geographicCoordList = geographicCoordList;
-	   	 		building.height = height;
+            var geolocdm = drawingModel.getGeoLocDataManager();
+            var geoLocationData = geolocdm.getCurrentGeoLocationData();
 
-	   	 		building.setOneColor(r,g,b, 1.0);
-	   	 		building.attributes.isMovable = true;
-	   	 		building.attributes.isSelectable = true;
-	   	 		building.attributes.name = entity.properties.UFID;
-	   	 		//building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
-	
-	    		if (building.options === undefined)
-	    		{ building.options = {}; }
-	    		
-	    		building.options.renderWireframe = true;
-	    		building.options.renderShaded = true;
-	    		building.options.depthMask = true;
-	    		
-	    		magoManager.modeler.addObject(building, 15);
-	    		buildings.push(building);
-   	 		}
-			
-		});
-	});
-	
-	$('#selectArea').click(function() {
-		$(this).toggleClass('on');
-		selectArea = !selectArea;
-	});
-	
-	$('#heightUp, #heightDown').click(function() {
-		var id = $(this).attr('id');
-		
-		var currentbuilding = OIM.globe.getMagoManager().objectSelected;
-		var height = currentbuilding.height;
-		
-		if(id === 'heightUp') {
-			height = height+floorHeight;
-		} else {
-			height = height-floorHeight;			
-		}
-		var r = randomNumber(0, 1);
- 		var g = randomNumber(0, 1);
- 		var b = randomNumber(0, 1);
- 		var color = new Mago3D.Color(r,g,b, 1.0);
-		var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:currentbuilding.color4.getHexCode(),height:floorHeight});
-		
-		currentbuilding.height = height;
-		currentbuilding.objectsArray = model.objectsArray;
-	});
-	
-	
-	$('#drawBig').click(function() {
-		$('#drawSmall').removeClass('on');
-		if($(this).hasClass('on'))
-		{
-			$(this).removeClass('on');
-			drawMode = undefined;
-		} else {
-			$(this).addClass('on');
-			drawMode = 'big';
-		}
-	});
-	
-	$('#drawSmall').click(function() {
-		$('#drawBig').removeClass('on');
-		if($(this).hasClass('on'))
-		{
-			$(this).removeClass('on');
-			drawMode = undefined;
-		} else {
-			$(this).addClass('on');
-			drawMode = 'small';
-		}
-	});
+            var geo = Mago3D.ManagerUtils.pointToGeographicCoord(center, undefined, magoManager);
+
+            geoLocationData = Mago3D.ManagerUtils.calculateGeoLocationData(geo.longitude, geo.latitude, geo.altitude, undefined, undefined, undefined, geoLocationData, magoManager);
+        }
+
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+
+    $('#callBuilding').click(function() {
+        if(!wkt) return false;
+        var filter = 'Intersects(the_geom, '  + wkt +')';
+        var building7Resource = new Cesium.Resource({
+            url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
+            queryParameters : {
+                service : 'wfs',
+                version : '1.0.0',
+                request : 'GetFeature',
+                typeNames : 'building_7',
+                srsName : 'EPSG:3857',
+                outputFormat : 'application/json',
+                cql_filter : filter
+                /* ,
+                cql_filter : "MNUM='"+mnum + "'" */
+            }
+        });
+        var building8Resource = new Cesium.Resource({
+            url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
+            queryParameters : {
+                service : 'wfs',
+                version : '1.0.0',
+                request : 'GetFeature',
+                typeNames : 'building_under_8',
+                srsName : 'EPSG:3857',
+                outputFormat : 'application/json',
+                cql_filter : filter
+                /* ,
+                cql_filter : "MNUM='"+mnum + "'" */
+            }
+        });
+        var building20Resource = new Cesium.Resource({
+            url : 'http://192.168.10.98:18080/geoserver/lhdt/wfs',
+            queryParameters : {
+                service : 'wfs',
+                version : '1.0.0',
+                request : 'GetFeature',
+                typeNames : 'building_under_20',
+                srsName : 'EPSG:3857',
+                outputFormat : 'application/json',
+                cql_filter : filter
+                /* ,
+                cql_filter : "MNUM='"+mnum + "'" */
+            }
+        });
+
+
+        var loader7 = geoJsonLoader.load(building7Resource).then(function(e){
+            var entities = e.entities.values;
+                for(var i in entities) {
+                    //if(randomNumber(0,100) < 80) continue;
+
+                    var entity = entities[i];
+                    var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+
+                    var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+                    var level;
+                    var height = floorHeight * 7;
+
+                    var r = randomNumber(0, 1);
+                    var g = randomNumber(0, 1);
+                    var b = randomNumber(0, 1);
+                    var color = new Mago3D.Color(r,g,b, 1.0);
+                    var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
+                    building.geographicCoordList = geographicCoordList;
+                    building.height = height;
+
+                    building.setOneColor(r,g,b, 1.0);
+                    building.attributes.isMovable = true;
+                    building.attributes.isSelectable = true;
+                    building.attributes.name = entity.properties.UFID;
+                    //building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
+
+                if (building.options === undefined)
+                { building.options = {}; }
+
+                building.options.renderWireframe = true;
+                building.options.renderShaded = true;
+                building.options.depthMask = true;
+
+                magoManager.modeler.addObject(building, 15);
+                buildings.push(building);
+                }
+
+        });
+        var loader8 = geoJsonLoader.load(building8Resource).then(function(e){
+            var entities = e.entities.values;
+                for(var i in entities) {
+                    //if(randomNumber(0,100) < 80) continue;
+
+                    var entity = entities[i];
+                    var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+
+                    var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+                    var level;
+                    var height = parseInt(randomNumber(1,8)) * floorHeight;
+
+                    var r = randomNumber(0, 1);
+                    var g = randomNumber(0, 1);
+                    var b = randomNumber(0, 1);
+                    var color = new Mago3D.Color(r,g,b, 1.0);
+                    var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
+                    building.geographicCoordList = geographicCoordList;
+                    building.height = height;
+
+                    building.setOneColor(r,g,b, 1.0);
+                    building.attributes.isMovable = true;
+                    building.attributes.isSelectable = true;
+                    building.attributes.name = entity.properties.UFID;
+                    //building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
+
+                if (building.options === undefined)
+                { building.options = {}; }
+
+                building.options.renderWireframe = true;
+                building.options.renderShaded = true;
+                building.options.depthMask = true;
+
+                magoManager.modeler.addObject(building, 15);
+                buildings.push(building);
+                }
+
+        });
+        var loader20 = geoJsonLoader.load(building20Resource).then(function(e){
+            var entities = e.entities.values;
+                for(var i in entities) {
+                    //if(randomNumber(0,100) < 80) continue;
+
+                    var entity = entities[i];
+                    var polygonHierarchy  = entity.polygon.hierarchy.getValue().positions;
+                    var geographicCoordList = Mago3D.GeographicCoordsList.fromCartesians(polygonHierarchy.reverse());
+
+                    var level;
+                    var height = parseInt(randomNumber(7,20)) * floorHeight;
+                    var r = randomNumber(0, 1);
+                    var g = randomNumber(0, 1);
+                    var b = randomNumber(0, 1);
+                    var color = new Mago3D.Color(r,g,b, 1.0);
+                    var building = geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:color.getHexCode(),height:floorHeight});
+                    building.geographicCoordList = geographicCoordList;
+                    building.height = height;
+
+                    building.setOneColor(r,g,b, 1.0);
+                    building.attributes.isMovable = true;
+                    building.attributes.isSelectable = true;
+                    building.attributes.name = entity.properties.UFID;
+                    //building.attributes.selectedColor4 = new Mago3D.Color(1.5*r,1.5*g,1.5*b, 1.0); // selectedColor fully transparent.
+
+                if (building.options === undefined)
+                { building.options = {}; }
+
+                building.options.renderWireframe = true;
+                building.options.renderShaded = true;
+                building.options.depthMask = true;
+
+                magoManager.modeler.addObject(building, 15);
+                buildings.push(building);
+                }
+
+        });
+    });
+
+    $('#selectArea').click(function() {
+        $(this).toggleClass('on');
+        selectArea = !selectArea;
+    });
+
+    $('#heightUp, #heightDown').click(function() {
+        var id = $(this).attr('id');
+
+        var currentbuilding = OIM.globe.getMagoManager().objectSelected;
+        var height = currentbuilding.height;
+
+        if(id === 'heightUp') {
+            height = height+floorHeight;
+        } else {
+            height = height-floorHeight;
+        }
+        var r = randomNumber(0, 1);
+         var g = randomNumber(0, 1);
+         var b = randomNumber(0, 1);
+         var color = new Mago3D.Color(r,g,b, 1.0);
+        var model = currentbuilding.geographicCoordList.getExtrudedMeshRenderableObject(height, undefined, undefined, undefined, undefined,{color:currentbuilding.color4.getHexCode(),height:floorHeight});
+
+        currentbuilding.height = height;
+        currentbuilding.objectsArray = model.objectsArray;
+    });
+
+
+    $('#drawBig').click(function() {
+        $('#drawSmall').removeClass('on');
+        if($(this).hasClass('on'))
+        {
+            $(this).removeClass('on');
+            drawMode = undefined;
+        } else {
+            $(this).addClass('on');
+            drawMode = 'big';
+        }
+    });
+
+    $('#drawSmall').click(function() {
+        $('#drawBig').removeClass('on');
+        if($(this).hasClass('on'))
+        {
+            $(this).removeClass('on');
+            drawMode = undefined;
+        } else {
+            $(this).addClass('on');
+            drawMode = 'small';
+        }
+    });
 }
 
 
 function getWfsRequest(res, appendParam) {
-	return r.getDerivedResource({
-		queryParameters : appendParam
-	})
+    return r.getDerivedResource({
+        queryParameters : appendParam
+    })
 }
 
-function randomNumber(min, max) {  
-    return Math.random() * (max - min) + min; 
-}  
+function randomNumber(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
 function Area() {
-	
+
 }
 </script>
 </body>

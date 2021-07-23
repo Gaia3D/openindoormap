@@ -1,101 +1,102 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="referrer" content="origin">
     <meta name="viewport" content="width=device-width">
     <meta name="robots" content="index,nofollow"/>
-	<title><th:block th:text="#{data.page.title}"></th:block></title>
-	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/externlib/CesiumUnminified/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/geostats/geostats.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
-	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
-	<style type="text/css">
-		.mapWrap {
-			float:right;
-			width: calc(100% - 60px);
-			height: 100%;
-			background-color: #eee;
-		}
-		.mapWrap2 {
-			float:right;
-			width: calc(50% - 60px);
-			height: 100%;
-			background-color: #eee;
-			display:none;
-			border-right: 3px solid #ccc;
-		}
-		#baseMapToggle div.on,#terrainToggle div.on {
-			border-color : #0475F4 !important;
-			border-width : 2px !important;
-		}
-		#baseMapToggle div.on img,#terrainToggle div.on img {
-			border-color : #0475F4 !important;
-		}
-		.positionBox {
-			display : none;
-		    width: 120px;
-		    height: 100px;
-		    position: absolute;
-		    bottom: 40px;
-		    left: 439px;
-		    background: #283651;
-		    z-index: 200;
-		    border-radius: 10px;
-		    border: 2px solid #B4BBE7;
-		    opacity: 0.7;
-		}
+    <title><th:block th:text="#{data.page.title}"></th:block></title>
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/CesiumUnminified/Widgets/widgets.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/geostats/geostats.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/kotSlider/range.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/user-style_{lang}.css(lang=${lang},cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/json-viewer/json-viewer.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/externlib/css-toggle-switch/toggle-switch.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.css(cacheVersion=${contentCacheVersion})}" />
+    <style type="text/css">
+        .mapWrap {
+            float:right;
+            width: calc(100% - 60px);
+            height: 100%;
+            background-color: #eee;
+        }
+        .mapWrap2 {
+            float:right;
+            width: calc(50% - 60px);
+            height: 100%;
+            background-color: #eee;
+            display:none;
+            border-right: 3px solid #ccc;
+        }
+        #baseMapToggle div.on,#terrainToggle div.on {
+            border-color : #0475F4 !important;
+            border-width : 2px !important;
+        }
+        #baseMapToggle div.on img,#terrainToggle div.on img {
+            border-color : #0475F4 !important;
+        }
+        .positionBox {
+            display : none;
+            width: 120px;
+            height: 100px;
+            position: absolute;
+            bottom: 40px;
+            left: 439px;
+            background: #283651;
+            z-index: 200;
+            border-radius: 10px;
+            border: 2px solid #B4BBE7;
+            opacity: 0.7;
+        }
     </style>
 
-	<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/handlebars-helper.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
-	<script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/hammerjs/hammer.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/chartjs-plugin-zoom/chartjs-plugin-zoom.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/district-controll.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/search.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/data-info.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/user-policy.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/json-viewer/json-viewer.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/handlebars-4.1.2/handlebars.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/handlebars-helper.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/CesiumUnminified/Cesium.js}"></script>
+    <script type="text/javascript" th:src="@{/externlib/cesium-geoserver-terrain-provider/GeoserverTerrainProvider.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/geostats/geostats.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/moment-2.22.2/moment-with-locales.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/chartjs/Chart.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/hammerjs/hammer.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/chartjs-plugin-zoom/chartjs-plugin-zoom.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/kotSlider/range.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding-indexes.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/decodeTextAlternative/encoding.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/externlib/tuidatepicker-4.0.3/tui-date-picker.min.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/mago3d.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/district-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/search.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/data-info.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/user-policy.js(cacheVersion=${contentCacheVersion})}"></script>
 
-	<!--DS lib-->
-	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
-	<!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
-	<!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
-	<!--<link rel="stylesheet" th:href="@{/css/ds-style.css( cacheVersion=${contentCacheVersion})}" />-->
-	<!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(cacheVersion=${contentCacheVersion})}" ></script>-->
+    <!--DS lib-->
+    <!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer.js(cacheVersion=${contentCacheVersion})}"></script>-->
+    <!--<script type="text/javascript" th:src="@{/externlib/terraformer/terraformer-wkt-parser.js(cacheVersion=${contentCacheVersion})}"></script>-->
+    <!--<link rel="stylesheet" th:href="@{/externlib/toastr/toastr.css(cacheVersion=${contentCacheVersion})}" />-->
+    <!--<link rel="stylesheet" th:href="@{/css/ds-style.css( cacheVersion=${contentCacheVersion})}" />-->
+    <!--<script type="text/javascript" th:src="@{/externlib/toastr/toastr.min.js(cacheVersion=${contentCacheVersion})}" ></script>-->
 
-	<script type="text/javascript" th:src="@{/js/layer.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/map-data-controll.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/map-init.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/issue-controller.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/map-data-search.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/drawer/line-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/drawer/polygon-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/terrain-controller.js(cacheVersion=${contentCacheVersion})}"></script>
-	<script type="text/javascript" th:src="@{/js/selected-data-controller.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/layer.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/map-data-controll.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/map-init.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/issue-controller.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/map-data-search.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/drawer/line-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/drawer/polygon-drawer.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/terrain-controller.js(cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/selected-data-controller.js(cacheVersion=${contentCacheVersion})}"></script>
 
 </head>
 <body>
@@ -103,104 +104,104 @@
 <!-- S: HEADER WRAP -->
 <div th:replace="~{/fragments/header :: #headerWrap}"></div>
 <div id="loadingWrap">
-	<div class="loading">
-		<span class="spinner"></span>
-	</div>
+    <div class="loading">
+        <span class="spinner"></span>
+    </div>
 </div>
 <!-- E: LOADING WRAP -->
 
 <!-- S: WRAP -->
 <div id="wrap" style="min-height: 560px;"> <!-- 왼쪽 메뉴 높이에 맞춰서 설정해 줘야함 -->
 
-	<!-- S: NAV WRAP -->
-	<div class="navWrap">
+    <!-- S: NAV WRAP -->
+    <div class="navWrap">
 
-		<!-- S: NAV -->
-		<div th:replace="~{/fragments/menu :: #navWrap}"></div>
-		<!-- E: NAV -->
+        <!-- S: NAV -->
+        <div th:replace="~{/fragments/menu :: #navWrap}"></div>
+        <!-- E: NAV -->
 
-		<!-- S: CONTENTS WRAP -->
-		<div id="contentsWrap" class="contentsWrap" style="display: none;">
-			<!-- S: DATA -->
-			<div th:replace="~{/data/data :: #dataContent}"></div>
-			<!-- E: DATA -->
-			<!-- S: LAYER -->
-			<div th:replace="~{/layer/list :: #layerContent}"></div>
-			<!-- E: LAYER -->
-			<!-- S: IoT -->
-			<div th:replace="~{/iot/list :: #iotContent}"></div>
-			<!-- E: IoT -->
-			<!-- S: SETTING -->
-			<div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
-			<!-- E: SETTING -->
-		</div>
-		<!-- E: CONTENTS WRAP -->
+        <!-- S: CONTENTS WRAP -->
+        <div id="contentsWrap" class="contentsWrap" style="display: none;">
+            <!-- S: DATA -->
+            <div th:replace="~{/data/data :: #dataContent}"></div>
+            <!-- E: DATA -->
+            <!-- S: LAYER -->
+            <div th:replace="~{/layer/list :: #layerContent}"></div>
+            <!-- E: LAYER -->
+            <!-- S: IoT -->
+            <div th:replace="~{/iot/list :: #iotContent}"></div>
+            <!-- E: IoT -->
+            <!-- S: SETTING -->
+            <div th:replace="~{/user-policy/modify :: #userPolicyContent}"></div>
+            <!-- E: SETTING -->
+        </div>
+        <!-- E: CONTENTS WRAP -->
 
-		<!-- S: CONTENTS BTN -->
-		<div class="contentsBtn">
-			<button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
-		</div>
-		<!-- E: CONTENTS BTN -->
-	</div>
-	<!-- E: NAV WRAP -->
+        <!-- S: CONTENTS BTN -->
+        <div class="contentsBtn">
+            <button type="button" id="closeLeftBtn" th:title="#{common.close}" style="display:none;">Close</button>
+        </div>
+        <!-- E: CONTENTS BTN -->
+    </div>
+    <!-- E: NAV WRAP -->
 
-	<!-- S: DATA FILTER -->
-	<div th:replace="~{/data/data-filter :: #searchFilterContent}"></div>
-	<!-- E: DATA FILTER -->
+    <!-- S: DATA FILTER -->
+    <div th:replace="~{/data/data-filter :: #searchFilterContent}"></div>
+    <!-- E: DATA FILTER -->
 
-	<!-- S: CTRL WRAP -->
-	<!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
-	<!-- E: CTRL WRAP -->
+    <!-- S: CTRL WRAP -->
+    <!-- <div th:replace="~{/fragments/toolbar :: #toolbarWrap}"></div> -->
+    <!-- E: CTRL WRAP -->
 
-	<!-- S: MAP -->
-	<div id="magoContainer" class="mapWrap">
+    <!-- S: MAP -->
+    <div id="magoContainer" class="mapWrap">
 
-		<div id="overlayDHTML"></div>
-		<div id="buildingInfoDHTML"></div>
+        <div id="overlayDHTML"></div>
+        <div id="buildingInfoDHTML"></div>
 
-		<!-- S: GNB WRAP -->
-		<!-- <div th:replace="~{/fragments/global-search :: #gnbWrap}"></div> -->
-		<!-- E: GNB WRAP -->
+        <!-- S: GNB WRAP -->
+        <!-- <div th:replace="~{/fragments/global-search :: #gnbWrap}"></div> -->
+        <!-- E: GNB WRAP -->
 
-		<!-- S: MAP CTRL WRAP -->
-		<div th:replace="~{/fragments/map-control :: #mapCtrlWrap}"></div>
-		<!-- E: MAP CTRL WRAP -->
+        <!-- S: MAP CTRL WRAP -->
+        <div th:replace="~{/fragments/map-control :: #mapCtrlWrap}"></div>
+        <!-- E: MAP CTRL WRAP -->
 
-		<!-- S: MAP SETTING WRAP -->
-		<div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
-		<!-- E: MAP SETTING WRAP -->
+        <!-- S: MAP SETTING WRAP -->
+        <div th:replace="~{/fragments/map-setting :: #mapSettingWrap}"></div>
+        <!-- E: MAP SETTING WRAP -->
 
-		<!-- S: DATA CONTROL WRAP -->
-		<div th:replace="~{/fragments/data-control :: #dataControlWrap}"></div>
-		<!-- E: DATA CONTROL WRAP -->
+        <!-- S: DATA CONTROL WRAP -->
+        <div th:replace="~{/fragments/data-control :: #dataControlWrap}"></div>
+        <!-- E: DATA CONTROL WRAP -->
 
-		<!-- S: BASE MAP TOGGLE -->
-		<!-- 토글주석 -->
-		<!-- <div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div> -->
-		<!-- E: BASE MAP TOGGLE -->
+        <!-- S: BASE MAP TOGGLE -->
+        <!-- 토글주석 -->
+        <!-- <div th:replace="~{/fragments/base-map :: #baseMapToggle}"></div> -->
+        <!-- E: BASE MAP TOGGLE -->
 
-		<!-- S: BASE MAP TOGGLE -->
-		<!-- 토글주석 -->
-		<!-- <div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div> -->
-		<!-- E: BASE MAP TOGGLE -->
+        <!-- S: BASE MAP TOGGLE -->
+        <!-- 토글주석 -->
+        <!-- <div th:replace="~{/fragments/terrain-toggle :: #terrainToggle}"></div> -->
+        <!-- E: BASE MAP TOGGLE -->
 
-		<div class="sliderWrap" id="saRange">
-			<label for="timeInput" class="hiddenTag">saRange</label>
-			<input id="timeInput"/>
-		</div>
+        <div class="sliderWrap" id="saRange">
+            <label for="timeInput" class="hiddenTag">saRange</label>
+            <input id="timeInput"/>
+        </div>
 
-		<div class="positionBox" id="positionBox">
-			<button type="button" style="float: right;width: 20px;">X</button>
-			<div style="color: #D2D4E1; margin: 20px 0 0 10px;">
-				<span id="positionBoxLongitude" style="display: block;">D2D4E1</span>
-				<span id="positionBoxLatitude" style="display: block;">D2D4E1</span>
-				<span id="positionBoxHeight" style="display: block;">D2D4E1</span>
-			</div>
-		</div>
+        <div class="positionBox" id="positionBox">
+            <button type="button" style="float: right;width: 20px;">X</button>
+            <div style="color: #D2D4E1; margin: 20px 0 0 10px;">
+                <span id="positionBoxLongitude" style="display: block;">D2D4E1</span>
+                <span id="positionBoxLatitude" style="display: block;">D2D4E1</span>
+                <span id="positionBoxHeight" style="display: block;">D2D4E1</span>
+            </div>
+        </div>
 
-	</div>
-	<div id="magoDivideContainer" class="mapWrap2"></div>
-	<!-- E: MAP -->
+    </div>
+    <div id="magoDivideContainer" class="mapWrap2"></div>
+    <!-- E: MAP -->
 </div>
 <!-- E: WRAP -->
 
@@ -217,441 +218,441 @@
 
 <script type="text/javascript">
 
-	window.CESIUM_BASE_URL = '/externlib/CesiumUnminified/';
-	function webMercatorToCartesian3(coordinates){
-		var wmp = new Cesium.WebMercatorProjection();
-		var carto = wmp.unproject(new Cesium.Cartesian3(coordinates[0], coordinates[1], 0));
-		return Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), carto.height);
-	}
-	if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913']) {
-		Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913'] = webMercatorToCartesian3;
-	}
-	if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857']) {
-		Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857'] = webMercatorToCartesian3;
-	}
+    window.CESIUM_BASE_URL = '/externlib/CesiumUnminified/';
+    function webMercatorToCartesian3(coordinates){
+        var wmp = new Cesium.WebMercatorProjection();
+        var carto = wmp.unproject(new Cesium.Cartesian3(coordinates[0], coordinates[1], 0));
+        return Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(carto.longitude), Cesium.Math.toDegrees(carto.latitude), carto.height);
+    }
+    if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913']) {
+        Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::900913'] = webMercatorToCartesian3;
+    }
+    if(!Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857']) {
+        Cesium.GeoJsonDataSource.crsNames['urn:ogc:def:crs:EPSG::3857'] = webMercatorToCartesian3;
+    }
 
-	var MAGO3D_INSTANCE;
-	var MAGO3D_DIVIDE_INSTANCE;
-	var OIM = OIM || {
-		policy : {},
-		dataGroup : {},
-		baseLayers : {},
-		userId : '[[${owner}]]'
-	};
-	var segments2dObj = {};
-	let sensorThings;
+    var MAGO3D_INSTANCE;
+    var MAGO3D_DIVIDE_INSTANCE;
+    var OIM = OIM || {
+        policy : {},
+        dataGroup : {},
+        baseLayers : {},
+        userId : '[[${owner}]]'
+    };
+    var segments2dObj = {};
+    let sensorThings;
 
-	initPolicy(function(policy, baseLayers){
-		OIM.policy = policy;
-		OIM.baseLayers = baseLayers;
-		magoInit();
-	});
+    initPolicy(function(policy, baseLayers){
+        OIM.policy = policy;
+        OIM.baseLayers = baseLayers;
+        magoInit();
+    });
 
-	function magoInit() {
-		var geoPolicyJson = OIM.policy;
-		var option = {};
-		option.defaultControl = {};
-		option.defaultControl.zoom = false;
-		option.defaultControl.initCamera = false;
-		option.defaultControl.fullScreen = false;
-		option.defaultControl.measure = false;
-		option.defaultControl.tools = false;
-		option.defaultControl.attribution = false;
-		option.defaultControl.overviewMap = true;
+    function magoInit() {
+        var geoPolicyJson = OIM.policy;
+        var option = {};
+        option.defaultControl = {};
+        option.defaultControl.zoom = false;
+        option.defaultControl.initCamera = false;
+        option.defaultControl.fullScreen = false;
+        option.defaultControl.measure = false;
+        option.defaultControl.tools = false;
+        option.defaultControl.attribution = false;
+        option.defaultControl.overviewMap = true;
 
-		/**
-		 * @param {Stirng} containerId container div id. required.
-		 * @param {object} serverPolicy mage3d geopolicy. required.
-		 * @param {object} callback loadstart callback, loadend callback. option.
-		 * @param {object} options  viewer parameter. option.
-		 * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
-		 */
-		MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, option);
+        /**
+         * @param {Stirng} containerId container div id. required.
+         * @param {object} serverPolicy mage3d geopolicy. required.
+         * @param {object} callback loadstart callback, loadend callback. option.
+         * @param {object} options  viewer parameter. option.
+         * @param {Cesium.Viewer} legacyViewer 타 시스템과의 연동의 경우 view 객체가 생성되어서 넘어 오는 경우가 있음. option.
+         */
+        MAGO3D_INSTANCE = new Mago3D.Mago3d('magoContainer', geoPolicyJson, {loadend : magoLoadEnd}, option);
 
-	}
+    }
 
-	function magoLoadEnd(e) {
-		var magoInstance = e;
-		var geoPolicyJson = OIM.policy;
-		var viewer = magoInstance.getViewer();
-		var magoManager = magoInstance.getMagoManager();
-		var f4dController = magoInstance.getF4dController();
+    function magoLoadEnd(e) {
+        var magoInstance = e;
+        var geoPolicyJson = OIM.policy;
+        var viewer = magoInstance.getViewer();
+        var magoManager = magoInstance.getMagoManager();
+        var f4dController = magoInstance.getF4dController();
 
-		viewer.dataSources.dataSourceAdded.addEventListener(function () {
-			stopLoading();
-		});
+        viewer.dataSources.dataSourceAdded.addEventListener(function () {
+            stopLoading();
+        });
 
-		// TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
-		if (viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
-		viewer.scene.globe.depthTestAgainstTerrain = true;
-		//viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
+        // TODO : 세슘 MAP 선택 UI 제거,엔진에서 처리로 변경 예정.
+        if (viewer.baseLayerPicker) viewer.baseLayerPicker.destroy();
+        viewer.scene.globe.depthTestAgainstTerrain = true;
+        //viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10;
 
-		// 기본 레이어 랜더링
-		setTimeout(function(){
-			OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
-			OIM.map.initLayer();
-			cesiumCreditAlt(); 		// 웹 접근성
-		}, geoPolicyJson.initDuration * 1000);
+        // 기본 레이어 랜더링
+        setTimeout(function(){
+            OIM.map = new mapInit(magoInstance, OIM.baseLayers, geoPolicyJson);
+            OIM.map.initLayer();
+            cesiumCreditAlt(); 		// 웹 접근성
+        }, geoPolicyJson.initDuration * 1000);
 
-		// 툴바
-		mapControllEvent(magoInstance);
+        // 툴바
+        mapControllEvent(magoInstance);
 
-		// 지도상에 데이터 다루는거
-		MapDataControll(magoInstance);
+        // 지도상에 데이터 다루는거
+        MapDataControll(magoInstance);
 
-		// 행정 구역 이동
-		// DistrictControll(magoInstance);
+        // 행정 구역 이동
+        // DistrictControll(magoInstance);
 
-		// 데이터
-		dataGroupList();
-		mapDataInfoList(1, {searchWord: "data_name", searchValue: null, searchOption: "1", dataGroupId: null, dataType: null});
-		//mapDataGroupList(1, null);
-		//mapDataInfoList(1, null, null, null);
+        // 데이터
+        dataGroupList();
+        mapDataInfoList(1, {searchWord: "data_name", searchValue: null, searchOption: "1", dataGroupId: null, dataType: null});
+        //mapDataGroupList(1, null);
+        //mapDataInfoList(1, null, null, null);
 
-		// 환경 설정
-		UserPolicy(magoInstance);
+        // 환경 설정
+        UserPolicy(magoInstance);
 
-		//AnalsLandScapeView(viewer, magoInstance);
+        //AnalsLandScapeView(viewer, magoInstance);
 
-		// 이슈 등록
-		OIM.issueController = new IssueController(magoInstance);
+        // 이슈 등록
+        OIM.issueController = new IssueController(magoInstance);
 
-		// 3D 객체 선택
-		OIM.selectedDataController = new SelectedDataController(e);
+        // 3D 객체 선택
+        OIM.selectedDataController = new SelectedDataController(e);
 
-		// 나침반 시작
-		//var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
-		//mapControllEvent(e);
+        // 나침반 시작
+        //var compass = new Compass(viewer, document.getElementById('mapCtrlCompassOut'));
+        //mapControllEvent(e);
 
-		// 사물 인터넷
-		OIM.sensorThings = new SensorThings(magoInstance);
-		OIM.sensorThings = OIM.sensorThings.create();
-		OIM.sensorThings.setCameraMoveEvent();
-		OIM.sensorThings.initF4dData();
+        // 사물 인터넷
+        OIM.sensorThings = new SensorThings(magoInstance);
+        OIM.sensorThings = OIM.sensorThings.create();
+        OIM.sensorThings.setCameraMoveEvent();
+        OIM.sensorThings.initF4dData();
 
-	}
+    }
 
-	// smart tiling data flyTo
-	function gotoFly(longitude, latitude, altitude) {
-		event.stopPropagation();
-		if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
-			alert(JS_MESSAGE["location.invalid"]);
-			return;
-		}
-		gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, 500, 3);
-		hereIamMarker(longitude, latitude, altitude);
-	}
+    // smart tiling data flyTo
+    function gotoFly(longitude, latitude, altitude) {
+        event.stopPropagation();
+        if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
+            alert(JS_MESSAGE["location.invalid"]);
+            return;
+        }
+        gotoFlyAPI(MAGO3D_INSTANCE, longitude, latitude, 500, 3);
+        hereIamMarker(longitude, latitude, altitude);
+    }
 
-	// 데이터로 이동
-	function flyTo(dataGroupId, dataKey) {
-		event.stopPropagation();
-		if (dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
-			alert(JS_MESSAGE["location.invalid"]);
-			return;
-		}
-		// searchDataAPI
-		searchDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey);
+    // 데이터로 이동
+    function flyTo(dataGroupId, dataKey) {
+        event.stopPropagation();
+        if (dataGroupId === null || dataGroupId === '' || dataKey === null || dataKey === '') {
+            alert(JS_MESSAGE["location.invalid"]);
+            return;
+        }
+        // searchDataAPI
+        searchDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey);
 
-		var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
-		var geographic = node.data.bbox.geographicCoord;
-		hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
-	}
+        var node = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodeByDataKey(dataGroupId, dataKey);
+        var geographic = node.data.bbox.geographicCoord;
+        hereIamMarker(geographic.longitude, geographic.latitude, geographic.altitude);
+    }
 
-	// 그룹 위치로 이동
-	function flyToGroup(longitude, latitude, altitude, duration) {
-		event.stopPropagation();
-		if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
-			alert(JS_MESSAGE["location.invalid"]);
-			return;
-		}
-		gotoFlyAPI(MAGO3D_INSTANCE, parseFloat(longitude), parseFloat(latitude), parseFloat(altitude), parseFloat(duration));
-	}
+    // 그룹 위치로 이동
+    function flyToGroup(longitude, latitude, altitude, duration) {
+        event.stopPropagation();
+        if (longitude === null || longitude === '' || latitude === null || latitude === '' || altitude === null || altitude === '') {
+            alert(JS_MESSAGE["location.invalid"]);
+            return;
+        }
+        gotoFlyAPI(MAGO3D_INSTANCE, parseFloat(longitude), parseFloat(latitude), parseFloat(altitude), parseFloat(duration));
+    }
 
-	var hereIamTimeOut;
-	function hereIamMarker(longitude, latitude, altitude) {
-		var magoManager = MAGO3D_INSTANCE.getMagoManager();
-		if(!magoManager.speechBubble) {
-			magoManager.speechBubble = new Mago3D.SpeechBubble();
-		}
-		var sb = magoManager.speechBubble;
-		removeHearIam();
-		if(hereIamTimeOut) {
-			clearTimeout(hereIamTimeOut);
-		}
-		var commentTextOption = {
-			pixel:12,
-			color:'black',
-			borderColor:'white',
-			text: JS_MESSAGE["here.it.is"]
-		}
+    var hereIamTimeOut;
+    function hereIamMarker(longitude, latitude, altitude) {
+        var magoManager = MAGO3D_INSTANCE.getMagoManager();
+        if(!magoManager.speechBubble) {
+            magoManager.speechBubble = new Mago3D.SpeechBubble();
+        }
+        var sb = magoManager.speechBubble;
+        removeHearIam();
+        if(hereIamTimeOut) {
+            clearTimeout(hereIamTimeOut);
+        }
+        var commentTextOption = {
+            pixel:12,
+            color:'black',
+            borderColor:'white',
+            text: JS_MESSAGE["here.it.is"]
+        }
 
-		var img = sb.getPng([80,32],'#94D8F6', commentTextOption);
+        var img = sb.getPng([80,32],'#94D8F6', commentTextOption);
 
-		var options = {
-			positionWC    : Mago3D.ManagerUtils.geographicCoordToWorldPoint(longitude, latitude, parseFloat(altitude)+5),
-			imageFilePath : img
-		};
+        var options = {
+            positionWC    : Mago3D.ManagerUtils.geographicCoordToWorldPoint(longitude, latitude, parseFloat(altitude)+5),
+            imageFilePath : img
+        };
 
-		var omId = new Date().getTime();
-		var om = magoManager.objMarkerManager.newObjectMarker(options, magoManager);
-		om.id = omId;
-		om.hereIam = true;
+        var omId = new Date().getTime();
+        var om = magoManager.objMarkerManager.newObjectMarker(options, magoManager);
+        om.id = omId;
+        om.hereIam = true;
 
-		var effectOption = {
-			effectType : "zMovement",
-			durationSeconds : 9.9,
-			zVelocity : 100,
-			zMax : 30,
-			zMin : 0
-		};
-		var effect = new Mago3D.Effect(effectOption);
-		magoManager.effectsManager.addEffect(omId, effect);
+        var effectOption = {
+            effectType : "zMovement",
+            durationSeconds : 9.9,
+            zVelocity : 100,
+            zMax : 30,
+            zMin : 0
+        };
+        var effect = new Mago3D.Effect(effectOption);
+        magoManager.effectsManager.addEffect(omId, effect);
 
-		hereIamTimeOut = setTimeout(function() {
-			removeHearIam();
-		},10000);
+        hereIamTimeOut = setTimeout(function() {
+            removeHearIam();
+        },10000);
 
-		function removeHearIam() {
-			magoManager.objMarkerManager.setMarkerByCondition(function(om){
-				return !om.hereIam;
-			});
-		}
-	}
+        function removeHearIam() {
+            magoManager.objMarkerManager.setMarkerByCondition(function(om){
+                return !om.hereIam;
+            });
+        }
+    }
 
-	// 그룹 보이기/숨기기
-	function visibleGroup(_this, dataGroupId) {
-		event.stopPropagation();
-		if (dataGroupId === null || dataGroupId === '') {
-			alert(JS_MESSAGE["data.info.incorrect"]);
-			return;
-		}
+    // 그룹 보이기/숨기기
+    function visibleGroup(_this, dataGroupId) {
+        event.stopPropagation();
+        if (dataGroupId === null || dataGroupId === '') {
+            alert(JS_MESSAGE["data.info.incorrect"]);
+            return;
+        }
 
-		var option = true;
-		if ($(_this).hasClass("fa-eye")) {
-			option = false;
-		}
+        var option = true;
+        if ($(_this).hasClass("fa-eye")) {
+            option = false;
+        }
 
-		dataGroupId = parseInt(dataGroupId);
-		var nodeMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodesMap(dataGroupId);
-		var flag = false;
-		if (!$.isEmptyObject(nodeMap)) {
-			for (var key in nodeMap) {
-				var node = nodeMap[key];
-				if (!$.isEmptyObject(nodeMap)) {
-					var nodeData = node.data;
-					if (nodeData && nodeData.attributes && nodeData.attributes.isPhysical === true) {
-						var optionObject = {isVisible: option};
-						setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, key, optionObject);
-					}
-				} else {
-					flag = true;
-					break;
-				}
-			}
-		} else {
-			flag = true;
-		}
+        dataGroupId = parseInt(dataGroupId);
+        var nodeMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.getNodesMap(dataGroupId);
+        var flag = false;
+        if (!$.isEmptyObject(nodeMap)) {
+            for (var key in nodeMap) {
+                var node = nodeMap[key];
+                if (!$.isEmptyObject(nodeMap)) {
+                    var nodeData = node.data;
+                    if (nodeData && nodeData.attributes && nodeData.attributes.isPhysical === true) {
+                        var optionObject = {isVisible: option};
+                        setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, key, optionObject);
+                    }
+                } else {
+                    flag = true;
+                    break;
+                }
+            }
+        } else {
+            flag = true;
+        }
 
-		if (flag) {
-			alert(JS_MESSAGE["data.not.loaded"]);
-			return;
-		}
+        if (flag) {
+            alert(JS_MESSAGE["data.not.loaded"]);
+            return;
+        }
 
-		var projectsMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.projectsMap;
-		if (!$.isEmptyObject(projectsMap) && projectsMap[dataGroupId] && projectsMap[dataGroupId].attributes) {
-			projectsMap[dataGroupId].attributes.isVisible = option;
-		}
+        var projectsMap = MAGO3D_INSTANCE.getMagoManager().hierarchyManager.projectsMap;
+        if (!$.isEmptyObject(projectsMap) && projectsMap[dataGroupId] && projectsMap[dataGroupId].attributes) {
+            projectsMap[dataGroupId].attributes.isVisible = option;
+        }
 
-		if ($(_this).hasClass("fa-eye")) {
-			$(_this).removeClass("fa-eye");
-			$(_this).addClass("fa-eye-slash");
-		} else {
-			$(_this).removeClass("fa-eye-slash");
-			$(_this).addClass("fa-eye");
-		}
+        if ($(_this).hasClass("fa-eye")) {
+            $(_this).removeClass("fa-eye");
+            $(_this).addClass("fa-eye-slash");
+        } else {
+            $(_this).removeClass("fa-eye-slash");
+            $(_this).addClass("fa-eye");
+        }
 
-	}
+    }
 
-	// 데이터 보이기/숨기기
-	function visibleData(_this, dataGroupId, dataKey, dataTiling) {
-		event.stopPropagation();
-		if (dataGroupId === null || dataGroupId === '' ||
-				dataKey === null || dataKey === '' ||
-				dataTiling === null || dataTiling === '') {
-			alert(JS_MESSAGE["data.info.incorrect"]);
-			return;
-		}
+    // 데이터 보이기/숨기기
+    function visibleData(_this, dataGroupId, dataKey, dataTiling) {
+        event.stopPropagation();
+        if (dataGroupId === null || dataGroupId === '' ||
+                dataKey === null || dataKey === '' ||
+                dataTiling === null || dataTiling === '') {
+            alert(JS_MESSAGE["data.info.incorrect"]);
+            return;
+        }
 
-		var option = true;
-		if ($(_this).hasClass("fa-eye")) {
-			option = false;
-		}
+        var option = true;
+        if ($(_this).hasClass("fa-eye")) {
+            option = false;
+        }
 
-		if (dataTiling === 'true') {
-			dataKey = "F4D_" + dataKey;
-		}
+        if (dataTiling === 'true') {
+            dataKey = "F4D_" + dataKey;
+        }
 
-		dataGroupId = parseInt(dataGroupId);
-		if (!isExistDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey)) {
-			alert(JS_MESSAGE["data.not.loaded"]);
-			return;
-		}
-		var optionObject = {isVisible: option};
-		setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
+        dataGroupId = parseInt(dataGroupId);
+        if (!isExistDataAPI(MAGO3D_INSTANCE, dataGroupId, dataKey)) {
+            alert(JS_MESSAGE["data.not.loaded"]);
+            return;
+        }
+        var optionObject = {isVisible: option};
+        setNodeAttributeAPI(MAGO3D_INSTANCE, dataGroupId, dataKey, optionObject);
 
-		if ($(_this).hasClass("fa-eye")) {
-			$(_this).removeClass("fa-eye");
-			$(_this).addClass("fa-eye-slash");
-		} else {
-			$(_this).removeClass("fa-eye-slash");
-			$(_this).addClass("fa-eye");
-		}
+        if ($(_this).hasClass("fa-eye")) {
+            $(_this).removeClass("fa-eye");
+            $(_this).addClass("fa-eye-slash");
+        } else {
+            $(_this).removeClass("fa-eye-slash");
+            $(_this).addClass("fa-eye");
+        }
 
-	}
+    }
 
-	// 데이터 정보 다이얼 로그
-	var dataInfoDialog = $("#dataInfoDialogDHTML").dialog({
-		autoOpen: false,
-		width: 500,
-		height: 720,
-		modal: true,
-		overflow: "auto",
-		resizable: false
-	});
+    // 데이터 정보 다이얼 로그
+    var dataInfoDialog = $("#dataInfoDialogDHTML").dialog({
+        autoOpen: false,
+        width: 500,
+        height: 720,
+        modal: true,
+        overflow: "auto",
+        resizable: false
+    });
 
-	//데이터 상세 정보 조회
-	function detailDataInfo(url) {
-		dataInfoDialog.dialog("open");
-		$.ajax({
-			url: url,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function (msg) {
-				if (msg.statusCode <= 200) {
-					dataInfoDialog.dialog("option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
+    //데이터 상세 정보 조회
+    function detailDataInfo(url) {
+        dataInfoDialog.dialog("open");
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function (msg) {
+                if (msg.statusCode <= 200) {
+                    dataInfoDialog.dialog("option", "title", msg.dataInfo.dataName + JS_MESSAGE["more.information"]);
 
-					var template = Handlebars.compile($("#dataInfoSource").html());
-					var dataInfoHtml = template(msg.dataInfo);
+                    var template = Handlebars.compile($("#dataInfoSource").html());
+                    var dataInfoHtml = template(msg.dataInfo);
 
-					$("#dataInfoDialogDHTML").html("").append(dataInfoHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error: function (request, status, error) {
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
+                    $("#dataInfoDialogDHTML").html("").append(dataInfoHtml);
+                } else {
+                    alert(JS_MESSAGE[msg.errorCode]);
+                }
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+    }
 
-	// 데이터 속성 다이얼 로그
-	var dataAttributeDialog = $("#dataAttributeDialog").dialog({
-		autoOpen: false,
-		width: 600,
-		height: 350,
-		modal: true,
-		resizable: false
-	});
+    // 데이터 속성 다이얼 로그
+    var dataAttributeDialog = $("#dataAttributeDialog").dialog({
+        autoOpen: false,
+        width: 600,
+        height: 350,
+        modal: true,
+        resizable: false
+    });
 
-	// 데이터 속성
-	function detailDataAttribute(dataId, dataGroupKey, dataKey, dataName) {
-		dataAttributeDialog.dialog("open");
-		$.ajax({
-			url: "/attribute-repository/" + dataKey,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function (msg) {
-				if (msg.statusCode <= 200) {
-					if (msg.attributeRepository !== null) {
-						var template = Handlebars.compile($("#dataAttributeDialog").html());
-						var html = template(msg.attributeRepository);
-						$("#dataAttributeDialog").html("").append(html);
-					}
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error: function (request, status, error) {
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
+    // 데이터 속성
+    function detailDataAttribute(dataId, dataGroupKey, dataKey, dataName) {
+        dataAttributeDialog.dialog("open");
+        $.ajax({
+            url: "/attribute-repository/" + dataKey,
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function (msg) {
+                if (msg.statusCode <= 200) {
+                    if (msg.attributeRepository !== null) {
+                        var template = Handlebars.compile($("#dataAttributeDialog").html());
+                        var html = template(msg.attributeRepository);
+                        $("#dataAttributeDialog").html("").append(html);
+                    }
+                } else {
+                    alert(JS_MESSAGE[msg.errorCode]);
+                }
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+    }
 
-	// 데이터 Object 속성 다이얼 로그
-	var dataObjectAttributeDialog = $("#dataObjectAttributeDialog").dialog({
-		autoOpen: false,
-		width: 800,
-		height: 550,
-		modal: true,
-		resizable: false
-	});
+    // 데이터 Object 속성 다이얼 로그
+    var dataObjectAttributeDialog = $("#dataObjectAttributeDialog").dialog({
+        autoOpen: false,
+        width: 800,
+        height: 550,
+        modal: true,
+        resizable: false
+    });
 
-	// 데이터 Object 속성
-	function detailDataObjectAttribute(dataId, dataName) {
-		dataObjectAttributeDialog.dialog("open");
-		$("#dataNameForObjectAttribute").html(dataName);
+    // 데이터 Object 속성
+    function detailDataObjectAttribute(dataId, dataName) {
+        dataObjectAttributeDialog.dialog("open");
+        $("#dataNameForObjectAttribute").html(dataName);
 
-		$.ajax({
-			url: "/datas/object/attributes/" + dataId,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function (msg) {
-				if (msg.statusCode <= 200) {
-					if (msg.dataObjectAttribute !== null) {
-						//$("#dataObjectAttributeForOrigin").html(msg.dataObjectAttribute.attributes);
-						$("#dataObjectAttributeViewer").html("");
-						var jsonViewer = new JSONViewer();
-						document.querySelector("#dataObjectAttributeViewer").appendChild(jsonViewer.getContainer());
-						jsonViewer.showJSON(JSON.parse(msg.dataObjectAttribute.attributes), -1, -1);
-					}
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error: function (request, status, error) {
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
+        $.ajax({
+            url: "/datas/object/attributes/" + dataId,
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function (msg) {
+                if (msg.statusCode <= 200) {
+                    if (msg.dataObjectAttribute !== null) {
+                        //$("#dataObjectAttributeForOrigin").html(msg.dataObjectAttribute.attributes);
+                        $("#dataObjectAttributeViewer").html("");
+                        var jsonViewer = new JSONViewer();
+                        document.querySelector("#dataObjectAttributeViewer").appendChild(jsonViewer.getContainer());
+                        jsonViewer.showJSON(JSON.parse(msg.dataObjectAttribute.attributes), -1, -1);
+                    }
+                } else {
+                    alert(JS_MESSAGE[msg.errorCode]);
+                }
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+    }
 
-	// 데이터 그룹 다이얼로그
-	var dataGroupDialog = $("#dataGroupDialogDHTML").dialog({
-		autoOpen: false,
-		width: 500,
-		height: 620,
-		modal: true,
-		overflow: "auto",
-		resizable: false
-	});
+    // 데이터 그룹 다이얼로그
+    var dataGroupDialog = $("#dataGroupDialogDHTML").dialog({
+        autoOpen: false,
+        width: 500,
+        height: 620,
+        modal: true,
+        overflow: "auto",
+        resizable: false
+    });
 
-	// 데이터 그룹 상세 정보 조회
-	function detailDataGroup(url) {
-		dataGroupDialog.dialog("open");
-		$.ajax({
-			url: url,
-			type: "GET",
-			headers: {"X-Requested-With": "XMLHttpRequest"},
-			dataType: "json",
-			success: function (msg) {
-				if (msg.statusCode <= 200) {
-					dataGroupDialog.dialog("option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
+    // 데이터 그룹 상세 정보 조회
+    function detailDataGroup(url) {
+        dataGroupDialog.dialog("open");
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: {"X-Requested-With": "XMLHttpRequest"},
+            dataType: "json",
+            success: function (msg) {
+                if (msg.statusCode <= 200) {
+                    dataGroupDialog.dialog("option", "title", msg.dataGroup.dataGroupName + JS_MESSAGE["more.information"]);
 
-					var template = Handlebars.compile($("#dataGroupSource").html());
-					var dataGroupHtml = template(msg.dataGroup);
+                    var template = Handlebars.compile($("#dataGroupSource").html());
+                    var dataGroupHtml = template(msg.dataGroup);
 
-					$("#dataGroupDialogDHTML").html("").append(dataGroupHtml);
-				} else {
-					alert(JS_MESSAGE[msg.errorCode]);
-				}
-			},
-			error: function (request, status, error) {
-				alert(JS_MESSAGE["ajax.error.message"]);
-			}
-		});
-	}
+                    $("#dataGroupDialogDHTML").html("").append(dataGroupHtml);
+                } else {
+                    alert(JS_MESSAGE[msg.errorCode]);
+                }
+            },
+            error: function (request, status, error) {
+                alert(JS_MESSAGE["ajax.error.message"]);
+            }
+        });
+    }
 </script>
 </body>
 </html>

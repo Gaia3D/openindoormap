@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="referrer" content="origin">
     <meta name="viewport" content="width=device-width">
     <meta name="robots" content="index,nofollow">
-	<title><th:block th:text="#{data.group.edit.page.title}"></th:block></title>
-	<link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/images/{lang}/icon/glyph/glyphicon.css(lang=${lang},cacheVersion=${contentCacheVersion})}">
-    <link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}">
+    <title><th:block th:text="#{data.group.edit.page.title}"></th:block></title>
+    <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.css(cacheVersion=${contentCacheVersion})}">
     <link rel="stylesheet" th:href="@{/css/style.css( cacheVersion=${contentCacheVersion})}">
-	<link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/user-style.css( cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/user-style_{lang}.css(lang=${lang},cacheVersion=${contentCacheVersion})}">
+    <link rel="stylesheet" th:href="@{/css/fontawesome-free-5.2.0-web/css/all.min.css(cacheVersion=${contentCacheVersion})}">
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
 </head>
@@ -168,7 +168,7 @@
             </div>
         </form>
         <!-- E: 데이터 그룹 수정 -->
-	</div>
+    </div>
 </div>
 <!-- E: WRAP -->
 <script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -176,82 +176,82 @@
 <script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
-	$(document).ready(function() {
-		var isBasic = "[[${dataGroup.basic}]]";
-		if(isBasic === "false") {
-			// 기본 그룹이 아닐 경우만 사용 유무 수정 가능
-			$("[name=available]").filter("[value='[[${dataGroup.available}]]']").prop("checked",true);
-		}
-			
-		$("#sharing").val("[[${dataGroup.sharing}]]");
-	});
-	
-	function validate() {
-		var number = /^[0-9]+$/;
-		if ($("#dataGroupName").val() === null || $("#dataGroupName").val() === "") {
+    $(document).ready(function() {
+        var isBasic = "[[${dataGroup.basic}]]";
+        if(isBasic === "false") {
+            // 기본 그룹이 아닐 경우만 사용 유무 수정 가능
+            $("[name=available]").filter("[value='[[${dataGroup.available}]]']").prop("checked",true);
+        }
+
+        $("#sharing").val("[[${dataGroup.sharing}]]");
+    });
+
+    function validate() {
+        var number = /^[0-9]+$/;
+        if ($("#dataGroupName").val() === null || $("#dataGroupName").val() === "") {
             alert(JS_MESSAGE["data.group.name.empty"]);
-			$("#dataGroupName").focus();
-			return false;
-		}
-		if($("#duration").val() !== null && $("#duration").val() !== "") {
-			if(!isNumber($("#duration").val())) {
-				$("#duration").focus();
-				return false;
-			}
-		}
-		if(!locationValidation($("#longitude").val(), $("#latitude").val(), $("#altitude").val())) {
-			return false;
-		}
-	}
-	
-	// 수정
-	var updatedataGroupFlag = true;
-	function updatedataGroup() {
-		if (validate() == false) {
-			return false;
-		}
-		if(updatedataGroupFlag) {
-			updatedataGroupFlag = false;
-			var formData = $("#dataGroup").serialize();		
-			$.ajax({
-				url: "/data-groups/[[${dataGroup.dataGroupId}]]",
-				type: "POST",
-				headers: {"X-Requested-With": "XMLHttpRequest"},
-				data: formData,
-				success: function(msg){
-					if(msg.statusCode <= 200) {
-						alert(JS_MESSAGE["update"]);
-						window.location.reload();
-					} else {
-						alert(JS_MESSAGE[msg.errorCode]);
-						console.log("---- " + msg.message);
-					}
-					updatedataGroupFlag = true;
-				},
-				error:function(request, status, error){
-			        alert(JS_MESSAGE["ajax.error.message"]);
-			        updatedataGroupFlag = true;
-				}
-			});
-		} else {
-			alert(JS_MESSAGE["button.dobule.click"]);
-		}
-	}
-	
-	// 지도에서 찾기
-	$( "#mapButtion" ).on( "click", function() {
-		var url = "/map/find-point";
-		var width = 800;
-		var height = 700;
-	
-		var popupX = (window.screen.width / 2) - (width / 2);
-		// 만들 팝업창 좌우 크기의 1/2 만큼 보정값으로 빼주었음
-		var popupY= (window.screen.height / 2) - (height / 2);
-		
-	    var popWin = window.open(url, "","toolbar=no ,width=" + width + " ,height=" + height + ", top=" + popupY + ", left="+popupX
-	            + ", directories=no,status=yes,scrollbars=no,menubar=no,location=no");
-	    //popWin.document.title = layerName;
-	});
+            $("#dataGroupName").focus();
+            return false;
+        }
+        if($("#duration").val() !== null && $("#duration").val() !== "") {
+            if(!isNumber($("#duration").val())) {
+                $("#duration").focus();
+                return false;
+            }
+        }
+        if(!locationValidation($("#longitude").val(), $("#latitude").val(), $("#altitude").val())) {
+            return false;
+        }
+    }
+
+    // 수정
+    var updatedataGroupFlag = true;
+    function updatedataGroup() {
+        if (validate() == false) {
+            return false;
+        }
+        if(updatedataGroupFlag) {
+            updatedataGroupFlag = false;
+            var formData = $("#dataGroup").serialize();
+            $.ajax({
+                url: "/data-groups/[[${dataGroup.dataGroupId}]]",
+                type: "POST",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                data: formData,
+                success: function(msg){
+                    if(msg.statusCode <= 200) {
+                        alert(JS_MESSAGE["update"]);
+                        window.location.reload();
+                    } else {
+                        alert(JS_MESSAGE[msg.errorCode]);
+                        console.log("---- " + msg.message);
+                    }
+                    updatedataGroupFlag = true;
+                },
+                error:function(request, status, error){
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                    updatedataGroupFlag = true;
+                }
+            });
+        } else {
+            alert(JS_MESSAGE["button.dobule.click"]);
+        }
+    }
+
+    // 지도에서 찾기
+    $( "#mapButtion" ).on( "click", function() {
+        var url = "/map/find-point";
+        var width = 800;
+        var height = 700;
+
+        var popupX = (window.screen.width / 2) - (width / 2);
+        // 만들 팝업창 좌우 크기의 1/2 만큼 보정값으로 빼주었음
+        var popupY= (window.screen.height / 2) - (height / 2);
+
+        var popWin = window.open(url, "","toolbar=no ,width=" + width + " ,height=" + height + ", top=" + popupY + ", left="+popupX
+                + ", directories=no,status=yes,scrollbars=no,menubar=no,location=no");
+        //popWin.document.title = layerName;
+    });
 </script>
 </body>
 </html>
