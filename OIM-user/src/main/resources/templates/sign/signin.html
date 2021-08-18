@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
 <head>
     <meta charset="UTF-8">
@@ -6,69 +6,65 @@
     <title><th:block th:text="#{signin.page.title}"></th:block></title>
     <link rel="shortcut icon" th:href="@{/images/favicon.ico(cacheVersion=${contentCacheVersion})}" />
     <link rel="stylesheet" th:href="@{/css/font/font.css(cacheVersion=${contentCacheVersion})}" />
-    <link rel="stylesheet" th:href="@{/externlib/normalize/normalize.min.css(cacheVersion=${contentCacheVersion})}" />
-    <link rel="stylesheet" th:href="@{/css/style.css(cacheVersion=${contentCacheVersion})}" />
+    <link rel="stylesheet" th:href="@{/css/user-style.css(cacheVersion=${contentCacheVersion})}" />
     <script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
-    <style type="text/css">
-        ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-            color: white;
-            opacity: 1; /* Firefox */
-        }
-        :-ms-input-placeholder { /* Internet Explorer 10-11 */
-            color: white;
-        }
-        ::-ms-input-placeholder { /* Microsoft Edge */
-            color: white;
-        }
-    </style>
 </head>
-<body class="sign">
-<div class="site-body">
-    <div class="row">
-        <div class="container">
-            <div th:if="${signinForm.errorCode}" style="margin-bottom: 10px;">
-                <div style="float:left; padding-left: 10px; "><img th:src="@{/images/{lang}/exclam_32.png(lang=${lang})}" /></div>
-                <div style="display: inline-block; padding-left: 10px; padding-top: 5px; color: #ff0000; font-size: 16px;"
-                     th:text="#{${signinForm.errorCode}}"></div>
-            </div>
-            <div class="row" style="height: 60px; margin-top: 0px;">
-                <h1 style="font-size:38px; font-family:Lousianne; color:#573592;">OPEN INDOOR MAP</h1>
-            </div>
-            <div class="panel row">
-                <h2 class="sign-title"><span class="text-sub"><th:block th:text="#{common.user}"></th:block></span><br /><span class="text-main">SIGN IN</span></h2>
-                <div class="sign-inputs">
-                    <div class="sign-desc" style="font-size: 16px; margin-top: 10px; margin-right: 25px;">
-                        <select id="userLocale" name="userLocale" onchange="changeLanguage(this.value);"
-                                style="background: #9065dc; color: white; height: 25px;">
-                            <option value="ko"><th:block th:text="#{common.korea}"></th:block></option>
-                            <option value="en"><th:block th:text="#{common.english}"></th:block></option>
-                        </select>
-                    </div>
-                    <form id="signinForm" th:object="${signinForm}" method="post" action="/sign/process-signin">
-                        <label for="userId"><span class="icon-glyph glyph-users"></span></label>
-                        <input type="text" id="userId" name="userId" maxlength="32" th:title="#{common.id}" th:placeholder="#{common.id}" required="required" autofocus="autofocus" />
-                        <label for="password"><span class="icon-glyph glyph-lock"></span></label>
-                        <input type="password" id="password" name="password" maxlength="32" th:title="#{common.password}" th:placeholder="#{common.password}" required="required" />
-                        <input type="submit" value="Sign In" class="sign-submit" />
-                    </form>
-                    <div class="sign-links" style="font-size: 16px;">
-                        Don't have an account? &nbsp;<a href="#" onclick="alert('준비중 입니다.'); return false;">Sign up</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="" style="text-align: center; margin-top: 50px; font-size: 16px;">
-            OPEN INDOOR MAP ⓒ Gaia3d Corp. All Rights Reserved
+<body>
+<div id="loginwrap">
+<div id="login">
+    <form class="select-lang">
+        <select id="userLocale" name="userLocale" class="language" onchange="changeLanguage(this.value);">
+            <option value="ko"><th:block th:text="#{common.korea}"></th:block></option>
+            <option value="en"><th:block th:text="#{common.english}"></th:block></option>
+        </select>
+    </form>
+    <div class="login-wrapper">
+        <img th:src="@{/images/mago3d_logo.png}" th:alt="#{logo.alt}" />
+        <form id="signinForm" th:object="${signinForm}" method="post" action="/sign/process-signin" autocomplete="off">
+            <fieldset>
+                <legend><th:block th:text="#{signin.legend}"></th:block></legend>
+                <label for="userId"><span class="blind" ><th:block th:text="#{common.id}"></th:block></span></label>
+                <input type="text" id="userId" name="userId" class="inputid" th:title="#{common.id}" th:placeholder="#{common.id}" required="required" autofocus="autofocus" />
+                <label for="password"><span class="blind"><th:block th:text="#{common.password}"></th:block></span></label>
+                <input type="password" id="password" name="password" class="inputpwd" th:title="#{common.password}" th:placeholder="#{common.password}" required="required" />
+                <button type="submit" class="btn-login"><th:block th:text="#{common.sign.in}"></th:block></button>
+            </fieldset>
+        </form>
+        <ul class="join">
+        <!--
+            <li class="on"><a href="/sign/signup"><th:block th:text="#{common.sign.up}"></th:block></a></li>
+            <li><a href="/sign/password/find"><th:block th:text="#{common.find.password}"></th:block></a></li>
+         -->
+        </ul>
+        <hr class="h20">
+        <div class="autologin">
+            <span><th:block th:text="#{common.social.sign.in}"></th:block></span>
+            <ul>
+                <li><a href="/sign/google" class="login-google" th:title="#{social.sign.in.google}"></a></li>
+            <!--
+                <li><a href="/sign/facebook" class="login-facebook" th:title="#{social.sign.in.facebook}"></a></li>
+                <li><a href="/sign/naver" class="login-naver" th:title="#{social.sign.in.naver}"></a></li>
+                <li><a href="/sign/kakao" class="login-kakao" th:title="#{social.sign.in.kakao}"></a></li>
+            -->
+            </ul>
         </div>
     </div>
+    <div class="copyright">ⓒ Gaia3d Corp. All Rights Reserved.</div>
+</div>
 </div>
 </body>
+
 <script type="text/javascript">
+
     $(document).ready(function() {
         var lang = "[[${lang}]]";
         $("#userLocale").val(lang);
+        if("[[${signinForm.errorCode}]]"){
+            var errorCode = "[[${signinForm.errorCode}]]";
+            alert(JS_MESSAGE[errorCode]);
+        }
     });
 
     function changeLanguage(lang) {
@@ -81,7 +77,7 @@
                 if(msg.statusCode <= 200) {
                     alert(JS_MESSAGE["change"]);
                     location.reload();
-                } else {
+                }else {
                     alert(JS_MESSAGE[msg.errorCode]);
                 }
             },

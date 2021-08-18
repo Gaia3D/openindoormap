@@ -189,4 +189,4 @@ INSERT INTO data_group (
     data_group_id, data_group_key, data_group_name, data_group_path, data_group_target, sharing, user_id,
     ancestor, parent, depth, view_order, children, basic, available, tiling, data_count, metainfo)
 values
-    (1, 'basic', '기본', 'infra/data/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, false, 0,  TO_JSON('{"isPhysical": false}'::json));
+    (1, 'basic', 'Basic', 'infra/data/basic/', 'admin', 'common', 'admin', 1, 0, 1, 1, 0, true, true, false, 0,  TO_JSON('{"isPhysical": false}'::json));

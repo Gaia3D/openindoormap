@@ -146,13 +146,13 @@
                 </tr>
                 <tr>
                     <th class="col-label" scope="row">
-                        <label for="heightReference">높이 설정 방법</label>
+                        <label for="heightReference" th:text="#{data.set.height}"></label>
                     </th>
                     <td class="col-input radio-set">
                         <select id="heightReference" name="heightReference" class="selectBoxClass">
-                            <option value="none" selected="selected"> 해발 고도 </option>
-                            <option value="clampToGround"> Terrain(지형)에 맞춤 </option>
-                            <option value="relativeToGround"> Terrain(지형)으로 부터 높이 설정 </option>
+                            <option value="none" selected="selected" th:text="#{data.set.height.elevation}"></option>
+                            <option value="clampToGround" th:text="#{data.set.height.clamp}"></option>
+                            <option value="relativeToGround" th:text="#{data.set.height.relative}"></option>
                         </select>
                     </td>
                     <th class="col-label" scope="row">
