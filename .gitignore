@@ -1,15 +1,27 @@
 # Ignore Gradle project-specific cache directory
-.gradle
+**/application-dev.properties
+**/.gradle
 **/.temp-*
-# Ignore Gradle build output directory
-build
-/.settings/
 
+# Ignore Gradle build output directory
+**/build
+
+### STS ###
+**/.apt_generated
+**/.classpath
+**/.factorypath
+**/.project
+**/.settings
+**/.springBeans
+**/.sts4-cache
+**/bin
 
 ### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-bin
+**/.idea
+**/*.iws
+**/*.iml
+**/*.ipr
+**/out/
+
+### VS Code ###
+**/.vscode
