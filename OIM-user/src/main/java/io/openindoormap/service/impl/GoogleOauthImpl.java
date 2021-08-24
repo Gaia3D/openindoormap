@@ -98,7 +98,7 @@ public class GoogleOauthImpl implements SocialOauth {
             log.debug("================> " + userInfo.getBody());
             // UserInfo.builder().email(accessToken).userName(accessToken).build()
             GoogleUserInfo g = objectMapper.readValue(userInfo.getBody(), GoogleUserInfo.class);
-            UserInfo u = UserInfo.builder().email(g.getEmail()).userId(g.getEmail()).userName(g.name).build();
+            UserInfo u = UserInfo.builder().userId(g.getId()).email(g.getEmail()).userName(g.getName()).build();
             return u;
         } catch (JsonProcessingException e) {
             log.error(" JsonProcessingException =>  ", e);

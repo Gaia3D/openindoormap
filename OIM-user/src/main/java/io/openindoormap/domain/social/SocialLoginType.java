@@ -5,7 +5,7 @@ import lombok.Getter;
 public enum SocialLoginType {
     GOOGLE("googleOauthImpl"),
     FACEBOOK(""),
-    KAKAO(""),
+    KAKAO("kakaoOauthImpl"),
     NAVER("");
 
     @Getter

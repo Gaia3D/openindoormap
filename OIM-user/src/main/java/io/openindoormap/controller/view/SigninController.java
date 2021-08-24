@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import io.openindoormap.domain.Key;
 import io.openindoormap.domain.YOrN;
@@ -243,7 +242,7 @@ public class SigninController {
      * @param socialLoginType (GOOGLE, FACEBOOK, NAVER, KAKAO)
      */
     @GetMapping(value = "/{socialLoginType}")
-    public String socialLoginType(@PathVariable(name = "socialLoginType") String socialLoginType, HttpServletRequest request) {
+    public String socialLoginType(@PathVariable(name = "socialLoginType") String socialLoginType) {
         String url = userService.requestUrl(SocialLoginType.valueOf(socialLoginType.toUpperCase()));
         return "redirect:" + url;
     }
@@ -254,13 +253,14 @@ public class SigninController {
      * @param code API Server 로부터 넘어노는 code
      * @return SNS Login 요청 결과로 받은 Json 형태의 String 문자열 (access_token, refresh_token 등)
      */
-    @GetMapping(value = "/{socialLoginType}/callback")
-    public String callback(@PathVariable(name = "socialLoginType") String socialLoginType, @RequestParam(name = "code") String code, HttpServletRequest request) {
-         UserSession userSession = userService.requestUserSession(SocialLoginType.valueOf(socialLoginType.toUpperCase()), code);
-         userSession.setSigninIp(WebUtils.getClientIp(request));
-         OIMHttpSessionBindingListener sessionListener = new OIMHttpSessionBindingListener();
-         request.getSession().setAttribute(Key.USER_SESSION.name(), userSession);
-         request.getSession().setAttribute(userSession.getUserId(), sessionListener);
-        return "redirect:/data/map";
-    }
+	@GetMapping(value = "/{socialLoginType}/callback")
+	public String callback(@PathVariable(name = "socialLoginType") String socialLoginType, String code, String error, HttpServletRequest request) {
+		UserSession userSession = userService.requestUserSession(SocialLoginType.valueOf(socialLoginType.toUpperCase()), code);
+		userSession.setSigninIp(WebUtils.getClientIp(request));
+		OIMHttpSessionBindingListener sessionListener = new OIMHttpSessionBindingListener();
+		HttpSession session = request.getSession();
+		session.setAttribute(Key.USER_SESSION.name(), userSession);
+		session.setAttribute(userSession.getUserId(), sessionListener);
+		return "redirect:/data/map";
+	}
 }
