@@ -74,6 +74,7 @@
     <script type="text/javascript" th:src="@{/js/mago3d_lx.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/common.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
+    <script type="text/javascript" th:src="@{/js/measure.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/map-controll.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/ui-controll.js(cacheVersion=${contentCacheVersion})}"></script>
     <script type="text/javascript" th:src="@{/js/district-controll.js(cacheVersion=${contentCacheVersion})}"></script>
@@ -159,6 +160,7 @@
         <div id="overlayDHTML"></div>
         <div id="buildingInfoDHTML"></div>
 
+        <div id="measureInfo"></div>
         <!-- S: GNB WRAP -->
         <!-- <div th:replace="~{/fragments/global-search :: #gnbWrap}"></div> -->
         <!-- E: GNB WRAP -->
@@ -237,6 +239,7 @@
         policy : {},
         dataGroup : {},
         baseLayers : {},
+        measureTools : {},
         userId : '[[${owner}]]'
     };
     var segments2dObj = {};

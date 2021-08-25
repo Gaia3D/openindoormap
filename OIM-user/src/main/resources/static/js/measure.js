@@ -1,660 +1,377 @@
-const Measure = function(magoInstance) {
-	this.magoInstance = magoInstance;
-	
-	this.drawer;
-	this._type = Measure.TYPE.NONE;
-	
-	this._result;
-	
-	this.setEventHandler();
-}
+"use strict";
 
-Object.defineProperties(Measure.prototype, {
-	type : {
-		get : function() {
-			return this._type;
-		},
-		set : function(type) {
-			this._type = type;
-			this.setDrawer();
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var _Shape = /*#__PURE__*/function(magoInstance) {
+	function Shape(pointsCount, condition) {
+		_classCallCheck(this, Shape);
+
+		this.pointsCount = pointsCount;
+		this.condition = condition;
+		this.handler = new Cesium.ScreenSpaceEventHandler(magoInstance.getViewer().scene.canvas);
+		this.positions = [];
+		this.entityId = [];
+		this.end = false;
+		//this._changedCamera = this.changedCamera.bind(this);
+	}
+
+	_createClass(Shape, [{
+		key: "setGeodesic",
+		value: function setGeodesic(start, end) {
+			var geodesic = new Cesium.EllipsoidGeodesic();
+			var startCartographic = Cesium.Cartographic.fromCartesian(start);
+			var endCartographic = Cesium.Cartographic.fromCartesian(end);
+			geodesic.setEndPoints(startCartographic, endCartographic);
+			return geodesic;
 		}
-	},
-	result : {
-		get : function() {
-			return this._result;
-		},
-		set : function(result) {
-			var old = this._result;
-			
-			this._result = result;
-			
-			if(this._result) {
-				this.restore();
-			}
-			
-			if(old) {
-				this.removeEntity(old);
-				old = undefined;
-			}
-		} 
-	}
-});
-
-Measure.STATUS = {
-	NOTSTART : 'notstart',
-	READY : 'ready',
-	NEEDSTARTPOINT : 'needstartpoint',
-	NEEDLINE : 'needline',
-	NEEDLASTPOINT : 'needlastpoint',
-	NEEDVERTEXPOINT : 'needvertexpoint',
-	NEEDGUIDEPOINT : 'needguidepoint',
-	NEEDPOLYGON : 'needpolygon',
-	COMPLETE : 'complete'
-}
-
-Measure.TYPE = {
-	DISTANCE : 'distance',
-	AREA : 'area',
-	HEIGHT : 'height',
-	NONE : 'none'
-}
-
-Measure.prototype.setEventHandler = function() {
-	var self = this;
-	
-	var $btns = $('#toolbarWrap div.toolbox-measure button.toolbox-measure-btn');
-	$btns.click(function(){
-		var target = this;
-		$btns.each(function(_, btn) {
-			if(target !== btn) $(btn).removeClass('on');
-		});
-		
-		$(target).toggleClass('on');
-		self.type = $(target).hasClass('on') ?  $(target).data('type') : Measure.TYPE.NONE;
-	});
-	
-	var popupObserver = new MutationObserver(function(mutations) {
-		mutations.forEach(function(mutation) {
-			var mutationStyle = window.getComputedStyle(mutation.target);
-			if(mutationStyle.display === 'none') {
-				self.destroyDrawer();
-				self.result = undefined;
-			} else {
-				$('#toolbarWrap div.detaildata.poplayer').hide().removeClass('on');
-			}
-			return false;			
-		});
-	});
-	
-	popupObserver.observe(document.querySelector('.toolbox-measure'), { attributes: true, attributeFilter:['style'], subtree: false, childList:false, attributeOldValue:true});	
-}
-
-Measure.prototype.restore = function() {
-	var viewer = this.magoInstance.getViewer();
-	//restore
-	var _add = function(entt) {
-		if(Array.isArray(entt)) {
-			for(var i in entt) {
-				_add(entt[i]);					
-			}
-		} else {
-			viewer.entities.add(entt);
+	}, {
+		key: "getMidpoint",
+		value: function getMidpoint() {
+			var scratch = new Cesium.Cartographic();
+			var len = this.positions.length;
+			var geodesic = this.setGeodesic(this.positions[0], this.positions[len - 1]);
+			var midpointCartographic = geodesic.interpolateUsingFraction(0.5, scratch);
+			return Cesium.Cartesian3.fromRadians(midpointCartographic.longitude, midpointCartographic.latitude);
 		}
-	}
-	for(var i in this.result) {
-		var obj = this.result[i];
-		_add(obj);
-	}
-}
-
-Measure.prototype.removeEntity = function(obj) {
-	var viewer = this.magoInstance.getViewer();
-	var _remove = function(entt) {
-		if(Array.isArray(entt)) {
-			for(var i in entt) {
-				_remove(entt[i]);					
+	}, {
+		key: "getLength",
+		value: function getLength() {
+			var len = this.positions.length;
+			var total = 0;
+			for (var i = len - 1; i >= 1; i--) {
+				var geodesic = this.setGeodesic(this.positions[i - 1], this.positions[i]);
+				var lengthInMeters = Math.round(geodesic.surfaceDistance);
+				total += lengthInMeters;
 			}
-		} else {
-			viewer.entities.remove(entt);
+			/*var total = 0;
+			for(var i = len - 1; i >= 1; i--){
+			  var distance = Cesium.Cartesian3.distance(this.positions[i - 1], this.positions[i]);
+			  total += distance;
+			}*/
+			return (total / 1000).toFixed(1) + " km";
 		}
-	}
-
-	for(var i in obj) {
-		_remove(obj[i]);
-	}
-}
-
-
-Measure.prototype.setDrawer = function() {
-	this.destroyDrawer();
-	
-	if(!this.type || this.type === Measure.TYPE.NONE) return;
-	
-	this.result = undefined;
-	this.drawer = new Cesium.ScreenSpaceEventHandler(this.magoInstance.getViewer().canvas);
-	this.drawer.result = {};
-	this.drawer.status = Measure.STATUS.NOTSTART;
-	
-	switch(this.type) {
-		case Measure.TYPE.DISTANCE : {
-			this.decorateDistance();
-			break;
-		}
-		case Measure.TYPE.AREA : {
-			this.decorateArea();
-			break;
-		}
-		case Measure.TYPE.HEIGHT : {
-			this.decorateHeight();
-			break;
-		}
-	}
-}
-
-Measure.prototype.destroyDrawer = function() {
-	if(!this.drawer) return;
-	var viewer = this.magoInstance.getViewer();
-	var _destroy = function (any) {
-		if(Array.isArray(any)) {
-			for(var i in any) {
-				_destroy(any[i]);	
-			}
-		} else {
-			if(any instanceof Cesium.Entity) {
-				viewer.entities.remove(any);
-			}
-			any = undefined;
-		}
-	}
-	
-	if(this.drawer.result) {
-		for(var i in this.drawer.result) {
-			_destroy(this.drawer.result[i]);
-		}
-		
-		delete this.drawer.result;
-	}
-	
-	this.drawer = this.drawer.destroy();
-}
-
-Measure.prototype.decorateHeight = function() {
-	var viewer = this.magoInstance.getViewer();
-	var magoManager = this.magoInstance.getMagoManager();
-	var depthDetected = false;
-	
-	var self = this;
-	const pointGraphic = {
-		color : Cesium.Color.WHITE,
-		outlineColor : new Cesium.Color(1, 0.30196, 0.92549, 1),
-		outlineWidth : 3,
-		pixelSize : 6,
-		disableDepthTestDistance: Number.POSITIVE_INFINITY
-	}
-	let labelOption = {
-        scale :0.5,
-        font: "normal normal bolder 24px Helvetica",
-        fillColor: Cesium.Color.RED,
-        outlineColor: Cesium.Color.RED,
-        outlineWidth: 1,
-		pixelOffset : new Cesium.Cartesian2(-25,-10), 
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 100000),
-		backgroundColor : Cesium.Color.WHITE,
-		showBackground : true,
-		disableDepthTestDistance: Number.POSITIVE_INFINITY
-	}
-	
-	var _lineCoordinate = function() {
-		var pointsCoordinates = self.drawer.result.points.map(function(point) {
-			return point.position.getValue();
-		});
-		pointsCoordinates.push(self.drawer.result.guide.position.getValue());
-		return pointsCoordinates;
-	}
-	
-	var _calcHeight = function() {
-		var crtsArray = _lineCoordinate();
-		
-		return `${Cesium.Cartesian3.distance(crtsArray[1], crtsArray[0]).toFixed(1)}m`;
-	}
-	
-	var _complete = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status !== Measure.STATUS.NEEDLASTPOINT) return;
-		
-		drawer.result.guide.label.text = _calcHeight();
-		
-		//reinitialize
-		drawer.result.line.polyline.positions = _lineCoordinate();
-		var cloneLine = Cesium.clone(drawer.result.line, false);
-		
-		drawer.result.points.push(drawer.result.guide);
-		var clonePoints = drawer.result.points.map(function(point) {
-			var clonePoint = Cesium.clone(point, false);
-			return clonePoint;
-		});
-		
-		drawer.status = Measure.STATUS.COMPLETE;
-		$('#toolbox-measure-btn-height').trigger('click');
-		
-		self.result = {
-			line : cloneLine, 
-			points : clonePoints
-		};
-	}
-	
-	var _click = function(e){
-		var drawer = self.drawer;
-		
-		if(drawer.status === Measure.STATUS.NEEDVERTEXPOINT) {
-			if(drawer.result.points.length === 0) {
-				depthDetected = Mago3D.ManagerUtils.detectedDepth(e.position.x, e.position.y, magoManager);
-			}
-			
-			var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(e.position.x, e.position.y, magoManager, {highPrecision:true}); 
-			var geographic = Mago3D.ManagerUtils.pointToGeographicCoord(point3d);
-			var crts3 = Cesium.Cartesian3.fromDegrees(geographic.longitude, geographic.latitude, geographic.altitude);
-			
-			drawer.result.points.push(viewer.entities.add({
-				position : crts3,
-				point : pointGraphic
-			}));
-			
-			labelOption.text = new Cesium.CallbackProperty(_calcHeight);
-			drawer.result.guide.label = labelOption;
-			
-			drawer.status = Measure.STATUS.NEEDLINE;
-		}
-		
-		if(drawer.status === Measure.STATUS.NEEDLASTPOINT) {
-			drawer.result.points.push(viewer.entities.add({
-				position : drawer.result.guide.position.getValue(),
-				point : pointGraphic
-			}));
-			
-			_complete(e.position);
-		}
-	}
-	var _move = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status === Measure.STATUS.COMPLETE) return;
-		
-		if(drawer.status === Measure.STATUS.NEEDLASTPOINT) {
-			var startPointCrts = drawer.result.points[0].position.getValue();
-			var height;
-			
-			if(depthDetected) {
-				var point3d = Mago3D.ManagerUtils.screenCoordToWorldCoordUseDepthCheck(e.endPosition.x, e.endPosition.y, magoManager, {highPrecision:true});
-				var geographic = Mago3D.ManagerUtils.pointToGeographicCoord(point3d);
-				
-				height = geographic.altitude;
-			}
-			
-			if(!depthDetected || Math.abs(height) < 0.8) {
-				var scene = viewer.scene;
-				var startPointCrtsClone = new Cesium.Cartesian3(startPointCrts.x, startPointCrts.y, startPointCrts.z);
-				
-				var surfaceNormal = scene.globe.ellipsoid.geodeticSurfaceNormal(startPointCrtsClone);
-                var planeNormal = Cesium.Cartesian3.subtract(scene.camera.position, startPointCrtsClone, new Cesium.Cartesian3());
-                planeNormal = Cesium.Cartesian3.normalize(planeNormal, planeNormal);
-                var ray =  viewer.scene.camera.getPickRay(e.endPosition);
-                var plane = Cesium.Plane.fromPointNormal(startPointCrtsClone, planeNormal);
-                var newCartesian =  Cesium.IntersectionTests.rayPlane(ray, plane);
-                var newCartographic = scene.globe.ellipsoid.cartesianToCartographic(newCartesian);
-
-                height = newCartographic.height;
-                if(height < 0) height *= -1;
-			}
-			
-			var startPointGeographic = Mago3D.ManagerUtils.pointToGeographicCoord(startPointCrts);
-			var guideCrts = Cesium.Cartesian3.fromDegrees(startPointGeographic.longitude, startPointGeographic.latitude, height);
-			
-			drawer.result.guide.position = guideCrts;
-		} else {
-			var point3d = API.Converter.screenCoordToMagoPoint3D(e.endPosition.x, e.endPosition.y, magoManager);
-			var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-			
-			if(drawer.status === Measure.STATUS.NOTSTART) {
-				drawer.result.points = [];
-				drawer.result.guide = viewer.entities.add({
-					point : pointGraphic
-				});
-				
-				drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
-			}
-			
-			if(drawer.status === Measure.STATUS.NEEDLINE) {
-				drawer.result.line = viewer.entities.add({
-					polyline : {
-						positions : new Cesium.CallbackProperty(_lineCoordinate),
-						width : 3,
-						depthFailMaterial : Cesium.Color.RED,
-						material : new Cesium.PolylineGlowMaterialProperty({
-							color: new Cesium.Color(0.88627, 0.19216, 0.86667, 1),
-							glowPower: 0.25
-						})
-					}
-				});
-				drawer.status = Measure.STATUS.NEEDLASTPOINT;
-			}
-			
-			drawer.result.guide.position = crts3;
-		}
-	}
-	
-	this.drawer.setInputAction(_click ,Cesium.ScreenSpaceEventType.LEFT_CLICK);
-	this.drawer.setInputAction(_move ,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-}
-
-
-Measure.prototype.decorateArea = function() {
-	var viewer = this.magoInstance.getViewer();
-	var magoManager = this.magoInstance.getMagoManager();
-	
-	var self = this;
-	const pointGraphic = {
-		color : Cesium.Color.WHITE,
-		outlineColor : new Cesium.Color(0.094118, 0.2, 0.89804, 1),
-		outlineWidth : 3,
-		pixelSize : 6,
-		heightReference : Cesium.HeightReference.CLAMP_TO_GROUND
-	}
-	let labelOption = {
-        scale :0.5,
-        font: "normal normal bolder 24px Helvetica",
-        fillColor: Cesium.Color.RED,
-        outlineColor: Cesium.Color.RED,
-        outlineWidth: 1,
-		pixelOffset : new Cesium.Cartesian2(-25,-10), 
-        heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 100000),
-		backgroundColor : Cesium.Color.WHITE,
-		showBackground : true
-	}
-	
-	var _lineCoordinate = function() {
-		var pointsCoordinates = self.drawer.result.points.map(function(point) {
-			return point.position.getValue();
-		});
-		pointsCoordinates.push(self.drawer.result.guide.position.getValue());
-		return pointsCoordinates;
-	}
-	
-	var _polygonHierarchy = function() {
-		return new Cesium.PolygonHierarchy(_lineCoordinate());
-	}
-	
-	var _calcArea = function() {
-		var _calTriangleArea = function(p1, p2, p3) {
-			var r = Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;
-			var cartographic = new Cesium.Cartographic((p1.x + p2.x + p3.x) / 3, (p1.y + p2.y + p3.y) / 3);
-			var cartesian = viewer.scene.globe.ellipsoid.cartographicToCartesian(cartographic);
+	}, {
+		key: "calArea",
+		value: function calArea(t1, t2, t3, i) {
+			var r = Math.abs(t1.x * (t2.y - t3.y) + t2.x * (t3.y - t1.y) + t3.x * (t1.y - t2.y)) / 2;
+			var cartographic = new Cesium.Cartographic((t1.x + t2.x + t3.x) / 3, (t1.y + t2.y + t3.y) / 3);
+			var cartesian = magoInstance.getViewer().scene.globe.ellipsoid.cartographicToCartesian(cartographic);
 			var magnitude = Cesium.Cartesian3.magnitude(cartesian);
 			return r * magnitude * magnitude * Math.cos(cartographic.latitude);
 		}
-		var existingPoint = _lineCoordinate().map(function(crts) {
-			var cartographic = Cesium.Cartographic.fromCartesian(crts);
-			return new Cesium.Cartesian2(cartographic.longitude, cartographic.latitude);
-		});
-		
-		if (Cesium.PolygonPipeline.computeWindingOrder2D(existingPoint) === Cesium.WindingOrder.CLOCKWISE) {
-			existingPoint.reverse();
-		}
-		var triangles = Cesium.PolygonPipeline.triangulate(existingPoint);
-		
-		var area = 0;
-		for(var i=0,len=triangles.length;i<len;i += 3) {
-			area += _calTriangleArea(existingPoint[triangles[i]], existingPoint[triangles[i + 1]], existingPoint[triangles[i + 2]]);
-		}
-		
-		return `${area.toFixed(3)}㎡`;
-	}
-	
-	var _complete = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status !== Measure.STATUS.NEEDVERTEXPOINT) return;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.position.x, e.position.y, self.magoInstance.getMagoManager());
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		drawer.result.guide.position = crts3;
-		drawer.result.guide.label.text = _calcArea();
-		
-		//reinitialize
-		drawer.result.line.polyline.positions = _lineCoordinate();
-		var cloneLine = Cesium.clone(drawer.result.line, false);
-		
-		drawer.result.points.push(drawer.result.guide);
-		var clonePoints = drawer.result.points.map(function(point) {
-			var clonePoint = Cesium.clone(point, false);
-			return clonePoint;
-		});
-		
-		drawer.result.polygon.polygon.hierarchy = _polygonHierarchy();
-		var clonePolygon = Cesium.clone(drawer.result.polygon, false);
-		
-		drawer.status = Measure.STATUS.COMPLETE;
-		$('#toolbox-measure-btn-area').trigger('click');
-		
-		self.result = {
-			line : cloneLine, 
-			points : clonePoints,
-			polygon : clonePolygon
-		};
-	}
-	
-	var _click = function(e){
-		var drawer = self.drawer;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.position.x, e.position.y, self.magoInstance.getMagoManager());
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		if(drawer.status === Measure.STATUS.NEEDVERTEXPOINT) {
-			drawer.result.points.push(viewer.entities.add({
-				position : crts3,
-				point : pointGraphic
-			}));
-			
-			if(drawer.result.points.length === 1) {
-				drawer.status = Measure.STATUS.NEEDLINE;
-			}
-			if(drawer.result.points.length === 2) {
-				labelOption.text = new Cesium.CallbackProperty(_calcArea);
-				drawer.result.guide.label = labelOption;
-				drawer.status = Measure.STATUS.NEEDPOLYGON;
-			}
-		}
-	}
-	var _move = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status === Measure.STATUS.COMPLETE) return;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.endPosition.x, e.endPosition.y, magoManager);
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		if(drawer.status === Measure.STATUS.NOTSTART) {
-			drawer.result.points = [];
-			drawer.result.guide = viewer.entities.add({
-				point : pointGraphic
-			});
-			
-			drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
-		}
-		
-		if(drawer.status === Measure.STATUS.NEEDLINE) {
-			drawer.result.line = viewer.entities.add({
-				polyline : {
-					positions : new Cesium.CallbackProperty(_lineCoordinate),
-					width : 3,
-					clampToGround : true,
-					material : new Cesium.Color(0.4, 0.47059, 0.92157, 1)
-				}
-			});
-			drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
-		}
-		
-		if(drawer.status === Measure.STATUS.NEEDPOLYGON) {
-			/*viewer.entities.remove(drawer.result.line);
-			delete drawer.result.line;*/
-			
-			drawer.result.polygon = viewer.entities.add({
-				polygon : {
-					hierarchy : new Cesium.CallbackProperty(_polygonHierarchy),
-					heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
-					outline : true,
-					outlineWidth : 1,
-					outlineColor : new Cesium.Color(0.4, 0.47059, 0.92157, 1),
-					material :  new Cesium.Color(0.81961, 0.83921, 0.98039, 0.35),
-					zIndex : 1
-				}
-			});
-			drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
-		}
-		
-		drawer.result.guide.position = crts3;
-	}
-	
-	this.drawer.setInputAction(_complete ,Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-	this.drawer.setInputAction(_click ,Cesium.ScreenSpaceEventType.LEFT_CLICK);
-	this.drawer.setInputAction(_move ,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-}
+	}, {
+		key: "getArea",
+		value: function getArea() {
+			var positionsList = this.positions;
+			var areaInMeters = 0;
 
-Measure.prototype.decorateDistance = function() {
-	var viewer = this.magoInstance.getViewer();
-	var magoManager = this.magoInstance.getMagoManager();
-	
-	var self = this;
-	const pointGraphic = {
-		color : Cesium.Color.WHITE,
-		outlineColor : Cesium.Color.RED,
-		outlineWidth : 3,
-		pixelSize : 6,
-		heightReference : Cesium.HeightReference.CLAMP_TO_GROUND
-	}
-	
-	let labelOption = {
-        scale :0.5,
-        font: "normal normal bolder 24px Helvetica",
-        fillColor: Cesium.Color.RED,
-        outlineColor: Cesium.Color.RED,
-        outlineWidth: 1,
-		pixelOffset : new Cesium.Cartesian2(-25,-10), 
-        heightReference : Cesium.HeightReference.CLAMP_TO_GROUND,
-        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        distanceDisplayCondition : new Cesium.DistanceDisplayCondition(0.0, 100000),
-		backgroundColor : Cesium.Color.WHITE,
-		showBackground : true
-	}
-	var _lineCoordinate = function() {
-		var pointsCoordinates = self.drawer.result.points.map(function(point) {
-			return point.position.getValue();
-		});
-		pointsCoordinates.push(self.drawer.result.guide.position.getValue());
-		return pointsCoordinates;
-	}
-	
-	var _accumDistance = function() {
-		var existingPoint = _lineCoordinate();
-		var accumDistance = existingPoint.reduce(function(acc, crts, idx, array) {
-		    if(idx === 0) return acc;
-		    var d = Cesium.Cartesian3.distance(crts,array[idx-1]);
-		    return acc + d;
-		} , 0);
-		
-		return `${accumDistance.toFixed(0)}m`;
-	}
-	
-	var _complete = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status !== Measure.STATUS.NEEDVERTEXPOINT) return;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.position.x, e.position.y, self.magoInstance.getMagoManager());
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		drawer.result.guide.position = crts3;
-		drawer.result.guide.label.text = _accumDistance();
-		
-		//reinitialize
-		drawer.result.line.polyline.positions = _lineCoordinate();
-		var cloneLine = Cesium.clone(drawer.result.line, false);
-		
-		drawer.result.points.push(drawer.result.guide);
-		var clonePoints = drawer.result.points.map(function(point) {
-			var clonePoint = Cesium.clone(point, false);
-			return clonePoint;
-		});
-		
-		drawer.status = Measure.STATUS.COMPLETE;
-		$('#toolbox-measure-btn-distance').trigger('click');
-		
-		self.result = {
-			line : cloneLine, 
-			points : clonePoints
-		};
-	}
-	
-	var _click = function(e){
-		var drawer = self.drawer;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.position.x, e.position.y, self.magoInstance.getMagoManager());
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		if(drawer.status === Measure.STATUS.NEEDVERTEXPOINT) {
-			labelOption.text = _accumDistance();
-			drawer.result.points.push(viewer.entities.add({
-				position : crts3,
-				point : pointGraphic,
-				label : labelOption
-			}));
-			
-			if(drawer.result.points.length === 1) {
-				labelOption.text = new Cesium.CallbackProperty(_accumDistance)
-				drawer.result.guide.label = labelOption;
-				
-				drawer.status = Measure.STATUS.NEEDLINE
+			if (positionsList.length >= 3) {
+				var points = [];
+
+				for (var i = 0, len = positionsList.length; i < len; i++) {
+					// points.push(Cesium.Cartesian2.fromCartesian3(positions[i]));
+					var cartographic = Cesium.Cartographic.fromCartesian(positionsList[i]);
+					points.push(new Cesium.Cartesian2(cartographic.longitude, cartographic.latitude));
+				}
+
+				if (Cesium.PolygonPipeline.computeWindingOrder2D(points) === Cesium.WindingOrder.CLOCKWISE) {
+					points.reverse();
+				}
+
+				var triangles = Cesium.PolygonPipeline.triangulate(points);
+
+				for (var i = 0, len = triangles.length; i < len; i += 3) {
+					/* areaInMeters +=
+					Cesium.PolygonPipeline.computeArea2D([points[triangles[i]],
+					points[triangles[i + 1]], points[triangles[i + 2]]]);*/
+					areaInMeters += this.calArea(points[triangles[i]], points[triangles[i + 1]], points[triangles[i + 2]]);
+				}
+			}
+
+			return areaInMeters.toFixed(3) + " m2";
+		}
+	}, {
+		key: "drawShape",
+		value: function drawShape() {
+			if (this.pointsCount == 1) {
+
+				var len = this.positions.length;
+				var point = magoInstance.getViewer().entities.add({
+					position: this.positions[len - 1],
+					point: {
+						pixelSize: 10,
+						color: Cesium.Color.WHITE,
+						heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+					}
+				});
+				this.entityId.push(point.id);
+				return point;
+
+			} else if (this.pointsCount == 2) {
+
+				var _that = this;
+
+				var getMidpointCall = function getMidpointCall() {
+					return _that.getMidpoint();
+				};
+
+				var getLengthCall = function getLengthCall() {
+					return _that.getLength();
+				};
+
+				var len = this.positions.length;
+
+				var point = magoInstance.getViewer().entities.add({
+					position: this.positions[len - 1],
+					point: {
+						pixelSize: 10,
+						color: Cesium.Color.WHITE,
+						heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+					}
+				});
+
+				var position1 = this.positions[0];
+				var position2 = this.positions[len - 1];
+				var line = magoInstance.getViewer().entities.add({
+					polyline: {
+						positions: new Cesium.CallbackProperty(function() {
+							return [position1, position2];
+						}, false),
+						width: 10.0,
+						material: new Cesium.PolylineGlowMaterialProperty({
+							color: Cesium.Color.DEEPSKYBLUE,
+							glowPower: 0.25
+						}),
+						clampToGround: true,
+						//granularity : Cesium.Math.toRadians(0.1)
+					}
+				});
+				position1 = position2;
+
+				this.handler.setInputAction(function(movement) {
+					//var movingPosition = magoInstance.getViewer().camera.pickEllipsoid(movement.endPosition, magoInstance.getViewer().scene.globe.ellipsoid);
+					var movingPosition = _that.transfromCoord(movement.endPosition);
+					if (movingPosition) {
+						position2 = movingPosition;
+					}
+
+				}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+				var label = magoInstance.getViewer().entities.add({
+					position: new Cesium.CallbackProperty(getMidpointCall, false),
+					label: {
+						// This callback updates the length to print each frame.
+						text: new Cesium.CallbackProperty(getLengthCall, false),
+						font: "20px sans-serif",
+						fillColor: Cesium.Color.DEEPSKYBLUE,
+						pixelOffset: new Cesium.Cartesian2(0.0, 20)
+					}
+				});
+
+				this.entityId.push(point.id, line.id, label.id);
+				this.stopDrawing();
+				return line;
+
+			} else if (this.pointsCount > 2) {
+
+				var that = this;
+
+				var _getMidpointCall = function _getMidpointCall() {
+					return that.getMidpoint();
+				};
+
+				var getAreaCall = function getAreaCall() {
+					return that.getArea();
+				};
+
+				var line = magoInstance.getViewer().entities.add({
+					polyline: {
+						positions: new Cesium.CallbackProperty(function() {
+							return that.positions;
+						}, false),
+						width: 4.0,
+						material: new Cesium.PolylineGlowMaterialProperty({
+							color: Cesium.Color.DEEPSKYBLUE,
+							glowPower: 0.25
+						}),
+						clampToGround: true,
+					}
+				});
+
+				var len = that.positions.length;
+				that.positions.push(that.positions[len - 1]);
+
+				var polygon = magoInstance.getViewer().entities.add({
+					polygon: {
+						hierarchy: new Cesium.CallbackProperty(function() {
+							return new Cesium.PolygonHierarchy(that.positions);
+						}, false),
+						material: new Cesium.ColorMaterialProperty(Cesium.Color.WHITE.withAlpha(0.05))
+					}
+				});
+
+				that.handler.setInputAction(function(movement) {
+					//var dynamicPos = magoInstance.getViewer().camera.pickEllipsoid(movement.endPosition, magoInstance.getViewer().scene.globe.ellipsoid);
+					var dynamicPos = that.transfromCoord(movement.endPosition);
+					that.positions[that.positions.length - 1] = dynamicPos; //change last position to moving position
+					var shapeInfo = document.getElementById("measureInfo");
+					var exitbtn = document.getElementById("exit");
+					shapeInfo.textContent = "area : " + that.getArea();
+					shapeInfo.appendChild(exitbtn);
+
+				}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+				that.entityId.push(line.id, polygon.id);
+				that.stopDrawing();
+				return polygon;
 			}
 		}
-	}
-	var _move = function(e) {
-		var drawer = self.drawer;
-		
-		if(drawer.status === Measure.STATUS.COMPLETE) return;
-		
-		var point3d = API.Converter.screenCoordToMagoPoint3D(e.endPosition.x, e.endPosition.y, magoManager);
-		var crts3 = API.Converter.magoToCesiumForPoint3D(point3d);
-		
-		if(drawer.status === Measure.STATUS.NOTSTART) {
-			drawer.result.points = [];
-			drawer.result.guide = viewer.entities.add({
-				point : pointGraphic
+	}, {
+		key: "setEventHandler",
+		value: function setEventHandler() {
+			var that = this;
+			var shapeInfo = document.getElementById("measureInfo");
+			shapeInfo.style.display = "block";
+			shapeInfo.style.background = 'white';
+			shapeInfo.style.border = '1px solid #888';
+			shapeInfo.style.paddingLeft = '5px';
+			shapeInfo.style.position = 'absolute';
+			shapeInfo.style.zIndex = '100';
+			shapeInfo.style.color = "#00BFFF";
+			var exitbtn = document.createElement("button");
+			exitbtn.id = "exit";
+			exitbtn.innerText = "x";
+			exitbtn.style.border = "0px";
+			exitbtn.style.padding = "0 5px";
+			exitbtn.style.backgroundColor = "transparent";
+			exitbtn.addEventListener("click", function() {
+				shapeInfo.innerHTML = "";
+				that.deleteEntities();
 			});
-			
-			drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
-		}
-		
-		if(drawer.status === Measure.STATUS.NEEDLINE) {
-			drawer.result.line = viewer.entities.add({
-				polyline : {
-					positions : new Cesium.CallbackProperty(_lineCoordinate),
-					width : 3,
-					clampToGround : true,
-					material : Cesium.Color.RED
+			this.handler.setInputAction(function(event) {
+				if (that.condition()) {
+					if (that.end) {
+						that.init();
+					}
+					//var position = magoInstance.getViewer().camera.pickEllipsoid(event.position, magoInstance.getViewer().scene.globe.ellipsoid);
+					var position = that.transfromCoord(event.position);
+					that.positions.push(position);
+
+					that.drawShape();
+					if (that.pointsCount == 2) {
+						shapeInfo.textContent = "distance : " + that.getLength();
+					}
+
+					if (that.pointsCount > 2) {
+						shapeInfo.textContent = "area : " + that.getArea();
+					}
+					var left = event.position.x;
+					if($('#navWrap').is(':visible')) {
+						left += $('#navWrap').width();
+					}
+					if($('#contentsWrap').is(':visible')) {
+						left += $('#contentsWrap').width();
+					}
+					var top = event.position.y;
+					shapeInfo.style.left = left + 'px';
+					shapeInfo.style.top = top + 'px';
+					shapeInfo.appendChild(exitbtn);
 				}
-			});
-			drawer.status = Measure.STATUS.NEEDVERTEXPOINT;
+			}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 		}
-		
-		drawer.result.guide.position = crts3;
+	}, {
+		key: "stopDrawing",
+		value: function stopDrawing() {
+			var that = this;
+
+			that.handler.setInputAction(function() {
+				//magoInstance.getViewer().scene.camera.changed.removeEventListener(that._changedCamera);
+				//magoInstance.getViewer().scene.camera.changed.addEventListener(that._changedCamera);
+				// Pre-allocate memory once.  Don't re-allocate for each animation frame.
+				var scratch3dPosition = new Cesium.Cartesian3();
+				var scratch2dPosition = new Cesium.Cartesian2();
+				var isEntityVisible = true;
+				var shapeInfo = document.getElementById("measureInfo");
+
+				magoInstance.getViewer().clock.onTick.addEventListener(function(clock) {
+					if(!that.end) {
+						return;
+					}
+					var position3d;
+					var position2d;
+
+					if (that.positions[that.positions.length - 1] && that.positions.length > 2) {
+						position3d = that.positions[that.positions.length - 1];
+					}
+
+					if (position3d) {
+						position2d = Mago3D.ManagerUtils.calculateWorldPositionToScreenCoord(undefined, position3d.x, position3d.y, position3d.z, position2d, magoInstance.getMagoManager())
+						//position2d = Cesium.SceneTransforms.wgs84ToWindowCoordinates(
+						//	magoInstance.getViewer().scene, position3d, scratch2dPosition);
+					}
+
+					if (position2d) {
+
+						var left = position2d.x;
+						if($('#navWrap').is(':visible')) {
+							left += $('#navWrap').width();
+						}
+						if($('#contentsWrap').is(':visible')) {
+							left += $('#contentsWrap').width();
+						}
+						var top = position2d.y-50;
+						shapeInfo.style.left = left + 'px';
+						shapeInfo.style.top = top + 'px';
+
+					} 
+				});
+				that.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+				document.getElementById("mapCtrlMeasureDistance").classList.remove("on");
+				document.getElementById("mapCtrlMeasureArea").classList.remove("on");
+				if (that.pointsCount == 2) {
+					magoInstance.getViewer().entities.removeById(that.entityId[that.entityId.length - 2]); //close polyline on right click
+				}
+				else if (that.pointsCount > 2) {
+					that.positions[that.positions.length - 1] = that.positions[0]; //close polygon
+				}
+				that.end = true;
+
+			}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+		}
+	}, {
+		key: "deleteEntities",
+		value: function deleteEntities() {
+			for (var index = 0; index < this.entityId.length; index++) {
+				magoInstance.getViewer().entities.removeById(this.entityId[index]);
+			}
+		}
+	}, {
+		key: "transfromCoord",
+		value: function transfromCoord(screenPosition) {
+			var cesiumScene = magoInstance.getViewer().scene;
+			var cesiumGlobe = cesiumScene.globe;
+			var cesiumCamera = cesiumScene.camera;
+			var windowCoordinates = new Cesium.Cartesian2(screenPosition.x, screenPosition.y);
+			var ray = cesiumCamera.getPickRay(windowCoordinates);
+			var intersection = cesiumGlobe.pick(ray, cesiumScene);
+
+			return intersection;
+		}
+	}, {
+		key : "init",
+		value : function init() {
+			this.deleteEntities();
+			this.end = false;
+			this.positions = []; //get the last element
+			this.entityId.length = 0;
+			this.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+		}
 	}
-	
-	this.drawer.setInputAction(_complete ,Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-	this.drawer.setInputAction(_click ,Cesium.ScreenSpaceEventType.LEFT_CLICK);
-	this.drawer.setInputAction(_move ,Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-}
+	]);
+
+	return Shape;
+};
