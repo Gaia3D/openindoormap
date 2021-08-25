@@ -12,74 +12,74 @@
     <script type="text/javascript" th:src="@{/js/messages_{lang}.js(lang=${lang},cacheVersion=${contentCacheVersion})}"></script>
     <style type="text/css">
         /* 로그인 */
-#loginwrap {width:100%; height:100%; background:#ececee;}
-/* #loginwrap {width:100%; height:100%; background:url(/images/en/login_bg.png) no-repeat left bottom;}*/
-#loginwrap fieldset {padding:0;}
-#login {width:600px; margin:0 auto; height:100%; padding:0; background:white; border:0; box-shadow: 0 0 7px 3px #e2e3e4;}
-#signup-complete {width:580px; margin:0 auto; height:400px; padding:0; background:white; border-radius:8px; position:absolute; top:50%; left:50%; margin-top:-380px; margin-left:-280px;}
-.select-lang {margin-right:60px; padding-top:40px; height:80px;}
-.language {float:right; width:70px; font-size:12px; padding-left:5px;}
-.login-wrapper {width:420px; margin:0 auto; padding:0;}
-p.stitle {font-family: 'NotoKrR'; font-size:14px; margin-top:30px; height:30px; color:#444444; text-align:center;}
-span.mago {color:#6649ca;}
-.login-wrapper img {clear:both; display:block; text-align:center; margin-left:auto; margin-right:auto; margin-top:50px;}
-.login-wrapper .btn-login {clear:both; display:block; width:420px; height:60px; padding:0; margin:0; font-size:20px; cursor:pointer; background:#1289f8; color:white; font-family: 'NotoKrM';}
-.login-wrapper .inputid {clear:both; display:block;  padding:0; margin:0; margin-top:40px; margin-bottom:14px; text-indent:10px; width:420px; text-align:left; height:48px; line-height:45px;font-size:15px; color:#444444; border:1px solid #e2e0e0; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
-.login-wrapper .inputpwd {clear:both; display:block; padding:0; margin:0; margin-bottom:14px; text-indent:10px; width:420px; text-align:left; height:48px; line-height:45px; font-size:15px; color:#444444; border:1px solid #e2e0e0; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
-.login-wrapper input {background:white;}
-.login-wrapper input:focus {transition:0.3s; border:1px solid #4a9afd;}
-.login-wrapper > ul.join {clear:both; margin:0 0 0 0; padding:0 0 0 0; }
-.login-wrapper > ul.join li {float:left; padding:20px 20px 0 0; list-style:none; margin:0; font-size:16px; font-family: 'NotoKrR';}
-.login-wrapper > ul.join li.on a {color:#2a5bd3;}
-.login-wrapper > ul.join li a:hover, .login-wrapper > ul.join li a:focus {text-decoration:underline;}
-.login-wrapper > .autologin {clear:both; width:420px; padding:0; margin:0 auto;  height:87px; }
-.login-wrapper > .autologin > span {float:left; display:inline-block; line-height:40px; margin-left:40px; margin-right:20px; font-size:15px;}
-.login-wrapper > .autologin ul {display:block; margin-top:22px; background: url(../../images/ic_sbmenu.png)}
-.login-wrapper > .autologin ul li {list-style:none; display:inline-block; float:left; margin-left:5px; }
-.login-wrapper > .autologin ul li .login-google {display:inline-block; width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -334px 1px no-repeat;}
-.login-wrapper > .autologin ul li .login-facebook {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -400px 1px no-repeat;}
-.login-wrapper > .autologin ul li .login-naver {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -464px 1px no-repeat;}
-.login-wrapper > .autologin ul li .login-kakao {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -526px 1px no-repeat;}
-.copyright {width:500px; margin:0 auto; margin-top:80px; padding:30px 0 0 0;font-size:14px; color:#4f4f4f; text-align:center; font-family: 'NotoKrL'; border-top:1px solid #ececec;}
-.btn-login:hover, .btn-login:focus {background:#1080e9; border:1px solid #1080e9;}
+        #loginwrap {width:100%; height:100%; background:#ececee;}
+        /* #loginwrap {width:100%; height:100%; background:url(/images/en/login_bg.png) no-repeat left bottom;}*/
+        #loginwrap fieldset {padding:0;}
+        #login {width:600px; margin:0 auto; height:100%; padding:0; background:white; border:0; box-shadow: 0 0 7px 3px #e2e3e4;}
+        #signup-complete {width:580px; margin:0 auto; height:400px; padding:0; background:white; border-radius:8px; position:absolute; top:50%; left:50%; margin-top:-380px; margin-left:-280px;}
+        .select-lang {margin-right:60px; padding-top:40px; height:80px;}
+        .language {float:right; width:70px; font-size:12px; padding-left:5px;}
+        .login-wrapper {width:420px; margin:0 auto; padding:0;}
+        p.stitle {font-family: 'NotoKrR'; font-size:14px; margin-top:30px; height:30px; color:#444444; text-align:center;}
+        span.mago {color:#6649ca;}
+        .login-wrapper img {clear:both; display:block; text-align:center; margin-left:auto; margin-right:auto; margin-top:50px;}
+        .login-wrapper .btn-login {clear:both; display:block; width:420px; height:60px; padding:0; margin:0; font-size:20px; cursor:pointer; background:#1289f8; color:white; font-family: 'NotoKrM';}
+        .login-wrapper .inputid {clear:both; display:block;  padding:0; margin:0; margin-top:40px; margin-bottom:14px; text-indent:10px; width:420px; text-align:left; height:48px; line-height:45px;font-size:15px; color:#444444; border:1px solid #e2e0e0; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
+        .login-wrapper .inputpwd {clear:both; display:block; padding:0; margin:0; margin-bottom:14px; text-indent:10px; width:420px; text-align:left; height:48px; line-height:45px; font-size:15px; color:#444444; border:1px solid #e2e0e0; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
+        .login-wrapper input {background:white;}
+        .login-wrapper input:focus {transition:0.3s; border:1px solid #4a9afd;}
+        .login-wrapper > ul.join {clear:both; margin:0 0 0 0; padding:0 0 0 0; }
+        .login-wrapper > ul.join li {float:left; padding:20px 20px 0 0; list-style:none; margin:0; font-size:16px; font-family: 'NotoKrR';}
+        .login-wrapper > ul.join li.on a {color:#2a5bd3;}
+        .login-wrapper > ul.join li a:hover, .login-wrapper > ul.join li a:focus {text-decoration:underline;}
+        .login-wrapper > .autologin {clear:both; width:420px; padding:0; margin:0 auto;  height:87px; }
+        .login-wrapper > .autologin > span {float:left; display:inline-block; line-height:40px; margin-left:40px; margin-right:20px; font-size:15px;}
+        .login-wrapper > .autologin ul {display:block; margin-top:22px; background: url(../../images/ic_sbmenu.png)}
+        .login-wrapper > .autologin ul li {list-style:none; display:inline-block; float:left; margin-left:5px; }
+        .login-wrapper > .autologin ul li .login-google {display:inline-block; width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -334px 1px no-repeat;}
+        .login-wrapper > .autologin ul li .login-facebook {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -400px 1px no-repeat;}
+        .login-wrapper > .autologin ul li .login-naver {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -464px 1px no-repeat;}
+        .login-wrapper > .autologin ul li .login-kakao {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -526px 1px no-repeat;}
+        .copyright {width:500px; margin:0 auto; margin-top:80px; padding:30px 0 0 0;font-size:14px; color:#4f4f4f; text-align:center; font-family: 'NotoKrL'; border-top:1px solid #ececec;}
+        .btn-login:hover, .btn-login:focus {background:#1080e9; border:1px solid #1080e9;}
 
-/* scrollbar */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #f4f2f2; }
-::-webkit-scrollbar-thumb { background: #e0e0e0; }
-::-webkit-scrollbar-button { display: none; }
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f4f2f2; }
+        ::-webkit-scrollbar-thumb { background: #e0e0e0; }
+        ::-webkit-scrollbar-button { display: none; }
 
-fieldset {padding: 0.35em 0.75em 0.625em;}
-img, fieldset { padding: 0; border: none; }
-legend, caption { width:0; height:0; font-size:0; line-height:0; overflow:hidden; visibility:hidden; display: none;}
-legend {box-sizing: border-box; /* 1 */  color: inherit; /* 2 */  display: table; /* 1 */  max-width: 100%; /* 1 */  padding: 0; /* 3 */  white-space: normal; /* 1 */}
-.blind {overflow:hidden; visibility:hidden; position:absolute; width:0; height:0; line-height:0; }
+        fieldset {padding: 0.35em 0.75em 0.625em;}
+        img, fieldset { padding: 0; border: none; }
+        legend, caption { width:0; height:0; font-size:0; line-height:0; overflow:hidden; visibility:hidden; display: none;}
+        legend {box-sizing: border-box; /* 1 */  color: inherit; /* 2 */  display: table; /* 1 */  max-width: 100%; /* 1 */  padding: 0; /* 3 */  white-space: normal; /* 1 */}
+        .blind {overflow:hidden; visibility:hidden; position:absolute; width:0; height:0; line-height:0; }
 
-/* Simple button */
-.button,
-button,
-input[type="submit"],
-input[type="reset"],
-input[type="button"],
-.ui-dialog .ui-dialog-buttonpane button {
-    display: inline-block;
-    font-size: 1.2rem;
-    /*height: 30px; */
-    padding: 6px 10px;
-    box-sizing: border-box;
-    margin: 0;
-    text-align: center;
-    color: black;
-    font-family: 'NotoKrR';
-    background: #e9e9ea;
-    text-transform: uppercase;
-    text-decoration: none;
-    white-space: nowrap;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 0;
-    border: 1px solid #d9d9da;
-    cursor: pointer; }
+        /* Simple button */
+        .button,
+        button,
+        input[type="submit"],
+        input[type="reset"],
+        input[type="button"],
+        .ui-dialog .ui-dialog-buttonpane button {
+            display: inline-block;
+            font-size: 1.2rem;
+            /*height: 30px; */
+            padding: 6px 10px;
+            box-sizing: border-box;
+            margin: 0;
+            text-align: center;
+            color: black;
+            font-family: 'NotoKrR';
+            background: #e9e9ea;
+            text-transform: uppercase;
+            text-decoration: none;
+            white-space: nowrap;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 0;
+            border: 1px solid #d9d9da;
+            cursor: pointer; }
     </style>
 </head>
 <body>
