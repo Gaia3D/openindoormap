@@ -1,8 +1,8 @@
 # Ignore Gradle project-specific cache directory
 **/application-dev.properties
+**/js/messages_*.js
 **/.gradle
 **/.temp-*
-
 # Ignore Gradle build output directory
 **/build
 

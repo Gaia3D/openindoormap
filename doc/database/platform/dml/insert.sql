@@ -52,7 +52,7 @@ values
     (81, '0', '1', '3D 데이터', '3D Data', 8, 8, 2, 1, '/statistics/threedimension', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
     (82, '0', '1', '사용자 3D 데이터 업로딩', 'Uploading  user 3D data ', 8, 8, 2, 2, '/statistics/userdata', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
     (83, '0', '1', '3D 데이터 변환 횟수', '3D data transformation', 8, 8, 2, 3, '/statistics/transformation', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
- -- (84, '0', '1', '접근 이력', 'Access HISTORY', 8, 8, 2, 4, '/statistics/access', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
+    (84, '0', '1', '접근 이력', 'Access HISTORY', 8, 8, 2, 4, '/statistics/access', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
  -- (85, '0', '1', 'Api 사용 이력', 'API Use History ', 8, 8, 2, 5, '/statistics/apiuse', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
     (9, '0', '1', '환경설정', 'CONFIGURATION', 9, 0, 1, 9, '/policy/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),
     (91, '0', '1', '일반 운영정책', 'CONFIGURATION', 9, 9, 2, 1, '/policy/modify', null, null, 'glyph-settings', 'Y', 'Y', 'Y'),

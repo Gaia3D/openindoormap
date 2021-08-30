@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.openindoormap.persistence.StatisticsMapper">
+
+    <!-- 3D Data -->
+    <select id="getStatisticsDataInfo" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <![CDATA[
+        WITH RECURSIVE elaps AS
+        (SELECT 1 AS inc,
+                    #{year}::int AS year,
+                    (#{year} || '-01-01')::TIMESTAMP AS bg,
+                    (#{year} || '-01-01')::TIMESTAMP + interval '1 month' AS ed
+            UNION ALL
+            SELECT inc + 1 AS inc,
+                   #{year}::int + ((inc) / 12)::int,
+                   bg + interval '1 month',
+                   ed + interval '1 month'
+            FROM elaps
+            WHERE inc < #{count})
+        SELECT a.year,
+               EXTRACT(month FROM bg)  as month,
+               count(insert_date) as count
+        FROM elaps as a
+        LEFT OUTER JOIN data_info ON bg <= insert_date and insert_date < ed
+        GROUP BY GROUPING SETS((a.year, bg), (a.year), ())
+        ORDER BY a.year NULLS LAST, bg NULLS FIRST
+    ]]>
+    </select>
+
+    <!-- Converter Data -->
+    <select id="getStatisticsConverter" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <![CDATA[
+        WITH RECURSIVE elaps AS
+        (SELECT 1 AS inc,
+                    #{year}::int AS year,
+                    (#{year} || '-01-01')::TIMESTAMP AS bg,
+                    (#{year} || '-01-01')::TIMESTAMP + interval '1 month' AS ed
+            UNION ALL
+            SELECT inc + 1 AS inc,
+                   #{year}::int + ((inc) / 12)::int,
+                   bg + interval '1 month',
+                   ed + interval '1 month'
+            FROM elaps
+            WHERE inc < #{count})
+        SELECT a.year,
+               EXTRACT(month FROM bg)  as month,
+               count(insert_date)  as count
+        FROM elaps as a
+        LEFT OUTER JOIN converter_job ON bg <= insert_date and insert_date < ed
+        GROUP BY GROUPING SETS((a.year, bg), (a.year), ())
+        ORDER BY a.year, bg NULLS LAST
+    ]]>
+    </select>
+
+    <!-- Upload Data -->
+    <select id="getStatisticsUploadData" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <![CDATA[
+        WITH RECURSIVE elaps AS
+        (SELECT 1 AS inc,
+                    #{year}::int AS year,
+                    (#{year} || '-01-01')::TIMESTAMP AS bg,
+                    (#{year} || '-01-01')::TIMESTAMP + interval '1 month' AS ed
+            UNION ALL
+            SELECT inc + 1 AS inc,
+                   #{year}::int + ((inc) / 12)::int,
+                   bg + interval '1 month',
+                   ed + interval '1 month'
+            FROM elaps
+            WHERE inc < #{count})
+        SELECT a.year,
+               EXTRACT(month FROM bg)  as month,
+               count(insert_date) as count
+        FROM elaps as a
+        LEFT OUTER JOIN upload_data ON bg <= insert_date and insert_date < ed
+        GROUP BY GROUPING SETS((a.year, bg), (a.year), ())
+        ORDER BY a.year, bg NULLS LAST
+    ]]>
+    </select>
+
+    <!-- Access log -->
+    <select id="getStatisticsAccess" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <![CDATA[
+        WITH RECURSIVE elaps AS
+        (SELECT 1 AS inc,
+                    #{year}::int AS year,
+                    (#{year} || '-01-01')::TIMESTAMP AS bg,
+                    (#{year} || '-01-01')::TIMESTAMP + interval '1 month' AS ed
+            UNION ALL
+            SELECT inc + 1 AS inc,
+                   #{year}::int + ((inc) / 12)::int,
+                   bg + interval '1 month',
+                   ed + interval '1 month'
+            FROM elaps
+            WHERE inc < #{count})
+        SELECT a.year,
+               EXTRACT(month FROM bg)  as month,
+               count(insert_date) as count
+        FROM elaps as a
+        LEFT OUTER JOIN access_log ON bg <= insert_date and insert_date < ed
+        GROUP BY GROUPING SETS((a.year, bg), (a.year), ())
+        ORDER BY a.year, bg NULLS LAST
+    ]]>
+    </select>
+
+</mapper>

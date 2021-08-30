@@ -78,7 +78,6 @@ subprojects {
                         }
                         into "src/main/resources"
                     }
-                    exclude "**/develop/*"
                 } else if (profile == 'develop') {
                     println " ===========> profile file is ${profile}"
                     println " ===========> copy from src/main/resources/develop to src/main/resources"
@@ -91,13 +90,13 @@ subprojects {
                         }
                         into "src/main/resources"
                     }
-                    exclude "**/product/*"
                 } else {
                     println " ===========> profile file is ${profile}"
                     //srcDir "src/main/resources"
-                    exclude "**/product/*"
-                    exclude "**/develop/*"
+
                 }
+                exclude "**/product/*"
+                exclude "**/develop/*"
             }
         }
     }
