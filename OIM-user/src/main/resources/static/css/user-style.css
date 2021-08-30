@@ -191,7 +191,9 @@ ul.nav li.layer {
     /*background-position: -360px -190px;*/
     background-position: -364px 5px;
 }
-
+ul.nav li.iot {
+    background-position: -450px -67px;
+}
 /* CONTENTSBTN */
 .contentsBtn {
 /* position: absolute; */
