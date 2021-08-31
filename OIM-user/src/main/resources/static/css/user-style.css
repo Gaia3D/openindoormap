@@ -184,16 +184,24 @@ letter-spacing: -2px;
 background-position: -287px 9px;
 }
 ul.nav li.userPolicy {
-    /*background-position: -445px -590px;*/
-    background-position: -440px 5px;
+/*background-position: -445px -590px;*/
+background-position: -440px 5px;
 }
 ul.nav li.layer {
-    /*background-position: -360px -190px;*/
-    background-position: -364px 5px;
+/*background-position: -360px -190px;*/
+background-position: -364px 5px;
 }
 ul.nav li.iot {
-    background-position: -450px -67px;
+letter-spacing: -3px;
+background-position: -438px -57px;
 }
+ul.nav li.iot {
+background-position: -438px -57px;
+}
+ul.nav li.iot-ko {
+letter-spacing: -3px;
+}
+
 /* CONTENTSBTN */
 .contentsBtn {
 /* position: absolute; */
