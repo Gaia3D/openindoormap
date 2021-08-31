@@ -156,9 +156,6 @@ ul.nav li.converter {
 /*background-position: -445px -190px;*/
 background-position: -138px 8px;
 }
-li.converter-en {
-    font-size: 12px;
-}
 ul.nav li.extrusion {
 /*background-position: -445px -190px;*/
 background-position: -289px 5px;
@@ -196,9 +193,6 @@ background-position: -364px 5px;
 }
 ul.nav li.iot {
 background-position: -438px -57px;
-}
-ul.nav li.iot-ko {
-letter-spacing: -3px;
 }
 
 /* CONTENTSBTN */
