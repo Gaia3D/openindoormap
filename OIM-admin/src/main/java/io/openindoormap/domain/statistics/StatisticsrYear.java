@@ -8,6 +8,6 @@ import lombok.Setter;
 public class StatisticsrYear {
 
     private String year;
-    private int month[] = new int[13];
+    private String month[] = new String[13];
 
 }

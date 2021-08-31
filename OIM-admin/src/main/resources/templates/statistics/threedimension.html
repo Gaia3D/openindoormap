@@ -27,70 +27,63 @@
                                 <div class="input-group row">
                                     <div class="input-set">
                                         <label for="searchWord" th:text="#{term}"></label>
-                                        <select id="searchWord" name="from" class="selectBoxClass">
+                                        <select name="from" class="selectBoxClass" v-model:value="from">
                                             <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
                                             <option th:text="${num}" th:value="${num}" th:selected="${num} == ${from}">2019</option>
                                             </th:block>
                                         </select>
                                         ~
-                                        <select id="searchOption" name="to" class="selectBoxClass">
+                                        <select name="to" class="selectBoxClass" v-model:value="to">
                                             <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
                                             <option th:text="${num}" th:value="${num}" th:selected="${num} == ${to}">2019</option>
                                             </th:block>
                                         </select>
                                     </div>
                                     <div class="input-set">
+                                        <!--
                                         <input type="submit" th:value="#{search}" />
+                                        -->
+                                        <button id="searchAjax" th:text="#{search}" v-on:click="getData"></button>
                                     </div>
                                 </div>
                             </form>
                         </div>
                         <!-- E: 검색 -->
 
-                        <!-- S: 사용자 목록-->
+                        <!-- S: 통계 목록-->
                         <div class="list">
-                            <form id="listForm" th:object="${userInfo}" method="post">
-                                <table class="list-table scope-col" summary="사용자 목록 조회 ">
-                                    <caption class="hiddenTag">사용자 목록</caption>
-                                    <colgroup>
-                                        <col class="col-number"></col>
-                                        <col class="col-name"></col>
-                                        <col class="col-name"></col>
-                                        <col class="col-name"></col>
-
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">년도</th>
-                                            <th scope="col">1</th>
-                                            <th scope="col">2</th>
-                                            <th scope="col">3</th>
-                                            <th scope="col">4</th>
-                                            <th scope="col">5</th>
-                                            <th scope="col">6</th>
-                                            <th scope="col">7</th>
-                                            <th scope="col">8</th>
-                                            <th scope="col">9</th>
-                                            <th scope="col">10</th>
-                                            <th scope="col">11</th>
-                                            <th scope="col">12</th>
-                                            <th scope="col">합계</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:if="${list.empty}">
-                                            <td colspan="14" class="col-none">통계 목록이 존재하지 않습니다.</td>
-                                        </tr>
-                                        <tr th:unless="${list.empty}" th:each="year : ${list}">
-                                            <td class="col-name" th:text="${#strings.defaultString(year.year, '합계')}" th:colspan="${#strings.isEmpty(year.year) ? 13: 1}"></td>
-                                            <td class="col-type" th:if="${not #strings.isEmpty(year.year)}" th:text="${month}"  th:each="month : ${year.month}" ></td>
-                                            <td class="col-type" th:if="${#strings.isEmpty(year.year)}" th:text="${year.month[0]}" ></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </form>
+                          <table class="list-table scope-col" summary="통계 목록 조회 ">
+                              <thead>
+                                  <tr>
+                                      <th scope="col">년도</th>
+                                      <th scope="col">1</th>
+                                      <th scope="col">2</th>
+                                      <th scope="col">3</th>
+                                      <th scope="col">4</th>
+                                      <th scope="col">5</th>
+                                      <th scope="col">6</th>
+                                      <th scope="col">7</th>
+                                      <th scope="col">8</th>
+                                      <th scope="col">9</th>
+                                      <th scope="col">10</th>
+                                      <th scope="col">11</th>
+                                      <th scope="col">12</th>
+                                      <th scope="col">합계</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr v-if="years.length < 1">
+                                      <td colspan="14" class="col-none">통계 목록이 존재하지 않습니다.</td>
+                                  </tr>
+                                  <tr v-for="year, index in years" v-on:click="select(index)">
+                                      <td class="col-name" v-bind:colspan="year.year == null ? 13: 1">{{year.year != null ? year.year: "합계"}}</td>
+                                      <td class="col-type" v-if="year.year != null"  v-for="month in year.month" >{{month.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}}</td>
+                                      <td class="col-type" v-if="year.year == null" >{{year.month[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")}}</td>
+                                  </tr>
+                              </tbody>
+                          </table>
                         </div>
-                        <!-- E: 사용자 목록-->
+                        <!-- E: 통계 목록-->
                     </div>
                 </div>
             </div>
@@ -100,32 +93,54 @@
     <div th:replace="~{/user-group/user-group-info-dialog :: #userGroupInfoDialog}"></div>
 </th:block>
 <th:block layout:fragment="pageCustomScript">
-<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js(cacheVersion=${contentCacheVersion})}"></script>
-<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js(cacheVersion=${contentCacheVersion})}"></script>
+<script type="text/javascript" th:src="@{/externlib/vue-2.6.14/vue.min.js}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-3.3.1/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/externlib/jquery-ui-1.12.1/jquery-ui.min.js}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/common.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
+    //
+    var app = new Vue({
+        el: '.page-content',
+        data: {
+            message: '안녕하세요 Vue!',
+            years: [],
+            from: 2019,
+            to: 2019
+        },
+        methods: {
+            getData: function() {
+                if (this.from > this.to) {
+                    alert("시작이 끝보다 큽니다.");
+                    return;
+                }
+                var _this = this;
+                var queryString = $('#searchForm').serialize() ;
+                $.ajax({
+                    url: "",
+                    type: "GET",
+                    headers: {"X-Requested-With": "XMLHttpRequest"},
+                    data: queryString,
+                    dataType: "json",
+                    success: function(data){
+                        _this.years = data;
+                    },
+                    error:function(request, status, error){
+                        alert(JS_MESSAGE["ajax.error.message"]);
+                    }
+                });
+
+            },
+            select: function (index) {
+                console.log(this.years[index]);
+            }
+        }
+    })
 
     function searchCheck() {
-        if($("#searchOption").val() == "1") {
-            if(confirm(JS_MESSAGE["search.option.warning"])) {
-                // go
-            } else {
-                return false;
-            }
-        }
 
-        var startDate = $("#startDate").val();
-        var endDate = $("#endDate").val();
-        if(startDate != null && startDate != "" && endDate != null && endDate != "") {
-            if(parseInt(startDate) > parseInt(endDate)) {
-                alert(JS_MESSAGE["search.date.warning"]);
-                $("#startDate").focus();
-                return false;
-            }
-        }
-        return true;
+        return false;
     }
 </script>
 </th:block>

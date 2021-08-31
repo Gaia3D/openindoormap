@@ -23,7 +23,7 @@ public class StatisticsController {
     @Autowired
     StatisticsService service;
 
-    @RequestMapping(value = "/threedimension")
+    @GetMapping(value = {"/threedimension", "/userdata", "/transformation", "/access"})
     public String threedimension(HttpServletRequest request, Integer from, Integer to, Model model) {
         List<StatisticsrYear> l = new ArrayList<>();;
 
@@ -39,7 +39,7 @@ public class StatisticsController {
         return "/statistics/threedimension";
     }
 
-    @RequestMapping(value = "/threedimension", produces = "application/json")
+    @GetMapping(value = "/threedimension", produces = "application/json")
     public ResponseEntity<List<StatisticsrYear>> threedimensionJson(HttpServletRequest request, Integer from, Integer to, Model model) {
         List<StatisticsrYear> l = new ArrayList<>();;
 
@@ -60,7 +60,7 @@ public class StatisticsController {
         String preYear = "";
         int colIndex = 0;
         StatisticsrYear year = null;
-        int month[] = null;
+        String month[] = null;
 
         for (int i = 0; i < months.size(); i++) {
             StatisticsMonth d = months.get(i);
@@ -72,14 +72,14 @@ public class StatisticsController {
                 month = year.getMonth();
                 colIndex = 0;
             }
-            month[colIndex] = d.getCount();
+            month[colIndex] = String.valueOf(d.getCount());
             colIndex ++;
         }
     }
 
 
-    @GetMapping(value = "/userdata")
-    public String userdata(HttpServletRequest request, Integer from, Integer to, Model model) {
+    @GetMapping(value = "/userdata", produces = "application/json")
+    public ResponseEntity<List<StatisticsrYear>> userdata(HttpServletRequest request, Integer from, Integer to, Model model) {
         List<StatisticsrYear> l = new ArrayList<>();;
 
         if (from != null && to != null && from <= to) {
@@ -92,11 +92,11 @@ public class StatisticsController {
         model.addAttribute("from", from);
         model.addAttribute("to", to);
 
-        return "/statistics/threedimension";
+        return ResponseEntity.ok(l);
     }
 
-    @GetMapping(value = "/transformation")
-    public String transformation(HttpServletRequest request, Integer from, Integer to, Model model) {
+    @GetMapping(value = "/transformation", produces = "application/json")
+    public ResponseEntity<List<StatisticsrYear>> transformation(HttpServletRequest request, Integer from, Integer to, Model model) {
         List<StatisticsrYear> l = new ArrayList<>();;
 
         if (from != null && to != null && from <= to) {
@@ -109,11 +109,11 @@ public class StatisticsController {
         model.addAttribute("from", from);
         model.addAttribute("to", to);
 
-        return "/statistics/threedimension";
+        return ResponseEntity.ok(l);
     }
 
-    @GetMapping(value = "/access")
-    public String accessLogs(HttpServletRequest request, Integer from, Integer to, Model model) {
+    @GetMapping(value = "/access", produces = "application/json")
+    public ResponseEntity<List<StatisticsrYear>> accessLogs(HttpServletRequest request, Integer from, Integer to, Model model) {
         List<StatisticsrYear> l = new ArrayList<>();;
 
         if (from != null && to != null && from <= to) {
@@ -126,7 +126,7 @@ public class StatisticsController {
         model.addAttribute("from", from);
         model.addAttribute("to", to);
 
-        return "/statistics/threedimension";
+        return ResponseEntity.ok(l);
     }
 
 }
