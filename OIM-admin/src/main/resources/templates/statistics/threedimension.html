@@ -73,8 +73,9 @@
                                             <td colspan="3" class="col-none">통계 목록이 존재하지 않습니다.</td>
                                         </tr>
                                         <tr th:unless="${list.empty}" th:each="row : ${list}" th:with="year=${row.year}">
-                                            <td class="col-name" th:text="${row.year}"></td>
-                                            <td class="col-type" th:text="${row.month}"></td>
+                                            <td class="col-name" th:text="${#strings.defaultString(row.year, '합계')}"></td>
+                                            <td class="col-type" th:if="${not #strings.isEmpty(row.year)}" th:text="${#strings.defaultString(row.month, '합계')}"></td>
+                                            <td class="col-type" th:if="${#strings.isEmpty(row.year)}"></td>
                                             <td class="col-type" th:text="${row.count}"></td>
                                         </tr>
                                     </tbody>
