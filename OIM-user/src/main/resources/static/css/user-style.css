@@ -120,48 +120,51 @@ background-color: #262b3f;
 /* ////////// NAVWRAP ////////// */
 /* NAV */
 .navWrap {
-    float: left;
-    position: relative;
-    height: 100%;
-    background-color: #0066a2;
+float: left;
+position: relative;
+height: 100%;
+background-color: #0066a2;
 }
 ul.nav {
-    float: left;
-    height: 100%;
-    width: 60px;
+float: left;
+height: 100%;
+width: 60px;
 }
 ul.nav li {
-    padding: 50px 0 5px 0;
-    font-size: 13px;
-    color: #fff;
-    cursor: pointer;
-    text-align: center;
-    border-bottom: 1px dotted #444a61;
-    background-image: url(/images/ko/icon.png);
-    background-repeat: no-repeat;
+padding: 50px 0 5px 0;
+font-size: 13px;
+color: #fff;
+cursor: pointer;
+text-align: center;
+border-bottom: 1px dotted #444a61;
+background-image: url(/images/ko/icon.png);
+background-repeat: no-repeat;
 }
 ul.nav li.on {
-    /*background-color: #258fff;*/
-    background-color: #262b3f;
+/*background-color: #258fff;*/
+background-color: #262b3f;
 }
 ul.nav li.search {
-    /*background-position: -445px 10px;*/
-    background-position: 13px -60px;
+/*background-position: -445px 10px;*/
+background-position: 13px -60px;
 }
 ul.nav li.data {
-    /*background-position: -445px -90px;*/
-    background-position: -62px 13px;
+/*background-position: -445px -90px;*/
+background-position: -62px 13px;
 }
 ul.nav li.converter {
-    /*background-position: -445px -190px;*/
-    background-position: -138px 8px;
+/*background-position: -445px -190px;*/
+background-position: -138px 8px;
+}
+li.converter-en {
+    font-size: 12px;
 }
 ul.nav li.extrusion {
-    /*background-position: -445px -190px;*/
-    background-position: -289px 5px;
+/*background-position: -445px -190px;*/
+background-position: -289px 5px;
 }
 ul.nav li.spatial {
-    background-position: -445px -290px;
+background-position: -445px -290px;
 }
 ul.nav li.cityplan {
 letter-spacing: -2px;
