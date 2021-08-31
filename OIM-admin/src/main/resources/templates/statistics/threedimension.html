@@ -23,19 +23,20 @@
 
                         <!-- S: 검색 -->
                         <div class="filters">
-                            <form id="searchForm" th:object="${userInfo}" method="get"  onsubmit="return searchCheck();">
+                            <form id="searchForm" method="get" th:action="@{#}"  onsubmit="return searchCheck();">
                                 <div class="input-group row">
                                     <div class="input-set">
-                                        <label for="searchWord" th:text="#{search.word}"></label>
+                                        <label for="searchWord" th:text="#{term}"></label>
                                         <select id="searchWord" name="from" class="selectBoxClass">
-                                        <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
+                                            <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
                                             <option th:text="${num}" th:value="${num}" th:selected="${num} == ${from}">2019</option>
-                                        </th:block>
+                                            </th:block>
                                         </select>
+                                        ~
                                         <select id="searchOption" name="to" class="selectBoxClass">
-                                        <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
+                                            <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
                                             <option th:text="${num}" th:value="${num}" th:selected="${num} == ${to}">2019</option>
-                                        </th:block>
+                                            </th:block>
                                         </select>
                                     </div>
                                     <div class="input-set">
@@ -56,27 +57,34 @@
                                         <col class="col-name"></col>
                                         <col class="col-name"></col>
                                         <col class="col-name"></col>
-                                        <col class="col-type"></col>
-                                        <col class="col-functions"></col>
-                                        <col class="col-functions"></col>
-                                        <col class="col-functions"></col>
+
                                     </colgroup>
                                     <thead>
                                         <tr>
                                             <th scope="col">년도</th>
-                                            <th scope="col">월</th>
-                                            <th scope="col">갯수</th>
+                                            <th scope="col">1</th>
+                                            <th scope="col">2</th>
+                                            <th scope="col">3</th>
+                                            <th scope="col">4</th>
+                                            <th scope="col">5</th>
+                                            <th scope="col">6</th>
+                                            <th scope="col">7</th>
+                                            <th scope="col">8</th>
+                                            <th scope="col">9</th>
+                                            <th scope="col">10</th>
+                                            <th scope="col">11</th>
+                                            <th scope="col">12</th>
+                                            <th scope="col">합계</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr th:if="${list.empty}">
-                                            <td colspan="3" class="col-none">통계 목록이 존재하지 않습니다.</td>
+                                            <td colspan="14" class="col-none">통계 목록이 존재하지 않습니다.</td>
                                         </tr>
-                                        <tr th:unless="${list.empty}" th:each="row : ${list}" th:with="year=${row.year}">
-                                            <td class="col-name" th:text="${#strings.defaultString(row.year, '합계')}"></td>
-                                            <td class="col-type" th:if="${not #strings.isEmpty(row.year)}" th:text="${#strings.defaultString(row.month, '합계')}"></td>
-                                            <td class="col-type" th:if="${#strings.isEmpty(row.year)}"></td>
-                                            <td class="col-type" th:text="${row.count}"></td>
+                                        <tr th:unless="${list.empty}" th:each="year : ${list}">
+                                            <td class="col-name" th:text="${#strings.defaultString(year.year, '합계')}" th:colspan="${#strings.isEmpty(year.year) ? 13: 1}"></td>
+                                            <td class="col-type" th:if="${not #strings.isEmpty(year.year)}" th:text="${month}"  th:each="month : ${year.month}" ></td>
+                                            <td class="col-type" th:if="${#strings.isEmpty(year.year)}" th:text="${year.month[0]}" ></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -98,90 +106,6 @@
 <script type="text/javascript" th:src="@{/js/{lang}/message.js(lang=${lang}, cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript" th:src="@{/js/navigation.js(cacheVersion=${contentCacheVersion})}"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-
-    });
-
-    //전체 선택
-    $("#chkAll").click(function() {
-        $(":checkbox[name=userId]").prop("checked", this.checked);
-    });
-
-    // 사용자 그룹 정보
-    var userGroupDialog = $("#userGroupInfoDialog").dialog({
-        autoOpen: false,
-        width: 700,
-        height: 400,
-        modal: true,
-        resizable: false
-    });
-
-    // 사용자 그룹 정보
-    function detailUserGroup(userGroupId) {
-        userGroupDialog.dialog("open");
-
-        $.ajax({
-            url: "/user-groups/detail",
-            data: {"userGroupId": userGroupId},
-            type: "GET",
-            headers: {"X-Requested-With": "XMLHttpRequest"},
-            dataType: "json",
-            success: function(msg){
-                if(msg.statusCode <= 200) {
-                    $("#userGroupNameInfo").html(msg.userGroup.userGroupName);
-                    $("#userGroupKeyInfo").html(msg.userGroup.userGroupKey);
-                    $("#basicInfo").html(msg.userGroup.basic?'기본':'선택');
-                    $("#availableInfo").html(msg.userGroup.available?'사용':'미사용');
-                    $("#descriptionInfo").html(msg.userGroup.description);
-                } else {
-                    alert(JS_MESSAGE[msg.errorCode]);
-                }
-            },
-            error: function(request, status, error){
-                alert(JS_MESSAGE["ajax.error.message"]);
-            }
-        });
-    }
-
-    // 사용자 잠금, 사용자 잠금 해제
-    var updateUserStatusFlag = true;
-    function updateUserStatus(statusValue) {
-        if($("input:checkbox[name=userId]:checked").length == 0) {
-            alert(JS_MESSAGE["check.value.required"]);
-            return false;
-        } else {
-            var checkedValue = "";
-            $("input:checkbox[name=userId]:checked").each(function(index){
-                checkedValue += $(this).val() + ",";
-            });
-            $("#checkIds").val(checkedValue);
-        }
-
-        if(updateUserStatusFlag) {
-            updateUserStatusFlag = false;
-            $.ajax({
-                url: "/users/status",
-                type: "POST",
-                data: {checkIds: checkedValue, statusValue: statusValue},
-                dataType: "json",
-                success: function(msg){
-                    if(msg.statusCode <= 200) {
-                        alert(JS_MESSAGE["update"]);
-                        location.reload();
-                    } else {
-                        alert(JS_MESSAGE[msg.errorCode]);
-                    }
-                    updateUserStatusFlag = true;
-                },
-                error:function(request,status,error){
-                    alert(JS_MESSAGE["ajax.error.message"]);
-                    updateUserStatusFlag = true;
-                }
-            });
-        } else {
-            alert(JS_MESSAGE["button.dobule.click"]);
-        }
-    }
 
     function searchCheck() {
         if($("#searchOption").val() == "1") {

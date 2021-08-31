@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import io.openindoormap.domain.statistics.StatisticsForYear;
+import io.openindoormap.domain.statistics.StatisticsMonth;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -22,11 +22,11 @@ class StatisticsMapperTest {
     void testGetStatisticsDataInfo() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = mapper.getStatisticsDataInfo(year);
+        List<StatisticsMonth> l = mapper.getStatisticsDataInfo(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
@@ -34,11 +34,11 @@ class StatisticsMapperTest {
     void testGetStatisticsConverter() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = mapper.getStatisticsConverter(year);
+        List<StatisticsMonth> l = mapper.getStatisticsConverter(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
@@ -46,11 +46,11 @@ class StatisticsMapperTest {
     void testGetStatisticsUploadData() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = mapper.getStatisticsUploadData(year);
+        List<StatisticsMonth> l = mapper.getStatisticsUploadData(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
@@ -58,11 +58,11 @@ class StatisticsMapperTest {
     void testGetStatisticsAccess() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = mapper.getStatisticsAccess(year);
+        List<StatisticsMonth> l = mapper.getStatisticsAccess(year);
         assertEquals(count * 13 + 1, l.size());
     }
 

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatisticsForYear {
+public class StatisticsMonth {
 
     private String year;
     private String month;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import io.openindoormap.domain.statistics.StatisticsForYear;
+import io.openindoormap.domain.statistics.StatisticsMonth;
 
 
 /**
@@ -22,7 +22,7 @@ public interface StatisticsMapper {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsDataInfo(StatisticsForYear year);
+    List<StatisticsMonth> getStatisticsDataInfo(StatisticsMonth year);
 
     /**
      * 변환  등록
@@ -30,7 +30,7 @@ public interface StatisticsMapper {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsConverter(StatisticsForYear year);
+    List<StatisticsMonth> getStatisticsConverter(StatisticsMonth year);
 
     /**
      * upload  등록
@@ -38,7 +38,7 @@ public interface StatisticsMapper {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsUploadData(StatisticsForYear year);
+    List<StatisticsMonth> getStatisticsUploadData(StatisticsMonth year);
 
     /**
      * 접근 이력
@@ -46,7 +46,7 @@ public interface StatisticsMapper {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsAccess(StatisticsForYear year);
+    List<StatisticsMonth> getStatisticsAccess(StatisticsMonth year);
 
 
 

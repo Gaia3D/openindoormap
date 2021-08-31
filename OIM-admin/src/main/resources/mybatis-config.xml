@@ -34,7 +34,7 @@
         <typeAlias type="io.openindoormap.domain.menu.Menu" alias="menu" />
         <typeAlias type="io.openindoormap.domain.policy.Policy" alias="policy" />
         <typeAlias type="io.openindoormap.domain.role.Role" alias="role" />
-        <typeAlias type="io.openindoormap.domain.statistics.StatisticsForYear" alias="statisticsForYear" />
+        <typeAlias type="io.openindoormap.domain.statistics.StatisticsMonth" alias="statisticsMonth" />
         <typeAlias type="io.openindoormap.domain.uploaddata.UploadData" alias="uploadData" />
         <typeAlias type="io.openindoormap.domain.uploaddata.UploadDataFile" alias="uploadDataFile" />
         <typeAlias type="io.openindoormap.domain.user.UserInfo" alias="userInfo" />

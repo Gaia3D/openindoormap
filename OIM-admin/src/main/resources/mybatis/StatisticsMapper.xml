@@ -4,7 +4,7 @@
 <mapper namespace="io.openindoormap.persistence.StatisticsMapper">
 
     <!-- 3D Data -->
-    <select id="getStatisticsDataInfo" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <select id="getStatisticsDataInfo" parameterType="statisticsMonth" resultType="statisticsMonth">
     <![CDATA[
         WITH RECURSIVE elaps AS
         (SELECT 1 AS inc,
@@ -24,12 +24,12 @@
         FROM elaps as a
         LEFT OUTER JOIN data_info ON bg <= insert_date and insert_date < ed
         GROUP BY GROUPING SETS((a.year, bg), (a.year), ())
-        ORDER BY a.year NULLS LAST, bg NULLS FIRST
+        ORDER BY a.year, bg NULLS LAST
     ]]>
     </select>
 
     <!-- Converter Data -->
-    <select id="getStatisticsConverter" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <select id="getStatisticsConverter" parameterType="statisticsMonth" resultType="statisticsMonth">
     <![CDATA[
         WITH RECURSIVE elaps AS
         (SELECT 1 AS inc,
@@ -54,7 +54,7 @@
     </select>
 
     <!-- Upload Data -->
-    <select id="getStatisticsUploadData" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <select id="getStatisticsUploadData" parameterType="statisticsMonth" resultType="statisticsMonth">
     <![CDATA[
         WITH RECURSIVE elaps AS
         (SELECT 1 AS inc,
@@ -79,7 +79,7 @@
     </select>
 
     <!-- Access log -->
-    <select id="getStatisticsAccess" parameterType="statisticsForYear" resultType="statisticsForYear">
+    <select id="getStatisticsAccess" parameterType="statisticsMonth" resultType="statisticsMonth">
     <![CDATA[
         WITH RECURSIVE elaps AS
         (SELECT 1 AS inc,

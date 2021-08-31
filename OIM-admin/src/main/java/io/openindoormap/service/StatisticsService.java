@@ -2,9 +2,9 @@ package io.openindoormap.service;
 
 import java.util.List;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import io.openindoormap.domain.statistics.StatisticsForYear;
+import io.openindoormap.domain.statistics.StatisticsMonth;
 
 
 /**
@@ -12,7 +12,7 @@ import io.openindoormap.domain.statistics.StatisticsForYear;
  * @author jeongdae
  *
  */
-@Repository
+@Transactional(readOnly = true)
 public interface StatisticsService {
 
 
@@ -22,7 +22,7 @@ public interface StatisticsService {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsDataInfo(StatisticsForYear years);
+    List<StatisticsMonth> getStatisticsDataInfo(StatisticsMonth years);
 
     /**
      * 변환  등록
@@ -30,7 +30,7 @@ public interface StatisticsService {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsConverter(StatisticsForYear years);
+    List<StatisticsMonth> getStatisticsConverter(StatisticsMonth years);
 
     /**
      * upload  등록
@@ -38,7 +38,7 @@ public interface StatisticsService {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsUploadData(StatisticsForYear years);
+    List<StatisticsMonth> getStatisticsUploadData(StatisticsMonth years);
 
     /**
      * 접근 이력
@@ -46,7 +46,7 @@ public interface StatisticsService {
      * @param count
      * @return
      */
-    List<StatisticsForYear> getStatisticsAccess(StatisticsForYear years);
+    List<StatisticsMonth> getStatisticsAccess(StatisticsMonth years);
 
 
 

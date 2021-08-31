@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import io.openindoormap.domain.statistics.StatisticsForYear;
+import io.openindoormap.domain.statistics.StatisticsMonth;
 import io.openindoormap.service.StatisticsService;
 
 @SpringBootTest
@@ -24,11 +24,11 @@ class StatisticsServiceImplTest {
 
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = service.getStatisticsDataInfo(year);
+        List<StatisticsMonth> l = service.getStatisticsDataInfo(year);
         assertEquals(count * 13 + 1, l.size());
 
     }
@@ -37,11 +37,11 @@ class StatisticsServiceImplTest {
     void testGetStatisticsConverter() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = service.getStatisticsConverter(year);
+        List<StatisticsMonth> l = service.getStatisticsConverter(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
@@ -49,11 +49,11 @@ class StatisticsServiceImplTest {
     void testGetStatisticsUploadData() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = service.getStatisticsUploadData(year);
+        List<StatisticsMonth> l = service.getStatisticsUploadData(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
@@ -61,11 +61,11 @@ class StatisticsServiceImplTest {
     void testGetStatisticsAccess() {
         int st = 2019, ed = 2024;
         int count = (ed - st + 1);
-        StatisticsForYear year = StatisticsForYear.builder()
+        StatisticsMonth year = StatisticsMonth.builder()
                                  .year(String.valueOf(st))
                                  .count(count * 12)
                                  .build();
-        List<StatisticsForYear> l = service.getStatisticsAccess(year);
+        List<StatisticsMonth> l = service.getStatisticsAccess(year);
         assertEquals(count * 13 + 1, l.size());
     }
 
