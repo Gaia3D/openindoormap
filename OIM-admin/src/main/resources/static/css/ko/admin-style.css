@@ -1422,11 +1422,11 @@ table + .pagination {
 	bottom: 0; }
 
 .sign .panel {
-	background-color: #9065dc;
+	background-color: #0066a2;
 	-webkit-border-radius: 5px;
-		 -moz-border-radius: 5px;
-					border-radius: 5px;
-	color: #1f1f1f;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	/* color: #1f1f1f; */
 	box-sizing: border-box;
 	text-align: center;
 	display: table; }
@@ -1473,7 +1473,7 @@ table + .pagination {
 	padding-left: 40px;
 	background: none;
 	border: 0;
-	border-bottom: 1px solid #b598e8;
+	border-bottom: 1px solid #eee;
 	color: #fff; }
 
 .sign .panel .sign-inputs input[type=text] {
@@ -1491,15 +1491,18 @@ table + .pagination {
 
 .sign .panel .sign-inputs input[type=submit] {
 	width: 78%;
-	background: #573592;
-	border-color: #422379;
-	color: #f3a4dd;
+	background: #fff;
+	border-color: #004066;
+	color: #0078be;
 	height: 43px;
+	font-size: 20px;
+	font-weight: bold;
 	vertical-align: middle; }
 
 .sign .panel .sign-inputs input[type=submit]:hover {
-	background: #5d399d;
-	border-color: #492786; }
+	color: #fff;
+	background: #0078be;
+	border-color: #1080e9; }
 
 
 
