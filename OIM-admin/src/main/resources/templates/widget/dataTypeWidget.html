@@ -1,0 +1,86 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div th:fragment="dataTypeWidget" class="row">
+    <div class="widget-header row">
+        <div class="widget-heading u-pull-left">
+            <h3 class="widget-title">
+                <th:block th:text="${dbWidget.widgetName}"></th:block>
+            </h3>
+        </div>
+        <div class="widget-functions u-pull-right">
+            <a href="/data/list" title="데이터 목록"><span class="icon-glyph glyph-plus"></span></a>
+        </div>
+    </div>
+    <canvas id="dataTypeChart" width="450" height="200"></canvas>
+    <div id="dataTypeArea" class="widget-content row"
+        style="width: 350px; height: 200px;">
+        <div style="text-align: center; padding-top: 60px; padding-left: 150px;">
+            <div id="dataTypeSpinner" style="width: 150px; height: 70px;"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            startSpinner("dataTypeSpinner");
+            dataTypeWidget();
+        });
+        /* 데이터 현황 */
+        function dataTypeWidget() {
+            $.ajax({
+                url : "/widgets/data-types",
+                type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function(msg){
+                    if(msg.statusCode <= 200) {
+                        $("#dataTypeArea").empty();
+                        showDataType(msg);
+                    } else {
+                        $("#dataTypeArea").html(JS_MESSAGE[msg.errorCode]);
+                    }
+                },
+                error:function(request,status,error){
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+        }
+
+        /* 데이터 현황 위젯 */
+        function showDataType(msg) {
+            var ctx = $("#dataTypeChart");
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: msg.dataTypeKeys,
+                    datasets: [{
+                        barThickness: 40,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        data: msg.dataTypeValues,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    },
+                    scales: {
+                        xAxis: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                maxTicksLimit: 7
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+        </script>
+</div>
+</html>

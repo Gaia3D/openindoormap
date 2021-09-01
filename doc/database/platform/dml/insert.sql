@@ -160,8 +160,8 @@ values
     (NEXTVAL('widget_seq'), '데이터 위치 정보 변경 요청', 'dataAdjustLogWidget', 5, 'admin' ),
     (NEXTVAL('widget_seq'), '리소스 현황', 'systemResourceWidget', 6, 'admin' ),
     (NEXTVAL('widget_seq'), '스케줄 실행 결과', 'scheduleWidget', 7, 'admin' ),
-    (NEXTVAL('widget_seq'), 'API 요청', 'apiLogWidget', 8, 'admin' );
-
+    (NEXTVAL('widget_seq'), 'API 요청', 'apiLogWidget', 8, 'admin' ),
+    (NEXTVAL('widget_seq'), '데이터 업로드 현황', 'uploadWidget', 9, 'admin' );
 
 -- 운영 정책
 insert into policy(	policy_id, password_exception_char)

@@ -1,0 +1,80 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div th:fragment="dataAdjustLogWidget" class="row">
+    <div class="widget-header row">
+        <div class="widget-heading u-pull-left">
+            <h3 class="widget-title">
+                <th:block th:text="${dbWidget.widgetName}"></th:block>
+            </h3>
+        </div>
+        <div class="widget-functions u-pull-right">
+            <a href="/data-adjust-log/list" title="데이터 위치 변경 요청 이력 더보기"><span class="icon-glyph glyph-plus"></span></a>
+        </div>
+    </div>
+    <div id="dataAdjustLogArea" class="widget-content row">
+        <div style="text-align: center; padding-top: 60px; padding-left: 150px;">
+            <div id="dataAdjustLogSpinner" style="width: 150px; height: 70px;"></div>
+        </div>
+    </div>
+    <script id="dataAdjustLogListSource" type="text/x-handlebars-template">
+    <table class="widget-table">
+        <col class="col-left" />
+        <col class="col-center" />
+        <col class="col-right" />
+        <thead>
+        <tr>
+            <td class="col-center"><em>데이터명</em></td>
+            <td class="col-center"><em>경위도</em></td>
+            <td class="col-center"><em>등록일</em></td>
+        </tr>
+        </thead>
+{{#greaterThan dataAdjustLogList.length 0}}
+    {{#each dataAdjustLogList}}
+        <tr>
+            <td class="col-left ellipsis" style="max-width: 160px;">
+                <span class="index"></span>
+                <em>{{dataName}}</em>
+            </td>
+            <td class="col-center">
+                {{longitude}}, {{latitude}}
+            </td>
+            <td class="col-right">
+                {{insertDate}}
+            </td>
+        </tr>
+    {{/each}}
+{{else}}
+        <tr>
+            <td colspan="3" class="col-none">변경 요청 이력이 존재하지 않습니다.</td>
+        </tr>
+{{/greaterThan}}
+    </table>
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            startSpinner("dataAdjustLogSpinner");
+            dataAdjustLogWidget();
+        });
+        /* 최근 데이터 위치 정보 변경 요청 */
+        function dataAdjustLogWidget() {
+            $.ajax({
+                url : "/widgets/data-adjust-logs",
+                type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function(msg) {
+                    if(msg.statusCode <= 200) {
+                        var template = Handlebars.compile($("#dataAdjustLogListSource").html());
+                        var html = template(msg.dataAdjustLogList);
+                        $("#dataAdjustLogArea").html("").append(html);
+                    } else {
+                        $("#dataAdjustLogArea").html(JS_MESSAGE[msg.errorCode]);
+                    }
+                },
+                error:function(request,status,error){
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+        }
+        </script>
+</div>
+</html>

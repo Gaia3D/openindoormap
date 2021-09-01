@@ -1,0 +1,78 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+    <div th:fragment="uploadWidget" class="row">
+        <div class="widget-header row">
+             <div class="widget-heading u-pull-left">
+                <h3 class="widget-title"><th:block th:text="${dbWidget.widgetName}"></th:block></h3>
+            </div>
+            <div class="widget-functions u-pull-right">
+                <a th:href="@{/upload-data/list}" title="업로드 목록"><span class="icon-glyph glyph-plus"></span></a>
+            </div>
+        </div>
+        <canvas id="uploadStatusChart" width="450" height="150"></canvas>
+        <div id="uploadStatusArea" class="widget-content row">
+            <div style="text-align: center; padding-top: 60px; padding-left: 150px;">
+                <div id="uploadSpinner" style="width: 150px; height: 70px;"></div>
+            </div>
+        </div>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            startSpinner("uploadSpinner");
+            uploadWidget();
+        });
+
+        /* 최근 이슈 목록 */
+        function uploadWidget() {
+            $.ajax({
+                url : "/widgets/upload",
+                type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function(msg) {
+                    $("#uploadStatusArea").empty();
+                    if(msg.statusCode <= 200) {
+                        $("#uploadStatusArea").empty();
+                        showUploadStatus(msg)
+                    } else {
+                        $("#uploadStatusArea").html(JS_MESSAGE[msg.errorCode]);
+                    }
+                },
+                error:function(request,status,error){
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+        }
+        /* 사용자 상태별 현황 위젯 */
+        function showUploadStatus(msg) {
+            var ctx = $("#uploadStatusChart");
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: msg.keys,
+                    datasets: [{
+                        barThickness: 40,
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: msg.values
+                    }]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                maxTicksLimit: 7
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+        </script>
+    </div>
+</html>

@@ -1,0 +1,92 @@
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${accessibility}">
+<div th:fragment="converterWidget" class="row">
+    <div class="widget-header row">
+        <div class="widget-heading u-pull-left">
+            <h3 class="widget-title">
+                <th:block th:text="${dbWidget.widgetName}"></th:block>
+            </h3>
+        </div>
+        <div class="widget-functions u-pull-right">
+            <a href="/converter/list" title="데이터 변환 목록"><span class="icon-glyph glyph-plus"></span></a>
+        </div>
+    </div>
+    <canvas id="converterChart" width="450" height="200"></canvas>
+    <div id="converterArea" class="widget-content row" style="width: 350px; height: 200px;">
+        <div style="text-align: center; padding-top: 60px; padding-left: 150px;">
+            <div id="converterSpinner" style="width: 150px; height: 70px;"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            startSpinner("converterSpinner");
+            converterWidget();
+        });
+        /* 1주일간 데이터 변환 현황 */
+        function converterWidget() {
+            $.ajax({
+                url : "/widgets/converters",
+                type: "GET",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                dataType: "json",
+                success: function(msg){
+                    if(msg.statusCode <= 200) {
+                        $("#converterArea").empty();
+                        showConverter(msg);
+                    } else {
+                        $("#converterArea").html(JS_MESSAGE[msg.errorCode]);
+                    }
+                },
+                error:function(request,status,error){
+                    alert(JS_MESSAGE["ajax.error.message"]);
+                }
+            });
+        }
+
+        /* 데이터 변환 현황 위젯 */
+        function showConverter(msg) {
+            var ctx = $("#converterChart");
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: msg.converterJobFileKeys,
+                    datasets: [{
+                        fill: false,
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderColor: 'rgb(153, 102, 255)',
+                        data: msg.converterJobFileValues
+                        //borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    },
+                    scales: {
+                        xAxis: [{
+                            // ticks: {
+                            // 	beginAtZero: true
+                            // }
+                            // type: 'time',
+                            // time: {
+                            // 	displayFormats: {
+                            // 		quarter: 'YYYY-MM-DD'
+                            // 	}
+                            // }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                min: 0,
+                                maxTicksLimit: 7
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+        </script>
+</div>
+</html>

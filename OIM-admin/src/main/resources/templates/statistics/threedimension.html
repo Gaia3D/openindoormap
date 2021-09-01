@@ -23,7 +23,7 @@
 
                         <!-- S: 검색 -->
                         <div class="filters">
-                            <form id="searchForm" method="get" th:action="@{#}"  onsubmit="return searchCheck();">
+                            <form id="searchForm" method="get" th:action="@{#}"  onsubmit="return false">
                                 <div class="input-group row">
                                     <div class="input-set">
                                         <label for="searchWord" th:text="#{term}"></label>

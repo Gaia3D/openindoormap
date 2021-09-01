@@ -8,6 +8,7 @@ import io.openindoormap.domain.data.DataAdjustLog;
 import io.openindoormap.domain.data.DataInfo;
 import io.openindoormap.domain.data.DataType;
 import io.openindoormap.domain.issue.Issue;
+import io.openindoormap.domain.statistics.StatisticsMonth;
 import io.openindoormap.domain.user.UserInfo;
 import io.openindoormap.domain.user.UserSession;
 import io.openindoormap.domain.user.UserStatus;
@@ -38,245 +39,246 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/widgets")
 public class WidgetRestController {
 
-	private static final long WIDGET_LIST_VIEW_COUNT = 6L;
+    private static final long WIDGET_LIST_VIEW_COUNT = 6L;
 
-	private final MessageSource messageSource;
-	private final PropertiesConfig propertiesConfig;
+    private final MessageSource messageSource;
+    private final PropertiesConfig propertiesConfig;
 
-	private final ConverterService converterService;
-	private final DataService dataService;
-	private final DataAdjustLogService dataAdjustLogService;
-	private final IssueService issueService;
-	private final RestTemplate restTemplate;
-	private final UserService userService;
-	private final WidgetService widgetService;
+    private final ConverterService converterService;
+    private final DataService dataService;
+    private final DataAdjustLogService dataAdjustLogService;
+    private final IssueService issueService;
+    private final RestTemplate restTemplate;
+    private final UserService userService;
+    private final WidgetService widgetService;
+    private final UploadDataService uploadDataService;
 
-	/**
-	 * 사용자 현황
-	 * @param request
-	 * @return
-	 */
-	@GetMapping("/user-status")
-	public Map<String, Object> userStatus(HttpServletRequest request) {
-		log.info("@@@@@ userStatus widget start.");
+    /**
+     * 사용자 현황
+     * @param request
+     * @return
+     */
+    @GetMapping("/user-status")
+    public Map<String, Object> userStatus(HttpServletRequest request) {
+        log.info("@@@@@ userStatus widget start.");
 
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		// 사용자 상태
-		Map<String, Long> statusMap = UserStatus.getStatisticsMap();
+        // 사용자 상태
+        Map<String, Long> statusMap = UserStatus.getStatisticsMap();
 
-		// 사용자 현황
-		List<UserInfo> userInfoStatusList = userService.getUserStatusCount();
-		// TODO 다른 걸로 바꿔야 함
-		userInfoStatusList.stream()
-			.filter(u -> {
-				if(statusMap.containsKey(u.getStatus())) {
-					statusMap.put(u.getStatus(), u.getStatusCount());
-					return true;
-				}
-				return false;
-			})
-			.collect(toList());
+        // 사용자 현황
+        List<UserInfo> userInfoStatusList = userService.getUserStatusCount();
+        // TODO 다른 걸로 바꿔야 함
+        userInfoStatusList.stream()
+            .filter(u -> {
+                if(statusMap.containsKey(u.getStatus())) {
+                    statusMap.put(u.getStatus(), u.getStatusCount());
+                    return true;
+                }
+                return false;
+            })
+            .collect(toList());
 
-		List<String> userStatusKeys = new ArrayList<>();
-		List<Long> userStatusValues = new ArrayList<>();
-		Locale locale = LocaleUtils.getUserLocale(request);
-		for(Map.Entry<String, Long> entry : statusMap.entrySet()) {
-			String key = entry.getKey();
-			Long value = entry.getValue();
-			String status = null;
-			if(UserStatus.USE == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.use", null, locale);
-			} else if(UserStatus.FORBID == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.forbid", null, locale);
-			} else if(UserStatus.FAIL_SIGNIN_COUNT_OVER == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.fail.signin.count.over", null, locale);
-			} else if(UserStatus.SLEEP == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.sleep", null, locale);
-			} else if(UserStatus.TERM_END == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.term.end", null, locale);
-			} else if(UserStatus.LOGICAL_DELETE == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.logical.delete", null, locale);
-			} else if(UserStatus.TEMP_PASSWORD == UserStatus.findBy(key)) {
-				status = messageSource.getMessage("user.status.temp.password", null, locale);
-			}
+        List<String> userStatusKeys = new ArrayList<>();
+        List<Long> userStatusValues = new ArrayList<>();
+        Locale locale = LocaleUtils.getUserLocale(request);
+        for(Map.Entry<String, Long> entry : statusMap.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
+            String status = null;
+            if(UserStatus.USE == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.use", null, locale);
+            } else if(UserStatus.FORBID == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.forbid", null, locale);
+            } else if(UserStatus.FAIL_SIGNIN_COUNT_OVER == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.fail.signin.count.over", null, locale);
+            } else if(UserStatus.SLEEP == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.sleep", null, locale);
+            } else if(UserStatus.TERM_END == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.term.end", null, locale);
+            } else if(UserStatus.LOGICAL_DELETE == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.logical.delete", null, locale);
+            } else if(UserStatus.TEMP_PASSWORD == UserStatus.findBy(key)) {
+                status = messageSource.getMessage("user.status.temp.password", null, locale);
+            }
 
-			userStatusKeys.add(status);
-			userStatusValues.add(value);
-		}
+            userStatusKeys.add(status);
+            userStatusValues.add(value);
+        }
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("userStatusKeys", userStatusKeys);
-		result.put("userStatusValues", userStatusValues);
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("userStatusKeys", userStatusKeys);
+        result.put("userStatusValues", userStatusValues);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 데이터 현황
-	 * @param request
-	 * @return
-	 */
-	@GetMapping("/data-types")
-	public Map<String, Object> dataTypes(HttpServletRequest request) {
-		log.info("@@@@@ dataTypes widget start.");
+    /**
+     * 데이터 현황
+     * @param request
+     * @return
+     */
+    @GetMapping("/data-types")
+    public Map<String, Object> dataTypes(HttpServletRequest request) {
+        log.info("@@@@@ dataTypes widget start.");
 
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		// 데이터 타입
-		Map<String, Long> dataTypeMap = DataType.getStatisticsMap();
-		List<DataInfo> dataInfoStatusList = dataService.getDataTypeCount();
-		// TODO 다른 걸로 바꿔야 함
-		dataInfoStatusList.stream()
-				.filter(d -> {
-					if(dataTypeMap.containsKey(d.getDataType())) {
-						dataTypeMap.put(d.getDataType(), d.getDataTypeCount());
-						return true;
-					}
-					return false;
-				})
-				.collect(toList());
+        // 데이터 타입
+        Map<String, Long> dataTypeMap = DataType.getStatisticsMap();
+        List<DataInfo> dataInfoStatusList = dataService.getDataTypeCount();
+        // TODO 다른 걸로 바꿔야 함
+        dataInfoStatusList.stream()
+                .filter(d -> {
+                    if(dataTypeMap.containsKey(d.getDataType())) {
+                        dataTypeMap.put(d.getDataType(), d.getDataTypeCount());
+                        return true;
+                    }
+                    return false;
+                })
+                .collect(toList());
 
-		List<String> dataTypeKeys = new ArrayList<>();
-		List<Long> dataTypeValues = new ArrayList<>();
-		for(Map.Entry<String, Long> entry : dataTypeMap.entrySet()) {
-			String key = entry.getKey();
-			Long value = entry.getValue();
+        List<String> dataTypeKeys = new ArrayList<>();
+        List<Long> dataTypeValues = new ArrayList<>();
+        for(Map.Entry<String, Long> entry : dataTypeMap.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
 
-			dataTypeKeys.add(key);
-			dataTypeValues.add(value);
-		}
+            dataTypeKeys.add(key);
+            dataTypeValues.add(value);
+        }
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("dataTypeKeys", dataTypeKeys);
-		result.put("dataTypeValues", dataTypeValues);
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("dataTypeKeys", dataTypeKeys);
+        result.put("dataTypeValues", dataTypeValues);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 데이터 변환 현황
-	 * @param request
-	 * @return
-	 */
-	@GetMapping("/converters")
-	public Map<String, Object> converters(HttpServletRequest request) {
-		log.info("@@@@@ converters widget start.");
+    /**
+     * 데이터 변환 현황
+     * @param request
+     * @return
+     */
+    @GetMapping("/converters")
+    public Map<String, Object> converters(HttpServletRequest request) {
+        log.info("@@@@@ converters widget start.");
 
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		// 데이터 변환 현황
-		List<ConverterJobFile> converterJobFileList = converterService.getConverterJobFileStatistics();
-		List<String> converterJobFileKeys = new ArrayList<>();
-		List<Long> converterJobFileValues = new ArrayList<>();
-		String hyphen = "-";
-		converterJobFileList.forEach(x -> {
-			converterJobFileKeys.add(x.getYear() + hyphen + x.getMonth() + hyphen + x.getDay());
-			converterJobFileValues.add(x.getCount());
-		});
+        // 데이터 변환 현황
+        List<ConverterJobFile> converterJobFileList = converterService.getConverterJobFileStatistics();
+        List<String> converterJobFileKeys = new ArrayList<>();
+        List<Long> converterJobFileValues = new ArrayList<>();
+        String hyphen = "-";
+        converterJobFileList.forEach(x -> {
+            converterJobFileKeys.add(x.getYear() + hyphen + x.getMonth() + hyphen + x.getDay());
+            converterJobFileValues.add(x.getCount());
+        });
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("converterJobFileKeys", converterJobFileKeys);
-		result.put("converterJobFileValues", converterJobFileValues);
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("converterJobFileKeys", converterJobFileKeys);
+        result.put("converterJobFileValues", converterJobFileValues);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 최신 이슈
-	 * @param request
-	 * @return
-	 */
-	@GetMapping("/issues")
-	public Map<String, Object> issues(HttpServletRequest request) {
-		log.info("@@@@@ issues widget start.");
+    /**
+     * 최신 이슈
+     * @param request
+     * @return
+     */
+    @GetMapping("/issues")
+    public Map<String, Object> issues(HttpServletRequest request) {
+        log.info("@@@@@ issues widget start.");
 
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		// 최근 이슈 목록
-		List<Issue> issueList = issueService.getListRecentIssue();
+        // 최근 이슈 목록
+        List<Issue> issueList = issueService.getListRecentIssue();
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("issueList", issueList);
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("issueList", issueList);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 데이터 변경 요청 목록
-	 * @param request
-	 * @return
-	 */
-	@GetMapping(value = "/data-adjust-logs")
-	public Map<String, Object> dataAdjustLogs(HttpServletRequest request) {
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+    /**
+     * 데이터 변경 요청 목록
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/data-adjust-logs")
+    public Map<String, Object> dataAdjustLogs(HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		List<DataAdjustLog> dataAdjustLogList = dataAdjustLogService.getListRecentDataAdjustLog();
+        List<DataAdjustLog> dataAdjustLogList = dataAdjustLogService.getListRecentDataAdjustLog();
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("dataAdjustLogList", dataAdjustLogList);
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("dataAdjustLogList", dataAdjustLogList);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 시스템 현황
-	 * TODO 쓸만한 정보가 없음. OS 전체에 대한 디스크 사용량, 메모리 등이 나와야 함.
-	 * @param request
-	 * @return
-	 */
-	@GetMapping(value = "/system-resources")
-	public Map<String, Object> systemResources(HttpServletRequest request) {
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+    /**
+     * 시스템 현황
+     * TODO 쓸만한 정보가 없음. OS 전체에 대한 디스크 사용량, 메모리 등이 나와야 함.
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/system-resources")
+    public Map<String, Object> systemResources(HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		String serverHost = propertiesConfig.getRestServer();
+        String serverHost = propertiesConfig.getRestServer();
 
-		Long diskSpaceTotal = 0L;
-		Long diskSpaceFree = 0L;
-		Long diskSpaceUsed = 0L;
-		Long diskSpacePercent = 0L;
+        Long diskSpaceTotal = 0L;
+        Long diskSpaceFree = 0L;
+        Long diskSpaceUsed = 0L;
+        Long diskSpacePercent = 0L;
 
-		String jvmMemoryMax = "";
-		String jvmMemoryUsed = "";
-		String systemCpuUsage = "";
-		String processCpuUsage = "";
+        String jvmMemoryMax = "";
+        String jvmMemoryUsed = "";
+        String systemCpuUsage = "";
+        String processCpuUsage = "";
 
-		try {
-			@SuppressWarnings("rawtypes")
-			ResponseEntity<Map> response = restTemplate.getForEntity(new URI(serverHost + "/actuator/health/diskSpace"), Map.class);
-			@SuppressWarnings("unchecked")
-			Map<String, Long> diskSpace = (Map<String, Long>) response.getBody().get("details");
-			diskSpaceTotal = diskSpace.get("total");
-			diskSpaceFree = diskSpace.get("free");
-			diskSpaceUsed = diskSpaceTotal - diskSpaceFree;
-			diskSpacePercent = diskSpaceUsed / diskSpaceTotal * 100L;
+        try {
+            @SuppressWarnings("rawtypes")
+            ResponseEntity<Map> response = restTemplate.getForEntity(new URI(serverHost + "/actuator/health/diskSpace"), Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Long> diskSpace = (Map<String, Long>) response.getBody().get("details");
+            diskSpaceTotal = diskSpace.get("total");
+            diskSpaceFree = diskSpace.get("free");
+            diskSpaceUsed = diskSpaceTotal - diskSpaceFree;
+            diskSpacePercent = diskSpaceUsed / diskSpaceTotal * 100L;
 
 //			response = restTemplate.getForEntity(new URI(serverHost + "/actuator/metrics/jvm.memory.max"), Map.class);
 //			@SuppressWarnings("unchecked")
@@ -298,104 +300,136 @@ public class WidgetRestController {
 //			ResponseEntity<Map> response5 = restTemplate.getForEntity(cpuUsed, Map.class);
 //			@SuppressWarnings("unchecked")
 //			List<Map<String, Object>> processCpuUsage = (List<Map<String, Object>>) response5.getBody().get("measurements");
-		} catch(Exception e) {
-			LogMessageSupport.printMessage(e);
-		}
+        } catch(Exception e) {
+            LogMessageSupport.printMessage(e);
+        }
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("diskSpaceTotal", diskSpaceTotal);
-		result.put("diskSpaceFree", diskSpaceFree);
-		result.put("diskSpaceUsed", diskSpaceUsed);
-		result.put("diskSpacePercent", diskSpacePercent);
+        result.put("diskSpaceTotal", diskSpaceTotal);
+        result.put("diskSpaceFree", diskSpaceFree);
+        result.put("diskSpaceUsed", diskSpaceUsed);
+        result.put("diskSpacePercent", diskSpacePercent);
 
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 스케줄 실행 결과
-	 * @param request
-	 * @return
-	 */
-	@GetMapping(value = "/schedules")
-	public Map<String, Object> schedules(HttpServletRequest request) {
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
-
-
-		int statusCode = HttpStatus.OK.value();
-
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
-
-	/**
-	 * api 요청 이력
-	 * @param request
-	 * @return
-	 */
-	@GetMapping(value = "/api-logs")
-	public Map<String, Object> apiLogs(HttpServletRequest request) {
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
+    /**
+     * 스케줄 실행 결과
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/schedules")
+    public Map<String, Object> schedules(HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
 
-		int statusCode = HttpStatus.OK.value();
+        int statusCode = HttpStatus.OK.value();
 
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-	/**
-	 * 위젯 수정
-	 * @param widget
-	 * @return
-	 */
-	@PostMapping(value = "/order")
-	public Map<String, Object> order(HttpServletRequest request, Widget widget) {
-		log.info("@@@@@@@@@@@@@@@@@@@@ widget = {}", widget);
+    /**
+     * api 요청 이력
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/api-logs")
+    public Map<String, Object> apiLogs(HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		Map<String, Object> result = new HashMap<>();
-		String errorCode = null;
-		String message = null;
 
-		UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
-		String userId = userSession.getUserId();
+        int statusCode = HttpStatus.OK.value();
 
-		if(StringUtils.isEmpty(widget.getWidgetOrder())) {
-			result.put("statusCode", HttpStatus.BAD_REQUEST.value());
-			result.put("errorCode", "widget.invalid");
-			result.put("message", message);
-			return result;
-		}
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 
-		List<Widget> widgetList = new ArrayList<>();
-		String[] orders = widget.getWidgetOrder().split(",");
-		int count = orders.length;
-		for(int i=1; i<count; i++) {
-			Widget tempWidget = new Widget();
-			tempWidget.setUserId(userId);
-			tempWidget.setWidgetId(Long.valueOf(orders[i]));
-			tempWidget.setViewOrder(i);
-			widgetList.add(tempWidget);
-		}
+    /**
+     * 위젯 수정
+     * @param widget
+     * @return
+     */
+    @PostMapping(value = "/order")
+    public Map<String, Object> order(HttpServletRequest request, Widget widget) {
+        log.info("@@@@@@@@@@@@@@@@@@@@ widget = {}", widget);
 
-		widgetService.updateWidget(widgetList);
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
 
-		int statusCode = HttpStatus.OK.value();
+        UserSession userSession = (UserSession)request.getSession().getAttribute(Key.USER_SESSION.name());
+        String userId = userSession.getUserId();
 
-		result.put("statusCode", statusCode);
-		result.put("errorCode", errorCode);
-		result.put("message", message);
-		return result;
-	}
+        if(StringUtils.isEmpty(widget.getWidgetOrder())) {
+            result.put("statusCode", HttpStatus.BAD_REQUEST.value());
+            result.put("errorCode", "widget.invalid");
+            result.put("message", message);
+            return result;
+        }
+
+        List<Widget> widgetList = new ArrayList<>();
+        String[] orders = widget.getWidgetOrder().split(",");
+        int count = orders.length;
+        for(int i=1; i<count; i++) {
+            Widget tempWidget = new Widget();
+            tempWidget.setUserId(userId);
+            tempWidget.setWidgetId(Long.valueOf(orders[i]));
+            tempWidget.setViewOrder(i);
+            widgetList.add(tempWidget);
+        }
+
+        widgetService.updateWidget(widgetList);
+
+        int statusCode = HttpStatus.OK.value();
+
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
+
+    /**
+     * 데이터 변환 현황
+     * @param request
+     * @return
+     */
+    @GetMapping("/upload")
+    public Map<String, Object> upload(HttpServletRequest request) {
+        log.info("@@@@@ converters widget start.");
+
+        Map<String, Object> result = new HashMap<>();
+        String errorCode = null;
+        String message = null;
+
+        // 데이터 변환 현황
+        List<StatisticsMonth> uploads = uploadDataService.getUploadStatistics();
+        List<String> converterJobFileKeys = new ArrayList<>();
+        List<Integer> converterJobFileValues = new ArrayList<>();
+        uploads.forEach(x -> {
+            converterJobFileKeys.add(x.getMonth());
+            converterJobFileValues.add(x.getCount());
+        });
+
+        int statusCode = HttpStatus.OK.value();
+
+        result.put("keys", converterJobFileKeys);
+        result.put("values", converterJobFileValues);
+        result.put("statusCode", statusCode);
+        result.put("errorCode", errorCode);
+        result.put("message", message);
+        return result;
+    }
 }
