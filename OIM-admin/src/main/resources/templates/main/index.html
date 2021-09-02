@@ -121,18 +121,13 @@
             }
         });
 
+        var refreshJobs = [];
         function refreshMain() {
-            if(isUserDraw) {
-                userWidget();
-            }
-            if(isDataTypeDraw) {
-                dataTypeWidget();
-            }
-            if(isConverterDraw) {
-                converterWidget();
-            }
-            if(isIssueDraw) {
-                issueWidget();
+            console.log("====================> {}", refreshJobs.length);
+            for (var job in refreshJobs) {
+                if (typeof(job) === "function") {
+                    job.call();
+                }
             }
         }
 

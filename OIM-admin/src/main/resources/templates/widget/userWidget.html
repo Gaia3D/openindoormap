@@ -18,6 +18,9 @@
         $(document).ready(function() {
             startSpinner("userStatusSpinner");
             userWidget();
+            if (typeof refreshJobs !== "undefined") {
+                refreshJobs.push(userWidget);
+            }
         });
         /* 사용자 상태별 현황 */
         function userWidget() {

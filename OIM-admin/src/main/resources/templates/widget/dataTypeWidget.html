@@ -21,6 +21,9 @@
         $(document).ready(function() {
             startSpinner("dataTypeSpinner");
             dataTypeWidget();
+            if (typeof refreshJobs !== "undefined") {
+                refreshJobs.push(dataTypeWidget);
+            }
         });
         /* 데이터 현황 */
         function dataTypeWidget() {

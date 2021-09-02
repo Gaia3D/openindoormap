@@ -54,6 +54,9 @@
         $(document).ready(function() {
             startSpinner("issueSpinner");
             issueWidget();
+            if (typeof refreshJobs !== "undefined") {
+                refreshJobs.push(issueWidget);
+            }
         });
 
         /* 최근 이슈 목록 */

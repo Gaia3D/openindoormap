@@ -20,6 +20,9 @@
         $(document).ready(function() {
             startSpinner("converterSpinner");
             converterWidget();
+            if (typeof refreshJobs !== "undefined") {
+                refreshJobs.push(converterWidget);
+            }
         });
         /* 1주일간 데이터 변환 현황 */
         function converterWidget() {
