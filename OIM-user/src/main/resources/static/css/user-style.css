@@ -95,6 +95,9 @@ h1 {
 .gnb li > a.api {
     background-position: -62px -67px;
 }
+.gnb li > a.issue {
+    background-position: -62px -140px;
+}
 .gnb li> a.sign {
     background-position: -140px -68px;
 }
