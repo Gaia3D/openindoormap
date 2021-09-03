@@ -10,7 +10,7 @@
                         <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
                         <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
                             <th:block th:text="#{common.api.document}"></th:block></a>
-                        <a href="https://github.com/Gaia3D/openindoormap/issues" target="_blank">Issues</a>
+                        <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue" target="_blank">Issues</a>
                         <a href="/sign/signout" class="sign" title="Sign out">Sign out</a>
                     </li>
                 </ul>
@@ -19,7 +19,7 @@
                 <ul>
                     <li>
                         <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;"><th:block th:text="#{common.api.document}"></th:block></a>
-                        <a href="https://github.com/Gaia3D/openindoormap/issues"  target="_blank">Issues</a>
+                        <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue"  target="_blank">Issues</a>
                         <a href="/sign/signin" class="sign" title="Sign in">Sign in</a>
                     </li>
                 </ul>
