@@ -48,8 +48,6 @@ dependencies {
     providedCompile 'javax:javaee-api:8.0.1'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
     compileOnly 'org.projectlombok:lombok:1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'

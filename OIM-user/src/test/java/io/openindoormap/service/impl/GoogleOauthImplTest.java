@@ -2,7 +2,7 @@ package io.openindoormap.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,14 +23,14 @@ class GoogleOauthImplTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     void testRequestAccessToken() {
         oauth.getOauthRedirectURL();
         oauth.requestAccessToken(null);
     }
 
     @Test
-    @Ignore
+    @Disabled
     void testGetUserInfo() {
         fail("Not yet implemented");
     }

@@ -95,8 +95,8 @@ subprojects {
                     //srcDir "src/main/resources"
 
                 }
-                exclude "**/product/*"
-                exclude "**/develop/*"
+                exclude "**/product"
+                exclude "**/develop"
             }
         }
     }
@@ -110,6 +110,10 @@ subprojects {
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
         testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
         testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
 
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
