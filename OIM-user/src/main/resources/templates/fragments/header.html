@@ -4,26 +4,28 @@
         <div class="HamMenu on"><a href="#">메뉴</a></div>
         <h1>OpenIndoorMap</h1>
         <div class="gnb">
-            <th:block th:if="${session.USER_SESSION}">
-                <ul>
-                    <li class="user">
-                        <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
-                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;">
-                            <th:block th:text="#{common.api.document}"></th:block></a>
-                        <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue" target="_blank">Issues</a>
-                        <a href="/sign/signout" class="sign" title="Sign out">Sign out</a>
-                    </li>
-                </ul>
-            </th:block>
-            <th:block th:unless="${session.USER_SESSION}">
-                <ul>
-                    <li>
-                        <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;"><th:block th:text="#{common.api.document}"></th:block></a>
-                        <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue"  target="_blank">Issues</a>
-                        <a href="/sign/signin" class="sign" title="Sign in">Sign in</a>
-                    </li>
-                </ul>
-            </th:block>
+             <ul th:if="${session.USER_SESSION}">
+                 <li class="user">
+                     <span th:text="${session.USER_SESSION.userName}"><th:block th:text="#{common.sir}"></th:block></span>
+                     <!--
+                     <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;"><th:block th:text="#{common.api.document}"></th:block></a>
+                      -->
+                     <a th:href="@{/docs/OIMTermofUseVer1.0.htm}" class="term" target="_blank">Term</a>
+                     <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue" target="_blank">Issues</a>
+                     <a href="/sign/withdraw" class="withdraw" title="Withdraw from membership">Withdraw</a>
+                     <a href="/sign/signout" class="sign" title="Sign out">Sign out</a>
+                 </li>
+             </ul>
+             <ul th:unless="${session.USER_SESSION}">
+                 <li>
+                     <!--
+                     <a href="/guide/help" class="api" th:title="#{common.api.document}" onclick="goMagoAPIGuide(this.href);return false;"><th:block th:text="#{common.api.document}"></th:block></a>
+                      -->
+                     <a th:href="@{/docs/OIMTermofUseVer1.0.htm}" class="term" target="_blank">Term</a>
+                     <a href="https://github.com/Gaia3D/openindoormap/issues" class="issue"  target="_blank">Issues</a>
+                     <a href="/sign/signin" class="sign" title="Sign in">Sign in</a>
+                 </li>
+             </ul>
         </div>
     </header>
 </body>

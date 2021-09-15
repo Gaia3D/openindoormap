@@ -96,4 +96,11 @@ public class UserServiceImpl implements UserService {
         return userSession;
     }
 
+    @Transactional
+    @Override
+    public void withdrawUser(String userId) {
+
+
+    }
+
 }

@@ -54,4 +54,12 @@ public interface UserService {
      * @return
      */
     UserSession requestUserSession(SocialLoginType socialLoginType, String code);
+
+    /**
+     * 사용자 정보 취득
+     * @param userId
+     * @return
+     */
+    void withdrawUser(String userId);
+
 }

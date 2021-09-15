@@ -66,6 +66,7 @@ public class SigninController {
         return "/sign/signin";
     }
 
+
     /**
      * Sign in 처리
      * @param request
@@ -162,8 +163,8 @@ public class SigninController {
         }
 
         // 회원 상태 체크
+        // 0:사용중, 1:사용중지(관리자), 2:잠금(비밀번호 실패횟수 초과), 3:휴면(사인인 기간), 4:만료(사용기간 종료), 5:삭제(화면 비표시)
         if(UserStatus.USE != UserStatus.findBy(userSession.getStatus()) && UserStatus.TEMP_PASSWORD != UserStatus.findBy(userSession.getStatus())) {
-            // 0:사용중, 1:사용중지(관리자), 2:잠금(비밀번호 실패횟수 초과), 3:휴면(사인인 기간), 4:만료(사용기간 종료), 5:삭제(화면 비표시)
             signinForm.setStatus(userSession.getStatus());
             return "usersession.status.invalid";
         }
@@ -253,14 +254,27 @@ public class SigninController {
      * @param code API Server 로부터 넘어노는 code
      * @return SNS Login 요청 결과로 받은 Json 형태의 String 문자열 (access_token, refresh_token 등)
      */
-	@GetMapping(value = "/{socialLoginType}/callback")
-	public String callback(@PathVariable(name = "socialLoginType") String socialLoginType, String code, String error, HttpServletRequest request) {
-		UserSession userSession = userService.requestUserSession(SocialLoginType.valueOf(socialLoginType.toUpperCase()), code);
-		userSession.setSigninIp(WebUtils.getClientIp(request));
-		OIMHttpSessionBindingListener sessionListener = new OIMHttpSessionBindingListener();
-		HttpSession session = request.getSession();
-		session.setAttribute(Key.USER_SESSION.name(), userSession);
-		session.setAttribute(userSession.getUserId(), sessionListener);
-		return "redirect:/data/map";
-	}
+    @GetMapping(value = "/{socialLoginType}/callback")
+    public String callback(@PathVariable(name = "socialLoginType") String socialLoginType, String code, String error, HttpServletRequest request) {
+        UserSession userSession = userService.requestUserSession(SocialLoginType.valueOf(socialLoginType.toUpperCase()), code);
+        userSession.setSigninIp(WebUtils.getClientIp(request));
+        OIMHttpSessionBindingListener sessionListener = new OIMHttpSessionBindingListener();
+        HttpSession session = request.getSession();
+        session.setAttribute(Key.USER_SESSION.name(), userSession);
+        session.setAttribute(userSession.getUserId(), sessionListener);
+        return "redirect:/data/map";
+    }
+
+    /**
+     * Sign in 페이지
+     * @param request
+     * @param model
+     * @return
+     */
+    @GetMapping("/withdraw")
+    public String withdraw(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession();
+        UserSession userSession = (UserSession) session.getAttribute(Key.USER_SESSION.name());
+        return "/sign/signin";
+    }
 }
