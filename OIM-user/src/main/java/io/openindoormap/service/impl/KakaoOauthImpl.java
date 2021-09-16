@@ -42,7 +42,7 @@ public class KakaoOauthImpl implements SocialOauth {
     private String KAKAO_SNS_USERINFO_URL;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper snakeMapper;
 
     @Override
     public String getOauthRedirectURL() {
@@ -83,7 +83,7 @@ public class KakaoOauthImpl implements SocialOauth {
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             try {
-                KakaoToken token = objectMapper.readValue(responseEntity.getBody(), KakaoToken.class);
+                KakaoToken token = snakeMapper.readValue(responseEntity.getBody(), KakaoToken.class);
                 return token.getAccessToken();
             } catch (JsonProcessingException e) {
                 log.error(" JsonProcessingException =>  ", e);
@@ -109,7 +109,7 @@ public class KakaoOauthImpl implements SocialOauth {
             ResponseEntity<String> userInfo = restTemplate.exchange(KAKAO_SNS_USERINFO_URL, HttpMethod.GET, request, String.class);
             log.debug("================> " + userInfo.getBody());
             // UserInfo.builder().email(accessToken).userName(accessToken).build()
-            KakaoUserInfo g = objectMapper.readValue(userInfo.getBody(), KakaoUserInfo.class);
+            KakaoUserInfo g = snakeMapper.readValue(userInfo.getBody(), KakaoUserInfo.class);
             UserInfo u = UserInfo.builder().userId(g.getId()).userName(g.name).build();
             return u;
         } catch (JsonProcessingException e) {

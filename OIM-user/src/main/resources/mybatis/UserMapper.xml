@@ -81,4 +81,10 @@
         WHERE user_id = #{userId}
     </update>
 
+    <delete id="deleteUser" parameterType="string">
+        /* deleteUser */
+        delete user_info
+        where user_id = #{userId}
+    </delete>
+
 </mapper>

@@ -15,18 +15,18 @@ import lombok.extern.slf4j.Slf4j;
 class GoogleOauthImplTest {
 
     @Autowired
-    SocialOauth oauth;
+    SocialOauth kakaoOauthImpl;
 
     @Test
     void testGetOauthRedirectURL() {
-        log.debug( oauth.getOauthRedirectURL());
+        log.debug( kakaoOauthImpl.getOauthRedirectURL());
     }
 
     @Test
     @Disabled
     void testRequestAccessToken() {
-        oauth.getOauthRedirectURL();
-        oauth.requestAccessToken(null);
+        kakaoOauthImpl.getOauthRedirectURL();
+        kakaoOauthImpl.requestAccessToken(null);
     }
 
     @Test

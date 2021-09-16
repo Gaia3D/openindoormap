@@ -275,6 +275,7 @@ public class SigninController {
     public String withdraw(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
         UserSession userSession = (UserSession) session.getAttribute(Key.USER_SESSION.name());
-        return "/sign/signin";
+        userService.withdrawUser(userSession.getUserId());
+        return signout(request);
     }
 }

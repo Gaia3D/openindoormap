@@ -176,13 +176,11 @@ public class ServletConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper snakeMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         return objectMapper;
     }
-
-
 
     @Bean
     public Docket apiDocket() {

@@ -41,7 +41,7 @@ public class GoogleOauthImpl implements SocialOauth {
     private String GOOGLE_SNS_USERINFO_URL;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper snakeMapper;
 
     @Override
     public String getOauthRedirectURL() {
@@ -72,7 +72,7 @@ public class GoogleOauthImpl implements SocialOauth {
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             try {
-                GoogleToken token = objectMapper.readValue(responseEntity.getBody(), GoogleToken.class);
+                GoogleToken token = snakeMapper.readValue(responseEntity.getBody(), GoogleToken.class);
                 return token.getAccessToken();
             } catch (JsonProcessingException e) {
                 log.error(" JsonProcessingException =>  ", e);
@@ -97,7 +97,7 @@ public class GoogleOauthImpl implements SocialOauth {
             ResponseEntity<String> userInfo = restTemplate.exchange(GOOGLE_SNS_USERINFO_URL, HttpMethod.GET, request, String.class);
             log.debug("================> " + userInfo.getBody());
             // UserInfo.builder().email(accessToken).userName(accessToken).build()
-            GoogleUserInfo g = objectMapper.readValue(userInfo.getBody(), GoogleUserInfo.class);
+            GoogleUserInfo g = snakeMapper.readValue(userInfo.getBody(), GoogleUserInfo.class);
             UserInfo u = UserInfo.builder().userId(g.getId()).email(g.getEmail()).userName(g.getName()).build();
             return u;
         } catch (JsonProcessingException e) {

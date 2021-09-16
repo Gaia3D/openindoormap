@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void withdrawUser(String userId) {
 
-
+        userMapper.deleteUser(userId);
     }
 
 }

@@ -47,4 +47,11 @@ public interface UserMapper {
      * @return
      */
     int updateSigninUserSession(UserSession userSession);
+
+    /**
+     * 사용자 정보 취득
+     * @param userId
+     * @return
+     */
+    int deleteUser(String userId);
 }
