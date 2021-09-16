@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 import io.openindoormap.domain.user.UserInfo;
 import io.openindoormap.service.SocialOauth;
@@ -40,8 +40,13 @@ public class GoogleOauthImpl implements SocialOauth {
     @Value("${sns.google.userinfo.url}")
     private String GOOGLE_SNS_USERINFO_URL;
 
-    @Autowired
-    private ObjectMapper snakeMapper;
+
+    private ObjectMapper mapper;
+
+    public GoogleOauthImpl() {
+        mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    }
 
     @Override
     public String getOauthRedirectURL() {
@@ -72,7 +77,7 @@ public class GoogleOauthImpl implements SocialOauth {
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             try {
-                GoogleToken token = snakeMapper.readValue(responseEntity.getBody(), GoogleToken.class);
+                GoogleToken token = mapper.readValue(responseEntity.getBody(), GoogleToken.class);
                 return token.getAccessToken();
             } catch (JsonProcessingException e) {
                 log.error(" JsonProcessingException =>  ", e);
@@ -97,7 +102,7 @@ public class GoogleOauthImpl implements SocialOauth {
             ResponseEntity<String> userInfo = restTemplate.exchange(GOOGLE_SNS_USERINFO_URL, HttpMethod.GET, request, String.class);
             log.debug("================> " + userInfo.getBody());
             // UserInfo.builder().email(accessToken).userName(accessToken).build()
-            GoogleUserInfo g = snakeMapper.readValue(userInfo.getBody(), GoogleUserInfo.class);
+            GoogleUserInfo g = mapper.readValue(userInfo.getBody(), GoogleUserInfo.class);
             UserInfo u = UserInfo.builder().userId(g.getId()).email(g.getEmail()).userName(g.getName()).build();
             return u;
         } catch (JsonProcessingException e) {

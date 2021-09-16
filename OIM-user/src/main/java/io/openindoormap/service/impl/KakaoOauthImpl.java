@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 import io.openindoormap.domain.user.UserInfo;
 import io.openindoormap.service.SocialOauth;
@@ -41,8 +41,13 @@ public class KakaoOauthImpl implements SocialOauth {
     @Value("${sns.kakao.userinfo.url}")
     private String KAKAO_SNS_USERINFO_URL;
 
-    @Autowired
-    private ObjectMapper snakeMapper;
+
+    private ObjectMapper mapper;
+
+    public KakaoOauthImpl() {
+        mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    }
 
     @Override
     public String getOauthRedirectURL() {
@@ -83,7 +88,7 @@ public class KakaoOauthImpl implements SocialOauth {
 
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             try {
-                KakaoToken token = snakeMapper.readValue(responseEntity.getBody(), KakaoToken.class);
+                KakaoToken token = mapper.readValue(responseEntity.getBody(), KakaoToken.class);
                 return token.getAccessToken();
             } catch (JsonProcessingException e) {
                 log.error(" JsonProcessingException =>  ", e);
@@ -109,7 +114,7 @@ public class KakaoOauthImpl implements SocialOauth {
             ResponseEntity<String> userInfo = restTemplate.exchange(KAKAO_SNS_USERINFO_URL, HttpMethod.GET, request, String.class);
             log.debug("================> " + userInfo.getBody());
             // UserInfo.builder().email(accessToken).userName(accessToken).build()
-            KakaoUserInfo g = snakeMapper.readValue(userInfo.getBody(), KakaoUserInfo.class);
+            KakaoUserInfo g = mapper.readValue(userInfo.getBody(), KakaoUserInfo.class);
             UserInfo u = UserInfo.builder().userId(g.getId()).userName(g.name).build();
             return u;
         } catch (JsonProcessingException e) {
