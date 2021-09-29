@@ -121,7 +121,6 @@ var MapDataControll = function(magoInstance) {
         var rgbArray = hex2rgbArray($('#dcColorInput').val());
         changeColorAPI(magoInstance, projectId, dataKey, null, 'isPhysical=true', rgbArray.join(','));
     });
-*/
     //색상변경 취소
     $('#dcColorCancle').click(function() {
         deleteAllChangeColorAPI(magoInstance);
@@ -130,6 +129,7 @@ var MapDataControll = function(magoInstance) {
         var color = $('#dcColorPicker').val();
         $('#dcColorInput').val(color).css('color',color);
     });
+
 
     //회전 변경 range 조절
     $('#dcPitchRange,#dcHeadingRange,#dcRollRange').on('input change',function(){
@@ -202,6 +202,7 @@ var MapDataControll = function(magoInstance) {
     $('#dcShowAttr').click(function(){
         detailDataInfo("/datas/" + dataId);
     });
+
     //위치회전정보 저장
     $('#dcSavePosRot').click(function() {
         if(confirm(JS_MESSAGE["data.update.check"])) {
@@ -264,7 +265,7 @@ var MapDataControll = function(magoInstance) {
             //alert('no');
         }
     });
-
+*/
     var changeF4d = function() {
         var lat = parseFloat($('#dcLatitude').val());
         var lon = parseFloat($('#dcLongitude').val());
