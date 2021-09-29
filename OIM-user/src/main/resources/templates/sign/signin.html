@@ -64,8 +64,8 @@
         span.mago {color:#6649ca;}
         .login-wrapper img {clear:both; display:block; text-align:center; margin-left:auto; margin-right:auto; margin-top:50px;}
         .login-wrapper .btn-login {clear:both; display:block; width:100%; height:60px; padding:0; margin:0; font-size:20px; cursor:pointer; background:#0066a2; color:white; font-family: 'NotoKrM'; border-radius: 5px;}
-        .login-wrapper .inputid {clear:both; display:block;  padding:0; margin:10px 0; text-indent:10px; width:100%; text-align:left; height:48px; line-height:45px;font-size:25px; color:#444444; border:2px solid #555; border-radius:3px; box-sizing: border-box; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
-        .login-wrapper .inputpwd {clear:both; display:block; padding:0; margin:10px 0; text-indent:10px; width:100%; text-align:left; height:48px; line-height:45px; font-size:25px; color:#444444; border:2px solid #555; border-radius:3px; box-sizing: border-box; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
+        .login-wrapper .inputid {clear:both; display:block;  padding:0; margin:10px 0; text-indent:10px; width:100%; text-align:left; height:48px; line-height:45px;font-size:22px; color:#444444; border:2px solid #555; border-radius:3px; box-sizing: border-box; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
+        .login-wrapper .inputpwd {clear:both; display:block; padding:0; margin:10px 0; text-indent:10px; width:100%; text-align:left; height:48px; line-height:45px; font-size:22px; color:#444444; border:2px solid #555; border-radius:3px; box-sizing: border-box; font-family: 'NotoKrL'; letter-spacing:-1px; background:white;}
         .login-wrapper input {background:white;}
         .login-wrapper input:focus {transition:0.3s; border:1px solid #4a9afd;}
         .login-wrapper > ul.join {clear:both; margin:0 0 0 0; padding:0 0 0 0; }
@@ -80,9 +80,10 @@
         .login-wrapper > .autologin ul li .login-facebook {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -400px 1px no-repeat;}
         .login-wrapper > .autologin ul li .login-naver {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -464px 1px no-repeat;}
         .login-wrapper > .autologin ul li .login-kakao {display:inline-block;width:42px; height:42px; background:white url(../../images/ic_sbmenu.png) -526px 1px no-repeat;}
-        .copyright { margin: 0 70px 20px; padding:20px 0 10px; font-size:15px; color:#4f4f4f; text-align:center; font-family: 'NotoKrL'; border-top:1px solid #cecece;}
+        .copyright { margin: 0 70px 20px; padding:0 0 10px; font-size:15px; color:#4f4f4f; text-align:center; font-family: 'NotoKrL'; border-top:1px solid #cecece;}
         .btn-login:hover, .btn-login:focus {background:#0078be; border:1px solid #1080e9;}
-        h1.signin { color: #262b3f; font-weight: normal; width: 380px !important; font-size: 38px;}
+        h1.signin { color: #262b3f; font-weight: normal; width: 420px !important; font-size: 38px;}
+        .term { text-decoration: underline; cursor: pointer;}
     </style>
 </head>
 <body>
@@ -125,7 +126,10 @@
                 </ul>
             </div>
         </div>
-        <div class="copyright">&copy; Gaia3d Corp. All Rights Reserved. <a th:href="@{/docs/OIMTermofUseVer1.0.htm}" class="term" target="_blank">Terms of Use</a></div>
+        <div class="copyright">
+            <p>&copy; Gaia3d Corp. All Rights Reserved. </p>
+            <a th:href="@{/docs/OIMTermofUseVer1.0.htm}" class="term" target="_blank">Terms of Use</a>
+        </div>
     </div>
 </div>
 </body>
