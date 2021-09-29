@@ -1,5 +1,7 @@
 package io.openindoormap.controller.view;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +34,10 @@ public class StatisticsController {
             StatisticsMonth years = StatisticsMonth.builder().year(String.valueOf(from)).count(count * 12).build();
             List<StatisticsMonth> months = service.getStatisticsDataInfo(years);
             convertMonth2Year(l, months);
+        } else if (to == null) {
+            to = LocalDate.now().get(ChronoField.YEAR);
         }
+
         model.addAttribute("list", l);
         model.addAttribute("from", from);
         model.addAttribute("to", to);

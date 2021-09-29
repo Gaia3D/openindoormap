@@ -29,13 +29,13 @@
                                         <label for="searchWord" th:text="#{term}"></label>
                                         <select name="from" class="selectBoxClass" v-model:value="from">
                                             <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
-                                            <option th:text="${num}" th:value="${num}" th:selected="${num} == ${from}">2019</option>
+                                            <option th:text="${num}" th:value="${num}">2019</option>
                                             </th:block>
                                         </select>
                                         ~
                                         <select name="to" class="selectBoxClass" v-model:value="to">
                                             <th:block th:each="num : ${#numbers.sequence(2019, 2029)}">
-                                            <option th:text="${num}" th:value="${num}" th:selected="${num} == ${to}">2019</option>
+                                            <option th:text="${num}" th:value="${num}">2019</option>
                                             </th:block>
                                         </select>
                                     </div>
@@ -107,7 +107,7 @@
             message: '안녕하세요 Vue!',
             years: [],
             from: 2019,
-            to: 2019
+            to: "[[${to}]]"
         },
         methods: {
             getData: function() {

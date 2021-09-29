@@ -24,7 +24,7 @@
 
                         <!-- S: 검색 -->
                         <div class="filters">
-                            <form id="searchForm" th:object="${uploadData}" method="get" th:action="@{/upload-data/list}" onsubmit="return searchCheck();">
+                            <form id="searchForm" th:object="${uploadData}" method="get" th:action="@{/data-adjust-log/list}" onsubmit="return searchCheck();">
                             <div class="input-group row">
                                 <div class="input-set">
                                     <label for="searchWord" th:text="#{search.word}"></label>
@@ -72,7 +72,7 @@
 
                         <!-- S: 데이터 위치 변경 요청 목록 -->
                         <div class="list">
-                            <form id="listForm" th:object="${dataInfo}" method="post">
+                            <form id="listForm" th:object="${dataInfo}" method="post" th:action="@{/}">
                                 <input type="hidden" id="checkIds" name="checkIds" />
                                 <input type="hidden" id="status" name="status" />
                             <div class="list-header row">
