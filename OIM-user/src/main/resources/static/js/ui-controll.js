@@ -130,7 +130,7 @@ $(function() {
         if(active === "converterContent") {
             // session 없으면 로그인 confirm. 아니면 변환 메뉴로
             if(!OIM.userId) {
-                if (confirm("로그인 후 사용가능합니다.")) {
+                if (confirm(JS_MESSAGE["session.required"])) {
                     window.location = getRedirectSigninUrl();
                 } else {
                     return;
