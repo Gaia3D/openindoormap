@@ -86,26 +86,26 @@ h1 {
     vertical-align: middle;
 }
 .gnb li > a {
-    padding: 10px 30px;
+    padding: 10px 20px;
     letter-spacing: -1px;
     text-indent: -9999px;
     background-image: url(/images/ko/icon.png);
     background-repeat: no-repeat;
 }
 .gnb li > a.api {
-    background-position: -62px -67px;
+    background-position: -70px -67px;
 }
 .gnb li > a.issue {
-    background-position: -62px -140px;
+    background-position: -70px -140px;
 }
 .gnb li> a.sign {
-    background-position: -140px -68px;
+    background-position: -150px -68px;
 }
 .gnb li> a.term {
-    background-position: -140px -140px;
+    background-position: -150px -140px;
 }
 .gnb li> a.withdraw {
-    background-position: -220px -140px;
+    background-position: -230px -140px;
 }
 /*
 .gnb li > button {
