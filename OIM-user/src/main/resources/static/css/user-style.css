@@ -1109,6 +1109,26 @@ width:900px;
 #saRange{
 width:1000px;
 }
+/* scroll style */
+/* width */
+::-webkit-scrollbar {
+width: 5px;
+height: 5px;
+background-color: #fff;
+}
+/* Track */
+::-webkit-scrollbar-track {
+background-color: #f5f5f5;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+border-radius: 5px;
+background: #b2c1cc;
+}
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+background: #9aadbb;
+}
 
 /*========================================== temp css =========================================================*/
 
@@ -1314,7 +1334,7 @@ min-width: 325px;
 }
 .tab li {
 display: inline-block;
-width: 145px;
+/* width: 145px; */
 /* padding: 5px 0px; */
 color: #000;
 cursor: pointer;
@@ -2031,6 +2051,9 @@ z-index:100;
     align-items: center;
     border: 1px solid #ccc;
 }
+.legend div {
+    font-size: 11px;
+}
 .legend .color {
     width: 15px;
     height: 15px;
@@ -2322,7 +2345,7 @@ button.mode.on:hover {
     background-color: #0c74c1;
 }
 .buttonLable {
-    font-size: 13px;
+    font-size: 12px;
     margin-top: 5px;
 }
 
@@ -2598,7 +2621,7 @@ ul.listDefault li.on > ul li > button {
     width: 30px;
     background-image: url(/images/ko/ico.png);
     background-repeat: no-repeat;
-    background-position: 0px -108px;
+    background-position: -8px -108px;
 }
 .searchDataInput > input {
     width: 230px;
@@ -3043,7 +3066,8 @@ user-select: none; /* Standard syntax */
 
 /* ////////// TAB SETUP ////////// */
 .sideNav {
-    height: 100%;
+    overflow-y: auto;
+    height: calc( 100% - 50px );
     width: 0;
     position: fixed;
     z-index: 1000;
@@ -3168,7 +3192,7 @@ user-select: none; /* Standard syntax */
 .sInfo > ul:first-child > li {
     padding-top: 7px;
     text-align: center;
-    color: #fff;
+    /* color: #fff; */
 }
 .sInfo > ul:first-child > li.state {
     padding-top: 10px;
