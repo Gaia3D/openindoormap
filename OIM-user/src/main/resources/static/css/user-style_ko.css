@@ -3,3 +3,7 @@ ul.nav li.iot {
 letter-spacing: -3px;
 background-position: -438px -57px;
 }
+
+.col-label {
+    min-width: 100px;
+}
