@@ -21,8 +21,7 @@ task runWithJavaExec(type: JavaExec) {
     main = 'io.openindoormap.utils.MessageUtil'
 }
 
-tasks.named('compileJava') {
-
+tasks.named('processResources') {
     doLast {
         runWithJavaExec.jvmArgs('-Dfile.encoding=utf-8');
         runWithJavaExec.exec()
