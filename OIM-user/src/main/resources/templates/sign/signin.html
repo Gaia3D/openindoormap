@@ -96,7 +96,7 @@
             </select>
         </form>
         <div class="login-wrapper">
-            <h1 class="signin">OpenIndoorMap</h1>
+            <a th:href="@{/}"><h1 class="signin">OpenIndoorMap</h1></a>
             <form id="signinForm" th:object="${signinForm}" method="post" action="/sign/process-signin" autocomplete="off">
                 <fieldset>
                     <legend><th:block th:text="#{signin.legend}"></th:block></legend>
