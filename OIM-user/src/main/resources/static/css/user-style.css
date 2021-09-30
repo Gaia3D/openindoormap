@@ -57,14 +57,6 @@ h1 {
 #headerWrap .on {background-color: #0066a2;}
 
 
-
-
-
-
-
-
-
-
 .gnb {
     position: absolute;
     right: 0;
@@ -2847,7 +2839,7 @@ ul.listDefault li.on > ul li > button {
     background-color: #fff;
 }
 .mapCtrl button {
-    width: 40px;
+    width: 50px;
     height: 50px;
     padding: 0;
     border: none;
@@ -2862,9 +2854,11 @@ ul.listDefault li.on > ul li > button {
 }
 .mapCtrl button > span {
     display: inline-block;
-    width: 40px;
+    width: 50px;
     font-size: 10px;
-    padding-top: 27px;
+    padding: 27px 0 0 0;
+    text-align: center;
+    line-height: 14px;
     letter-spacing: -1px;
 }
 .mapCtrl button > span:hover {
@@ -2872,38 +2866,38 @@ ul.listDefault li.on > ul li > button {
 }
 /* /// DEFAULT /// */
 .mapCtrl button.go {
-    background-position: 8px 5px ;
+    background-position: 13px 5px ;
 }
 .mapCtrl button.fs {
-    background-position: -40px 5px ;
+    background-position: -45px 5px ;
 }
 .mapCtrl button.st {
-    background-position: -93px 5px ;
+    background-position: -98px 5px ;
 }
 .mapCtrl button.ge {
-    background-position: -442px 5px ;
+    background-position: -447px 5px ;
 }
 .mapCtrl button.pf {
-    background-position: -490px 5px ;
+    background-position: -495px 5px ;
 }
 .mapCtrl button.li {
-    background-position: -538px 5px ;
+    background-position: -543px 5px ;
 }
 .mapCtrl button.zi {
     width: 40px;
     height: 40px;
-    background-position: -138px 12px ;
+    background-position: -143px 12px ;
 }
 .mapCtrl button.zo {
     width: 40px;
     height: 40px;
-    background-position: -187px 15px ;
+    background-position: -192px 15px ;
 }
 .mapCtrl button.ms {
-    background-position: -243px 8px ;
+    background-position: -248px 8px ;
 }
 .mapCtrl button.ms_di {
-    background-position: -293px 8px ;
+    background-position: -298px 8px ;
 }
 .mapCtrl button.ms_ar {
     background-position: -343px 8px ;
@@ -2912,7 +2906,7 @@ ul.listDefault li.on > ul li > button {
     background-position: -393px 8px ;
 }
 
-/* /// HOVER /// */
+/* /// HOVER /// 
 .mapCtrl button:hover > span {
     color: #0066a2;
 }
@@ -2956,6 +2950,7 @@ ul.listDefault li.on > ul li > button {
 .mapCtrl button.ms_hi:hover {
     background-position: -393px -42px ;
 }
+*/
 
 /* /// ON /// */
 .mapCtrl button.on {
@@ -2965,22 +2960,22 @@ ul.listDefault li.on > ul li > button {
     color: #fff;
 }
 .mapCtrl button.go.on {
-    background-position: 8px 105px ;
+    background-position: 3px 105px ;
 }
 .mapCtrl button.fs.on {
-    background-position: -40px 105px ;
+    background-position: -35px 105px ;
 }
 .mapCtrl button.st.on {
-    background-position: -93px 105px ;
+    background-position: -88px 105px ;
 }
 .mapCtrl button.ge.on {
-    background-position: -442px 105px ;
+    background-position: -438px 105px ;
 }
 .mapCtrl button.pf.on {
-    background-position: -490px 105px ;
+    background-position: -485px 105px ;
 }
 .mapCtrl button.li.on {
-    background-position: -538px 105px ;
+    background-position: -533px 105px ;
 }
 .mapCtrl button.zi.on {
     width: 40px;
