@@ -101,6 +101,12 @@ h1 {
 .gnb li> a.sign {
     background-position: -140px -68px;
 }
+.gnb li> a.term {
+    background-position: -140px -140px;
+}
+.gnb li> a.unregister {
+    background-position: -220px -140px;
+}
 /*
 .gnb li > button {
 margin-top: -5px;
@@ -2437,7 +2443,7 @@ button.mode.on:hover {
 }
 .districtBtn {
     padding: 10px;
-    text-align: right;
+    text-align: center;
     background-color: #eee;
 }
 .districtBtn > button:first-child {
@@ -3047,7 +3053,8 @@ user-select: none; /* Standard syntax */
     overflow-x: hidden;
     /*transition: 0.5s;*/
     margin-top: 50px;
-    padding-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 .sideNav > div.userPolicyContent {
     margin: 10px;
