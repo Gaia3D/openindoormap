@@ -2855,7 +2855,7 @@ ul.listDefault li.on > ul li > button {
     padding: 25px 0 0 0;
     text-align: center;
     line-height: 9px;
-    letter-spacing: -1px;
+    /* letter-spacing: -1px; */
     word-break: break-word;
 }
 .mapCtrl button > span:hover {
