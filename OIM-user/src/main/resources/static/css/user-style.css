@@ -2852,10 +2852,11 @@ ul.listDefault li.on > ul li > button {
     display: inline-block;
     width: 40px;
     font-size: 10px;
-    padding: 27px 0 0 0;
+    padding: 25px 0 0 0;
     text-align: center;
-    line-height: 12px;
+    line-height: 9px;
     letter-spacing: -1px;
+    word-break: break-word;
 }
 .mapCtrl button > span:hover {
     color: #0066a2;
@@ -2959,19 +2960,19 @@ ul.listDefault li.on > ul li > button {
     background-position: 3px 105px ;
 }
 .mapCtrl button.fs.on {
-    background-position: -35px 105px ;
+    background-position: -40px 105px ;
 }
 .mapCtrl button.st.on {
-    background-position: -88px 105px ;
+    background-position: -93px 105px ;
 }
 .mapCtrl button.ge.on {
-    background-position: -438px 105px ;
+    background-position: -442px 105px ;
 }
 .mapCtrl button.pf.on {
-    background-position: -485px 105px ;
+    background-position: -490px 105px ;
 }
 .mapCtrl button.li.on {
-    background-position: -533px 105px ;
+    background-position: -538px 105px ;
 }
 .mapCtrl button.zi.on {
     width: 40px;
