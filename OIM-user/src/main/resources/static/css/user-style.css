@@ -1101,7 +1101,7 @@ width:900px;
 #saRange{
 width:1000px;
 }
-/* scroll style 
+/* scroll style
 ::-webkit-scrollbar {
 width: 5px;
 height: 5px;
@@ -2902,7 +2902,7 @@ ul.listDefault li.on > ul li > button {
     background-position: -393px 8px ;
 }
 
-/* /// HOVER /// 
+/* /// HOVER ///
 .mapCtrl button:hover > span {
     color: #0066a2;
 }
@@ -3057,13 +3057,12 @@ user-select: none; /* Standard syntax */
 
 /* ////////// TAB SETUP ////////// */
 .sideNav {
-    /* overflow-y: auto;
-    height: calc( 100% - 50px ); */
-    width: 0;
+    height: calc( 100% - 50px );
+    width: 340px;
     position: fixed;
     z-index: 1000;
     top: 0;
-    right: 0;
+    right: -340px;
     background-color: #fff;
     overflow-x: hidden;
     /*transition: 0.5s;*/
