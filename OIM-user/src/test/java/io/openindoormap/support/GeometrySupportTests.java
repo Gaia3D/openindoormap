@@ -33,11 +33,9 @@ class GeometrySupportTests {
                 new GeometryInfo(128.21212,32.1212),
                 new GeometryInfo(2121.212,123.13131),
                 new GeometryInfo(12.3133,313.44432));
-
         log.info("point ============= {} ", GeometrySupport.toWKT(point));
         log.info("line ==============={} ", GeometrySupport.toWKT(line));
         log.info("polygon ============== {} ", GeometrySupport.toWKT(polygon));
-
         assertTrue(GeometrySupport.toWKT(point).startsWith("POINT"));
         assertTrue(GeometrySupport.toWKT(line).startsWith("LINE"));
         assertTrue(GeometrySupport.toWKT(polygon).startsWith("POLYGON"));
