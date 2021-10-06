@@ -1,16 +1,15 @@
 package io.openindoormap.support;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-
-import io.openindoormap.domain.common.GeometryInfo;
-import io.openindoormap.support.GeometrySupport;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import io.openindoormap.domain.common.GeometryInfo;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class GeometrySupportTests {
