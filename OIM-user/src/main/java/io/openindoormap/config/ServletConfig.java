@@ -1,7 +1,6 @@
 package io.openindoormap.config;
 
 import java.util.Collections;
-import java.util.Locale;
 
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
@@ -110,7 +109,6 @@ public class ServletConfig implements WebMvcConfigurer {
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver resolver = new SessionLocaleResolver();
-        resolver.setDefaultLocale(Locale.KOREA);
         return resolver;
     }
 
