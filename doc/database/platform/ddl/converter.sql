@@ -4,27 +4,27 @@ drop table if exists converter_job_file cascade;
 
 -- 파일 변환 job
 create table converter_job(
-	converter_job_id				bigint,
-	upload_data_id					bigint,
-	data_group_target				varchar(5)							default 'user',
-	user_id							varchar(32),
-	title							varchar(256)						not null,
-	converter_template				varchar(30)							default 'basic',
-	usf								numeric(13,5),
-	y_axis_up						char(1)								default 'N',
-	file_count						integer								default 0,
-	status							varchar(20)							default 'ready',
-	error_code						varchar(4000),
-	year							char(4)								default to_char(now(), 'yyyy'),
-	month							varchar(2)							default to_char(now(), 'MM'),
-	day								varchar(2)							default to_char(now(), 'DD'),
-	year_week						varchar(2)							default to_char(now(), 'WW'),
-	week							varchar(2)							default to_char(now(), 'W'),
-	hour							varchar(2)							default to_char(now(), 'HH24'),
-	minute							varchar(2)							default to_char(now(), 'MI'),
-	update_date						timestamp with time zone,
-	insert_date						timestamp with time zone			default now(),
-	constraint converter_job_pk 	primary key (converter_job_id)	
+    converter_job_id				bigint,
+    upload_data_id					bigint,
+    data_group_target				varchar(5)							default 'user',
+    user_id							varchar(32),
+    title							varchar(256)						not null,
+    converter_template				varchar(30)							default 'basic',
+    usf								numeric(13,5),
+    y_axis_up						char(1)								default 'N',
+    file_count						integer								default 0,
+    status							varchar(20)							default 'ready',
+    error_code						varchar(4000),
+    year							char(4)								default to_char(now(), 'yyyy'),
+    month							varchar(2)							default to_char(now(), 'MM'),
+    day								varchar(2)							default to_char(now(), 'DD'),
+    year_week						varchar(2)							default to_char(now(), 'WW'),
+    week							varchar(2)							default to_char(now(), 'W'),
+    hour							varchar(2)							default to_char(now(), 'HH24'),
+    minute							varchar(2)							default to_char(now(), 'MI'),
+    update_date						timestamp with time zone,
+    insert_date						timestamp with time zone			default now(),
+    constraint converter_job_pk 	primary key (converter_job_id)
 );
 
 comment on table converter_job is '파일 변환 job';
@@ -52,23 +52,23 @@ comment on column converter_job.insert_date is '등록일';
 
 -- 사용자 f4d 변환 이력. Job과 파일의 관계를 1 : N 으로 설계 했으나 지금은 Converter가 1 : 1 만 지원해서 필요 없는 테이블
 create table converter_job_file(
-	converter_job_file_id				bigint,
-	converter_job_id					bigint,
-	upload_data_id						bigint,
-	upload_data_file_id					bigint,
-	data_group_id						int,
-	user_id								varchar(32),
-	status								varchar(20)							default 'ready',
-	error_code							varchar(4000),
-	year								char(4)								default to_char(now(), 'yyyy'),
-	month								varchar(2)							default to_char(now(), 'MM'),
-	day									varchar(2)							default to_char(now(), 'DD'),
-	year_week							varchar(2)							default to_char(now(), 'WW'),
-	week								varchar(2)							default to_char(now(), 'W'),
-	hour								varchar(2)							default to_char(now(), 'HH24'),
-	minute								varchar(2)							default to_char(now(), 'MI'),
-	insert_date							timestamp with time zone			default now(),
-	constraint converter_job_file_pk 	primary key (converter_job_file_id)	
+    converter_job_file_id				bigint,
+    converter_job_id					bigint,
+    upload_data_id						bigint,
+    upload_data_file_id					bigint,
+    data_group_id						int,
+    user_id								varchar(32),
+    status								varchar(20)							default 'ready',
+    error_code							text,
+    year								char(4)								default to_char(now(), 'yyyy'),
+    month								varchar(2)							default to_char(now(), 'MM'),
+    day									varchar(2)							default to_char(now(), 'DD'),
+    year_week							varchar(2)							default to_char(now(), 'WW'),
+    week								varchar(2)							default to_char(now(), 'W'),
+    hour								varchar(2)							default to_char(now(), 'HH24'),
+    minute								varchar(2)							default to_char(now(), 'MI'),
+    insert_date							timestamp with time zone			default now(),
+    constraint converter_job_file_pk 	primary key (converter_job_file_id)
 );
 
 comment on table converter_job_file is '변환 대상 파일 정보';
